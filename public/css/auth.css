@@ -1,0 +1,12 @@
+/* Login page styles */
+body {
+    font-family: 'Figtree', sans-serif;
+    background-color: #1E293B; /* Same dark blue as splash screen */
+}
+
+/* For light mode */
+@media (prefers-color-scheme: light) {
+    body {
+        background-color: #F1F5F9; /* Same light background as splash screen */
+    }
+}

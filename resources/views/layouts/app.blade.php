@@ -16,6 +16,20 @@
 
         <!-- Styles -->
         @livewireStyles
+        
+        <!-- Custom styles -->
+        <style>
+            body, .min-h-screen {
+                background-color: #0062ff !important;
+                color: white;
+            }
+            @media (prefers-color-scheme: light) {
+                body, .min-h-screen {
+                    background-color: #F1F5F9 !important;
+                    color: #1E293B;
+                }
+            }
+        </style>
     </head>
     <body class="font-sans antialiased">
         <x-banner />

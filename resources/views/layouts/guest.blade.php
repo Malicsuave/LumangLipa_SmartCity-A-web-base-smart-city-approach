@@ -16,6 +16,20 @@
 
         <!-- Styles -->
         @livewireStyles
+        
+        <!-- Custom styles -->
+        <style>
+            body {
+                background-color: #1E293B !important;
+                color: white;
+            }
+            @media (prefers-color-scheme: light) {
+                body {
+                    background-color: #F1F5F9 !important;
+                    color: #1E293B;
+                }
+            }
+        </style>
     </head>
     <body>
         <div class="font-sans text-gray-900 antialiased">

@@ -39,12 +39,12 @@
                 </div>
 
                 <div class="mt-4 p-2 inline-block bg-white">
-                    {!! $this->user->twoFactorQrCodeSvg() !!}
+                    {!! $user->twoFactorQrCodeSvg() !!}
                 </div>
 
                 <div class="mt-4 max-w-xl text-sm text-gray-600">
                     <p class="font-semibold">
-                        {{ __('Setup Key') }}: {{ decrypt($this->user->two_factor_secret) }}
+                        {{ __('Setup Key') }}: {{ decrypt(auth()->user()->two_factor_secret) }}
                     </p>
                 </div>
 
