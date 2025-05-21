@@ -25,6 +25,8 @@
     <!-- App CSS -->
     <link rel="stylesheet" href="{{ asset('admin/dark/css/app-light.css') }}" id="lightTheme" disabled>
     <link rel="stylesheet" href="{{ asset('admin/dark/css/app-dark.css') }}" id="darkTheme">
+    <!-- Custom Admin CSS -->
+    <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
 
     @stack('styles')
   </head>
@@ -69,8 +71,8 @@
             <a class="navbar-brand mx-auto mt-2 flex-fill text-center" href="{{ route('admin.dashboard') }}">
               <img src="{{ asset('images/logo.png') }}" alt="Lumanglipa Logo" class="navbar-brand-img brand-md mb-2">
             </a>
-            <!-- Added text below the logo -->
-            <div class="text-center mb-3">
+            <!-- Modified text div with collapse-hide class -->
+            <div class="text-center mb-3 collapse-hide">
               <h6 class="text-uppercase font-weight-bold">LumangLipa Admin Page</h6>
             </div>
           </div>
@@ -184,6 +186,8 @@
     <script src="{{ asset('admin/dark/js/tinycolor-min.js') }}"></script>
     <script src="{{ asset('admin/dark/js/config.js') }}"></script>
     <script src="{{ asset('admin/dark/js/apps.js') }}"></script>
+    <!-- Custom Admin JS -->
+    <script src="{{ asset('js/admin-custom.js') }}"></script>
 
     @stack('scripts')
   </body>

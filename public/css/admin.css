@@ -1,0 +1,88 @@
+/* Admin-specific styles */
+
+/* Hide content when sidebar is collapsed */
+.sidebar-collapsed .collapse-hide {
+  display: none;
+}
+
+/* Adjust spacing when sidebar is collapsed */
+.sidebar-collapsed .navbar-brand {
+  margin-bottom: 1rem;
+}
+
+/* Logo container styling */
+.logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.logo-container .navbar-brand {
+  margin-right: 0;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.logo-container img.navbar-brand-img {
+  max-height: 60px;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Improved collapsed sidebar logo positioning */
+.sidebar-collapsed .logo-container,
+body.collapsed-menu .logo-container {
+  padding: 0.5rem 0;
+}
+
+.sidebar-collapsed .logo-container .navbar-brand,
+body.collapsed-menu .logo-container .navbar-brand {
+  margin: 0 auto;
+  padding: 0;
+  justify-content: center;
+}
+
+.sidebar-collapsed .logo-container img.navbar-brand-img,
+body.collapsed-menu .logo-container img.navbar-brand-img {
+  max-height: 40px;
+  margin: 0 auto;
+}
+
+/* Targeted fix for collapsed sidebar specifically */
+body.collapsed-menu .sidebar-left,
+body.collapsed-menu aside.sidebar-left {
+  width: 60px !important;
+}
+
+body.collapsed-menu .logo-container {
+  padding: 0;
+  margin: 0;
+  width: 60px;
+}
+
+body.collapsed-menu .navbar-brand {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+body.collapsed-menu .navbar-brand img {
+  max-width: 50px;
+  max-height: 50px;
+  margin: 0.5rem auto;
+  display: block;
+}
+
+/* Fix for vertical alignment in collapsed menu */
+body.collapsed-menu .vertnav.navbar {
+  padding: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .collapse-hide {
+    font-size: 0.9rem;
+  }
+}

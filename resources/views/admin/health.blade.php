@@ -17,9 +17,8 @@
                 <p class="mb-4">This is the health services management module for Barangay Captain and Health Workers.</p>
                 
                 <!-- This is a placeholder for actual health services functionality -->
-                <div class="alert alert-info">
-                    The health services functionality will be implemented here.
-                </div>
+                
+                
                 
                 <div class="row mb-4">
                     <div class="col-md-4">
