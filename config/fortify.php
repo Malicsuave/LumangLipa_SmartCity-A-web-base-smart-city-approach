@@ -3,7 +3,6 @@
 use Laravel\Fortify\Features;
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Fortify Guard
@@ -73,7 +72,14 @@ return [
     |
     */
 
-    'home' => '/dashboard',
+    'home' => function () {
+        if (session()->has('url.intended')) {
+            $intended = session('url.intended');
+            session()->forget('url.intended');
+            return $intended;
+        }
+        return '/dashboard';
+    },
 
     /*
     |--------------------------------------------------------------------------

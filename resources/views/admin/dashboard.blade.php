@@ -4,7 +4,7 @@
 <div class="row">
     <!-- Welcome Widget -->
     <div class="col-md-12 mb-4">
-        <div class="card shadow">
+        <div class="card shadow welcome-widget">
             <div class="card-body">
                 <h5 class="card-title">Welcome to your Admin Dashboard</h5>
                 <p class="card-text">You are logged in as <strong>{{ Auth::user()->role->name }}</strong>.</p>
@@ -14,7 +14,7 @@
 
     <!-- Quick Stats -->
     <div class="col-md-3 mb-4">
-        <div class="card shadow">
+        <div class="card shadow health-metric-card">
             <div class="card-body">
                 <div class="row align-items-center">
                     <div class="col-3 text-center">
@@ -32,7 +32,7 @@
     </div>
 
     <div class="col-md-3 mb-4">
-        <div class="card shadow">
+        <div class="card shadow health-metric-card">
             <div class="card-body">
                 <div class="row align-items-center">
                     <div class="col-3 text-center">
@@ -50,7 +50,7 @@
     </div>
 
     <div class="col-md-3 mb-4">
-        <div class="card shadow">
+        <div class="card shadow health-metric-card">
             <div class="card-body">
                 <div class="row align-items-center">
                     <div class="col-3 text-center">
@@ -68,7 +68,7 @@
     </div>
 
     <div class="col-md-3 mb-4">
-        <div class="card shadow">
+        <div class="card shadow health-metric-card">
             <div class="card-body">
                 <div class="row align-items-center">
                     <div class="col-3 text-center">

@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="{{ asset('admin/dark/css/simplebar.css') }}">
     <!-- Fonts CSS -->
     <link href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,100;0,200;0,300;0,400;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!-- Icons CSS -->
     <link rel="stylesheet" href="{{ asset('admin/dark/css/feather.css') }}">
     <link rel="stylesheet" href="{{ asset('admin/dark/css/select2.css') }}">
@@ -25,6 +27,24 @@
     <!-- App CSS -->
     <link rel="stylesheet" href="{{ asset('admin/dark/css/app-light.css') }}" id="lightTheme" disabled>
     <link rel="stylesheet" href="{{ asset('admin/dark/css/app-dark.css') }}" id="darkTheme">
+    <!-- Search icon CSS - works in both themes -->
+    <link rel="stylesheet" href="{{ asset('css/search-icon.css') }}">
+    <!-- UI Enhancements CSS - works in both themes -->
+    <link rel="stylesheet" href="{{ asset('css/ui-enhancements.css') }}">
+    <!-- Complaint metrics CSS - specifically for complaint cards -->
+    <link rel="stylesheet" href="{{ asset('css/complaint-metrics.css') }}">
+    <!-- Health metrics CSS - specifically for health service cards -->
+    <link rel="stylesheet" href="{{ asset('css/health-metrics.css') }}">
+    <!-- Complaint table styling - for improved table appearance -->
+    <link rel="stylesheet" href="{{ asset('css/complaint-table.css') }}">
+    <!-- Metric cards fix - overrides other styles -->
+    <link rel="stylesheet" href="{{ asset('css/metric-cards-fix.css') }}">
+    <!-- Hover card effects - prevents loss of styling on hover -->
+    <link rel="stylesheet" href="{{ asset('css/hover-card.css') }}">
+    <!-- Light mode cards - forces proper background color in light mode -->
+    <link rel="stylesheet" href="{{ asset('css/light-mode-cards.css') }}">
+    <!-- Custom CSS for enhanced theme -->
+    <link rel="stylesheet" href="{{ asset('css/custom-theme.css') }}" id="customTheme">
     <!-- Custom Admin CSS -->
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
 
@@ -188,6 +208,10 @@
     <script src="{{ asset('admin/dark/js/apps.js') }}"></script>
     <!-- Custom Admin JS -->
     <script src="{{ asset('js/admin-custom.js') }}"></script>
+    <!-- Custom Theme JS -->
+    <script src="{{ asset('js/custom-theme.js') }}"></script>
+    <!-- Theme enhancer for metric cards -->
+    <script src="{{ asset('js/theme-enhancer.js') }}"></script>
 
     @stack('scripts')
   </body>

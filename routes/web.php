@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TwoFactorAuthenticationController;
+use App\Http\Controllers\AdminTwoFactorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,6 +18,16 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+// Define a completely separate admin 2FA route
+Route::post('/admin/two-factor-enable', [AdminTwoFactorController::class, 'enable'])
+    ->middleware(['web', 'auth', 'role:Barangay Captain,Barangay Secretary'])
+    ->name('admin.two-factor.enable');
+
+// Keep the original routes as they are
+Route::post('/user/two-factor-authentication', [TwoFactorAuthenticationController::class, 'store'])
+    ->middleware(['web', 'auth'])
+    ->name('two-factor.enable');
 
 Route::middleware([
     'auth:sanctum',

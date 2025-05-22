@@ -17,9 +17,7 @@
                 <p class="mb-4">This is the document requests management module for Barangay Captain and Secretary.</p>
                 
                 <!-- This is a placeholder for actual document request functionality -->
-                <div class="alert alert-info">
-                    The document requests functionality will be implemented here.
-                </div>
+               
                 
                 <table class="table table-borderless table-striped">
                     <thead>
