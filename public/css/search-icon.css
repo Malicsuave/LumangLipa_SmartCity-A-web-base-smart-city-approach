@@ -28,7 +28,7 @@ body.dark .searchform::before {
 
 /* Light mode color for the icon */
 body:not(.dark) .searchform::before {
-  color: #6c757d !important;
+  color: #adb5bd !important;
 }
 
 /* Adjust the input padding to make room for the icon */
@@ -50,7 +50,7 @@ body.dark .searchform input.form-control:hover {
 
 /* Add focus effect to search input in dark mode */
 body.dark .searchform input.form-control:focus {
-  border-color: #0d6efd !important;
+  border-color: #e0e4eb !important;
   box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25) !important;
   outline: 0 !important;
 }

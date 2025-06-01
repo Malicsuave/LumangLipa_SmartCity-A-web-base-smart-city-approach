@@ -69,7 +69,7 @@
                 
                 <div class="row">
                     <div class="col-md-4">
-                        <div class="card mb-4 shadow">
+                        <div class="card health-metric-card mb-4">
                             <div class="card-body">
                                 <div class="row align-items-center">
                                     <div class="col-3 text-center">
@@ -86,7 +86,7 @@
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="card mb-4 shadow">
+                        <div class="card health-metric-card mb-4">
                             <div class="card-body">
                                 <div class="row align-items-center">
                                     <div class="col-3 text-center">
@@ -103,7 +103,7 @@
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="card mb-4 shadow">
+                        <div class="card health-metric-card mb-4">
                             <div class="card-body">
                                 <div class="row align-items-center">
                                     <div class="col-3 text-center">

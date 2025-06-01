@@ -87,7 +87,7 @@
                                     <th>Service</th>
                                     <th>Date</th>
                                     <th>Status</th>
-                                    <th>Actions</th>
+                                    <th class="text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -96,21 +96,76 @@
                                     <td>Blood Pressure Check</td>
                                     <td>May 5, 2025</td>
                                     <td><span class="badge badge-success">Completed</span></td>
-                                    <td><button class="btn btn-sm btn-primary">View Details</button></td>
+                                    <td class="text-center">
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-icon" type="button" id="dropdownMenuButton-health1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <i class="fe fe-more-vertical fe-16"></i>
+                                            </button>
+                                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton-health1">
+                                                <a class="dropdown-item" href="#">
+                                                    <i class="fe fe-eye fe-16 mr-2 text-primary"></i>View Details
+                                                </a>
+                                                <a class="dropdown-item" href="#">
+                                                    <i class="fe fe-file-text fe-16 mr-2 text-secondary"></i>Medical Record
+                                                </a>
+                                                <a class="dropdown-item" href="#">
+                                                    <i class="fe fe-calendar fe-16 mr-2 text-info"></i>Schedule Follow-up
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td>Maria Santos</td>
                                     <td>Vaccination - COVID-19</td>
                                     <td>May 4, 2025</td>
                                     <td><span class="badge badge-success">Completed</span></td>
-                                    <td><button class="btn btn-sm btn-primary">View Details</button></td>
+                                    <td class="text-center">
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-icon" type="button" id="dropdownMenuButton-health2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <i class="fe fe-more-vertical fe-16"></i>
+                                            </button>
+                                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton-health2">
+                                                <a class="dropdown-item" href="#">
+                                                    <i class="fe fe-eye fe-16 mr-2 text-primary"></i>View Details
+                                                </a>
+                                                <a class="dropdown-item" href="#">
+                                                    <i class="fe fe-file-text fe-16 mr-2 text-secondary"></i>Medical Record
+                                                </a>
+                                                <a class="dropdown-item" href="#">
+                                                    <i class="fe fe-printer fe-16 mr-2 text-info"></i>Print Certificate
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td>Pedro Reyes</td>
                                     <td>Medical Consultation</td>
                                     <td>May 3, 2025</td>
                                     <td><span class="badge badge-warning">Pending</span></td>
-                                    <td><button class="btn btn-sm btn-primary">View Details</button></td>
+                                    <td class="text-center">
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-icon" type="button" id="dropdownMenuButton-health3" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <i class="fe fe-more-vertical fe-16"></i>
+                                            </button>
+                                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton-health3">
+                                                <a class="dropdown-item" href="#">
+                                                    <i class="fe fe-eye fe-16 mr-2 text-primary"></i>View Details
+                                                </a>
+                                                <a class="dropdown-item" href="#">
+                                                    <i class="fe fe-check-circle fe-16 mr-2 text-success"></i>Complete
+                                                </a>
+                                                <a class="dropdown-item" href="#">
+                                                    <i class="fe fe-message-circle fe-16 mr-2 text-info"></i>Send Reminder
+                                                </a>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item text-danger" href="#">
+                                                    <i class="fe fe-x-circle fe-16 mr-2"></i>Cancel
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>

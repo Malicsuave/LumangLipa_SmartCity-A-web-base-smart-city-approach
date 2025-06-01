@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TwoFactorAuthenticationController;
 use App\Http\Controllers\AdminTwoFactorController;
+use App\Http\Controllers\PublicController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,9 +16,11 @@ use App\Http\Controllers\AdminTwoFactorController;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Public routes
+Route::get('/', [PublicController::class, 'home'])->name('public.home');
+Route::get('/about', [PublicController::class, 'about'])->name('public.about');
+Route::get('/services', [PublicController::class, 'services'])->name('public.services');
+Route::get('/contact', [PublicController::class, 'contact'])->name('public.contact');
 
 // Define a completely separate admin 2FA route
 Route::post('/admin/two-factor-enable', [AdminTwoFactorController::class, 'enable'])
@@ -46,6 +49,9 @@ Route::middleware([
         Route::get('/admin/documents', function () {
             return view('admin.documents');
         })->name('admin.documents');
+        Route::get('/admin/residents', function () {
+            return view('admin.residents');
+        })->name('admin.residents');
         Route::get('/admin/profile', function () {
             return view('admin.profile');
         })->name('admin.profile');

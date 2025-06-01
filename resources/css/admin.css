@@ -1,0 +1,20 @@
+/* Admin CSS bundle */
+
+/* Import theme CSS */
+@import '../../public/admin/dark/css/simplebar.css';
+@import '../../public/admin/dark/css/feather.css';
+@import '../../public/admin/dark/css/select2.css';
+@import '../../public/admin/dark/css/dropzone.css';
+@import '../../public/admin/dark/css/uppy.min.css';
+@import '../../public/admin/dark/css/jquery.steps.css';
+@import '../../public/admin/dark/css/jquery.timepicker.css';
+@import '../../public/admin/dark/css/quill.snow.css';
+@import '../../public/admin/dark/css/daterangepicker.css';
+@import '../../public/admin/dark/css/app-dark.css';
+@import '../../public/admin/dark/css/app-light.css';
+
+/* Import custom CSS (only existing files) */
+@import '../public/css/search-icon.css';
+@import '../public/css/health-metrics.css';
+@import '../public/css/complaint-table.css';
+@import '../public/css/admin.css';

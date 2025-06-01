@@ -1,0 +1,247 @@
+/* 
+ * Barangay Lumanglipa Public Site Stylesheet
+ * Custom styles for the public-facing portion of the site
+ * Styled with blue color scheme
+ */
+
+:root {
+  --primary: #0d6efd;
+  --primary-dark: #0b5ed7;
+  --secondary: #6c757d;
+  --success: #198754;
+  --warning: #ffc107;
+  --danger: #dc3545;
+  --info: #0dcaf0;
+  --light: #f8f9fa;
+  --dark: #212529;
+  --blue: #0d6efd;
+  --blue-dark: #0b5ed7;
+}
+
+/* General styles */
+body {
+  font-family: 'Roboto', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  color: #333;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  text-decoration: none;
+}
+
+/* Blue header */
+.blue-header {
+  background-color: #0d6efd;
+  color: white;
+  padding: 15px 0;
+  border-top: 1px solid rgba(255,255,255,0.2);
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+.republic-text {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.barangay-title {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.logo-small {
+  height: 50px;
+  width: auto;
+}
+
+.time-display {
+  font-size: 14px;
+  text-align: right;
+}
+
+.current-time {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+/* Hero section styling - with gradient background */
+.hero-section {
+  min-height: 80vh;
+  background: linear-gradient(135deg, #82ccdd, #60a3bc, #3498db, #6c5ce7);
+  display: flex;
+  align-items: center;
+  color: white;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* Angled bottom for hero section */
+.hero-section:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100px;
+  background-color: white;
+  transform: skewY(-2deg);
+  transform-origin: right;
+  z-index: 1;
+}
+
+/* Content positioned above the angled edge */
+.hero-section .container {
+  position: relative;
+  z-index: 2;
+}
+
+/* Icon sizes for feature cards */
+.fe-48 {
+  font-size: 48px;
+}
+
+.fe-32 {
+  font-size: 32px;
+}
+
+.fe-24 {
+  font-size: 24px;
+}
+
+/* Card enhancements */
+.card {
+  transition: all 0.3s ease;
+  border: none;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Navbar customization */
+.navbar {
+  padding: 0;
+  box-shadow: none;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.navbar .container {
+  padding: 0;
+}
+
+.navbar-brand {
+  font-weight: 700;
+  padding: 15px 0;
+}
+
+.navbar-light .navbar-nav .nav-link {
+  color: rgba(0, 0, 0, 0.7);
+  font-weight: 500;
+  padding: 20px 15px;
+  position: relative;
+}
+
+.navbar-light .navbar-nav .nav-link:hover,
+.navbar-light .navbar-nav .nav-link.active {
+  color: var(--blue);
+}
+
+.navbar-light .navbar-nav .nav-link.active:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: var(--blue);
+}
+
+/* Button styles */
+.btn {
+  padding: 0.5rem 1.5rem;
+  border-radius: 0.25rem;
+}
+
+.btn-primary {
+  background-color: var(--blue);
+  border-color: var(--blue);
+}
+
+.btn-primary:hover {
+  background-color: var(--blue-dark);
+  border-color: var(--blue-dark);
+}
+
+.btn-outline-primary {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--blue);
+  color: white;
+}
+
+/* Footer customization */
+footer a:hover {
+  color: white !important;
+  text-decoration: none;
+}
+
+/* Contact page */
+.avatar-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .hero-section {
+    text-align: center;
+    padding: 3rem 0;
+    min-height: auto;
+  }
+  
+  .hero-section .row {
+    flex-direction: column-reverse;
+  }
+  
+  .hero-section img {
+    margin-bottom: 2rem;
+  }
+  
+  .blue-header {
+    text-align: center;
+  }
+  
+  .time-display {
+    text-align: center;
+    margin-top: 15px;
+  }
+}
+
+/* Custom animations */
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -16,13 +16,18 @@
 
 /* Icon circles with vibrant colors */
 .dark .health-metric-card .circle.bg-primary {
-    background-color: #3B82F6 !important;
+    background-color: #3bf689 !important;
     box-shadow: 0 0 0 5px rgba(59, 130, 246, 0.2) !important;
 }
 
 .dark .health-metric-card .circle.bg-warning {
     background-color: #F59E0B !important;
     box-shadow: 0 0 0 5px rgba(245, 158, 11, 0.2) !important;
+}
+
+.dark .health-metric-card .circle.bg-danger {
+    background-color: #EF4444 !important;
+    box-shadow: 0 0 0 5px rgba(239, 68, 68, 0.2) !important;
 }
 
 .dark .health-metric-card .circle.bg-success {
@@ -64,13 +69,14 @@ body:not(.dark) .health-metric-card .circle.bg-warning {
     box-shadow: 0 0 0 5px rgba(245, 158, 11, 0.1) !important;
 }
 
+body:not(.dark) .health-metric-card .circle.bg-danger {
+    background-color: #EF4444 !important;
+    box-shadow: 0 0 0 5px rgba(239, 68, 68, 0.1) !important;
+}
+
 body:not(.dark) .health-metric-card .circle.bg-success {
     background-color: #10B981 !important;
     box-shadow: 0 0 0 5px rgba(16, 185, 129, 0.1) !important;
-}
-
-body:not(.dark) .health-metric-card .h3 {
-    color: #1F2937 !important;
 }
 
 /* Special styling for circle icon containers */

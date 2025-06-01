@@ -96,3 +96,4 @@ body:not(.dark) .table-borderless.table-striped thead th {
 body:not(.dark) .table-borderless.table-striped tbody tr:nth-of-type(odd) {
     background-color: rgba(249, 250, 251, 0.8) !important;
 }
+

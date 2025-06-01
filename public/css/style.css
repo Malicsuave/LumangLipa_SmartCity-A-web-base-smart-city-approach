@@ -1,0 +1,64 @@
+/* SIDEBAR TRANSITION IMPROVEMENTS */
+.sidebar-left {
+  transition: width 0.3s ease, min-width 0.3s ease;
+}
+
+/* Smooth transitions for text elements in sidebar */
+.sidebar-left .navbar-nav > .nav-item > a > span,
+.sidebar-left .navbar-nav > .nav-item > a.dropdown-toggle::after,
+.sidebar-left .nav-heading,
+.sidebar-left .btn-box,
+.sidebar-left .text,
+.sidebar-left .nav-text {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* Hide text elements when sidebar is collapsed with transition */
+.sidebar-collapsed .sidebar-left span,
+.sidebar-collapsed .sidebar-left .nav-heading,
+.sidebar-collapsed .sidebar-left .nav-text,
+.sidebar-collapsed .sidebar-left p,
+body.collapsed-menu .sidebar-left span,
+body.collapsed-menu .sidebar-left .nav-heading,
+body.collapsed-menu .sidebar-left .nav-text,
+body.collapsed-menu .sidebar-left p {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+/* Show text elements on hover when sidebar is collapsed */
+body.vertical.collapsed .sidebar-left:hover .navbar-nav > .nav-item > a > span,
+body.vertical.collapsed .sidebar-left:hover .navbar-nav > .nav-item > a.dropdown-toggle::after,
+body.vertical.collapsed .sidebar-left:hover .nav-heading,
+body.vertical.collapsed .sidebar-left:hover .btn-box,
+body.vertical.collapsed .sidebar-left:hover .text,
+body.vertical.collapsed .sidebar-left:hover p,
+body.vertical.narrow .sidebar-left:hover .navbar-nav > .nav-item > a > span,
+body.vertical.narrow .sidebar-left:hover .navbar-nav > .nav-item > a.dropdown-toggle::after, 
+body.vertical.narrow .sidebar-left:hover .nav-heading,
+body.vertical.narrow .sidebar-left:hover .btn-box,
+body.vertical.narrow .sidebar-left:hover .text,
+body.vertical.narrow .sidebar-left:hover p,
+body.vertical.hover .sidebar-left:hover .navbar-nav > .nav-item > a > span,
+body.vertical.hover .sidebar-left:hover .navbar-nav > .nav-item > a.dropdown-toggle::after,
+body.vertical.hover .sidebar-left:hover .nav-heading,
+body.vertical.hover .sidebar-left:hover .btn-box,
+body.vertical.hover .sidebar-left:hover .text,
+body.vertical.hover .sidebar-left:hover p,
+.sidebar-collapsed .sidebar-left:hover span,
+.sidebar-collapsed .sidebar-left:hover .nav-heading,
+.sidebar-collapsed .sidebar-left:hover .nav-text,
+.sidebar-collapsed .sidebar-left:hover p {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s ease, visibility 0 ease;
+  display: inline-block;
+}
+
+/* Ensure main content transitions smoothly as well */
+.main-content {
+  transition: margin-left 0.3s ease;
+}

@@ -25,7 +25,7 @@
                                 <div class="row align-items-center">
                                     <div class="col-3 text-center">
                                         <span class="circle circle-sm bg-danger">
-                                            <i class="fe fe-alert-octagon text-white"></i>
+                                            <i class="fe fe-alert-circle text-white"></i>
                                         </span>
                                     </div>
                                     <div class="col">
@@ -86,7 +86,7 @@
                                     <th>Subject</th>
                                     <th>Date Filed</th>
                                     <th>Status</th>
-                                    <th>Actions</th>
+                                    <th class="text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -96,9 +96,27 @@
                                     <td>Noise Complaint</td>
                                     <td>May 5, 2025</td>
                                     <td><span class="badge badge-danger">Open</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-primary">View</button>
-                                        <button class="btn btn-sm btn-warning">Process</button>
+                                    <td class="text-center">
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-icon" type="button" id="dropdownMenuButton-comp1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <i class="fe fe-more-vertical fe-16"></i>
+                                            </button>
+                                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton-comp1">
+                                                <a class="dropdown-item" href="#">
+                                                    <i class="fe fe-eye fe-16 mr-2 text-primary"></i>View Details
+                                                </a>
+                                                <a class="dropdown-item" href="#">
+                                                    <i class="fe fe-clock fe-16 mr-2 text-warning"></i>Process
+                                                </a>
+                                                <a class="dropdown-item" href="#">
+                                                    <i class="fe fe-users fe-16 mr-2 text-info"></i>Schedule Meeting
+                                                </a>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item text-danger" href="#">
+                                                    <i class="fe fe-x-circle fe-16 mr-2"></i>Dismiss
+                                                </a>
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                                 <tr>
@@ -107,9 +125,23 @@
                                     <td>Illegal Construction</td>
                                     <td>May 3, 2025</td>
                                     <td><span class="badge badge-warning">In Progress</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-primary">View</button>
-                                        <button class="btn btn-sm btn-success">Resolve</button>
+                                    <td class="text-center">
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-icon" type="button" id="dropdownMenuButton-comp2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <i class="fe fe-more-vertical fe-16"></i>
+                                            </button>
+                                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton-comp2">
+                                                <a class="dropdown-item" href="#">
+                                                    <i class="fe fe-eye fe-16 mr-2 text-primary"></i>View Details
+                                                </a>
+                                                <a class="dropdown-item" href="#">
+                                                    <i class="fe fe-check-circle fe-16 mr-2 text-success"></i>Resolve
+                                                </a>
+                                                <a class="dropdown-item" href="#">
+                                                    <i class="fe fe-file-text fe-16 mr-2 text-secondary"></i>Add Note
+                                                </a>
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                                 <tr>
@@ -118,8 +150,23 @@
                                     <td>Water Supply Issue</td>
                                     <td>May 1, 2025</td>
                                     <td><span class="badge badge-success">Resolved</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-primary">View</button>
+                                    <td class="text-center">
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-icon" type="button" id="dropdownMenuButton-comp3" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <i class="fe fe-more-vertical fe-16"></i>
+                                            </button>
+                                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton-comp3">
+                                                <a class="dropdown-item" href="#">
+                                                    <i class="fe fe-eye fe-16 mr-2 text-primary"></i>View Details
+                                                </a>
+                                                <a class="dropdown-item" href="#">
+                                                    <i class="fe fe-printer fe-16 mr-2 text-secondary"></i>Print Report
+                                                </a>
+                                                <a class="dropdown-item" href="#">
+                                                    <i class="fe fe-refresh-cw fe-16 mr-2 text-warning"></i>Reopen
+                                                </a>
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                             </tbody>
