@@ -4,6 +4,7 @@ namespace App\Http\Responses;
 
 use App\Providers\RouteServiceProvider;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
+use Illuminate\Support\Facades\Log;
 
 class LoginResponse implements LoginResponseContract
 {
@@ -15,11 +16,20 @@ class LoginResponse implements LoginResponseContract
      */
     public function toResponse($request)
     {
-        // Check if the user has a role and redirect accordingly
-        if (auth()->user()->role) {
+        $user = auth()->user();
+        
+        // Debug logging
+        Log::info('LoginResponse: User ID: ' . $user->id);
+        Log::info('LoginResponse: User Role: ' . ($user->role ? $user->role->name : 'NULL'));
+        
+        // Check if the user has admin roles and redirect accordingly
+        if ($user->role && in_array($user->role->name, ['Barangay Captain', 'Barangay Secretary'])) {
+            Log::info('LoginResponse: Redirecting to admin dashboard');
             return redirect()->intended(RouteServiceProvider::ADMIN_HOME);
         }
 
+        // For regular users or users without specific admin roles
+        Log::info('LoginResponse: Redirecting to regular dashboard');
         return redirect()->intended(RouteServiceProvider::HOME);
     }
 }

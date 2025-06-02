@@ -448,28 +448,6 @@ td .actions svg,
   width: 16rem !important;
 }
 
-/* Remove vertical blue line for active sidebar items */
-.sidebar-left .nav-item.active .nav-link:before,
-.sidebar .nav-item.active .nav-link:before,
-.sidebar-left .nav-link.active:before,
-.sidebar .nav-link.active:before,
-.vertical.collapsed .sidebar-left:hover .nav-item.active .nav-link:before,
-.vertical.narrow .sidebar-left:hover .nav-item.active .nav-link:before,
-body.collapsed-menu .sidebar-left:hover .nav-item.active .nav-link:before,
-.sidebar-collapsed .sidebar-left:hover .nav-item.active .nav-link:before {
-  display: none !important;
-}
-
-/* Ensure sidebar hover/expanded state uses only the default expanded design */
-.vertical.collapsed .sidebar-left:hover,
-.vertical.narrow .sidebar-left:hover,
-body.collapsed-menu .sidebar-left:hover,
-.sidebar-collapsed .sidebar-left:hover {
-  min-width: 16rem !important;
-  width: 16rem !important;
-  transition: width 0.3s ease, min-width 0.3s ease !important;
-}
-
 /* Add new rules for avatar display in navbar */
 
 /* Make sure avatar elements are never hidden */
@@ -601,5 +579,11 @@ body, .sidebar-left, .main-content, .topnav {
   display: flex !important;
   align-items: center !important;
   gap: 2px !important;
+}
+
+/* Global card shadow for all admin cards */
+.card {
+  box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.15) !important;
+  border: none !important;
 }
 

@@ -9,7 +9,7 @@
 
 <div class="row">
     <div class="col-md-12">
-        <div class="card shadow-lg border-0" style="box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;">
+        <div class="card shadow-lg border-0" style="box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.15) !important;">
             <div class="card-header">
                 <strong class="card-title">Manage Document Requests</strong>
             </div>

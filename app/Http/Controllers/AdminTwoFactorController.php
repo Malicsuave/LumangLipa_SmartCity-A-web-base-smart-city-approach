@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use PragmaRX\Google2FA\Google2FA;
 
 class AdminTwoFactorController extends Controller
 {
@@ -37,12 +38,16 @@ class AdminTwoFactorController extends Controller
                 ->withInput();
         }
         
-        // Enable two-factor auth
+        // Create Google2FA instance and generate secret key
+        $google2fa = new Google2FA();
+        
+        // Enable two-factor auth with confirmation timestamp
         $user->forceFill([
-            'two_factor_secret' => encrypt(app('pragmarx.google2fa')->generateSecretKey()),
+            'two_factor_secret' => encrypt($google2fa->generateSecretKey()),
             'two_factor_recovery_codes' => encrypt(json_encode(collect(range(1, 8))->map(function () {
                 return strtoupper(str()->random(10));
             })->all())),
+            'two_factor_confirmed_at' => now(), // This is crucial for 2FA to work during login
         ])->save();
         
         // Success - redirect back to admin profile with flag for JavaScript

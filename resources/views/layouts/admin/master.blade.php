@@ -113,8 +113,12 @@
           
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle text-muted pr-0" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <span class="avatar avatar-sm mt-2">
-                <img src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" class="avatar-img rounded-circle">
+              <span class="avatar avatar-sm mt-2 mr-2">
+                <img src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" class="avatar-img rounded-circle" style="width: 32px; height: 32px; object-fit: cover; border: 2px solid #eaeaea;">
+              </span>
+              <span class="d-none d-sm-inline-block">
+                {{ Auth::user()->name }}
+                <small class="d-block text-muted">{{ Auth::user()->role->name }}</small>
               </span>
             </a>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">

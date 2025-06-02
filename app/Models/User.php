@@ -9,6 +9,8 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable
 {
@@ -28,6 +30,8 @@ class User extends Authenticatable
         'email',
         'password',
         'role_id',
+        'profile_photo_path',
+        'google_id',
     ];
 
     /**
@@ -59,6 +63,46 @@ class User extends Authenticatable
     protected $appends = [
         'profile_photo_url',
     ];
+
+    /**
+     * Get the URL to the user's profile photo.
+     *
+     * @return string
+     */
+    public function getProfilePhotoUrlAttribute()
+    {
+        if ($this->profile_photo_path) {
+            return Storage::disk('public')->url($this->profile_photo_path);
+        }
+
+        // Use a colorful avatar with initials if no photo is uploaded
+        $name = trim(collect(explode(' ', $this->name))->map(function ($segment) {
+            return mb_substr($segment, 0, 1);
+        })->join(' '));
+
+        $bgColor = '3498db'; // Blue color without #
+        $textColor = 'ffffff'; // White text without #
+        
+        return 'https://ui-avatars.com/api/?name='.urlencode($name).'&color='.$textColor.'&background='.$bgColor.'&size=256&rounded=true';
+    }
+
+    /**
+     * Get the default profile photo URL if no profile photo has been uploaded.
+     *
+     * @return string
+     */
+    protected function defaultProfilePhotoUrl()
+    {
+        // Use a colorful avatar with initials if no photo is uploaded
+        $name = trim(collect(explode(' ', $this->name))->map(function ($segment) {
+            return mb_substr($segment, 0, 1);
+        })->join(' '));
+
+        $bgColor = '#3498db'; // A nice blue color
+        $textColor = '#ffffff'; // White text
+        
+        return 'https://ui-avatars.com/api/?name='.urlencode($name).'&color='.urlencode($textColor).'&background='.urlencode($bgColor).'&size=256';
+    }
 
     public function role()
     {

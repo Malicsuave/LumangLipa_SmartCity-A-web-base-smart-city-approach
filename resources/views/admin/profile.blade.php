@@ -9,64 +9,137 @@
         <!-- Nav tabs -->
         <ul class="nav nav-tabs mb-4" id="profileTab" role="tablist">
             <li class="nav-item">
-                <a class="nav-link {{ !$errors->any() && !session('status') && !session('error') && !session('from_2fa') ? 'active' : '' }}" 
+                <a class="nav-link {{ !session('from_2fa') && !session('security_error') && (!$errors->any() || $errors->has('name') || $errors->has('email') || $errors->has('photo')) ? 'active' : '' }}" 
                    id="profile-tab" data-toggle="tab" href="#profile" role="tab" 
                    aria-controls="profile" 
-                   aria-selected="{{ !$errors->any() && !session('status') && !session('error') && !session('from_2fa') ? 'true' : 'false' }}">
+                   aria-selected="{{ !session('from_2fa') && !session('security_error') && (!$errors->any() || $errors->has('name') || $errors->has('email') || $errors->has('photo')) ? 'true' : 'false' }}">
                     Profile
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ $errors->any() || session('status') || session('error') || session('from_2fa') ? 'active' : '' }}" 
+                <a class="nav-link {{ session('from_2fa') || session('security_error') || ($errors->any() && !$errors->has('name') && !$errors->has('email') && !$errors->has('photo')) ? 'active' : '' }}" 
                    id="security-tab" data-toggle="tab" href="#security" role="tab" 
                    aria-controls="security" 
-                   aria-selected="{{ $errors->any() || session('status') || session('error') || session('from_2fa') ? 'true' : 'false' }}">
+                   aria-selected="{{ session('from_2fa') || session('security_error') || ($errors->any() && !$errors->has('name') && !$errors->has('email') && !$errors->has('photo')) ? 'true' : 'false' }}">
                     Security
                 </a>
             </li>
         </ul>
         <!-- Tab panes -->
         <div class="tab-content" id="profileTabContent">
-            <div class="tab-pane fade {{ !$errors->any() && !session('status') && !session('error') && !session('from_2fa') ? 'show active' : '' }}" 
+            <div class="tab-pane fade {{ !session('from_2fa') && !session('security_error') && (!$errors->any() || $errors->has('name') || $errors->has('email') || $errors->has('photo')) ? 'show active' : '' }}" 
                  id="profile" role="tabpanel" aria-labelledby="profile-tab">
-                <div class="row">
-                    <div class="col-md-3 text-center">
-                        <img src="{{ Auth::user()->profile_photo_url }}" class="img-fluid rounded-circle mb-3" style="max-width: 150px;" alt="Profile Photo">
-                    </div>
-                    <div class="col-md-9">
-                        <table class="table table-borderless">
-                            <tr>
-                                <th>Name:</th>
-                                <td>{{ Auth::user()->name }}</td>
-                            </tr>
-                            <tr>
-                                <th>Email:</th>
-                                <td>{{ Auth::user()->email }}</td>
-                            </tr>
-                            <tr>
-                                <th>Role:</th>
-                                <td>{{ Auth::user()->role->name ?? 'N/A' }}</td>
-                            </tr>
-                            <tr>
-                                <th>Registered At:</th>
-                                <td>{{ Auth::user()->created_at->format('F d, Y') }}</td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <div class="tab-pane fade {{ $errors->any() || session('status') || session('error') || session('from_2fa') ? 'show active' : '' }}" 
-                 id="security" role="tabpanel" aria-labelledby="security-tab">
-                <h4 class="mb-2">Security Settings</h4>
-                <p class="text-muted mb-4">These settings help you keep your account secure.</p>
-
-                <!-- Flash Messages -->
+                
+                <!-- Flash Messages for Profile Tab -->
                 @if (session('status'))
                     <div class="alert alert-success">
                         {{ session('status') }}
                     </div>
                 @endif
-                @if ($errors->any())
+                @if ($errors->any() && ($errors->has('name') || $errors->has('email') || $errors->has('photo')))
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+                
+                <!-- Profile Photo Section -->
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <h5 class="mb-3">Profile Photo</h5>
+                        <div class="row align-items-center">
+                            <div class="col-md-3 text-center">
+                                <img src="{{ Auth::user()->profile_photo_url }}" class="img-fluid rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover; border: 3px solid #eaeaea; box-shadow: 0 2px 10px rgba(0,0,0,0.1);" alt="Profile Photo" id="profilePhotoPreview">
+                            </div>
+                            <div class="col-md-9">
+                                <form action="{{ route('admin.profile.photo.update') }}" method="POST" enctype="multipart/form-data" class="mb-2">
+                                    @csrf
+                                    <div class="form-group">
+                                        <label for="photo">Select New Photo</label>
+                                        <input type="file" class="form-control-file @error('photo') is-invalid @enderror" id="photo" name="photo" accept="image/*" onchange="previewPhoto(this)">
+                                        <small class="form-text text-muted">JPG, JPEG, PNG. Max file size: 1MB</small>
+                                        @error('photo')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-sm">Upload Photo</button>
+                                </form>
+                                
+                                @if(Auth::user()->profile_photo_path)
+                                <form action="{{ route('admin.profile.photo.delete') }}" method="POST" onsubmit="return confirm('Are you sure you want to remove your profile photo?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">Remove Photo</button>
+                                </form>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+
+                <!-- Profile Information Section -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <h5 class="mb-3">Profile Information</h5>
+                        <form action="{{ route('admin.profile.update') }}" method="POST">
+                            @csrf
+                            <div class="form-group row">
+                                <label for="name" class="col-sm-2 col-form-label">Name</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name', Auth::user()->name) }}" required>
+                                    @error('name')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="email" class="col-sm-2 col-form-label">Email</label>
+                                <div class="col-sm-10">
+                                    <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email', Auth::user()->email) }}" required>
+                                    @error('email')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label">Role</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" value="{{ Auth::user()->role->name ?? 'N/A' }}" readonly>
+                                    <small class="form-text text-muted">Role cannot be changed</small>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label">Registered</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" value="{{ Auth::user()->created_at->format('F d, Y') }}" readonly>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-sm-10 offset-sm-2">
+                                    <button type="submit" class="btn btn-primary">Update Profile</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade {{ session('from_2fa') || session('security_error') || ($errors->any() && !$errors->has('name') && !$errors->has('email') && !$errors->has('photo')) ? 'show active' : '' }}" 
+                 id="security" role="tabpanel" aria-labelledby="security-tab">
+                <h4 class="mb-2">Security Settings</h4>
+                <p class="text-muted mb-4">These settings help you keep your account secure.</p>
+
+                <!-- Flash Messages -->
+                @if (session('status') && (session('from_2fa') || session('security_error')))
+                    <div class="alert alert-success">
+                        {{ session('status') }}
+                    </div>
+                @endif
+                @if ($errors->any() && !$errors->has('name') && !$errors->has('email') && !$errors->has('photo'))
                     <div class="alert alert-danger">
                         <ul>
                             @foreach ($errors->all() as $error)
@@ -75,9 +148,9 @@
                         </ul>
                     </div>
                 @endif
-                @if (session('error'))
+                @if (session('error') || session('security_error'))
                     <div class="alert alert-danger">
-                        {{ session('error') }}
+                        {{ session('error') ?? session('security_error') }}
                     </div>
                 @endif
 
@@ -97,6 +170,7 @@
                         @if (Auth::user()->two_factor_secret)
                             <form method="POST" action="{{ route('two-factor.disable') }}" onsubmit="return confirm('Are you sure you want to disable Two-Factor Authentication?');">
                                 @csrf
+                                @method('DELETE')
                                 <button type="submit" class="btn btn-danger btn-sm">Disable</button>
                             </form>
                         @else
@@ -187,5 +261,15 @@
             $('#confirmTwoFactorModal').modal('show');
         @endif
     });
+
+    // Preview profile photo before upload
+    function previewPhoto(input) {
+        const file = input.files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('profilePhotoPreview').src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+    }
 </script>
 @endsection

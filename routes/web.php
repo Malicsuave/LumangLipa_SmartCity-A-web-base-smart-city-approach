@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TwoFactorAuthenticationController;
 use App\Http\Controllers\AdminTwoFactorController;
 use App\Http\Controllers\PublicController;
+use App\Http\Controllers\AdminProfileController;
+use App\Http\Controllers\Auth\GoogleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,6 +24,10 @@ Route::get('/about', [PublicController::class, 'about'])->name('public.about');
 Route::get('/services', [PublicController::class, 'services'])->name('public.services');
 Route::get('/contact', [PublicController::class, 'contact'])->name('public.contact');
 
+// Google Authentication Routes
+Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
+
 // Define a completely separate admin 2FA route
 Route::post('/admin/two-factor-enable', [AdminTwoFactorController::class, 'enable'])
     ->middleware(['web', 'auth', 'role:Barangay Captain,Barangay Secretary'])
@@ -37,7 +43,28 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
+    // Override the default Jetstream profile route to redirect to admin profile
+    Route::get('/user/profile', function () {
+        $user = auth()->user();
+        
+        // Check if user has admin roles
+        if ($user->role && in_array($user->role->name, ['Barangay Captain', 'Barangay Secretary'])) {
+            return redirect()->route('admin.profile');
+        }
+        
+        // For non-admin users, redirect to dashboard or show error
+        return redirect()->route('dashboard')->with('error', 'Profile access not available for your role.');
+    })->name('profile.show');
+
     Route::get('/dashboard', function () {
+        $user = auth()->user();
+        
+        // Check if user has admin roles and redirect to admin dashboard
+        if ($user && $user->role && in_array($user->role->name, ['Barangay Captain', 'Barangay Secretary'])) {
+            return redirect()->route('admin.dashboard');
+        }
+        
+        // For non-admin users, show the regular dashboard
         return view('dashboard');
     })->name('dashboard');
 
@@ -55,6 +82,12 @@ Route::middleware([
         Route::get('/admin/profile', function () {
             return view('admin.profile');
         })->name('admin.profile');
+        
+        // Profile management routes
+        Route::post('/admin/profile', [AdminProfileController::class, 'updateProfile'])->name('admin.profile.update');
+        Route::post('/admin/profile/photo', [AdminProfileController::class, 'updateProfilePhoto'])->name('admin.profile.photo.update');
+        Route::delete('/admin/profile/photo', [AdminProfileController::class, 'deleteProfilePhoto'])->name('admin.profile.photo.delete');
+        Route::get('/admin/profile/debug', [AdminProfileController::class, 'debugProfile'])->name('admin.profile.debug');
     });
 
     // Health Worker routes
