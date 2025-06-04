@@ -35,4 +35,12 @@ return [
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('GOOGLE_REDIRECT_URI', '/auth/google/callback'),
     ],
+
+    'phpmailer' => [
+        'smtp_host' => env('MAIL_HOST', 'smtp.gmail.com'),
+        'smtp_port' => env('MAIL_PORT', 587),
+        'smtp_username' => env('MAIL_USERNAME'),
+        'smtp_password' => env('MAIL_PASSWORD'),
+        'smtp_encryption' => env('MAIL_ENCRYPTION', 'tls'),
+    ],
 ];

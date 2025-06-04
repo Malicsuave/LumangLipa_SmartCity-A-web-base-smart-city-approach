@@ -37,6 +37,7 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\RedirectTwoFactorSetup::class, // Add our new middleware to the web group
+            \App\Http\Middleware\ValidateRequestSecurity::class, // Add ValidateRequestSecurity middleware
         ],
 
         'api' => [
@@ -66,6 +67,7 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'role' => \App\Http\Middleware\RoleMiddleware::class,
-        'two-factor.redirect' => \App\Http\Middleware\RedirectTwoFactorSetup::class, // Also register as a named middleware
+        'two-factor.redirect' => \App\Http\Middleware\RedirectTwoFactorSetup::class,
+        'security' => \App\Http\Middleware\ValidateRequestSecurity::class,
     ];
 }

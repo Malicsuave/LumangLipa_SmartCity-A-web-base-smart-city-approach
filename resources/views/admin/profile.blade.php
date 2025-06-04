@@ -1,7 +1,11 @@
 @extends('layouts.admin.master')
 
+@section('styles')
+<link rel="stylesheet" href="{{ asset('css/profile-page.css') }}">
+@endsection
+
 @section('content')
-<div class="card shadow mb-4">
+<div class="card shadow mb-4 profile-page">
     <div class="card-header py-3">
         <h4 class="m-0 font-weight-bold text-primary">Settings</h4>
     </div>
@@ -71,7 +75,6 @@
                                 @if(Auth::user()->profile_photo_path)
                                 <form action="{{ route('admin.profile.photo.delete') }}" method="POST" onsubmit="return confirm('Are you sure you want to remove your profile photo?');">
                                     @csrf
-                                    @method('DELETE')
                                     <button type="submit" class="btn btn-outline-danger btn-sm">Remove Photo</button>
                                 </form>
                                 @endif
@@ -128,6 +131,7 @@
                     </div>
                 </div>
             </div>
+            
             <div class="tab-pane fade {{ session('from_2fa') || session('security_error') || ($errors->any() && !$errors->has('name') && !$errors->has('email') && !$errors->has('photo')) ? 'show active' : '' }}" 
                  id="security" role="tabpanel" aria-labelledby="security-tab">
                 <h4 class="mb-2">Security Settings</h4>
@@ -153,6 +157,22 @@
                         {{ session('error') ?? session('security_error') }}
                     </div>
                 @endif
+                
+                <!-- Google Authentication Notice -->
+                <div class="list-group list-group-flush mb-4">
+                    @if(Auth::user()->google_id && !Auth::user()->two_factor_secret)
+                    <div class="list-group-item bg-white d-flex justify-content-between align-items-center border-0">
+                        <div>
+                            <strong>Google Authentication</strong>
+                            <span class="badge badge-info ml-2">Gmail Account</span>
+                            <div class="text-muted small">You need to set a password before enabling Two-Factor Authentication.</div>
+                        </div>
+                        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#setPasswordModal">
+                            Set Password
+                        </button>
+                    </div>
+                    @endif
+                </div>
 
                 <!-- 2FA Section -->
                 <div class="list-group list-group-flush">
@@ -251,6 +271,40 @@
         </div>
     </div>
 </div>
+
+<!-- Set Password Modal -->
+<div class="modal fade" id="setPasswordModal" tabindex="-1" aria-labelledby="setPasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ route('password.update') }}" id="set-password-form">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title" id="setPasswordModalLabel">Set Password</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="new_password">New Password</label>
+                        <input type="password" class="form-control @error('new_password') is-invalid @enderror" id="new_password" name="new_password" required autocomplete="new-password">
+                        @error('new_password')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="form-group">
+                        <label for="new_password_confirmation">Confirm New Password</label>
+                        <input type="password" class="form-control" id="new_password_confirmation" name="new_password_confirmation" required autocomplete="new-password">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Set Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('scripts')
@@ -259,6 +313,11 @@
         // Show modal if there are password errors
         @if($errors->has('password') || session('error'))
             $('#confirmTwoFactorModal').modal('show');
+        @endif
+        
+        // Show set password modal if there are password modal errors
+        @if($errors->has('new_password') || session('from_password_modal'))
+            $('#setPasswordModal').modal('show');
         @endif
     });
 

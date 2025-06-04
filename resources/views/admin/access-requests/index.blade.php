@@ -1,0 +1,258 @@
+@extends('layouts.admin.master')
+
+@section('title', 'Access Requests')
+
+@section('content')
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <div class="row align-items-center mb-4">
+                    <div class="col">
+                        <h2 class="h5 page-title">Access Request Management</h2>
+                        <p class="text-muted">Review and process user access requests for system roles</p>
+                    </div>
+                    <div class="col-auto">
+                        <button type="button" class="btn btn-outline-secondary" onclick="refreshPage()">
+                            <i class="fe fe-refresh-cw fe-16 mr-2"></i>
+                            Refresh List
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Status Messages -->
+                @if(session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ session('success') }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                @endif
+
+                @if(session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ session('error') }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                @endif
+
+                <!-- Pending Requests Card -->
+                <div class="card shadow-lg border-0 mb-4" style="box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.15) !important;">
+                    <div class="card-header">
+                        <strong class="card-title">Pending Access Requests</strong>
+                    </div>
+                    <div class="card-body">
+                        @if($pendingRequests->count() > 0)
+                            <div class="table-responsive">
+                                <table class="table table-borderless table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>User</th>
+                                            <th>Role Requested</th>
+                                            <th>Requested On</th>
+                                            <th width="25%">Reason</th>
+                                            <th class="text-center">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($pendingRequests as $request)
+                                            <tr>
+                                                <td>
+                                                    <div class="font-weight-bold">{{ $request->name ?? 'Not provided' }}</div>
+                                                </td>
+                                                <td>
+                                                    <div class="font-weight-bold">{{ $request->user ? $request->user->name : 'Unknown User' }}</div>
+                                                    <div class="small text-muted">{{ $request->user ? $request->user->email : 'No email' }}</div>
+                                                </td>
+                                                <td>
+                                                    <span class="badge badge-pill badge-primary">
+                                                        {{ $request->role ? $request->role->name : 'Unknown Role' }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    {{ $request->requested_at ? $request->requested_at->format('M d, Y') : 'N/A' }}<br>
+                                                    <small class="text-muted">{{ $request->requested_at ? $request->requested_at->format('h:i A') : '' }}</small>
+                                                </td>
+                                                <td>
+                                                    <div class="text-sm">{{ \Illuminate\Support\Str::limit($request->reason, 100) }}</div>
+                                                    @if(strlen($request->reason) > 100)
+                                                        <a href="{{ route('admin.access-requests.show', $request) }}" class="small">Read more</a>
+                                                    @endif
+                                                </td>
+                                                <td class="text-center">
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-sm btn-icon" type="button" id="dropdownMenuButton-{{ $request->id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                            <i class="fe fe-more-vertical fe-16"></i>
+                                                        </button>
+                                                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton-{{ $request->id }}">
+                                                            <a class="dropdown-item" href="{{ route('admin.access-requests.show', $request) }}">
+                                                                <i class="fe fe-eye fe-16 mr-2 text-primary"></i>Review Details
+                                                            </a>
+                                                            <div class="dropdown-divider"></div>
+                                                            <a class="dropdown-item text-success" href="#" data-toggle="modal" data-target="#approveModal{{ $request->id }}">
+                                                                <i class="fe fe-check-circle fe-16 mr-2"></i>Approve Request
+                                                            </a>
+                                                            <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#denyModal{{ $request->id }}">
+                                                                <i class="fe fe-x-circle fe-16 mr-2"></i>Deny Request
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <!-- Approve Modal -->
+                                                    <div class="modal fade" id="approveModal{{ $request->id }}" tabindex="-1" role="dialog" aria-labelledby="approveModalLabel" aria-hidden="true">
+                                                        <div class="modal-dialog" role="document">
+                                                            <div class="modal-content">
+                                                                <form action="{{ route('admin.access-requests.approve', $request) }}" method="POST">
+                                                                    @csrf
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title" id="approveModalLabel">Approve Access Request</h5>
+                                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                            <span aria-hidden="true">&times;</span>
+                                                                        </button>
+                                                                    </div>
+                                                                    <div class="modal-body text-left">
+                                                                        <p>Are you sure you want to grant <strong>{{ $request->role ? $request->role->name : 'Unknown Role' }}</strong> access to <strong>{{ $request->user ? $request->user->name : 'Unknown User' }}</strong>?</p>
+                                                                        
+                                                                        <div class="form-group">
+                                                                            <label for="notes">Notes (Optional)</label>
+                                                                            <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Add any notes that will be included in the approval email..."></textarea>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+                                                                        <button type="submit" class="btn btn-success">Approve Access</button>
+                                                                    </div>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <!-- Deny Modal -->
+                                                    <div class="modal fade" id="denyModal{{ $request->id }}" tabindex="-1" role="dialog" aria-labelledby="denyModalLabel" aria-hidden="true">
+                                                        <div class="modal-dialog" role="document">
+                                                            <div class="modal-content">
+                                                                <form action="{{ route('admin.access-requests.deny', $request) }}" method="POST">
+                                                                    @csrf
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title" id="denyModalLabel">Deny Access Request</h5>
+                                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                            <span aria-hidden="true">&times;</span>
+                                                                        </button>
+                                                                    </div>
+                                                                    <div class="modal-body text-left">
+                                                                        <p>Are you sure you want to deny this access request from <strong>{{ $request->user ? $request->user->name : 'Unknown User' }}</strong>?</p>
+                                                                        
+                                                                        <div class="form-group">
+                                                                            <label for="denial_reason">Reason for Denial <span class="text-danger">*</span></label>
+                                                                            <textarea class="form-control" id="denial_reason" name="denial_reason" rows="3" required placeholder="Provide a reason for denying this request. This will be sent to the user."></textarea>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+                                                                        <button type="submit" class="btn btn-danger">Deny Access</button>
+                                                                    </div>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <div class="text-center py-4">
+                                <div class="mb-3">
+                                    <i class="fe fe-check-circle fe-32 text-success"></i>
+                                </div>
+                                <h5>No Pending Requests</h5>
+                                <p class="text-muted">All access requests have been processed. New requests will appear here.</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Recent Activity Card -->
+                <div class="card shadow-lg border-0" style="box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.15) !important;">
+                    <div class="card-header">
+                        <strong class="card-title">Recently Processed Requests</strong>
+                    </div>
+                    <div class="card-body">
+                        @if($processedRequests->count() > 0)
+                            <div class="table-responsive">
+                                <table class="table table-borderless table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>User</th>
+                                            <th>Role</th>
+                                            <th>Status</th>
+                                            <th>Processed By</th>
+                                            <th>Processed On</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($processedRequests as $request)
+                                            <tr>
+                                                <td>
+                                                    <div class="font-weight-bold">{{ $request->name ?? 'Not provided' }}</div>
+                                                </td>
+                                                <td>
+                                                    <div class="font-weight-bold">{{ $request->user ? $request->user->name : 'Unknown User' }}</div>
+                                                    <div class="small text-muted">{{ $request->user ? $request->user->email : 'No email' }}</div>
+                                                </td>
+                                                <td>
+                                                    <span class="badge badge-pill badge-primary">
+                                                        {{ $request->role ? $request->role->name : 'Unknown Role' }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    @if($request->status == 'approved')
+                                                        <span class="badge badge-success">Approved</span>
+                                                    @else
+                                                        <span class="badge badge-danger">Denied</span>
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if($request->status == 'approved')
+                                                        {{ optional($request->approver)->name ?? 'System' }}
+                                                    @else
+                                                        {{ optional($request->denier)->name ?? 'System' }}
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if($request->status == 'approved')
+                                                        {{ $request->approved_at ? $request->approved_at->format('M d, Y h:i A') : 'N/A' }}
+                                                    @else
+                                                        {{ $request->denied_at ? $request->denied_at->format('M d, Y h:i A') : 'N/A' }}
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <div class="text-center py-4">
+                                <p class="text-muted">No processed requests yet.</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Access Request Information -->
+               
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function refreshPage() {
+            window.location.reload();
+        }
+    </script>
+@endsection

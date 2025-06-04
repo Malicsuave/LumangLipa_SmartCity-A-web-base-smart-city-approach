@@ -19,9 +19,12 @@
     <!-- Simple bar CSS -->
     <link rel="stylesheet" href="{{ asset('admin/dark/css/simplebar.css') }}">
     <!-- Fonts CSS -->
-    <link href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,100;0,200;0,300;0,400;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <!-- Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <!-- Icons CSS -->
     <link rel="stylesheet" href="{{ asset('admin/dark/css/feather.css') }}">
     <link rel="stylesheet" href="{{ asset('admin/dark/css/select2.css') }}">
@@ -54,8 +57,28 @@
     <!-- Custom Admin CSS -->
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
     
-    <!-- Sidebar text visibility styles -->
+    <!-- Custom Font CSS -->
     <style>
+      body, 
+      .navbar, 
+      .nav-link,
+      h1, h2, h3, h4, h5, h6, 
+      .dropdown-menu,
+      .card-title,
+      .modal-title,
+      .sidebar-left {
+        font-family: 'Poppins', sans-serif;
+      }
+      
+      .form-control, 
+      input, 
+      select, 
+      textarea, 
+      button {
+        font-family: 'Nunito', sans-serif;
+      }
+      
+      /* Sidebar text visibility styles */
       /* Hide the text when sidebar is collapsed */
       .vertical.collapsed .collapse-hide,
       .vertical.narrow .collapse-hide,
@@ -171,6 +194,28 @@
                 <i class="fe fe-users fe-16"></i>
                 <span class="ml-3 item-text">Residents</span>
               </a>
+            </li>
+            @endif
+
+            @if(in_array(Auth::user()->role->name, ['Barangay Captain', 'Barangay Secretary', 'Admin']))
+            <li class="nav-item dropdown {{ Request::routeIs('admin.approvals*') || Request::routeIs('admin.access-requests*') ? 'active' : '' }}">
+              <a href="#approvals" data-toggle="collapse" aria-expanded="{{ Request::routeIs('admin.approvals*') || Request::routeIs('admin.access-requests*') ? 'true' : 'false' }}" 
+                class="dropdown-toggle nav-link {{ Request::routeIs('admin.approvals*') || Request::routeIs('admin.access-requests*') ? 'active' : '' }}">
+                <i class="fe fe-check-circle fe-16"></i>
+                <span class="ml-3 item-text">Approvals</span>
+              </a>
+              <ul class="collapse list-unstyled pl-4 w-100 {{ Request::routeIs('admin.approvals*') || Request::routeIs('admin.access-requests*') ? 'show' : '' }}" id="approvals">
+                <li class="nav-item approval-menu-item {{ Request::routeIs('admin.approvals.index') ? 'active' : '' }}">
+                  <a class="nav-link pl-3" href="{{ route('admin.approvals.index') }}">
+                    <span class="ml-1 item-text">All Approvals</span>
+                  </a>
+                </li>
+                <li class="nav-item access-request-menu-item {{ Request::routeIs('admin.access-requests.*') ? 'active' : '' }}">
+                  <a class="nav-link pl-3" href="{{ route('admin.access-requests.index') }}">
+                    <span class="ml-1 item-text">Access Requests</span>
+                  </a>
+                </li>
+              </ul>
             </li>
             @endif
 

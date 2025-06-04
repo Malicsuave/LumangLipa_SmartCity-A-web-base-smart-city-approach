@@ -2,35 +2,30 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AdminProfileUpdateRequest;
+use App\Http\Requests\ProfilePhotoUpdateRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rule;
 
 class AdminProfileController extends Controller
 {
-    public function updateProfile(Request $request)
+    public function updateProfile(AdminProfileUpdateRequest $request)
     {
         $user = Auth::user();
         
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-        ]);
+        $validated = $request->validated();
 
-        $user->name = $request->name;
-        $user->email = $request->email;
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
         $user->save();
 
         return redirect()->route('admin.profile')->with('status', 'Profile information updated successfully.');
     }
 
-    public function updateProfilePhoto(Request $request)
+    public function updateProfilePhoto(ProfilePhotoUpdateRequest $request)
     {
-        $request->validate([
-            'photo' => ['required', 'mimes:jpg,jpeg,png', 'max:1024'], // 1MB Max
-        ]);
-
+        $validated = $request->validated();
         $user = Auth::user();
 
         // Delete old profile photo if it exists

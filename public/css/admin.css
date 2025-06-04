@@ -448,142 +448,209 @@ td .actions svg,
   width: 16rem !important;
 }
 
-/* Add new rules for avatar display in navbar */
-
-/* Make sure avatar elements are never hidden */
-.avatar, 
-.avatar img, 
-.avatar-img,
-.avatar-sm,
-.avatar-md,
-.avatar-lg,
-.topnav .nav-item,
-.topnav .nav .nav-item .avatar-sm,
-.topnav .dropdown-toggle,
-.navbar .nav-link {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-/* Ensure proper avatar styling */
-.avatar-sm {
-  width: 32px !important;
-  height: 32px !important;
-  min-width: 32px !important;
-  min-height: 32px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
-.avatar-img {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover !important;
-  border-radius: 50% !important;
-}
-
-/* Ensure the dropdown toggle always appears */
-.dropdown-toggle::after {
-  display: inline-block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-/* Reset margin in topnav elements */
-.topnav .nav {
-  margin-right: 15px !important;
-  display: flex !important;
-  align-items: center !important;
-}
-
-/* Fix for avatar positioning in dropdown */
-.nav-item.dropdown {
-  display: flex !important;
-  align-items: center !important;
-}
-
-/* Override any CSS hiding the navbar elements */
-body.sidebar-collapsed .topnav,
-body.collapsed-menu .topnav,
-.vertical.collapsed .topnav,
-.vertical.narrow .topnav {
-  display: flex !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-/* Fix transition for sidebar when toggling */
-body, .sidebar-left, .main-content, .topnav {
+/* Sidebar hover to expand functionality */
+.vertical.collapsed .sidebar-left:hover,
+.vertical.narrow .sidebar-left:hover,
+body.collapsed-menu .sidebar-left:hover,
+.sidebar-collapsed .sidebar-left:hover {
+  min-width: 16rem !important;
+  width: 16rem !important;
+  overflow: visible !important;
+  z-index: 1050 !important; /* Higher z-index to appear above content */
+  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1) !important;
   transition: all 0.3s ease !important;
 }
 
-/* Fix dropdown symbol positioning in navbar - UPDATED */
-.topnav .dropdown-toggle::after {
+/* Show text elements on hover when sidebar is collapsed */
+.vertical.collapsed .sidebar-left:hover span,
+.vertical.narrow .sidebar-left:hover span,
+body.collapsed-menu .sidebar-left:hover span,
+.sidebar-collapsed .sidebar-left:hover span,
+.vertical.collapsed .sidebar-left:hover .item-text,
+.vertical.narrow .sidebar-left:hover .item-text,
+body.collapsed-menu .sidebar-left:hover .item-text,
+.sidebar-collapsed .sidebar-left:hover .item-text,
+.vertical.collapsed .sidebar-left:hover .collapse-hide,
+.vertical.narrow .sidebar-left:hover .collapse-hide,
+body.collapsed-menu .sidebar-left:hover .collapse-hide,
+.sidebar-collapsed .sidebar-left:hover .collapse-hide,
+.vertical.collapsed .sidebar-left:hover .nav-heading,
+.vertical.narrow .sidebar-left:hover .nav-heading,
+body.collapsed-menu .sidebar-left:hover .nav-heading,
+.sidebar-collapsed .sidebar-left:hover .nav-heading,
+.vertical.collapsed .sidebar-left:hover p,
+.vertical.narrow .sidebar-left:hover p,
+body.collapsed-menu .sidebar-left:hover p,
+.sidebar-collapsed .sidebar-left:hover p,
+.vertical.collapsed .sidebar-left:hover h1,
+.vertical.narrow .sidebar-left:hover h1,
+body.collapsed-menu .sidebar-left:hover h1,
+.sidebar-collapsed .sidebar-left:hover h1,
+.vertical.collapsed .sidebar-left:hover h2,
+.vertical.narrow .sidebar-left:hover h2,
+body.collapsed-menu .sidebar-left:hover h2,
+.sidebar-collapsed .sidebar-left:hover h2,
+.vertical.collapsed .sidebar-left:hover h3,
+.vertical.narrow .sidebar-left:hover h3,
+body.collapsed-menu .sidebar-left:hover h3,
+.sidebar-collapsed .sidebar-left:hover h3,
+.vertical.collapsed .sidebar-left:hover h4,
+.vertical.narrow .sidebar-left:hover h4,
+body.collapsed-menu .sidebar-left:hover h4,
+.sidebar-collapsed .sidebar-left:hover h4,
+.vertical.collapsed .sidebar-left:hover h5,
+.vertical.narrow .sidebar-left:hover h5,
+body.collapsed-menu .sidebar-left:hover h5,
+.sidebar-collapsed .sidebar-left:hover h5,
+.vertical.collapsed .sidebar-left:hover h6,
+.vertical.narrow .sidebar-left:hover h6,
+body.collapsed-menu .sidebar-left:hover h6,
+.sidebar-collapsed .sidebar-left:hover h6,
+.vertical.collapsed .sidebar-left:hover .text,
+.vertical.narrow .sidebar-left:hover .text,
+body.collapsed-menu .sidebar-left:hover .text,
+.sidebar-collapsed .sidebar-left:hover .text,
+.vertical.collapsed .sidebar-left:hover .text-muted,
+.vertical.narrow .sidebar-left:hover .text-muted,
+body.collapsed-menu .sidebar-left:hover .text-muted,
+.sidebar-collapsed .sidebar-left:hover .text-muted,
+.vertical.collapsed .sidebar-left:hover .nav-text,
+.vertical.narrow .sidebar-left:hover .nav-text,
+body.collapsed-menu .sidebar-left:hover .nav-text,
+.sidebar-collapsed .sidebar-left:hover .nav-text {
   display: inline-block !important;
-  vertical-align: middle !important;
-  margin-left: 0 !important; /* Remove left margin to bring it closer */
-  position: relative !important;
-  top: 0 !important; /* Center vertically */
-  font-size: 1.2em !important; /* Make it bigger */
-  border-top: 0.35em solid !important; /* Bigger dropdown arrow */
-  border-right: 0.35em solid transparent !important;
-  border-left: 0.35em solid transparent !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  width: auto !important;
+  height: auto !important;
+  overflow: visible !important;
+  transition: opacity 0.3s ease !important;
 }
 
-/* Fix alignment of avatar and dropdown in navbar - UPDATED */
-.topnav .nav-item.dropdown .nav-link {
+/* Restore logo on hover */
+.sidebar-collapsed .sidebar-left:hover .logo-expanded,
+.vertical.collapsed .sidebar-left:hover .logo-expanded,
+.vertical.narrow .sidebar-left:hover .logo-expanded,
+body.collapsed-menu .sidebar-left:hover .logo-expanded {
+  display: block !important;
+}
+
+.sidebar-collapsed .sidebar-left:hover .logo-collapsed,
+.vertical.collapsed .sidebar-left:hover .logo-collapsed,
+.vertical.narrow .sidebar-left:hover .logo-collapsed,
+body.collapsed-menu .sidebar-left:hover .logo-collapsed {
+  display: none !important;
+}
+
+/* Make menu items left-aligned when expanded on hover */
+.vertical.collapsed .sidebar-left:hover .navbar-nav > .nav-item,
+.vertical.narrow .sidebar-left:hover .navbar-nav > .nav-item,
+body.collapsed-menu .sidebar-left:hover .navbar-nav > .nav-item,
+.sidebar-collapsed .sidebar-left:hover .navbar-nav > .nav-item {
+  text-align: left !important;
+}
+
+/* Remove the tooltip effect on hover since we're showing the full text */
+.sidebar-collapsed .sidebar-left:hover .nav-item:hover::after,
+.vertical.collapsed .sidebar-left:hover .nav-item:hover::after,
+body.collapsed-menu .sidebar-left:hover .nav-item:hover::after {
+  display: none !important;
+}
+
+/* Reset hover styles for expanded view */
+.sidebar-collapsed .sidebar-left:hover .nav-link:hover,
+.vertical.collapsed .sidebar-left:hover .nav-link:hover,
+body.collapsed-menu .sidebar-left:hover .nav-link:hover {
+  background-color: rgba(26, 37, 47, 0.1) !important;
+  border-radius: 5px !important;
+  transform: translateX(2px) !important;
+  box-shadow: none !important;
+}
+
+/* Fix for active state display when hovered */
+.sidebar-collapsed .sidebar-left:hover .nav-item.active .nav-link,
+body.collapsed-menu .sidebar-left:hover .nav-item.active .nav-link {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
+  border-radius: 8px !important;
+  width: auto !important;
+  height: auto !important;
+  display: block !important;
+  margin: 2px 0 !important;
+  border-left: 4px solid #ffffff !important;
+  transform: translateX(5px) !important;
+}
+
+/* Additional fixes for brand/site name visibility */
+.sidebar-collapsed .sidebar-left:hover .brand-text,
+.sidebar-collapsed .sidebar-left:hover .brand-name,
+.sidebar-collapsed .sidebar-left:hover .site-title,
+.sidebar-collapsed .sidebar-left:hover .site-name,
+.sidebar-collapsed .sidebar-left:hover .logo-text,
+.sidebar-collapsed .sidebar-left:hover .sidebar-brand-text,
+body.collapsed-menu .sidebar-left:hover .brand-text,
+body.collapsed-menu .sidebar-left:hover .brand-name,
+body.collapsed-menu .sidebar-left:hover .site-title,
+body.collapsed-menu .sidebar-left:hover .site-name,
+body.collapsed-menu .sidebar-left:hover .logo-text,
+body.collapsed-menu .sidebar-left:hover .sidebar-brand-text {
+  display: block !important;
+  visibility: visible !important;
+}
+
+/* Ensure nav menu items show text when sidebar is hovered */
+.sidebar-collapsed .sidebar-left:hover .nav-item .nav-link span,
+.sidebar-collapsed .sidebar-left:hover .sidebar-item .sidebar-link span,
+body.collapsed-menu .sidebar-left:hover .nav-item .nav-link span,
+body.collapsed-menu .sidebar-left:hover .sidebar-item .sidebar-link span {
+  display: inline-block !important;
+}
+
+/* Make the main Approvals dropdown have the same solid styling as other active links */
+.nav-item.dropdown.active > .nav-link.dropdown-toggle {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
+  color: #ffffff !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3) !important;
+  transform: translateX(5px) !important;
+  border-left: 4px solid #ffffff !important;
+  margin: 2px 0 !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  animation: activeItemPulse 3s ease-in-out infinite !important;
+  font-weight: 600 !important;
+}
+
+/* Keep the icon color white for the main Approvals dropdown */
+.nav-item.dropdown.active > .nav-link.dropdown-toggle i {
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Ensure this works in collapsed state too for main dropdown */
+.sidebar-collapsed .nav-item.dropdown.active > .nav-link.dropdown-toggle,
+body.collapsed-menu .nav-item.dropdown.active > .nav-link.dropdown-toggle {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
+  border-radius: 50% !important;
+  width: 45px !important;
+  height: 45px !important;
   display: flex !important;
-  align-items: center !important;
-  padding-right: 0.5rem !important; /* Reduce padding to make it more compact */
-  gap: 4px !important; /* Small gap between avatar and dropdown */
-}
-
-/* Ensure avatar and dropdown toggle are on the same line - UPDATED */
-.topnav .nav-item.dropdown {
-  display: flex !important;
-  align-items: center !important;
-  white-space: nowrap !important;
-}
-
-/* Position the dropdown symbol - UPDATED */
-.topnav .nav-link.dropdown-toggle {
-  display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  position: relative !important;
+  margin: 0 auto 10px auto !important;
+  transform: none !important;
+  border-left: none !important;
 }
 
-/* Style dropdown button to have minimal space around icon - UPDATED */
-.topnav .avatar-sm {
-  margin-right: 0.2rem !important; /* Reduce margin to bring caret closer */
-}
-
-/* Hide the default caret and replace with a better one - UPDATED */
-.topnav .nav-link.dropdown-toggle::after {
-  display: inline-block !important;
-  margin-left: 0.1em !important; /* Very small margin */
-  vertical-align: middle !important;
-  content: "" !important;
-  border-top: 0.4em solid !important; /* Bigger arrow */
-  border-right: 0.4em solid transparent !important;
-  border-bottom: 0 !important;
-  border-left: 0.4em solid transparent !important;
-  position: relative !important;
-  top: 1px !important; /* Fine-tune vertical alignment */
-}
-
-/* Special avatar + dropdown group styling for tighter integration */
-.topnav .dropdown .avatar-group {
-  display: flex !important;
-  align-items: center !important;
-  gap: 2px !important;
-}
-
-/* Global card shadow for all admin cards */
-.card {
-  box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.15) !important;
-  border: none !important;
+/* Fix for hovering over sidebar when collapsed for main dropdown */
+.sidebar-collapsed .sidebar-left:hover .nav-item.dropdown.active > .nav-link.dropdown-toggle,
+body.collapsed-menu .sidebar-left:hover .nav-item.dropdown.active > .nav-link.dropdown-toggle {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
+  border-left: 4px solid #ffffff !important;
+  transform: translateX(5px) !important;
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3) !important;
+  border-radius: 8px !important;
+  width: auto !important;
+  height: auto !important;
+  display: block !important;
+  margin: 2px 0 !important;
 }
 

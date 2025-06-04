@@ -1,0 +1,91 @@
+/* Profile Page Font Size Enhancements */
+
+/* Main headings */
+.profile-page h4 {
+    font-size: 1.75rem !important;
+}
+
+.profile-page h5 {
+    font-size: 1.5rem !important;
+}
+
+/* Tab navigation */
+.profile-page .nav-tabs .nav-link {
+    font-size: 1.1rem !important;
+    font-weight: 600;
+}
+
+/* Form labels */
+.profile-page .col-form-label,
+.profile-page label {
+    font-size: 1.1rem !important;
+    font-weight: 600;
+}
+
+/* Form inputs */
+.profile-page .form-control {
+    font-size: 1.1rem !important;
+    padding: 0.75rem 1rem !important;
+}
+
+/* Helper text */
+.profile-page .form-text,
+.profile-page .text-muted {
+    font-size: 1rem !important;
+}
+
+/* Buttons - Override btn-sm font size */
+.profile-page .btn {
+    font-size: 1.1rem !important;
+    padding: 0.75rem 1.5rem !important;
+    font-weight: 600;
+}
+
+.profile-page .btn-sm {
+    font-size: 1rem !important;
+    padding: 0.5rem 1rem !important;
+}
+
+/* Alert messages */
+.profile-page .alert {
+    font-size: 1.1rem !important;
+}
+
+/* List group items */
+.profile-page .list-group-item {
+    font-size: 1.1rem !important;
+}
+
+.profile-page .list-group-item strong {
+    font-size: 1.2rem !important;
+}
+
+.profile-page .list-group-item .small,
+.profile-page .list-group-item .text-muted {
+    font-size: 1rem !important;
+}
+
+/* Badges */
+.profile-page .badge {
+    font-size: 0.9rem !important;
+    padding: 0.5rem 0.75rem !important;
+}
+
+/* Modal content */
+.profile-page .modal-title {
+    font-size: 1.5rem !important;
+}
+
+.profile-page .modal-body p {
+    font-size: 1.1rem !important;
+}
+
+.profile-page .modal-body .form-group label {
+    font-size: 1.1rem !important;
+}
+
+/* Recovery codes */
+.profile-page .font-mono {
+    font-size: 1.1rem !important;
+    font-family: 'Courier New', monospace;
+}
