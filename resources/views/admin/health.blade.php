@@ -22,17 +22,17 @@
                 
                 <div class="row mb-4">
                     <div class="col-md-4">
-                        <div class="card mb-4 shadow health-metric-card">
+                        <div class="card mb-4 shadow health-metric-card metric-card metric-card-1">
                             <div class="card-body">
                                 <div class="row align-items-center">
                                     <div class="col-3 text-center">
-                                        <span class="circle circle-sm bg-primary">
+                                        <span class="circle circle-sm bg-primary metric-icon">
                                             <i class="fe fe-users text-white"></i>
                                         </span>
                                     </div>
                                     <div class="col">
                                         <p class="small text-muted mb-0">Vaccination</p>
-                                        <span class="h3">124</span>
+                                        <span class="h3 metric-counter">124</span>
                                         <span class="small text-muted">Residents</span>
                                     </div>
                                 </div>
@@ -40,17 +40,17 @@
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="card mb-4 shadow health-metric-card">
+                        <div class="card mb-4 shadow health-metric-card metric-card metric-card-2">
                             <div class="card-body">
                                 <div class="row align-items-center">
                                     <div class="col-3 text-center">
-                                        <span class="circle circle-sm bg-warning">
+                                        <span class="circle circle-sm bg-warning metric-icon">
                                             <i class="fe fe-heart text-white"></i>
                                         </span>
                                     </div>
                                     <div class="col">
                                         <p class="small text-muted mb-0">Checkups</p>
-                                        <span class="h3">45</span>
+                                        <span class="h3 metric-counter">45</span>
                                         <span class="small text-muted">This month</span>
                                     </div>
                                 </div>
@@ -58,17 +58,17 @@
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="card mb-4 shadow health-metric-card">
+                        <div class="card mb-4 shadow health-metric-card metric-card metric-card-3">
                             <div class="card-body">
                                 <div class="row align-items-center">
                                     <div class="col-3 text-center">
-                                        <span class="circle circle-sm bg-success">
+                                        <span class="circle circle-sm bg-success metric-icon">
                                             <i class="fe fe-activity text-white"></i>
                                         </span>
                                     </div>
                                     <div class="col">
                                         <p class="small text-muted mb-0">Medicine</p>
-                                        <span class="h3">84</span>
+                                        <span class="h3 metric-counter">84</span>
                                         <span class="small text-muted">Distributed</span>
                                     </div>
                                 </div>

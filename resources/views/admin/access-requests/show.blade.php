@@ -104,10 +104,10 @@
                     <h5 class="mb-3">Take Action</h5>
                     <div class="d-flex">
                         <button type="button" class="btn btn-success mr-2" data-toggle="modal" data-target="#approveModal">
-                            <i class="fe fe-check mr-1" style="color: white !important;"></i> Approve Request
+                            <i class="fe fe-check-circle fe-16 mr-2" style="color: white !important;"></i> Approve Request
                         </button>
                         <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#denyModal">
-                            <i class="fe fe-x mr-1" style="color: white !important;"></i> Deny Request
+                            <i class="fe fe-x-circle fe-16 mr-2" style="color: white !important;"></i> Deny Request
                         </button>
                     </div>
                 </div>
@@ -141,7 +141,7 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
                             <button type="submit" class="btn btn-success">Approve Access</button>
                         </div>
                     </form>
@@ -171,7 +171,7 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
                             <button type="submit" class="btn btn-danger">Deny Access</button>
                         </div>
                     </form>

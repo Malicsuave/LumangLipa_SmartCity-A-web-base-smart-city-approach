@@ -1,0 +1,196 @@
+/* Metric Card Animations - Shared across admin pages */
+
+/* Base card styling */
+.metric-card {
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  overflow: hidden;
+  position: relative;
+  border-radius: 12px !important;
+  box-shadow: 0 6px 10px rgba(0,0,0,0.08), 0 0 6px rgba(0,0,0,0.05) !important;
+  border: none !important;
+}
+
+.metric-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 20px rgba(0,0,0,0.12), 0 4px 8px rgba(0,0,0,0.06) !important;
+}
+
+/* Card entrance animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.1);
+  }
+  80% {
+    transform: scale(0.89);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Counter animations for metric numbers */
+@keyframes countUp {
+  from {
+    opacity: 0.3;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.metric-counter {
+  display: inline-block;
+  font-weight: 700;
+  font-size: 1.75rem;
+  color: #2d3748;
+  animation: countUp 0.8s forwards;
+}
+
+.metric-card .metric-icon {
+  transition: all 0.4s ease;
+  transform-origin: center;
+}
+
+.metric-card:hover .metric-icon {
+  transform: scale(1.15) rotate(10deg);
+}
+
+/* Apply animations to different cards with staggered timing */
+.metric-card-1 {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.metric-card-2 {
+  animation: fadeInUp 0.6s ease-out 0.1s forwards;
+  animation-fill-mode: both;
+}
+
+.metric-card-3 {
+  animation: fadeInUp 0.6s ease-out 0.2s forwards;
+  animation-fill-mode: both;
+}
+
+.metric-card-4 {
+  animation: fadeInUp 0.6s ease-out 0.3s forwards;
+  animation-fill-mode: both;
+}
+
+.metric-card-5 {
+  animation: fadeInUp 0.6s ease-out 0.4s forwards;
+  animation-fill-mode: both;
+}
+
+.metric-card-6 {
+  animation: fadeInUp 0.6s ease-out 0.5s forwards;
+  animation-fill-mode: both;
+}
+
+.metric-card-7 {
+  animation: fadeInUp 0.6s ease-out 0.6s forwards;
+  animation-fill-mode: both;
+}
+
+.metric-card-8 {
+  animation: fadeInUp 0.6s ease-out 0.7s forwards;
+  animation-fill-mode: both;
+}
+
+/* Alternative animation styles */
+.metric-card.fade-left {
+  animation: fadeInLeft 0.7s ease-out forwards;
+}
+
+.metric-card.fade-right {
+  animation: fadeInRight 0.7s ease-out forwards;
+}
+
+.metric-card.scale {
+  animation: scaleIn 0.7s ease-out forwards;
+}
+
+.metric-card.bounce {
+  animation: bounceIn 0.8s ease-out forwards;
+}
+
+/* Circular indicator animations */
+.metric-card .circle-indicator {
+  transition: all 0.4s ease;
+  stroke-dasharray: 360;
+  stroke-dashoffset: 360;
+  animation: circle-fill 1.5s ease-out forwards;
+  animation-delay: 0.5s;
+}
+
+@keyframes circle-fill {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Make sure cards are visible properly in dark mode */
+@media (prefers-color-scheme: dark) {
+  .metric-card {
+    background-color: #ffffff !important;
+  }
+  
+  .metric-counter {
+    color: #2d3748 !important;
+  }
+  
+  .metric-card .card-title,
+  .metric-card .card-text {
+    color: #4a5568 !important;
+  }
+}

@@ -9,10 +9,6 @@
     <link rel="icon" href="{{ asset('favicon.ico') }}">
     <title>{{ config('app.name') }} - Admin Panel</title>
     
-    
-    
-    
-    
     <!-- Performance monitoring script -->
     <script src="{{ asset('js/performance-monitor.js') }}"></script>
     
@@ -54,6 +50,8 @@
     <link rel="stylesheet" href="{{ asset('css/hover-card.css') }}">
     <!-- Light mode cards - forces proper background color in light mode -->
     <link rel="stylesheet" href="{{ asset('css/light-mode-cards.css') }}">
+    <!-- Metric card animations - consistent animations across all admin pages -->
+    <link rel="stylesheet" href="{{ asset('css/admin/metric-card-animations.css') }}">
     <!-- Custom Admin CSS -->
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
     
@@ -76,6 +74,19 @@
       textarea, 
       button {
         font-family: 'Nunito', sans-serif;
+      }
+      
+      /* Ensure consistent button colors across themes */
+      .btn-success {
+        background-color: #28a745 !important;
+        border-color: #28a745 !important;
+        color: #fff !important;
+      }
+      
+      .btn-danger {
+        background-color: #dc3545 !important;
+        border-color: #dc3545 !important;
+        color: #fff !important;
       }
       
       /* Sidebar text visibility styles */
@@ -137,7 +148,7 @@
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle text-muted pr-0" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <span class="avatar avatar-sm mt-2 mr-2">
-                <img src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" class="avatar-img rounded-circle" style="width: 32px; height: 32px; object-fit: cover; border: 2px solid #eaeaea;">
+                <img src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" class="avatar-img rounded-circle" style="width: 100px; height: 100px; object-fit: cover; border: 2px solid #eaeaea;">
               </span>
               <span class="d-none d-sm-inline-block">
                 {{ Auth::user()->name }}
@@ -189,8 +200,8 @@
               </a>
             </li>
             
-            <li class="nav-item {{ Request::routeIs('admin.residents') ? 'active' : '' }}">
-              <a href="{{ route('admin.residents') }}" class="nav-link {{ Request::routeIs('admin.residents') ? 'active' : '' }}">
+            <li class="nav-item {{ Request::routeIs('admin.residents.*') ? 'active' : '' }}">
+              <a href="{{ route('admin.residents.index') }}" class="nav-link {{ Request::routeIs('admin.residents.*') ? 'active' : '' }}">
                 <i class="fe fe-users fe-16"></i>
                 <span class="ml-3 item-text">Residents</span>
               </a>
@@ -242,6 +253,13 @@
               <a href="{{ route('admin.analytics') }}" class="nav-link {{ Request::routeIs('admin.analytics') ? 'active' : '' }}">
                 <i class="fe fe-bar-chart-2 fe-16"></i>
                 <span class="ml-3 item-text">Analytics</span>
+              </a>
+            </li>
+            
+            <li class="nav-item {{ Request::routeIs('admin.security.*') ? 'active' : '' }}">
+              <a href="{{ route('admin.security.dashboard') }}" class="nav-link {{ Request::routeIs('admin.security.*') ? 'active' : '' }}">
+                <i class="fe fe-shield fe-16"></i>
+                <span class="ml-3 item-text">Security</span>
               </a>
             </li>
             @endif

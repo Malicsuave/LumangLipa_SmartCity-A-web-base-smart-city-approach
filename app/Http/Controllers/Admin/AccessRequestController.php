@@ -90,6 +90,37 @@ class AccessRequestController extends Controller
             ]
         );
         
+        // Log this activity for security tracking
+        \App\Models\UserActivity::create([
+            'user_id' => $admin->id,
+            'activity_type' => 'access_granted',
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+            'device_type' => $this->detectDeviceType(request()->userAgent()),
+            'is_suspicious' => false,
+            'details' => [
+                'target_user' => $user->email,
+                'granted_role' => $accessRequest->role->name,
+                'request_id' => $accessRequest->id,
+                'notes' => $request->notes
+            ],
+        ]);
+        
+        // Also log an activity for the user who received access
+        \App\Models\UserActivity::create([
+            'user_id' => $user->id,
+            'activity_type' => 'role_assigned',
+            'ip_address' => request()->ip(),
+            'user_agent' => 'System', // Since this wasn't directly performed by the user
+            'device_type' => 'system',
+            'is_suspicious' => false,
+            'details' => [
+                'assigned_by' => $admin->email,
+                'role' => $accessRequest->role->name,
+                'request_id' => $accessRequest->id
+            ],
+        ]);
+        
         Log::info('Access request approved', [
             'request_id' => $accessRequest->id,
             'user_id' => $user->id,
@@ -128,6 +159,38 @@ class AccessRequestController extends Controller
             'admin_notes' => $request->denial_reason
         ]);
         
+        // Log this activity for security tracking
+        \App\Models\UserActivity::create([
+            'user_id' => $admin->id,
+            'activity_type' => 'access_denied',
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+            'device_type' => $this->detectDeviceType(request()->userAgent()),
+            'is_suspicious' => false,
+            'details' => [
+                'target_user' => $accessRequest->user->email,
+                'requested_role' => $accessRequest->role->name,
+                'request_id' => $accessRequest->id,
+                'reason' => $request->denial_reason
+            ],
+        ]);
+        
+        // Also log an activity for the user who was denied
+        \App\Models\UserActivity::create([
+            'user_id' => $accessRequest->user_id,
+            'activity_type' => 'access_request_rejected',
+            'ip_address' => request()->ip(),
+            'user_agent' => 'System', // Since this wasn't directly performed by the user
+            'device_type' => 'system',
+            'is_suspicious' => false,
+            'details' => [
+                'denied_by' => $admin->email,
+                'role' => $accessRequest->role->name,
+                'reason' => $request->denial_reason,
+                'request_id' => $accessRequest->id
+            ],
+        ]);
+        
         Log::info('Access request denied', [
             'request_id' => $accessRequest->id,
             'user_id' => $accessRequest->user_id,
@@ -141,5 +204,37 @@ class AccessRequestController extends Controller
         
         return redirect()->route('admin.access-requests.index')
             ->with('success', 'Access request denied. The user has been notified.');
+    }
+    
+    /**
+     * Detect the device type from user agent string
+     *
+     * @param string|null $userAgent
+     * @return string
+     */
+    private function detectDeviceType(?string $userAgent): string
+    {
+        if (!$userAgent) {
+            return 'unknown';
+        }
+        
+        $userAgent = strtolower($userAgent);
+        
+        $mobileKeywords = ['mobile', 'android', 'iphone', 'ipod', 'blackberry', 'webos'];
+        $tabletKeywords = ['ipad', 'tablet', 'playbook', 'silk'];
+        
+        foreach ($tabletKeywords as $keyword) {
+            if (stripos($userAgent, $keyword) !== false) {
+                return 'tablet';
+            }
+        }
+        
+        foreach ($mobileKeywords as $keyword) {
+            if (stripos($userAgent, $keyword) !== false) {
+                return 'mobile';
+            }
+        }
+        
+        return 'desktop';
     }
 }

@@ -93,15 +93,49 @@ Route::middleware([
 
     // Admin-only routes (Barangay Captain, Secretary)
     Route::middleware('role:Barangay Captain,Barangay Secretary')->group(function () {
-        Route::get('/admin/dashboard', function () {
-            return view('admin.dashboard');
-        })->name('admin.dashboard');
+        Route::get('/admin/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('admin.dashboard');
         Route::get('/admin/documents', function () {
             return view('admin.documents');
         })->name('admin.documents');
-        Route::get('/admin/residents', function () {
-            return view('admin.residents');
-        })->name('admin.residents');
+        
+        // Resident Management Routes - Multi-step Form
+        Route::prefix('admin/residents')->name('admin.residents.')->group(function () {
+            Route::get('/', [App\Http\Controllers\ResidentController::class, 'index'])->name('index');
+            Route::get('/create', [App\Http\Controllers\ResidentController::class, 'create'])->name('create');
+            
+            // Multi-step form routes
+            Route::get('/create/step1', [App\Http\Controllers\ResidentController::class, 'createStep1'])->name('create.step1');
+            Route::post('/create/step1', [App\Http\Controllers\ResidentController::class, 'storeStep1'])->name('create.step1.store');
+            Route::get('/create/step2', [App\Http\Controllers\ResidentController::class, 'createStep2'])->name('create.step2');
+            Route::post('/create/step2', [App\Http\Controllers\ResidentController::class, 'storeStep2'])->name('create.step2.store');
+            Route::get('/create/step3', [App\Http\Controllers\ResidentController::class, 'createStep3'])->name('create.step3');
+            Route::post('/create/step3', [App\Http\Controllers\ResidentController::class, 'storeStep3'])->name('create.step3.store');
+            Route::get('/create/step4', [App\Http\Controllers\ResidentController::class, 'createStep4'])->name('create.step4');
+            Route::post('/create/step4', [App\Http\Controllers\ResidentController::class, 'storeStep4'])->name('create.step4.store');
+            Route::get('/create/step5', [App\Http\Controllers\ResidentController::class, 'createStep5'])->name('create.step5');
+            Route::post('/create/step5', [App\Http\Controllers\ResidentController::class, 'storeStep5'])->name('create.step5.store');
+            Route::get('/create/review', [App\Http\Controllers\ResidentController::class, 'createReview'])->name('create.review');
+            Route::post('/store', [App\Http\Controllers\ResidentController::class, 'store'])->name('store');
+            
+            Route::get('/{resident}', [App\Http\Controllers\ResidentController::class, 'show'])->name('show');
+            Route::get('/{resident}/edit', [App\Http\Controllers\ResidentController::class, 'edit'])->name('edit');
+            Route::put('/{resident}', [App\Http\Controllers\ResidentController::class, 'update'])->name('update');
+            Route::delete('/{resident}', [App\Http\Controllers\ResidentController::class, 'destroy'])->name('destroy');
+            
+            // ID Card Management Routes
+            Route::get('/{resident}/id', [App\Http\Controllers\ResidentIdController::class, 'show'])->name('id.show');
+            Route::post('/{resident}/id/upload-photo', [App\Http\Controllers\ResidentIdController::class, 'uploadPhoto'])->name('id.upload-photo');
+            Route::post('/{resident}/id/upload-signature', [App\Http\Controllers\ResidentIdController::class, 'uploadSignature'])->name('id.upload-signature');
+            Route::post('/{resident}/id/issue', [App\Http\Controllers\ResidentIdController::class, 'issueId'])->name('id.issue');
+            Route::get('/{resident}/id/preview', [App\Http\Controllers\ResidentIdController::class, 'previewId'])->name('id.preview');
+            Route::get('/{resident}/id/download', [App\Http\Controllers\ResidentIdController::class, 'downloadId'])->name('id.download');
+            Route::post('/{resident}/id/mark-renewal', [App\Http\Controllers\ResidentIdController::class, 'markForRenewal'])->name('id.mark-renewal');
+            
+            // Batch ID Management
+            Route::get('/pending-ids', [App\Http\Controllers\ResidentIdController::class, 'pendingIds'])->name('id.pending');
+            Route::post('/batch-issue', [App\Http\Controllers\ResidentIdController::class, 'batchIssue'])->name('id.batch-issue');
+        });
+        
         Route::get('/admin/profile', function () {
             return view('admin.profile');
         })->name('admin.profile');
@@ -119,6 +153,10 @@ Route::middleware([
             ->name('admin.access-requests.index');
         Route::get('/admin/access-requests/{accessRequest}', [App\Http\Controllers\Admin\AccessRequestController::class, 'show'])
             ->name('admin.access-requests.show');
+        Route::post('/admin/access-requests/{accessRequest}/approve', [App\Http\Controllers\Admin\AccessRequestController::class, 'approve'])
+            ->name('admin.access-requests.approve');
+        Route::post('/admin/access-requests/{accessRequest}/deny', [App\Http\Controllers\Admin\AccessRequestController::class, 'deny'])
+            ->name('admin.access-requests.deny');
     });
     
     // Health Worker routes
@@ -126,6 +164,26 @@ Route::middleware([
         Route::get('/admin/health', function () {
             return view('admin.health');
         })->name('admin.health');
+    });
+
+    // User Activity & Security routes
+    Route::get('/user/activities', [App\Http\Controllers\UserActivityController::class, 'index'])
+        ->name('user.activities');
+    Route::post('/user/activities/clear', [App\Http\Controllers\UserActivityController::class, 'clearHistory'])
+        ->name('user.activities.clear');
+
+    // Admin User Activity Management
+    Route::middleware('role:Barangay Captain,Barangay Secretary,Health Worker,Complaint Manager')->group(function () {
+        Route::get('/admin/activities', [App\Http\Controllers\UserActivityController::class, 'adminIndex'])
+            ->name('admin.activities');
+            
+        // User Activity and Security Dashboard Routes
+        Route::get('/admin/security/dashboard', [App\Http\Controllers\Admin\UserActivityController::class, 'dashboard'])
+            ->name('admin.security.dashboard');
+        Route::get('/admin/security/activities', [App\Http\Controllers\Admin\UserActivityController::class, 'index'])
+            ->name('admin.security.activities');
+        Route::get('/admin/security/activities/{id}', [App\Http\Controllers\Admin\UserActivityController::class, 'show'])
+            ->name('admin.security.activities.show');
     });
 
     // Complaint Manager routes
@@ -158,11 +216,6 @@ Route::middleware([
             ->name('admin.approvals.toggle');
         Route::get('/admin/approvals/pending', [AdminApprovalController::class, 'pendingRequests'])
             ->name('admin.approvals.pending');
-
-        Route::post('/admin/access-requests/{accessRequest}/approve', [App\Http\Controllers\Admin\AccessRequestController::class, 'approve'])
-            ->name('admin.access-requests.approve');
-        Route::post('/admin/access-requests/{accessRequest}/deny', [App\Http\Controllers\Admin\AccessRequestController::class, 'deny'])
-            ->name('admin.access-requests.deny');
     });
 });
 

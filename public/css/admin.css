@@ -361,7 +361,7 @@ body.collapsed-menu .sidebar-left {
 .btn-delete i,
 .btn-danger i,
 .action-danger i {
-  color: #e74c3c !important; /* Bright red color */
+  color: #ffffff !important; /* Bright red color */
 }
 
 /* Success action icons - Approve, Complete buttons */

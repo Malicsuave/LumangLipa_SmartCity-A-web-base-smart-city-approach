@@ -1226,10 +1226,10 @@ pre {
   .table td {
     padding: 0.75rem;
     vertical-align: top;
-    border-top: 1px solid #e9ecef; }
+    border-top: 1px solid #2c3e50; }
   .table thead th {
     vertical-align: bottom;
-    border-bottom: 2px solid #e9ecef; }
+    border-bottom: 2px solid #2c3e50; }
   .table tbody + tbody {
     border-top: 2px solid #e9ecef; }
 
@@ -1486,8 +1486,8 @@ pre {
   color: #495057;
   background-color: #ffffff;
   background-clip: padding-box;
-  border: 1px solid #dee2e6;
-  border-radius: 0.25rem;
+  border: 1px solid #4b4c4d;
+  border-radius: 0.15rem;
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out; }
   @media (prefers-reduced-motion: reduce) {
     .form-control {
@@ -2721,7 +2721,7 @@ input[type="button"].btn-block {
     pointer-events: none;
     content: "";
     background-color: #ffffff;
-    border: #ced4da solid 1px; }
+    border: #4b4c4d solid 1px; }
   .custom-control-label::after {
     position: absolute;
     top: 0.15625rem;
@@ -7657,7 +7657,7 @@ select {
   vertical-align: middle !important; }
 
 .table thead th {
-  font-weight: 400; }
+  font-weight: 500; }
 
 .table tbody tr th {
   font-weight: 400; }
@@ -8151,7 +8151,7 @@ svg.navbar-brand-img {
 .table {
   color: #000; }
   .table thead th {
-    color: #ced4da; }
+    color: #2c3e50; }
   .table tbody tr th {
     color: #001a4e; }
   .table tr.collapse {

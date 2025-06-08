@@ -126,14 +126,19 @@ class ValidateRequestSecurity
             '/on\w+\s*=/i',
             
             // Path traversal
-            '/\.\.[\/\\\\]/',
-            
-            // Command injection
-            '/[;&|`$(){}[\]]/i',
+            '#\.\.[\\/\\\\]#',
             
             // File inclusion
             '/(include|require)(_once)?\s*\(/i',
+            
+            // Command injection - Modified to be less aggressive
+            '/[;&|`]{2,}/i', // Only flag multiple consecutive special chars
         ];
+
+        // Skip validation for OAuth routes to prevent blocking Google sign-in
+        if ($this->isOAuthRoute($request)) {
+            return;
+        }
 
         $allInput = json_encode($request->all());
         
@@ -150,6 +155,28 @@ class ValidateRequestSecurity
                 abort(400, 'Invalid request data detected.');
             }
         }
+    }
+
+    /**
+     * Check if the route is an OAuth route
+     */
+    protected function isOAuthRoute(Request $request): bool
+    {
+        $oauthRoutes = [
+            '/auth/google',
+            '/auth/google/callback',
+            '/oauth',
+            '/login/google',
+        ];
+
+        $path = $request->path();
+        foreach ($oauthRoutes as $route) {
+            if (strpos($path, trim($route, '/')) !== false) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

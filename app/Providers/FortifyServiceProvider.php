@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Actions\Auth\AuthenticateUser;
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
 use App\Actions\Fortify\UpdateUserPassword;
@@ -36,13 +37,9 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
 
-        // Custom authentication logic to handle role-based redirects
+        // Custom authentication logic with account locking and activity tracking
         Fortify::authenticateUsing(function (Request $request) {
-            $user = \App\Models\User::where('email', $request->email)->first();
-
-            if ($user && \Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
-                return $user;
-            }
+            return (new AuthenticateUser())->authenticate($request);
         });
 
         // Custom view for Two-Factor Authentication challenge
@@ -61,8 +58,6 @@ class FortifyServiceProvider extends ServiceProvider
         RateLimiter::for('two-factor', function (Request $request) {
             return Limit::perMinute(5)->by($request->session()->get('login.id'));
         });
-
-        
 
         // Override the 2FA routes to use a custom controller with route names
         Route::post('/user/two-factor-authentication', [TwoFactorAuthenticationController::class, 'store'])

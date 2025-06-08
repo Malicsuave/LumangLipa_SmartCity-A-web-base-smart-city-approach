@@ -37,7 +37,7 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\RedirectTwoFactorSetup::class, // Add our new middleware to the web group
-            \App\Http\Middleware\ValidateRequestSecurity::class, // Add ValidateRequestSecurity middleware
+            // Removed ValidateRequestSecurity from global middleware - it was causing 500 errors
         ],
 
         'api' => [

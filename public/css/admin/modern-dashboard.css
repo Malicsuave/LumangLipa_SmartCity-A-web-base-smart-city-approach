@@ -1,0 +1,263 @@
+/* Modern Dashboard Styling */
+
+/* Card styling with smooth transitions */
+.card {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border-radius: 12px !important;
+  overflow: hidden;
+  box-shadow: 0 6px 10px rgba(0,0,0,0.08), 0 0 6px rgba(0,0,0,0.05) !important;
+  border: none !important;
+  background-color: #ffffff !important; /* Ensure card backgrounds are white */
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 20px rgba(0,0,0,0.12), 0 4px 8px rgba(0,0,0,0.06) !important;
+}
+
+/* Card headers with modern styling */
+.card-header {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-bottom: none !important;
+  padding: 16px 20px;
+}
+
+.card-header strong {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #343a40;
+}
+
+/* Welcome widget styling - updated with a different gradient angle */
+.welcome-widget {
+  background: linear-gradient(120deg, #ffffff 0%, #3498db 100%) !important;
+  border-right: 1px solid rgba(52, 152, 219, 0.2) !important;
+  margin-bottom: 25px;
+  box-shadow: 0 6px 10px rgba(0,0,0,0.08), 0 0 6px rgba(0,0,0,0.05) !important;
+}
+
+.welcome-widget .card-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #343a40;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
+}
+
+.welcome-widget .card-text {
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.welcome-widget .card-body {
+  background: transparent;
+  border-left: none;
+  padding: 25px 30px;
+  position: relative;
+  z-index: 2;
+}
+
+/* Stats cards styling */
+.health-metric-card {
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.health-metric-card:hover {
+  transform: translateY(-5px);
+}
+
+.health-metric-card .circle {
+  transition: all 0.3s ease;
+  transform-origin: center;
+}
+
+.health-metric-card:hover .circle {
+  transform: scale(1.15) rotate(10deg);
+}
+
+.health-metric-card .h3 {
+  font-weight: 700;
+  font-size: 1.75rem;
+  color: #2d3748;
+  margin-top: 5px;
+}
+
+.health-metric-card .small {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Chart container styling */
+.chart-container {
+  position: relative;
+  height: 350px;
+  padding: 20px;
+  transition: all 0.3s ease;
+  background-color: #ffffff !important; /* Ensure chart containers have white background */
+}
+
+/* Chart animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Apply animations to chart containers */
+.animate-chart-1 {
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+.animate-chart-2 {
+  animation: fadeInUp 0.8s ease-out 0.2s forwards;
+}
+
+.animate-chart-3 {
+  animation: fadeInUp 0.8s ease-out 0.4s forwards;
+}
+
+.animate-chart-4 {
+  animation: fadeInUp 0.8s ease-out 0.6s forwards;
+}
+
+/* Quick access card styling */
+.quick-access-card {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.quick-access-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 20px rgba(0,0,0,0.12), 0 4px 8px rgba(0,0,0,0.06) !important;
+}
+
+.quick-access-card .btn {
+  transition: all 0.3s ease;
+  border-radius: 50px;
+  padding: 8px 24px;
+  font-weight: 500;
+  box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.quick-access-card .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* Button styling */
+.btn-primary {
+  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+  border: none;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+}
+
+/* Counter animations for stats */
+.counter-value {
+  display: inline-block;
+}
+
+@keyframes countUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.counter-animated {
+  animation: countUp 1s forwards;
+}
+
+/* Glass morphism effect on some elements */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.7) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+}
+
+/* Hide elements initially for animation */
+.hidden-initially {
+  opacity: 0;
+}
+
+/* Empty state styling for charts */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #6c757d;
+}
+
+.empty-state i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+/* Dark mode consideration - modified to keep chart backgrounds white */
+@media (prefers-color-scheme: dark) {
+  .card {
+    background-color: #ffffff !important; /* Keep card background white even in dark mode */
+  }
+  
+  .card-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important; /* Keep header light in dark mode */
+    border-bottom: 1px solid #eaeaea !important; /* Add subtle border in dark mode */
+  }
+  
+  .card-header strong {
+    color: #343a40 !important; /* Keep text dark for contrast */
+  }
+  
+  .health-metric-card .h3 {
+    color: #2d3748 !important; /* Keep metric numbers visible */
+  }
+  
+  /* Ensure chart containers stay white in dark mode */
+  .chart-container {
+    background-color: #ffffff !important;
+  }
+}

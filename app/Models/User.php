@@ -108,4 +108,31 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Role::class);
     }
+    
+    /**
+     * Get all of the activities for the user.
+     */
+    public function activities()
+    {
+        return $this->hasMany(UserActivity::class);
+    }
+    
+    /**
+     * Get the user's last login activity.
+     */
+    public function lastLogin()
+    {
+        return $this->hasMany(UserActivity::class)
+            ->where('activity_type', 'login')
+            ->latest()
+            ->first();
+    }
+    
+    /**
+     * Determine if the user's account is locked.
+     */
+    public function isLocked()
+    {
+        return $this->locked_until && now()->lt($this->locked_until);
+    }
 }

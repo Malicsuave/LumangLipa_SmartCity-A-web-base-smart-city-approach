@@ -69,9 +69,9 @@ class ProfilePhotoUpdateRequest extends FormRequest
                 $originalName = $file->getClientOriginalName();
                 
                 // Check for suspicious file names
-                if (preg_match('/[<>:"\/\\|?*]/', $originalName) || 
+                if (preg_match('#[<>:"/\\|?*]#', $originalName) || 
                     strpos($originalName, '..') !== false ||
-                    preg_match('/\.(php|phtml|php3|php4|php5|phar|exe|bat|cmd|scr)$/i', $originalName)) {
+                    preg_match('#\.(php|phtml|php3|php4|php5|phar|exe|bat|cmd|scr)$#i', $originalName)) {
                     $validator->errors()->add('photo', 'The uploaded file has an invalid or potentially dangerous filename.');
                 }
                 
