@@ -10,8 +10,9 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Response;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use App\Facades\QrCode;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Spatie\Activitylog\Facades\Activity;
 
 class ResidentIdController extends Controller
 {
@@ -157,7 +158,7 @@ class ResidentIdController extends Controller
         ]);
         
         // Record activity
-        activity()
+        Activity::causedBy(auth()->user())
             ->performedOn($resident)
             ->withProperties([
                 'id_issued_at' => $issuedAt,
@@ -183,7 +184,15 @@ class ResidentIdController extends Controller
             'dob' => $resident->birthdate ? $resident->birthdate->format('Y-m-d') : null,
         ]);
         
-        $qrCode = base64_encode(QrCode::format('png')->size(200)->generate($qrData));
+        // Generate QR code, ensure it's base64 encoded without the data URI prefix
+        // The view template will add the proper prefix
+        $qrCodeRaw = QrCode::generateQrCode($qrData, 200);
+        
+        // If the QR code already has the data URI prefix, extract just the base64 part
+        $qrCode = $qrCodeRaw;
+        if (strpos($qrCodeRaw, 'data:image/png;base64,') === 0) {
+            $qrCode = substr($qrCodeRaw, 22); // Remove the prefix
+        }
         
         return view('admin.residents.id-preview', [
             'resident' => $resident,
@@ -206,19 +215,20 @@ class ResidentIdController extends Controller
             'dob' => $resident->birthdate ? $resident->birthdate->format('Y-m-d') : null,
         ]);
         
-        $qrCode = base64_encode(QrCode::format('png')->size(300)->generate($qrData));
+        $qrCode = QrCode::generateQrCode($qrData, 300);
         
         // Generate PDF
-        $pdf = PDF::loadView('admin.residents.id-pdf', [
+        $pdf = Pdf::loadView('admin.residents.id-pdf', [
             'resident' => $resident,
             'qrCode' => $qrCode,
         ]);
         
-        // Set custom paper size for ID card (standard ID size 3.375" x 2.125")
+        // Set paper size to standard ID card dimensions (CR-80 format)
+        // 3.375" × 2.125" (85.6mm × 54mm) - standard credit card size
         $pdf->setPaper([0, 0, 243, 153], 'landscape');
         
         // Record download activity
-        activity()
+        Activity::causedBy(auth()->user())
             ->performedOn($resident)
             ->log('downloaded_id_card');
 
@@ -237,7 +247,7 @@ class ResidentIdController extends Controller
             'id_status' => 'needs_renewal',
         ]);
         
-        activity()
+        Activity::causedBy(auth()->user())
             ->performedOn($resident)
             ->log('marked_id_for_renewal');
 
@@ -251,29 +261,15 @@ class ResidentIdController extends Controller
      */
     public function pendingIds()
     {
-        $pendingIssuance = Resident::where('id_status', 'pending')
-            ->orWhere(function($query) {
-                $query->where('id_status', 'not_issued')
-                      ->whereNotNull('photo');
-            })
-            ->latest()
-            ->get();
+        // Get residents who don't have an ID issue date yet
+        $residents = Resident::whereNull('id_issued_at')
+            ->where('status', 'active')
+            ->orderBy('last_name')
+            ->paginate(25);
             
-        $pendingRenewal = Resident::where('id_status', 'needs_renewal')
-            ->latest()
-            ->get();
-            
-        $expiringSoon = Resident::where('id_status', 'issued')
-            ->whereNotNull('id_expires_at')
-            ->where('id_expires_at', '<=', Carbon::now()->addMonths(3))
-            ->latest()
-            ->get();
-            
-        return view('admin.residents.pending-ids', [
-            'pendingIssuance' => $pendingIssuance,
-            'pendingRenewal' => $pendingRenewal,
-            'expiringSoon' => $expiringSoon,
-        ]);
+        Activity::log('Viewed pending ID issuance list');
+        
+        return view('admin.residents.pending-ids', compact('residents'));
     }
 
     /**
@@ -285,31 +281,142 @@ class ResidentIdController extends Controller
     public function batchIssue(Request $request)
     {
         $request->validate([
-            'resident_ids' => 'required|array',
-            'resident_ids.*' => 'exists:residents,id'
+            'residents' => 'required|array',
+            'residents.*' => 'exists:residents,id',
+            'issue_date' => 'required|date',
+            'expiry_date' => 'required|date|after:issue_date',
         ]);
         
+        $issueDate = Carbon::parse($request->issue_date);
+        $expiryDate = Carbon::parse($request->expiry_date);
         $count = 0;
-        $issuedAt = Carbon::now();
-        $expiresAt = $issuedAt->copy()->addYears(5);
         
-        foreach ($request->resident_ids as $id) {
-            $resident = Resident::find($id);
-            
-            // Skip residents without photos
-            if (!$resident || !$resident->photo) {
-                continue;
+        foreach ($request->residents as $residentId) {
+            $resident = Resident::find($residentId);
+            if ($resident) {
+                $resident->id_issued_at = $issueDate;
+                $resident->id_expiry = $expiryDate;
+                $resident->save();
+                $count++;
             }
-            
-            $resident->update([
-                'id_status' => 'issued',
-                'id_issued_at' => $issuedAt,
-                'id_expires_at' => $expiresAt,
-            ]);
-            
-            $count++;
         }
         
-        return back()->with('success', "{$count} resident ID cards have been successfully issued.");
+        Activity::log("Batch issued {$count} resident IDs");
+        
+        return redirect()->route('admin.residents.id.pending')
+            ->with('success', "{$count} resident IDs have been successfully issued.");
+    }
+
+    /**
+     * Get ID card preview data for modal display via Ajax
+     *
+     * @param Resident $resident
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getIdPreviewData(Resident $resident)
+    {
+        // Generate QR code data (contains barangay ID and name)
+        $qrData = json_encode([
+            'id' => $resident->barangay_id,
+            'name' => $resident->full_name,
+            'dob' => $resident->birthdate ? $resident->birthdate->format('Y-m-d') : null,
+        ]);
+        
+        $qrCode = QrCode::generateQrCode($qrData, 200);
+        
+        // Get resident data needed for the ID
+        $residentData = [
+            'full_name' => $resident->full_name,
+            'barangay_id' => $resident->barangay_id,
+            'address' => $resident->address,
+            'birthdate' => $resident->birthdate ? $resident->birthdate->format('M d, Y') : 'N/A',
+            'birthplace' => $resident->birthplace,
+            'age' => $resident->age,
+            'sex' => $resident->sex,
+            'civil_status' => $resident->civil_status,
+            'contact_number' => $resident->contact_number,
+            'issue_date' => $resident->id_issued_at ? $resident->id_issued_at->format('m/d/Y') : date('m/d/Y'),
+            'expiry_date' => $resident->id_expires_at ? $resident->id_expires_at->format('m/d/Y') : Carbon::now()->addYears(15)->format('m/d/Y'),
+            'id_status' => $resident->id_status,
+            'photo_url' => $resident->photo_url,
+            'signature_url' => $resident->signature ? url('storage/residents/signatures/' . $resident->signature) : null,
+            'is_senior' => in_array('Senior Citizen', (array)$resident->population_sectors),
+        ];
+        
+        // Include the household and emergency contact data
+        $householdData = null;
+        if ($resident->household) {
+            $householdData = [
+                'emergency_contact_name' => $resident->household->emergency_contact_name,
+                'emergency_relationship' => $resident->household->emergency_relationship,
+                'emergency_phone' => $resident->household->emergency_phone
+            ];
+        }
+        
+        return response()->json([
+            'resident' => $residentData,
+            'household' => $householdData,
+            'qr_code' => $qrCode,
+        ]);
+    }
+
+    /**
+     * Update the ID information for a resident.
+     *
+     * @param Request $request
+     * @param Resident $resident
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function updateIdInfo(Request $request, Resident $resident)
+    {
+        $request->validate([
+            'barangay_id' => 'nullable|string|max:50',
+            'id_expires_at' => 'nullable|date|after_or_equal:today',
+        ]);
+
+        try {
+            // Update the resident record with ID information
+            $resident->update([
+                'barangay_id' => $request->barangay_id,
+                'id_expires_at' => $request->id_expires_at,
+            ]);
+            
+            // Record activity
+            Activity::causedBy(auth()->user())
+                ->performedOn($resident)
+                ->withProperties([
+                    'barangay_id' => $request->barangay_id,
+                    'id_expires_at' => $request->id_expires_at,
+                ])
+                ->log('updated_id_info');
+
+            return back()->with('success', 'ID information updated successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error updating resident ID info: ' . $e->getMessage());
+            return back()->with('error', 'Failed to update ID information. Please try again.');
+        }
+    }
+
+    /**
+     * Revoke a previously issued ID card.
+     *
+     * @param Resident $resident
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function revokeId(Resident $resident)
+    {
+        // Update resident record to revoke the ID
+        $resident->update([
+            'id_status' => null,
+            'id_issued_at' => null,
+            'id_expires_at' => null,
+        ]);
+        
+        // Record activity
+        Activity::causedBy(auth()->user())
+            ->performedOn($resident)
+            ->log('revoked_id_card');
+
+        return back()->with('success', 'ID card has been successfully revoked.');
     }
 }

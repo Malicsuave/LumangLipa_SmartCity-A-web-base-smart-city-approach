@@ -43,11 +43,15 @@ class Resident extends Model
         'photo',
         'signature',
         'id_status',
+        'id_issued_at',
+        'id_expires_at',
     ];
 
     protected $casts = [
         'birthdate' => 'date',
         'population_sectors' => 'array',
+        'id_issued_at' => 'date',
+        'id_expires_at' => 'date',
     ];
 
     /**
@@ -178,7 +182,7 @@ class Resident extends Model
     public function getPhotoUrlAttribute(): string
     {
         if ($this->photo) {
-            return Storage::disk('public')->url('residents/photos/' . $this->photo);
+            return asset('storage/residents/photos/' . $this->photo);
         }
         
         // Default avatar based on gender
@@ -195,7 +199,7 @@ class Resident extends Model
     public function getSignatureUrlAttribute(): ?string
     {
         return $this->signature 
-            ? Storage::disk('public')->url('residents/signatures/' . $this->signature)
+            ? asset('storage/residents/signatures/' . $this->signature)
             : null;
     }
     

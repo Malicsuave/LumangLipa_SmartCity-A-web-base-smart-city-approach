@@ -260,8 +260,8 @@ img {
 }
 
 .avatar-xl img {
-  max-width: 64px;
-  max-height: 64px;
+  max-width: 124px;
+  max-height: 124px;
 }
 
 /* Make sure collapse-hide elements are hidden when sidebar is collapsed */

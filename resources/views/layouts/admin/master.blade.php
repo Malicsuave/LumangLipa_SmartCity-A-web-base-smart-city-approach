@@ -200,11 +200,24 @@
               </a>
             </li>
             
-            <li class="nav-item {{ Request::routeIs('admin.residents.*') ? 'active' : '' }}">
-              <a href="{{ route('admin.residents.index') }}" class="nav-link {{ Request::routeIs('admin.residents.*') ? 'active' : '' }}">
+            <li class="nav-item dropdown {{ Request::routeIs('admin.residents.*') ? 'active' : '' }}">
+              <a href="#residents" data-toggle="collapse" aria-expanded="{{ Request::routeIs('admin.residents.*') ? 'true' : 'false' }}" 
+                class="dropdown-toggle nav-link {{ Request::routeIs('admin.residents.*') ? 'active' : '' }}">
                 <i class="fe fe-users fe-16"></i>
                 <span class="ml-3 item-text">Residents</span>
               </a>
+              <ul class="collapse list-unstyled pl-4 w-100 {{ Request::routeIs('admin.residents.*') ? 'show' : '' }}" id="residents">
+                <li class="nav-item {{ Request::routeIs('admin.residents.index') ? 'active' : '' }}">
+                  <a class="nav-link pl-3" href="{{ route('admin.residents.index') }}">
+                    <span class="ml-1 item-text">All Residents</span>
+                  </a>
+                </li>
+                <li class="nav-item {{ Request::routeIs('admin.residents.id.pending') ? 'active' : '' }}">
+                  <a class="nav-link pl-3" href="{{ route('admin.residents.id.pending') }}">
+                    <span class="ml-1 item-text">ID Card Management</span>
+                  </a>
+                </li>
+              </ul>
             </li>
             @endif
 

@@ -77,13 +77,13 @@
 
 .health-metric-card .h3 {
   font-weight: 700;
-  font-size: 1.75rem;
+  font-size: 0.75rem;
   color: #2d3748;
   margin-top: 5px;
 }
 
 .health-metric-card .small {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
