@@ -1,180 +1,307 @@
 @extends('layouts.admin.master')
 
-@section('title', 'Manage Resident ID: ' . $resident->full_name)
+@section('title', 'Resident ID Management')
 
 @section('content')
 <div class="container-fluid">
     <div class="row justify-content-center">
-        <div class="col-md-12">
+        <div class="col-12">
+            <!-- Senior Citizen Alert -->
+            @if($resident->seniorCitizen)
+            <div class="alert alert-info alert-dismissible fade show mb-4" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="fe fe-info fe-24 mr-3"></i>
+                    <div class="flex-grow-1">
+                        <h5 class="alert-heading mb-1">Senior Citizen Detected</h5>
+                        <p class="mb-2">This resident is registered as a senior citizen and has access to both Resident ID and Senior Citizen ID.</p>
+                        <div class="d-flex flex-wrap gap-2">
+                            <a href="{{ route('admin.senior-citizens.id-management', $resident->seniorCitizen) }}" class="btn btn-warning btn-sm">
+                                <i class="fe fe-user-check fe-16 mr-1"></i>Manage Senior Citizen ID
+                            </a>
+                            <span class="text-muted">or continue managing Resident ID below</span>
+                        </div>
+                    </div>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            @endif
+
             <div class="card shadow mb-4">
                 <div class="card-header">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h6 class="m-0 font-weight-bold text-primary">Manage Resident ID: {{ $resident->full_name }}</h6>
-                        <div>
-                            <a href="{{ route('admin.residents.show', $resident) }}" class="btn btn-sm btn-secondary">
-                                <i class="fe fe-arrow-left"></i> Back to Resident Profile
-                            </a>
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            Resident ID Management: {{ $resident->full_name }}
+                            @if($resident->seniorCitizen)
+                                <span class="badge badge-warning ml-2">Senior Citizen</span>
+                            @endif
+                        </h6>
+                        <div class="d-flex gap-2">
+                            @if($resident->seniorCitizen)
+                                <a href="{{ route('admin.senior-citizens.id-management', $resident->seniorCitizen) }}" class="btn btn-outline-warning btn-sm">
+                                    <i class="fe fe-user-check fe-16 mr-1"></i>Senior ID
+                                </a>
+                            @endif
                         </div>
                     </div>
                 </div>
+                
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="card mb-4">
-                                <div class="card-header">
-                                    <h6 class="m-0 font-weight-bold text-primary">Profile Photo</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="text-center mb-3">
-                                        @if($resident->photo)
-                                            <img src="{{ asset('storage/residents/photos/' . $resident->photo) }}" alt="{{ $resident->full_name }}" class="img-fluid img-profile rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
-                                        @else
-                                            <div class="no-photo-placeholder">
-                                                <i class="fe fe-user" style="font-size: 80px;"></i>
-                                                <p>No Photo</p>
-                                            </div>
-                                        @endif
-                                    </div>
-
-                                    <form action="{{ route('admin.residents.id.upload-photo', $resident) }}" method="POST" enctype="multipart/form-data">
-                                        @csrf
-                                        <div class="form-group">
-                                            <label for="photo">Upload ID Photo</label>
-                                            <input type="file" class="form-control-file @error('photo') is-invalid @enderror" id="photo" name="photo" accept="image/*" required>
-                                            <small class="form-text text-muted">Upload a square photo (1:1 ratio) for best results. Max size: 2MB.</small>
-                                            @error('photo')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                        <button type="submit" class="btn btn-primary">Upload Photo</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="card mb-4">
-                                <div class="card-header">
-                                    <h6 class="m-0 font-weight-bold text-primary">Signature</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="text-center mb-3">
-                                        @if($resident->signature)
-                                            <img src="{{ asset('storage/residents/signatures/' . $resident->signature) }}" alt="{{ $resident->full_name }}'s Signature" class="img-fluid signature-image mb-2" style="max-height: 100px; border: 1px solid #ddd; padding: 10px;">
-                                        @else
-                                            <div class="no-signature-placeholder p-3 bg-light rounded text-center mb-3">
-                                                <i class="fe fe-edit-3" style="font-size: 40px;"></i>
-                                                <p>No Signature</p>
-                                            </div>
-                                        @endif
-                                    </div>
-
-                                    <form action="{{ route('admin.residents.id.upload-signature', $resident) }}" method="POST" enctype="multipart/form-data">
-                                        @csrf
-                                        <div class="form-group">
-                                            <label for="signature">Upload Signature</label>
-                                            <input type="file" class="form-control-file @error('signature') is-invalid @enderror" id="signature" name="signature" accept="image/*" required>
-                                            <small class="form-text text-muted">Upload a clear image of the resident's signature. Max size: 1MB.</small>
-                                            @error('signature')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                        <button type="submit" class="btn btn-primary">Upload Signature</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
+                    @if(session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fe fe-check-circle fe-16 mr-2"></i> {{ session('success') }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
+                    @endif
 
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="card mb-4">
-                                <div class="card-header">
-                                    <h6 class="m-0 font-weight-bold text-primary">ID Information</h6>
-                                </div>
-                                <div class="card-body">
-                                    <form action="{{ route('admin.residents.id.update', $resident) }}" method="POST">
-                                        @csrf
-                                        @method('PUT')
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label for="barangay_id">Barangay ID Number</label>
-                                                    <input type="text" class="form-control @error('barangay_id') is-invalid @enderror" id="barangay_id" name="barangay_id" value="{{ old('barangay_id', $resident->barangay_id) }}">
-                                                    @error('barangay_id')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label for="id_expires_at">Valid Until</label>
-                                                    <input type="date" class="form-control @error('id_expires_at') is-invalid @enderror" id="id_expires_at" name="id_expires_at" value="{{ old('id_expires_at', $resident->id_expires_at ? $resident->id_expires_at->format('Y-m-d') : '') }}">
-                                                    @error('id_expires_at')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <button type="submit" class="btn btn-primary">Update ID Information</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
+                    @if(session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fe fe-alert-circle fe-16 mr-2"></i> {{ session('error') }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
+                    @endif
 
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h6 class="m-0 font-weight-bold text-primary">ID Actions</h6>
+                    @if($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fe fe-alert-circle fe-16 mr-2"></i>
+                        <strong>Please fix the following errors:</strong>
+                        <ul class="mb-0 mt-2">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    @endif
+
+                    <!-- ID Type Selection for Senior Citizens -->
+                    @if($resident->seniorCitizen)
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card border-warning">
+                                <div class="card-header bg-warning text-dark">
+                                    <h6 class="mb-0"><i class="fe fe-layers fe-16 mr-2"></i>ID Type Selection</h6>
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <div class="id-status-card p-3 mb-3 text-center rounded {{ $resident->id_status == 'issued' ? 'bg-success' : 'bg-secondary' }}">
-                                                <h5 class="text-white">ID Status: {{ ucfirst($resident->id_status ?: 'Not Issued') }}</h5>
-                                                @if($resident->id_issued_at)
-                                                    <p class="text-white mb-0">Issued on: {{ $resident->id_issued_at->format('M d, Y') }}</p>
-                                                @endif
+                                            <div class="card border-primary">
+                                                <div class="card-body text-center">
+                                                    <i class="fe fe-credit-card fe-24 text-primary mb-2"></i>
+                                                    <h6>Resident ID</h6>
+                                                    <p class="text-muted small">General barangay identification<br>3-year validity</p>
+                                                    <span class="badge badge-primary">Currently Managing</span>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
-                                            <div class="action-buttons text-center">
-                                                @if($resident->photo && $resident->signature)
-                                                    <a href="{{ route('admin.residents.id.preview', $resident) }}" class="btn btn-info mb-2 mx-1">
-                                                        <i class="fe fe-eye"></i> Preview ID Card
+                                            <div class="card border-warning">
+                                                <div class="card-body text-center">
+                                                    <i class="fe fe-user-check fe-24 text-warning mb-2"></i>
+                                                    <h6>Senior Citizen ID</h6>
+                                                    <p class="text-muted small">Senior privileges & benefits<br>5-year validity</p>
+                                                    <a href="{{ route('admin.senior-citizens.id-management', $resident->seniorCitizen) }}" class="btn btn-warning btn-sm">
+                                                        Switch to Senior ID
                                                     </a>
-                                                    
-                                                    @if($resident->id_status != 'issued')
-                                                        <form action="{{ route('admin.residents.id.issue', $resident) }}" method="POST" class="d-inline">
-                                                            @csrf
-                                                            <button type="submit" class="btn btn-success mb-2 mx-1">
-                                                                <i class="fe fe-check-circle"></i> Issue ID
-                                                            </button>
-                                                        </form>
-                                                    @else
-                                                        <form action="{{ route('admin.residents.id.revoke', $resident) }}" method="POST" class="d-inline">
-                                                            @csrf
-                                                            <button type="submit" class="btn btn-danger mb-2 mx-1" onclick="return confirm('Are you sure you want to revoke this ID?')">
-                                                                <i class="fe fe-x-circle"></i> Revoke ID
-                                                            </button>
-                                                        </form>
-                                                        
-                                                        <a href="{{ route('admin.residents.id.download', $resident) }}" class="btn btn-primary mb-2 mx-1">
-                                                            <i class="fe fe-download"></i> Download ID
-                                                        </a>
-                                                    @endif
-                                                @else
-                                                    <div class="alert alert-warning">
-                                                        <i class="fe fe-alert-triangle"></i> Both photo and signature are required to preview or issue an ID.
-                                                    </div>
-                                                @endif
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                    @endif
+
+                    <div class="row">
+                        <!-- Left column: ID details -->
+                        <div class="col-md-6">
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">
+                                        <i class="fe fe-credit-card fe-16 mr-2"></i>Resident ID Information
+                                        @if($resident->seniorCitizen)
+                                            <small class="text-muted">(General Barangay ID)</small>
+                                        @endif
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <p><strong>Barangay ID Number:</strong> {{ $resident->barangay_id ?: 'Not assigned yet' }}</p>
+                                        <p><strong>ID Status:</strong> 
+                                            <span class="badge {{ $resident->id_status == 'issued' ? 'badge-success' : 'badge-warning' }}">
+                                                {{ ucfirst(str_replace('_', ' ', $resident->id_status ?? 'pending')) }}
+                                            </span>
+                                        </p>
+                                        @if($resident->id_expires_at)
+                                            <p><strong>Expiry Date:</strong> {{ $resident->id_expires_at->format('F d, Y') }}</p>
+                                        @endif
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <h6>ID Information</h6>
+                                        <form action="{{ route('admin.residents.id.update', $resident) }}" method="POST">
+                                            @csrf
+                                            @method('PUT')
+                                            <div class="form-group">
+                                                <label for="barangay_id" class="form-label">Barangay ID Number</label>
+                                                <input type="text" class="form-control @error('barangay_id') is-invalid @enderror" id="barangay_id" name="barangay_id" value="{{ old('barangay_id', $resident->barangay_id) }}" placeholder="Enter ID number">
+                                                @error('barangay_id')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="id_expires_at" class="form-label">Expiration Date</label>
+                                                <input type="date" class="form-control @error('id_expires_at') is-invalid @enderror" id="id_expires_at" name="id_expires_at" value="{{ old('id_expires_at', $resident->id_expires_at ? $resident->id_expires_at->format('Y-m-d') : '') }}">
+                                                @error('id_expires_at')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                            <button type="submit" class="btn btn-dark">
+                                                <i class="fe fe-save fe-16 mr-2"></i>Update ID Information
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <h6>ID Actions</h6>
+                                        <div class="d-flex flex-wrap">
+                                            @if($resident->photo && $resident->signature)
+                                                @if($resident->id_status != 'issued')
+                                                    <form action="{{ route('admin.residents.id.issue', $resident) }}" method="POST" style="display: inline;" class="mr-2 mb-2">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-outline-success">
+                                                            <i class="fe fe-credit-card fe-16 mr-2"></i>Issue Resident ID
+                                                        </button>
+                                                    </form>
+                                                @else
+                                                    <a href="{{ route('admin.residents.id.preview', $resident) }}" class="btn btn-outline-secondary mr-2 mb-2">
+                                                        <i class="fe fe-eye fe-16 mr-2"></i>Preview ID
+                                                    </a>
+                                                    <a href="{{ route('admin.residents.id.download', $resident) }}" class="btn btn-primary mr-2 mb-2">
+                                                        <i class="fe fe-download fe-16 mr-2"></i>Download ID
+                                                    </a>
+                                                    <form action="{{ route('admin.residents.id.mark-renewal', $resident) }}" method="POST" style="display: inline;" class="mr-2 mb-2">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-outline-info">
+                                                            <i class="fe fe-refresh-cw fe-16 mr-2"></i>Mark for Renewal
+                                                        </button>
+                                                    </form>
+                                                    <form action="{{ route('admin.residents.id.revoke', $resident) }}" method="POST" style="display: inline;" class="mr-2 mb-2">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-danger">
+                                                            <i class="fe fe-x-circle fe-16 mr-2"></i>Revoke ID
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                            @else
+                                                <div class="alert alert-warning">
+                                                    <div class="d-flex align-items-center">
+                                                        <i class="fe fe-alert-triangle fe-24 mr-3"></i>
+                                                        <div>
+                                                            <h6 class="alert-heading mb-1">Requirements Not Met</h6>
+                                                            <p class="mb-0">Both photo and signature are required before you can preview or issue an ID card.</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right column: Photo & signature -->
+                        <div class="col-md-6">
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">ID Photo</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 text-center mb-3">
+                                            @if($resident->photo)
+                                                <img src="{{ asset('storage/residents/photos/' . $resident->photo) }}" alt="{{ $resident->full_name }}" class="img-fluid rounded" style="max-height: 150px;">
+                                            @else
+                                                <div class="no-photo bg-light p-5 rounded">
+                                                    <i class="fe fe-user fe-24"></i>
+                                                    <p>No photo</p>
+                                                </div>
+                                            @endif
+                                        </div>
+                                        <div class="col-md-6">
+                                            <form action="{{ route('admin.residents.id.upload-photo', $resident) }}" method="POST" enctype="multipart/form-data">
+                                                @csrf
+                                                <div class="form-group">
+                                                    <label for="photo">Upload New Photo</label>
+                                                    <input type="file" class="form-control @error('photo') is-invalid @enderror" id="photo" name="photo" accept="image/*">
+                                                    @error('photo')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                    <small class="form-text text-muted">
+                                                        Upload a square photo (1:1 ratio) for best results. Max size: 5MB.
+                                                    </small>
+                                                </div>
+                                                <button type="submit" class="btn btn-sm btn-primary">
+                                                    <i class="fe fe-upload"></i> Upload Photo
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">ID Signature</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 text-center mb-3">
+                                            @if($resident->signature)
+                                                <img src="{{ asset('storage/residents/signatures/' . $resident->signature) }}" alt="Signature" class="img-fluid" style="max-height: 100px; background-color: #f8f9fa; padding: 10px;">
+                                            @else
+                                                <div class="no-signature bg-light p-3 rounded">
+                                                    <p class="mb-0 text-muted">No signature</p>
+                                                </div>
+                                            @endif
+                                        </div>
+                                        <div class="col-md-6">
+                                            <form action="{{ route('admin.residents.id.upload-signature', $resident) }}" method="POST" enctype="multipart/form-data">
+                                                @csrf
+                                                <div class="form-group">
+                                                    <label for="signature">Upload New Signature</label>
+                                                    <input type="file" class="form-control @error('signature') is-invalid @enderror" id="signature" name="signature" accept="image/*">
+                                                    @error('signature')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                    <small class="form-text text-muted">
+                                                        Upload a clear image of the signature. Max size: 2MB.
+                                                    </small>
+                                                </div>
+                                                <button type="submit" class="btn btn-sm btn-primary">
+                                                    <i class="fe fe-upload"></i> Upload Signature
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <a href="{{ route('admin.residents.id.pending') }}" class="btn btn-secondary">
+                                <i class="fe fe-arrow-left"></i> Back to ID Management
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -193,7 +320,7 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    $('.img-profile').attr('src', e.target.result);
+                    $('img[alt="{{ $resident->full_name }}"]').attr('src', e.target.result);
                 }
                 reader.readAsDataURL(file);
             }
@@ -205,11 +332,8 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    if ($('.signature-image').length) {
-                        $('.signature-image').attr('src', e.target.result);
-                    } else {
-                        $('.no-signature-placeholder').replaceWith('<img src="' + e.target.result + '" class="img-fluid signature-image mb-2" style="max-height: 100px; border: 1px solid #ddd; padding: 10px;">');
-                    }
+                    const signatureContainer = $('.border.rounded.p-3.bg-light');
+                    signatureContainer.html('<img src="' + e.target.result + '" alt="Signature" class="img-fluid" style="max-height: 80px;">');
                 }
                 reader.readAsDataURL(file);
             }

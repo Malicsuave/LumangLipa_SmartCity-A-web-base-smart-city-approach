@@ -1,0 +1,37 @@
+/* Senior ID PDF specific styling */
+.id-card-container {
+    max-width: 450px;
+    margin: 0 auto;
+    position: relative;
+}
+.id-card {
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    background: white;
+    height: 250px;
+    margin-bottom: 20px;
+}
+.id-card-header {
+    background: linear-gradient(to right, #fff8e1, #ffe082);
+    padding: 5px;
+    border-bottom: 1px solid #ffca28;
+}
+.id-card-back {
+    background: #f5f5f5;
+}
+
+/* Text styling */
+.id-card-title {
+    color: #f57f17;
+}
+.idno {
+    color: #f57f17;
+    font-weight: bold;
+}
+.id-card-details,
+.id-card-back-details {
+    font-size: 11px;
+}

@@ -654,3 +654,41 @@ body.collapsed-menu .sidebar-left:hover .nav-item.dropdown.active > .nav-link.dr
   margin: 2px 0 !important;
 }
 
+/* Remove active styling from ID Card Management menu item */
+.sidebar-left .nav-item a[href*="residents.id.pending"] {
+  background: transparent !important;
+  color: #2c3e50 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  transform: none !important;
+  border-left: none !important;
+  margin: 0 !important;
+  animation: none !important;
+}
+
+.sidebar-left .nav-item a[href*="residents.id.pending"]:hover {
+  color: #1a252f !important;
+  background-color: rgba(26, 37, 47, 0.1) !important;
+  border-radius: 5px !important;
+  transform: translateX(2px) !important;
+}
+
+/* Override any active classes for ID Card Management */
+.sidebar-left .nav-item.active a[href*="residents.id.pending"],
+.sidebar-left .nav-item a[href*="residents.id.pending"].active {
+  background: transparent !important;
+  color: #2c3e50 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  transform: none !important;
+  border-left: none !important;
+  margin: 0 !important;
+  animation: none !important;
+}
+
+/* Ensure icons in ID Card Management also use normal styling */
+.sidebar-left .nav-item a[href*="residents.id.pending"] i,
+.sidebar-left .nav-item.active a[href*="residents.id.pending"] i {
+  color: #2c3e50 !important;
+}
+

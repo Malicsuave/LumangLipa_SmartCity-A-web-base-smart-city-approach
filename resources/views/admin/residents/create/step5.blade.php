@@ -5,7 +5,7 @@
 <li class="breadcrumb-item active" aria-current="page">Register New Resident</li>
 @endsection
 
-@section('page-title', 'Register New Resident - Step 5')
+@section('page-title', 'Register New Resident - Step 6')
 @section('page-subtitle', 'Review & Submit')
 
 @section('content')
@@ -29,10 +29,13 @@
                         <small class="text-success">✓ Household Info</small>
                     </div>
                     <div class="col text-center">
+                        <small class="text-success">✓ Senior Info</small>
+                    </div>
+                    <div class="col text-center">
                         <small class="text-success">✓ Family Members</small>
                     </div>
                     <div class="col text-center">
-                        <small class="text-success font-weight-bold">Step 5: Review & Submit</small>
+                        <small class="text-success font-weight-bold">Step 6: Review & Submit</small>
                     </div>
                 </div>
             </div>
@@ -353,6 +356,144 @@
                         </div>
                     </div>
 
+                    <!-- Senior Citizen Section -->
+                    @php
+                        $birthdate = session('registration.step1.birthdate');
+                        $age = \Carbon\Carbon::parse($birthdate)->age;
+                    @endphp
+                    
+                    @if($age >= 60)
+                    <div class="card border-info mb-4">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0 text-info">
+                                <i class="fe fe-award fe-16 mr-2"></i>Senior Citizen Information
+                            </h5>
+                            <a href="{{ route('admin.residents.create.step4-senior') }}" class="btn btn-outline-info btn-sm">
+                                <i class="fe fe-edit fe-12 mr-1"></i>Edit
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <!-- Health Information -->
+                            <h6 class="text-primary mb-3">Health Information</h6>
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <dl class="row">
+                                        <dt class="col-sm-4">Health Conditions:</dt>
+                                        <dd class="col-sm-8">{{ session('registration.step4-senior.health_conditions') ?: 'None specified' }}</dd>
+                                        
+                                        <dt class="col-sm-4">Blood Type:</dt>
+                                        <dd class="col-sm-8">{{ session('registration.step4-senior.blood_type') ?: 'Not provided' }}</dd>
+                                        
+                                        <dt class="col-sm-4">Special Needs:</dt>
+                                        <dd class="col-sm-8">{{ session('registration.step4-senior.special_needs') ?: 'None specified' }}</dd>
+                                    </dl>
+                                </div>
+                                <div class="col-md-6">
+                                    <dl class="row">
+                                        <dt class="col-sm-4">Medications:</dt>
+                                        <dd class="col-sm-8">{{ session('registration.step4-senior.medications') ?: 'None specified' }}</dd>
+                                        
+                                        <dt class="col-sm-4">Allergies:</dt>
+                                        <dd class="col-sm-8">{{ session('registration.step4-senior.allergies') ?: 'None specified' }}</dd>
+                                        
+                                        <dt class="col-sm-4">Last Medical Checkup:</dt>
+                                        <dd class="col-sm-8">
+                                            @if(session('registration.step4-senior.last_medical_checkup'))
+                                                {{ \Carbon\Carbon::parse(session('registration.step4-senior.last_medical_checkup'))->format('F j, Y') }}
+                                            @else
+                                                Not provided
+                                            @endif
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </div>
+                            
+                            <!-- Emergency Contact -->
+                            @if(session('registration.step4-senior.emergency_contact_name'))
+                            <h6 class="text-warning mb-3">Emergency Contact</h6>
+                            <div class="row mb-4">
+                                <div class="col-md-12">
+                                    <dl class="row">
+                                        <dt class="col-sm-2">Name:</dt>
+                                        <dd class="col-sm-4">{{ session('registration.step4-senior.emergency_contact_name') }}</dd>
+                                        
+                                        <dt class="col-sm-2">Relationship:</dt>
+                                        <dd class="col-sm-4">{{ session('registration.step4-senior.emergency_contact_relationship') ?: 'Not specified' }}</dd>
+                                    </dl>
+                                    <dl class="row">
+                                        <dt class="col-sm-2">Phone Number:</dt>
+                                        <dd class="col-sm-4">{{ session('registration.step4-senior.emergency_contact_number') ?: 'Not provided' }}</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                            @endif
+                            
+                            <!-- Benefits & Pension -->
+                            <h6 class="text-info mb-3">Benefits & Pension</h6>
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <dl class="row">
+                                        <dt class="col-sm-5">Receiving Pension:</dt>
+                                        <dd class="col-sm-7">{{ session('registration.step4-senior.receiving_pension') ? 'Yes' : 'No' }}</dd>
+                                        
+                                        @if(session('registration.step4-senior.receiving_pension'))
+                                        <dt class="col-sm-5">Pension Type:</dt>
+                                        <dd class="col-sm-7">{{ session('registration.step4-senior.pension_type') ?: 'Not specified' }}</dd>
+                                        
+                                        <dt class="col-sm-5">Pension Amount:</dt>
+                                        <dd class="col-sm-7">
+                                            @if(session('registration.step4-senior.pension_amount'))
+                                                ₱{{ number_format(session('registration.step4-senior.pension_amount'), 2) }}
+                                            @else
+                                                Not specified
+                                            @endif
+                                        </dd>
+                                        @endif
+                                    </dl>
+                                </div>
+                                <div class="col-md-6">
+                                    <dl class="row">
+                                        <dt class="col-sm-5">Has Senior Discount Card:</dt>
+                                        <dd class="col-sm-7">{{ session('registration.step4-senior.has_senior_discount_card') ? 'Yes' : 'No' }}</dd>
+                                        
+                                        <dt class="col-sm-5">Has PhilHealth:</dt>
+                                        <dd class="col-sm-7">{{ session('registration.step4-senior.has_philhealth') ? 'Yes' : 'No' }}</dd>
+                                        
+                                        @if(session('registration.step4-senior.has_philhealth'))
+                                        <dt class="col-sm-5">PhilHealth Number:</dt>
+                                        <dd class="col-sm-7">{{ session('registration.step4-senior.philhealth_number') ?: 'Not provided' }}</dd>
+                                        @endif
+                                    </dl>
+                                </div>
+                            </div>
+                            
+                            <!-- Programs Enrolled -->
+                            @if(session('registration.step4-senior.programs_enrolled') && count(session('registration.step4-senior.programs_enrolled')) > 0)
+                            <h6 class="text-success mb-3">Programs Enrolled</h6>
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <div class="d-flex flex-wrap">
+                                        @foreach(session('registration.step4-senior.programs_enrolled') as $program)
+                                            <span class="badge badge-success mr-2 mb-2 p-2">{{ $program }}</span>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
+                            
+                            <!-- Additional Notes -->
+                            @if(session('registration.step4-senior.notes'))
+                            <h6 class="text-secondary mb-3">Additional Notes</h6>
+                            <div class="row">
+                                <div class="col-12">
+                                    <p class="text-muted">{{ session('registration.step4-senior.notes') }}</p>
+                                </div>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                    @endif
+
                     <!-- Confirmation -->
                     <div class="card border-dark mb-4">
                         <div class="card-body text-center">
@@ -373,11 +514,13 @@
                     <div class="row mt-4">
                         <div class="col-md-12">
                             <div class="d-flex justify-content-between">
-                                <a href="{{ route('admin.residents.create.step4') }}" class="btn btn-secondary">
-                                    <i class="fe fe-arrow-left fe-16 mr-2"></i>Back: Family Members
+                                <a href="{{ route('admin.residents.create.step4') }}" class="btn btn-secondary d-flex align-items-center justify-content-center">
+                                    <i class="fe fe-arrow-left fe-16 mr-2"></i>
+                                    <span>Back: Family Members</span>
                                 </a>
-                                <button type="submit" class="btn btn-success btn-lg">
-                                    <i class="fe fe-check fe-16 mr-2"></i>Submit Registration
+                                <button type="submit" class="btn btn-primary d-flex align-items-center justify-content-center">
+                                    <i class="fe fe-check-circle fe-16 mr-2"></i>
+                                    <span>Submit Registration</span>
                                 </button>
                             </div>
                         </div>

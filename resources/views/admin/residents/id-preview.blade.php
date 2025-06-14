@@ -16,8 +16,8 @@
                                     <i class="fe fe-download"></i> Download ID
                                 </a>
                             @endif
-                            <a href="{{ route('admin.residents.id.show', $resident) }}" class="btn btn-sm btn-secondary">
-                                <i class="fe fe-arrow-left"></i> Back to ID Management
+                            <a href="{{ route('admin.residents.id.pending') }}" class="btn btn-sm btn-secondary">
+                                <i class="fe fe-arrow-left"></i> Back to Pending IDs
                             </a>
                         </div>
                     </div>
@@ -32,6 +32,9 @@
                             <div class="id-card-container">
                                 <!-- Front Side -->
                                 <div id="idCardFront" class="id-card">
+                                    <div class="id-card-front-bg">
+                                        <img src="{{ asset('images/logo.png') }}" alt="Barangay Logo">
+                                    </div>
                                     <div class="id-card-header">
                                         <div class="d-flex align-items-center">
                                             <img src="{{ asset('images/logo.png') }}" alt="Barangay Logo" class="barangay-logo-left">
@@ -169,10 +172,27 @@
         background: white;
         height: 250px;
     }
+    .id-card-front-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        overflow: hidden;
+    }
+    .id-card-front-bg img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0.1;
+    }
     .id-card-header {
         background: linear-gradient(to right, #e3f2fd, #bbdefb);
         padding: 5px;
         border-bottom: 1px solid #ccc;
+        position: relative;
+        z-index: 2;
     }
     .barangay-logo-left {
         width: 45px;

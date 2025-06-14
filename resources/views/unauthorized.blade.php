@@ -511,7 +511,7 @@
                                 <label for="name" class="form-label">Full Name <span style="color: #ef4444;">*</span></label>
                                 <input type="text" id="name" name="name" class="form-control" value="{{ old('name') }}" placeholder="Enter your full name" required>
                                 @error('name')
-                                    <div class="form-error">{{ $message }}</div>
+                                    <div class="text-danger mt-1">{{ $message }}</div>
                                 @enderror
                                 <div class="form-text">
                                     <i class="fas fa-info-circle"></i> Please enter your complete name as it appears on official documents.
@@ -528,7 +528,7 @@
                                     @endforeach
                                 </select>
                                 @error('role_requested')
-                                    <div class="form-error">{{ $message }}</div>
+                                    <div class="text-danger mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
 
@@ -537,7 +537,7 @@
                                 <label for="reason" class="form-label">Reason for Access Request</label>
                                 <textarea id="reason" name="reason" rows="4" class="form-control" placeholder="Please explain your position in the barangay and why you need access to this system..."></textarea>
                                 @error('reason')
-                                    <div class="form-error">{{ $message }}</div>
+                                    <div class="text-danger mt-1">{{ $message }}</div>
                                 @enderror
                                 <div class="form-text">
                                     <i class="fas fa-info-circle"></i> Please provide detailed information about your role in the community and why you need access to the system.

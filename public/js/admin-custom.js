@@ -43,4 +43,29 @@ document.addEventListener('DOMContentLoaded', function() {
     attributes: true,
     attributeFilter: ['class']
   });
+
+  // Initialize DataTables on all tables with class 'data-table'
+  if (typeof $.fn.DataTable !== 'undefined') {
+    $('.data-table').each(function() {
+      var tableOptions = {
+        responsive: true,
+        lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+        pageLength: 10,
+        language: {
+          search: "<i class='fe fe-search'></i>",
+          searchPlaceholder: "Search records",
+          paginate: {
+            previous: "<i class='fe fe-arrow-left'></i> Previous",
+            next: "Next <i class='fe fe-arrow-right'></i>"
+          }
+        },
+        dom: '<"row align-items-center"<"col-md-6"l><"col-md-6"f>><"table-responsive"t><"row align-items-center"<"col-md-6"i><"col-md-6"p>>'
+      };
+      
+      // Check if this table already has DataTable initialized
+      if (!$.fn.dataTable.isDataTable(this)) {
+        $(this).DataTable(tableOptions);
+      }
+    });
+  }
 });

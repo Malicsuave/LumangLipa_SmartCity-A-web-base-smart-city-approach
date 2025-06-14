@@ -8,17 +8,11 @@
         <div class="col-12">
             <div class="row align-items-center mb-4">
                 <div class="col">
-                    <h2 class="h3 page-title">Edit Resident</h2>
+                    <h2 class="h3 page-title">View & Update Resident</h2>
                 </div>
                 <div class="col-auto">
                     <a href="{{ route('admin.residents.index') }}" class="btn btn-primary mr-2">
                         <i class="fe fe-arrow-left mr-2"></i> Back to List
-                    </a>
-                    <a href="{{ route('admin.residents.show', $resident) }}" class="btn btn-outline-secondary mr-2">
-                        <i class="fe fe-eye mr-2"></i> View Details
-                    </a>
-                    <a href="{{ route('admin.residents.id.show', $resident) }}" class="btn btn-outline-secondary mr-2">
-                        <i class="fe fe-credit-card mr-2"></i> ID Management
                     </a>
                     <button class="btn btn-danger" data-toggle="modal" data-target="#deleteModal" type="button">
                         <i class="fe fe-trash mr-2 text-white"></i> Delete
@@ -248,7 +242,7 @@
                         <div class="card shadow">
                             <div class="card-body">
                                 <div class="text-right">
-                                    <a href="{{ route('admin.residents.show', $resident) }}" class="btn btn-secondary mr-2">Cancel</a>
+                                    <a href="{{ route('admin.residents.index') }}" class="btn btn-secondary mr-2">Cancel</a>
                                     <button type="submit" class="btn btn-primary">Save Changes</button>
                                 </div>
                             </div>

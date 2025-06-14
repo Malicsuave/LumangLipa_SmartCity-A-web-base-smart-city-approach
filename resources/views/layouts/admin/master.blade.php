@@ -31,6 +31,8 @@
     <link rel="stylesheet" href="{{ asset('admin/dark/css/quill.snow.css') }}">
     <!-- Date Range Picker CSS -->
     <link rel="stylesheet" href="{{ asset('admin/dark/css/daterangepicker.css') }}">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="{{ asset('admin/dark/css/dataTables.bootstrap4.css') }}">
     <!-- App CSS -->
     <link rel="stylesheet" href="{{ asset('admin/dark/css/app-light.css') }}" id="lightTheme">
    
@@ -50,6 +52,8 @@
     <link rel="stylesheet" href="{{ asset('css/hover-card.css') }}">
     <!-- Light mode cards - forces proper background color in light mode -->
     <link rel="stylesheet" href="{{ asset('css/light-mode-cards.css') }}">
+    <!-- Form validation styling - consistent validation error messages -->
+    <link rel="stylesheet" href="{{ asset('css/validation.css') }}">
     <!-- Metric card animations - consistent animations across all admin pages -->
     <link rel="stylesheet" href="{{ asset('css/admin/metric-card-animations.css') }}">
     <!-- Custom Admin CSS -->
@@ -130,6 +134,46 @@
         overflow: visible !important;
         transition: opacity 0.2s ease-in-out !important;
       }
+      
+      /* Enhanced active state for dropdown menu items */
+      .nav-item.dropdown .collapse .nav-item.active .nav-link {
+        background-color: #4a5568 !important;
+        color: #ffffff !important;
+        border-radius: 8px;
+        margin: 2px 6px;
+        font-weight: 600;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border-left: none !important;
+      }
+      
+      /* Hover effect for dropdown menu items */
+      .nav-item.dropdown .collapse .nav-item .nav-link:hover {
+        background-color: #e2e8f0 !important;
+        color: #2d3748 !important;
+        border-radius: 8px;
+        margin: 2px 6px;
+        transition: all 0.2s ease-in-out;
+      }
+      
+      /* Default state for dropdown menu items */
+      .nav-item.dropdown .collapse .nav-item .nav-link {
+        padding: 8px 12px;
+        margin: 1px 6px;
+        border-radius: 6px;
+        transition: all 0.2s ease-in-out;
+      }
+      
+      /* Override for dark theme active state */
+      [data-theme="dark"] .nav-item.dropdown .collapse .nav-item.active .nav-link {
+        background-color: #2d3748 !important;
+        color: #e2e8f0 !important;
+      }
+      
+      /* Override for dark theme hover state */
+      [data-theme="dark"] .nav-item.dropdown .collapse .nav-item .nav-link:hover {
+        background-color: #4a5568 !important;
+        color: #e2e8f0 !important;
+      }
     </style>
 
     @stack('styles')
@@ -200,13 +244,13 @@
               </a>
             </li>
             
-            <li class="nav-item dropdown {{ Request::routeIs('admin.residents.*') ? 'active' : '' }}">
-              <a href="#residents" data-toggle="collapse" aria-expanded="{{ Request::routeIs('admin.residents.*') ? 'true' : 'false' }}" 
-                class="dropdown-toggle nav-link {{ Request::routeIs('admin.residents.*') ? 'active' : '' }}">
+            <li class="nav-item dropdown {{ Request::routeIs('admin.residents.*') || Request::routeIs('admin.gad.*') || Request::routeIs('admin.senior-citizens.*') ? 'active' : '' }}">
+              <a href="#residents" data-toggle="collapse" aria-expanded="{{ Request::routeIs('admin.residents.*') || Request::routeIs('admin.gad.*') || Request::routeIs('admin.senior-citizens.*') ? 'true' : 'false' }}" 
+                class="dropdown-toggle nav-link {{ Request::routeIs('admin.residents.*') || Request::routeIs('admin.gad.*') || Request::routeIs('admin.senior-citizens.*') ? 'active' : '' }}">
                 <i class="fe fe-users fe-16"></i>
                 <span class="ml-3 item-text">Residents</span>
               </a>
-              <ul class="collapse list-unstyled pl-4 w-100 {{ Request::routeIs('admin.residents.*') ? 'show' : '' }}" id="residents">
+              <ul class="collapse list-unstyled pl-4 w-100 {{ Request::routeIs('admin.residents.*') || Request::routeIs('admin.gad.*') || Request::routeIs('admin.senior-citizens.*') ? 'show' : '' }}" id="residents">
                 <li class="nav-item {{ Request::routeIs('admin.residents.index') ? 'active' : '' }}">
                   <a class="nav-link pl-3" href="{{ route('admin.residents.index') }}">
                     <span class="ml-1 item-text">All Residents</span>
@@ -215,6 +259,16 @@
                 <li class="nav-item {{ Request::routeIs('admin.residents.id.pending') ? 'active' : '' }}">
                   <a class="nav-link pl-3" href="{{ route('admin.residents.id.pending') }}">
                     <span class="ml-1 item-text">ID Card Management</span>
+                  </a>
+                </li>
+                <li class="nav-item {{ Request::routeIs('admin.gad.*') ? 'active' : '' }}">
+                  <a class="nav-link pl-3" href="{{ route('admin.gad.index') }}">
+                    <span class="ml-1 item-text">Gender & Development</span>
+                  </a>
+                </li>
+                <li class="nav-item {{ Request::routeIs('admin.senior-citizens.*') ? 'active' : '' }}">
+                  <a class="nav-link pl-3" href="{{ route('admin.senior-citizens.index') }}">
+                    <span class="ml-1 item-text">Senior Citizens</span>
                   </a>
                 </li>
               </ul>
@@ -331,6 +385,11 @@
     <script src="{{ asset('admin/dark/js/jquery.min.js') }}"></script>
     <script src="{{ asset('admin/dark/js/popper.min.js') }}"></script>
     <script src="{{ asset('admin/dark/js/bootstrap.min.js') }}"></script>
+
+    <!-- DataTables JavaScript -->
+    <script src="{{ asset('admin/dark/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('admin/dark/js/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('js/table-init.js') }}"></script>
 
     <!-- Theme and sidebar management - with error handling -->
     <script>

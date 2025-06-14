@@ -104,7 +104,19 @@ Route::middleware([
         // Resident Management Routes - Multi-step Form
         Route::prefix('admin/residents')->name('admin.residents.')->group(function () {
             Route::get('/', [App\Http\Controllers\ResidentController::class, 'index'])->name('index');
+            Route::get('/archived', [App\Http\Controllers\ResidentController::class, 'archived'])->name('archived');
+            Route::post('/restore/{id}', [App\Http\Controllers\ResidentController::class, 'restore'])->name('restore');
+            Route::delete('/force-delete/{id}', [App\Http\Controllers\ResidentController::class, 'forceDelete'])->name('force-delete');
             Route::get('/create', [App\Http\Controllers\ResidentController::class, 'create'])->name('create');
+            
+            // Batch ID Management - MOVED BEFORE DYNAMIC ROUTES
+            Route::get('/pending-ids', [App\Http\Controllers\ResidentIdController::class, 'pendingIds'])->name('id.pending');
+            Route::post('/batch-issue', [App\Http\Controllers\ResidentIdController::class, 'batchIssue'])->name('id.batch-issue');
+            // Bulk Upload Routes
+            Route::get('/bulk-upload', [App\Http\Controllers\ResidentIdController::class, 'bulkUpload'])->name('id.bulk-upload');
+            Route::post('/bulk-upload', [App\Http\Controllers\ResidentIdController::class, 'processBulkUpload'])->name('id.bulk-upload');
+            Route::post('/bulk-signature-upload', [App\Http\Controllers\ResidentIdController::class, 'processBulkSignatureUpload'])->name('id.bulk-signature-upload');
+            Route::post('/bulk-issue', [App\Http\Controllers\ResidentIdController::class, 'bulkIssue'])->name('id.bulk-issue');
             
             // Multi-step form routes
             Route::get('/create/step1', [App\Http\Controllers\ResidentController::class, 'createStep1'])->name('create.step1');
@@ -113,17 +125,31 @@ Route::middleware([
             Route::post('/create/step2', [App\Http\Controllers\ResidentController::class, 'storeStep2'])->name('create.step2.store');
             Route::get('/create/step3', [App\Http\Controllers\ResidentController::class, 'createStep3'])->name('create.step3');
             Route::post('/create/step3', [App\Http\Controllers\ResidentController::class, 'storeStep3'])->name('create.step3.store');
+            
+            // Senior Citizen Step (step 4)
+            Route::get('/create/step4-senior', [App\Http\Controllers\ResidentController::class, 'createStep4Senior'])->name('create.step4-senior');
+            Route::post('/create/step4-senior', [App\Http\Controllers\ResidentController::class, 'storeStep4Senior'])->name('create.step4-senior.store');
+            
+            // Family Members (step 5 - was previously step 4)
             Route::get('/create/step4', [App\Http\Controllers\ResidentController::class, 'createStep4'])->name('create.step4');
             Route::post('/create/step4', [App\Http\Controllers\ResidentController::class, 'storeStep4'])->name('create.step4.store');
+            
+            // Additional Info (step 6 - was previously step 5)
             Route::get('/create/step5', [App\Http\Controllers\ResidentController::class, 'createStep5'])->name('create.step5');
             Route::post('/create/step5', [App\Http\Controllers\ResidentController::class, 'storeStep5'])->name('create.step5.store');
+            
+            // Final Review (step 7 - was previously step 6)
             Route::get('/create/review', [App\Http\Controllers\ResidentController::class, 'createReview'])->name('create.review');
             Route::post('/store', [App\Http\Controllers\ResidentController::class, 'store'])->name('store');
             
+            // DYNAMIC ROUTES - NOW AFTER STATIC ROUTES
             Route::get('/{resident}', [App\Http\Controllers\ResidentController::class, 'show'])->name('show');
             Route::get('/{resident}/edit', [App\Http\Controllers\ResidentController::class, 'edit'])->name('edit');
             Route::put('/{resident}', [App\Http\Controllers\ResidentController::class, 'update'])->name('update');
             Route::delete('/{resident}', [App\Http\Controllers\ResidentController::class, 'destroy'])->name('destroy');
+            
+            // Services route for residents
+            Route::get('/{resident}/services', [App\Http\Controllers\ResidentController::class, 'services'])->name('services');
             
             // ID Card Management Routes
             Route::get('/{resident}/id', [App\Http\Controllers\ResidentIdController::class, 'show'])->name('id.show');
@@ -135,12 +161,9 @@ Route::middleware([
             Route::get('/{resident}/id/preview', [App\Http\Controllers\ResidentIdController::class, 'previewId'])->name('id.preview');
             Route::get('/{resident}/id/download', [App\Http\Controllers\ResidentIdController::class, 'downloadId'])->name('id.download');
             Route::post('/{resident}/id/mark-renewal', [App\Http\Controllers\ResidentIdController::class, 'markForRenewal'])->name('id.mark-renewal');
+            Route::post('/{resident}/id/remove-renewal', [App\Http\Controllers\ResidentIdController::class, 'removeFromRenewal'])->name('id.remove-renewal');
             Route::get('/{resident}/id/preview-data', [App\Http\Controllers\ResidentIdController::class, 'getIdPreviewData'])->name('id.preview-data');
             Route::get('/{resident}/id/full-preview', [App\Http\Controllers\ResidentIdController::class, 'fullPreview'])->name('id.full-preview'); // New route for full-page preview
-            
-            // Batch ID Management
-            Route::get('/pending-ids', [App\Http\Controllers\ResidentIdController::class, 'pendingIds'])->name('id.pending');
-            Route::post('/batch-issue', [App\Http\Controllers\ResidentIdController::class, 'batchIssue'])->name('id.batch-issue');
         });
         
         Route::get('/admin/profile', function () {
@@ -164,6 +187,11 @@ Route::middleware([
             ->name('admin.access-requests.approve');
         Route::post('/admin/access-requests/{accessRequest}/deny', [App\Http\Controllers\Admin\AccessRequestController::class, 'deny'])
             ->name('admin.access-requests.deny');
+        
+        // Population Duplicate Management Routes
+        Route::get('/admin/population/duplicates', [App\Http\Controllers\PopulationController::class, 'duplicates'])->name('admin.population.duplicates');
+        Route::post('/admin/population/merge-duplicate', [App\Http\Controllers\PopulationController::class, 'mergeDuplicate'])->name('admin.population.merge-duplicate');
+        Route::delete('/admin/population/remove-duplicate/{type}/{id}', [App\Http\Controllers\PopulationController::class, 'removeDuplicate'])->name('admin.population.remove-duplicate');
     });
     
     // Health Worker routes
@@ -171,14 +199,45 @@ Route::middleware([
         Route::get('/admin/health', function () {
             return view('admin.health');
         })->name('admin.health');
+        
+        // GAD (Gender and Development) Routes
+        Route::prefix('admin/gad')->name('admin.gad.')->group(function() {
+            Route::get('/', [App\Http\Controllers\Admin\GadController::class, 'index'])->name('index');
+            Route::get('/archived', [App\Http\Controllers\Admin\GadController::class, 'archived'])->name('archived');
+            Route::post('/restore/{id}', [App\Http\Controllers\Admin\GadController::class, 'restore'])->name('restore');
+            Route::delete('/force-delete/{id}', [App\Http\Controllers\Admin\GadController::class, 'forceDelete'])->name('force-delete');
+            Route::get('/create', [App\Http\Controllers\Admin\GadController::class, 'create'])->name('create');
+            Route::post('/', [App\Http\Controllers\Admin\GadController::class, 'store'])->name('store');
+            Route::get('/{gad}', [App\Http\Controllers\Admin\GadController::class, 'show'])->name('show');
+            Route::get('/{gad}/edit', [App\Http\Controllers\Admin\GadController::class, 'edit'])->name('edit');
+            Route::put('/{gad}', [App\Http\Controllers\Admin\GadController::class, 'update'])->name('update');
+            Route::delete('/{gad}', [App\Http\Controllers\Admin\GadController::class, 'destroy'])->name('destroy');
+            Route::get('/reports/generate', [App\Http\Controllers\Admin\GadController::class, 'reports'])->name('reports');
+        });
+        
+        // Senior Citizens Management Routes
+        Route::prefix('admin/senior-citizens')->name('admin.senior-citizens.')->group(function() {
+            Route::get('/', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'index'])->name('index');
+            Route::get('/dashboard', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'dashboard'])->name('dashboard');
+            Route::get('/{seniorCitizen}/edit', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'edit'])->name('edit');
+            Route::put('/{seniorCitizen}', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'update'])->name('update');
+            Route::post('/{seniorCitizen}/issue-id', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'issueId'])->name('issue-id');
+            Route::post('/{seniorCitizen}/mark-renewal', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'markForRenewal'])->name('mark-renewal');
+            Route::post('/{seniorCitizen}/revoke-id', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'revokeId'])->name('revoke-id');
+            
+            // Senior Citizen ID Preview and Download Routes
+            Route::get('/{seniorCitizen}/id/preview', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'previewId'])->name('id.preview');
+            Route::get('/{seniorCitizen}/id/download', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'downloadId'])->name('id.download');
+            
+            // Senior Citizen Photo and Signature Management
+            Route::get('/{seniorCitizen}/id-management', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'showIdManagement'])->name('id-management');
+            Route::post('/{seniorCitizen}/upload-photo', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'uploadPhoto'])->name('upload-photo');
+            Route::post('/{seniorCitizen}/upload-signature', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'uploadSignature'])->name('upload-signature');
+            Route::put('/{seniorCitizen}/update-id-info', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'updateIdInfo'])->name('update-id-info');
+        });
     });
 
     // User Activity & Security routes
-    Route::get('/user/activities', [App\Http\Controllers\UserActivityController::class, 'index'])
-        ->name('user.activities');
-    Route::post('/user/activities/clear', [App\Http\Controllers\UserActivityController::class, 'clearHistory'])
-        ->name('user.activities.clear');
-
     // Admin User Activity Management
     Route::middleware('role:Barangay Captain,Barangay Secretary,Health Worker,Complaint Manager')->group(function () {
         Route::get('/admin/activities', [App\Http\Controllers\UserActivityController::class, 'adminIndex'])

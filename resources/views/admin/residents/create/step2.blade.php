@@ -78,7 +78,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                @error('citizenship_type')
+                                @error('citizenship')
                                     <div class="text-danger mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -94,7 +94,7 @@
                                        value="{{ old('citizenship_country', session('registration.step2.citizenship_country')) }}" 
                                        placeholder="e.g., United States, Japan">
                                 @error('citizenship_country')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="text-danger mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
@@ -104,11 +104,11 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="profession_occupation" class="form-label">Profession/Occupation</label>
+                                <label for="profession_occupation" class="form-label">Profession/Occupation <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control @error('profession_occupation') is-invalid @enderror" 
                                        id="profession_occupation" name="profession_occupation" 
                                        value="{{ old('profession_occupation', session('registration.step2.profession_occupation')) }}" 
-                                       placeholder="e.g., government employee, nurse, engineer, farmer">
+                                       placeholder="e.g., government employee, nurse, engineer, farmer" required>
                                 @error('profession_occupation')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -128,7 +128,7 @@
                                 </div>
                                 <small class="form-text text-muted">Enter your approximate monthly income in Philippine Peso</small>
                                 @error('monthly_income')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="text-danger mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
@@ -138,21 +138,22 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="contact_number" class="form-label">Contact Number <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control @error('contact_number') is-invalid @enderror" 
+                                <input type="tel" class="form-control @error('contact_number') is-invalid @enderror" 
                                        id="contact_number" name="contact_number" value="{{ old('contact_number', session('registration.step2.contact_number')) }}" 
-                                       placeholder="e.g., 09123456789" required>
-                                <small class="form-text text-muted">Enter a valid Philippine mobile number (e.g., 09XXXXXXXXX or +639XXXXXXXXX)</small>
+                                       placeholder="e.g., 09123456789" required maxlength="11" pattern="[0-9]{11}"
+                                       oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11)">
+                                <small class="form-text text-muted">Enter a valid Philippine mobile number (11 digits, e.g., 09XXXXXXXXX)</small>
                                 @error('contact_number')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="text-danger mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="email_address" class="form-label">Email Address</label>
+                                <label for="email_address" class="form-label">Email Address <span class="text-danger">*</span></label>
                                 <input type="email" class="form-control @error('email_address') is-invalid @enderror" 
                                        id="email_address" name="email_address" value="{{ old('email_address', session('registration.step2.email_address')) }}" 
-                                       placeholder="example@email.com">
+                                       placeholder="example@email.com" required>
                                 @error('email_address')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -168,7 +169,7 @@
                                        id="religion" name="religion" value="{{ old('religion', session('registration.step2.religion')) }}" 
                                        placeholder="e.g., Christian, Islam, other religion">
                                 @error('religion')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="text-danger mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
@@ -179,7 +180,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="educational_attainment" class="form-label">Highest Educational Attainment <span class="text-danger">*</span></label>
-                                <select class="form-control @error('educational_attainment') is-invalid @enderror" 
+                                <select class="form-control @error('education_attainment') is-invalid @enderror" 
                                         id="educational_attainment" name="educational_attainment" required>
                                     <option value="">Select Educational Attainment</option>
                                     <option value="Elementary" {{ old('educational_attainment', session('registration.step2.educational_attainment')) == 'Elementary' ? 'selected' : '' }}>Elementary</option>
@@ -189,8 +190,8 @@
                                     <option value="Vocational" {{ old('educational_attainment', session('registration.step2.educational_attainment')) == 'Vocational' ? 'selected' : '' }}>Vocational</option>
                                     <option value="not applicable" {{ old('educational_attainment', session('registration.step2.educational_attainment')) == 'not applicable' ? 'selected' : '' }}>Not Applicable</option>
                                 </select>
-                                @error('educational_attainment')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @error('education_attainment')
+                                    <div class="text-danger mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
@@ -205,7 +206,7 @@
                                     <option value="not applicable" {{ old('education_status', session('registration.step2.education_status')) == 'not applicable' ? 'selected' : '' }}>Not Applicable</option>
                                 </select>
                                 @error('education_status')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="text-danger mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
@@ -221,7 +222,7 @@
                                 <input type="text" class="form-control @error('mother_first_name') is-invalid @enderror" 
                                        id="mother_first_name" name="mother_first_name" value="{{ old('mother_first_name', session('registration.step2.mother_first_name')) }}">
                                 @error('mother_first_name')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="text-danger mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
@@ -231,7 +232,7 @@
                                 <input type="text" class="form-control @error('mother_middle_name') is-invalid @enderror" 
                                        id="mother_middle_name" name="mother_middle_name" value="{{ old('mother_middle_name', session('registration.step2.mother_middle_name')) }}">
                                 @error('mother_middle_name')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="text-danger mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
@@ -241,7 +242,7 @@
                                 <input type="text" class="form-control @error('mother_last_name') is-invalid @enderror" 
                                        id="mother_last_name" name="mother_last_name" value="{{ old('mother_last_name', session('registration.step2.mother_last_name')) }}">
                                 @error('mother_last_name')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="text-danger mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
@@ -257,7 +258,7 @@
                                 <textarea class="form-control @error('address') is-invalid @enderror" 
                                           id="address" name="address" rows="3" required>{{ old('address', session('registration.step2.address')) }}</textarea>
                                 @error('address')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="text-danger mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
@@ -268,7 +269,7 @@
                                        id="philsys_id" name="philsys_id" value="{{ old('philsys_id', session('registration.step2.philsys_id')) }}" 
                                        placeholder="1234-5678-9012">
                                 @error('philsys_id')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="text-danger mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
@@ -308,11 +309,13 @@
                     <div class="row mt-4">
                         <div class="col-md-12">
                             <div class="d-flex justify-content-between">
-                                <a href="{{ route('admin.residents.create') }}" class="btn btn-secondary">
-                                    <i class="fe fe-arrow-left fe-16 mr-2"></i>Back: Personal Info
+                                <a href="{{ route('admin.residents.create') }}" class="btn btn-secondary d-flex align-items-center justify-content-center">
+                                    <i class="fe fe-arrow-left fe-16 mr-2"></i>
+                                    <span>Back: Personal Info</span>
                                 </a>
-                                <button type="submit" class="btn btn-primary">
-                                    Next: Household Information <i class="fe fe-arrow-right fe-16 ml-2"></i>
+                                <button type="submit" class="btn btn-primary d-flex align-items-center justify-content-center">
+                                    <span>Next: Household Information</span>
+                                    <i class="fe fe-arrow-right fe-16 ml-2"></i>
                                 </button>
                             </div>
                         </div>

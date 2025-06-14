@@ -5,35 +5,36 @@
 
 class FormValidator {
     constructor() {
-        this.forms = document.querySelectorAll('form[data-validate]');
+        // Apply to ALL forms, not just those with data-validate
+        this.forms = document.querySelectorAll('form');
         this.init();
     }
 
     init() {
         this.forms.forEach(form => {
-            this.setupFormValidation(form);
-        });
-    }
-
-    setupFormValidation(form) {
-        const inputs = form.querySelectorAll('input, textarea, select');
-        
-        inputs.forEach(input => {
-            // Real-time validation on input
-            input.addEventListener('input', () => this.validateField(input));
-            input.addEventListener('blur', () => this.validateField(input));
+            // Disable browser's default validation
+            form.setAttribute('novalidate', 'true');
             
-            // Security enhancements
-            this.addSecurityListeners(input);
-        });
-
-        // Form submission validation
-        form.addEventListener('submit', (e) => {
-            if (!this.validateForm(form)) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-            form.classList.add('was-validated');
+            // Add submit event listener to intercept form submission
+            form.addEventListener('submit', (event) => {
+                // Always prevent default form submission first
+                event.preventDefault();
+                
+                // Validate the form
+                const isValid = this.validateForm(form);
+                
+                // If valid, submit the form programmatically
+                if (isValid) {
+                    form.submit();
+                }
+            });
+            
+            // Add input event listeners for real-time validation feedback
+            const fields = form.querySelectorAll('input, textarea, select');
+            fields.forEach(field => {
+                field.addEventListener('input', () => this.validateField(field));
+                field.addEventListener('blur', () => this.validateField(field));
+            });
         });
     }
 
@@ -52,59 +53,56 @@ class FormValidator {
         if (field.hasAttribute('required') && !value) {
             isValid = false;
             errorMessage = 'This field is required.';
-        }
-
-        // Type-specific validations
-        if (value && isValid) {
-            switch (fieldType) {
-                case 'email':
-                    isValid = this.validateEmail(value);
-                    errorMessage = isValid ? '' : 'Please enter a valid email address.';
-                    break;
-                
-                case 'password':
-                    const passwordResult = this.validatePassword(value, field);
-                    isValid = passwordResult.isValid;
-                    errorMessage = passwordResult.message;
-                    break;
-                
-                case 'text':
-                    if (fieldName === 'name') {
-                        isValid = this.validateName(value);
-                        errorMessage = isValid ? '' : 'Name can only contain letters, spaces, dots, hyphens, and apostrophes.';
-                    }
-                    break;
-                
-                case 'file':
-                    if (field.files.length > 0) {
-                        const fileResult = this.validateFile(field.files[0], field);
-                        isValid = fileResult.isValid;
-                        errorMessage = fileResult.message;
-                    }
-                    break;
-                
-                case 'textarea':
-                    if (fieldName === 'reason' || fieldName === 'denial_reason') {
-                        isValid = this.validateTextContent(value);
-                        errorMessage = isValid ? '' : 'Please remove any potentially harmful content.';
-                    }
-                    break;
-            }
-        }
-
-        // Length validations
-        if (value && isValid) {
-            const minLength = field.getAttribute('minlength');
-            const maxLength = field.getAttribute('maxlength');
+        } else if (value) {
+            // Only validate non-empty fields that aren't required
             
-            if (minLength && value.length < parseInt(minLength)) {
-                isValid = false;
-                errorMessage = `Must be at least ${minLength} characters.`;
+            // Email validation
+            if (fieldType === 'email') {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(value)) {
+                    isValid = false;
+                    errorMessage = 'Please enter a valid email address.';
+                }
             }
             
-            if (maxLength && value.length > parseInt(maxLength)) {
-                isValid = false;
-                errorMessage = `Must not exceed ${maxLength} characters.`;
+            // Password validation
+            else if (fieldType === 'password') {
+                if (value.length < 8) {
+                    isValid = false;
+                    errorMessage = 'Password must be at least 8 characters.';
+                }
+            }
+            
+            // Phone number validation for common field names
+            else if (fieldName.includes('phone') || fieldName.includes('contact')) {
+                const phoneRegex = /^[0-9+\-\s()]{7,15}$/;
+                if (!phoneRegex.test(value)) {
+                    isValid = false;
+                    errorMessage = 'Please enter a valid phone number.';
+                }
+            }
+            
+            // Date validation
+            else if (fieldType === 'date') {
+                const date = new Date(value);
+                if (isNaN(date.getTime())) {
+                    isValid = false;
+                    errorMessage = 'Please enter a valid date.';
+                }
+            }
+            
+            // Number validation
+            else if (fieldType === 'number') {
+                const min = parseFloat(field.getAttribute('min'));
+                const max = parseFloat(field.getAttribute('max'));
+                
+                if (!isNaN(min) && parseFloat(value) < min) {
+                    isValid = false;
+                    errorMessage = `Value must be at least ${min}.`;
+                } else if (!isNaN(max) && parseFloat(value) > max) {
+                    isValid = false;
+                    errorMessage = `Value must be at most ${max}.`;
+                }
             }
         }
 
@@ -125,213 +123,79 @@ class FormValidator {
         });
 
         // Password confirmation validation
-        const password = form.querySelector('input[name="new_password"]');
-        const passwordConfirm = form.querySelector('input[name="new_password_confirmation"]');
+        const password = form.querySelector('input[name="password"], input[name="new_password"]');
+        const passwordConfirm = form.querySelector('input[name="password_confirmation"], input[name="new_password_confirmation"]');
         
-        if (password && passwordConfirm) {
+        if (password && passwordConfirm && password.value && passwordConfirm.value) {
             if (password.value !== passwordConfirm.value) {
                 this.applyFieldValidation(passwordConfirm, false, 'Passwords do not match.');
                 isFormValid = false;
             }
         }
 
+        // Scroll to the first error field if form is invalid
+        if (!isFormValid) {
+            const firstInvalidField = form.querySelector('.is-invalid');
+            if (firstInvalidField) {
+                firstInvalidField.focus();
+                firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
         return isFormValid;
-    }
-
-    validateEmail(email) {
-        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        return emailRegex.test(email) && email.length <= 255;
-    }
-
-    validatePassword(password, field) {
-        const minLength = 8;
-        const hasLetter = /[a-zA-Z]/.test(password);
-        const hasNumber = /\d/.test(password);
-        const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-        const hasUpperCase = /[A-Z]/.test(password);
-        const hasLowerCase = /[a-z]/.test(password);
-
-        if (password.length < minLength) {
-            return { isValid: false, message: `Password must be at least ${minLength} characters.` };
-        }
-
-        if (!hasLetter) {
-            return { isValid: false, message: 'Password must contain at least one letter.' };
-        }
-
-        if (!hasNumber) {
-            return { isValid: false, message: 'Password must contain at least one number.' };
-        }
-
-        if (!hasSpecial) {
-            return { isValid: false, message: 'Password must contain at least one special character.' };
-        }
-
-        if (!hasUpperCase) {
-            return { isValid: false, message: 'Password must contain at least one uppercase letter.' };
-        }
-
-        if (!hasLowerCase) {
-            return { isValid: false, message: 'Password must contain at least one lowercase letter.' };
-        }
-
-        return { isValid: true, message: '' };
-    }
-
-    validateName(name) {
-        const nameRegex = /^[a-zA-Z\s\.\-\']+$/;
-        return nameRegex.test(name) && name.length >= 2 && name.length <= 255;
-    }
-
-    validateFile(file, field) {
-        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-        const maxSize = 1024 * 1024; // 1MB
-        
-        if (!allowedTypes.includes(file.type)) {
-            return { isValid: false, message: 'Please select a valid image file (JPG, PNG, or WebP).' };
-        }
-        
-        if (file.size > maxSize) {
-            return { isValid: false, message: 'File size must not exceed 1MB.' };
-        }
-        
-        return { isValid: true, message: '' };
-    }
-
-    validateTextContent(text) {
-        // Check for potentially harmful content
-        const suspiciousPatterns = [
-            /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
-            /javascript:/gi,
-            /on\w+\s*=/gi,
-            /<iframe/gi,
-            /<object/gi,
-            /<embed/gi
-        ];
-        
-        for (const pattern of suspiciousPatterns) {
-            if (pattern.test(text)) {
-                return false;
-            }
-        }
-        
-        return true;
-    }
-
-    addSecurityListeners(input) {
-        // Prevent common XSS attempts
-        input.addEventListener('paste', (e) => {
-            setTimeout(() => {
-                const value = input.value;
-                if (value && !this.validateTextContent(value)) {
-                    input.value = this.sanitizeInput(value);
-                    this.applyFieldValidation(input, false, 'Potentially harmful content was removed.');
-                }
-            }, 10);
-        });
-
-        // Rate limiting for form submissions
-        if (input.closest('form')) {
-            this.addRateLimiting(input.closest('form'));
-        }
-    }
-
-    sanitizeInput(input) {
-        return input
-            .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-            .replace(/javascript:/gi, '')
-            .replace(/on\w+\s*=/gi, '')
-            .replace(/<iframe/gi, '')
-            .replace(/<object/gi, '')
-            .replace(/<embed/gi, '');
-    }
-
-    addRateLimiting(form) {
-        if (form.dataset.rateLimited) return;
-        
-        form.dataset.rateLimited = 'true';
-        let submitCount = 0;
-        let lastSubmit = 0;
-        
-        form.addEventListener('submit', (e) => {
-            const now = Date.now();
-            const timeDiff = now - lastSubmit;
-            
-            if (timeDiff < 3000) { // 3 seconds between submissions
-                submitCount++;
-                if (submitCount > 3) {
-                    e.preventDefault();
-                    this.showAlert('Too many submission attempts. Please wait before trying again.', 'warning');
-                    return false;
-                }
-            } else {
-                submitCount = 0;
-            }
-            
-            lastSubmit = now;
-        });
     }
 
     clearFieldValidation(field) {
         field.classList.remove('is-valid', 'is-invalid');
-        const feedback = field.parentNode.querySelector('.invalid-feedback, .valid-feedback');
+        
+        // Find and remove existing feedback elements
+        const parentElement = field.parentElement;
+        const feedback = parentElement.querySelector('.invalid-feedback');
         if (feedback) {
-            feedback.textContent = '';
+            feedback.remove();
         }
     }
 
     applyFieldValidation(field, isValid, message) {
-        field.classList.remove('is-valid', 'is-invalid');
+        // Add appropriate class based on validation result
         field.classList.add(isValid ? 'is-valid' : 'is-invalid');
         
-        let feedback = field.parentNode.querySelector('.invalid-feedback');
-        if (!feedback && !isValid) {
-            feedback = document.createElement('div');
-            feedback.className = 'invalid-feedback';
-            field.parentNode.appendChild(feedback);
-        }
-        
-        if (feedback) {
+        // Add error message for invalid fields
+        if (!isValid) {
+            const parentElement = field.parentElement;
+            let feedback = parentElement.querySelector('.invalid-feedback');
+            
+            // Create feedback element if it doesn't exist
+            if (!feedback) {
+                feedback = document.createElement('div');
+                feedback.className = 'invalid-feedback';
+                parentElement.appendChild(feedback);
+            }
+            
             feedback.textContent = message;
-            feedback.style.display = isValid ? 'none' : 'block';
+            feedback.style.display = 'block';
         }
     }
+}
 
-    showAlert(message, type = 'info') {
-        const alertDiv = document.createElement('div');
-        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
-        alertDiv.innerHTML = `
-            ${message}
-            <button type="button" class="close" data-dismiss="alert">
-                <span>&times;</span>
-            </button>
-        `;
-        
-        const container = document.querySelector('.container, .container-fluid') || document.body;
-        container.insertBefore(alertDiv, container.firstChild);
-        
-        setTimeout(() => {
-            alertDiv.remove();
-        }, 5000);
-    }
+// Fix asterisk positioning for required fields
+function fixAsteriskPositioning() {
+    const requiredLabels = document.querySelectorAll('label[for]');
+    requiredLabels.forEach(label => {
+        const forAttribute = label.getAttribute('for');
+        if (forAttribute) {
+            const field = document.getElementById(forAttribute);
+            if (field && field.hasAttribute('required')) {
+                label.classList.add('required-field');
+            }
+        }
+    });
 }
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     new FormValidator();
-});
-
-// Additional security measures
-document.addEventListener('DOMContentLoaded', () => {
-    // Disable right-click on sensitive forms
-    document.querySelectorAll('form[data-secure]').forEach(form => {
-        form.addEventListener('contextmenu', e => e.preventDefault());
-    });
     
-    // Clear sensitive form data when page is unloaded
-    window.addEventListener('beforeunload', () => {
-        document.querySelectorAll('input[type="password"]').forEach(input => {
-            input.value = '';
-        });
-    });
+    // Apply styling for required fields
+    fixAsteriskPositioning();
 });

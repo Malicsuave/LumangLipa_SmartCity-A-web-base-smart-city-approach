@@ -99,7 +99,7 @@
                                 <input type="text" class="form-control @error('last_name') is-invalid @enderror" 
                                        id="last_name" name="last_name" value="{{ old('last_name', session('registration.step1.last_name')) }}" required>
                                 @error('last_name')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="text-danger mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
@@ -109,7 +109,7 @@
                                 <input type="text" class="form-control @error('first_name') is-invalid @enderror" 
                                        id="first_name" name="first_name" value="{{ old('first_name', session('registration.step1.first_name')) }}" required>
                                 @error('first_name')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="text-danger mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
@@ -119,7 +119,7 @@
                                 <input type="text" class="form-control @error('middle_name') is-invalid @enderror" 
                                        id="middle_name" name="middle_name" value="{{ old('middle_name', session('registration.step1.middle_name')) }}">
                                 @error('middle_name')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="text-danger mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
@@ -129,7 +129,7 @@
                                 <input type="text" class="form-control @error('suffix') is-invalid @enderror" 
                                        id="suffix" name="suffix" value="{{ old('suffix', session('registration.step1.suffix')) }}" placeholder="Jr., Sr.">
                                 @error('suffix')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="text-danger mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
@@ -143,7 +143,7 @@
                                 <input type="text" class="form-control @error('birthplace') is-invalid @enderror" 
                                        id="birthplace" name="birthplace" value="{{ old('birthplace', session('registration.step1.birthplace')) }}" required>
                                 @error('birthplace')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="text-danger mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
@@ -153,7 +153,7 @@
                                 <input type="date" class="form-control @error('birthdate') is-invalid @enderror" 
                                        id="birthdate" name="birthdate" value="{{ old('birthdate', session('registration.step1.birthdate')) }}" required>
                                 @error('birthdate')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="text-danger mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
@@ -208,11 +208,13 @@
                     <div class="row mt-4">
                         <div class="col-md-12">
                             <div class="d-flex justify-content-between">
-                                <a href="{{ route('admin.residents.index') }}" class="btn btn-secondary">
-                                    <i class="fe fe-arrow-left fe-16 mr-2"></i>Cancel
+                                <a href="{{ route('admin.residents.index') }}" class="btn btn-secondary d-flex align-items-center justify-content-center">
+                                    <i class="fe fe-arrow-left fe-16 mr-2"></i>
+                                    <span>Cancel</span>
                                 </a>
-                                <button type="submit" class="btn btn-primary">
-                                    Next: Citizenship & Education <i class="fe fe-arrow-right fe-16 ml-2"></i>
+                                <button type="submit" class="btn btn-primary d-flex align-items-center justify-content-center">
+                                    <span>Next: Citizenship & Education</span>
+                                    <i class="fe fe-arrow-right fe-16 ml-2"></i>
                                 </button>
                             </div>
                         </div>

@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class ResidentController extends Controller
 {
@@ -27,7 +28,9 @@ class ResidentController extends Controller
                     ->orWhere('middle_name', 'like', "%{$search}%")
                     ->orWhere('last_name', 'like', "%{$search}%")
                     ->orWhere('barangay_id', 'like', "%{$search}%")
-                    ->orWhere('contact_number', 'like', "%{$search}%");
+                    ->orWhere('contact_number', 'like', "%{$search}%")
+                    ->orWhere('email_address', 'like', "%{$search}%")
+                    ->orWhere('address', 'like', "%{$search}%");
             });
         }
 
@@ -41,7 +44,73 @@ class ResidentController extends Controller
             $query->where('civil_status', $request->civil_status);
         }
 
+        // Filter by gender
+        if ($request->has('gender') && !empty($request->gender)) {
+            $query->where('sex', $request->gender);
+        }
+
+        // Filter by age group
+        if ($request->has('age_group') && !empty($request->age_group)) {
+            $now = Carbon::now();
+            switch ($request->age_group) {
+                case 'children':
+                    $query->whereDate('birthdate', '>=', $now->copy()->subYears(18));
+                    break;
+                case 'adults':
+                    $query->whereDate('birthdate', '<', $now->copy()->subYears(18))
+                          ->whereDate('birthdate', '>', $now->copy()->subYears(60));
+                    break;
+                case 'seniors':
+                    $query->whereDate('birthdate', '<=', $now->copy()->subYears(60));
+                    break;
+            }
+        }
+
+        // Filter by educational attainment
+        if ($request->has('education') && !empty($request->education)) {
+            $query->where('educational_attainment', $request->education);
+        }
+
+        // Filter by citizenship type
+        if ($request->has('citizenship') && !empty($request->citizenship)) {
+            $query->where('citizenship_type', $request->citizenship);
+        }
+
+        // Filter by ID status
+        if ($request->has('id_status') && !empty($request->id_status)) {
+            $query->where('id_status', $request->id_status);
+        }
+
+        // Filter by population sector
+        if ($request->has('population_sector') && !empty($request->population_sector)) {
+            $query->whereJsonContains('population_sectors', $request->population_sector);
+        }
+
+        // Filter by income range
+        if ($request->has('income_range') && !empty($request->income_range)) {
+            switch ($request->income_range) {
+                case 'low':
+                    $query->where('monthly_income', '<', 15000);
+                    break;
+                case 'middle':
+                    $query->whereBetween('monthly_income', [15000, 50000]);
+                    break;
+                case 'high':
+                    $query->where('monthly_income', '>', 50000);
+                    break;
+                case 'no_income':
+                    $query->whereNull('monthly_income')->orWhere('monthly_income', 0);
+                    break;
+            }
+        }
+
+        // Sort by name by default
+        $query->orderBy('last_name')->orderBy('first_name');
+
         $residents = $query->paginate(10);
+
+        // Preserve query parameters in pagination links
+        $residents->appends($request->query());
 
         return view('admin.residents', compact('residents'));
     }
@@ -74,19 +143,35 @@ class ResidentController extends Controller
     {
         $validated = $request->validate([
             'type_of_resident' => 'required|in:Non-Migrant,Migrant,Transient',
-            'first_name' => 'required|string|max:100',
             'last_name' => 'required|string|max:100',
+            'first_name' => 'required|string|max:100',
             'middle_name' => 'nullable|string|max:100',
             'suffix' => 'nullable|string|max:10',
             'birthplace' => 'required|string|max:255',
             'birthdate' => 'required|date|before_or_equal:today',
             'sex' => 'required|in:Male,Female',
-            'civil_status' => 'required|in:Single,Married,Widowed,Separated,Divorced'
+            'civil_status' => 'required|in:Single,Married,Widowed,Separated,Divorced',
+        ], [
+            'type_of_resident.required' => 'Please select the type of resident.',
+            'type_of_resident.in' => 'Please select a valid resident type.',
+            'last_name.required' => 'The last name field is required.',
+            'last_name.max' => 'The last name must not exceed 100 characters.',
+            'first_name.required' => 'The first name field is required.',
+            'first_name.max' => 'The first name must not exceed 100 characters.',
+            'middle_name.max' => 'The middle name must not exceed 100 characters.',
+            'suffix.max' => 'The suffix must not exceed 10 characters.',
+            'birthplace.required' => 'The birthplace field is required.',
+            'birthdate.required' => 'The birthdate field is required.',
+            'birthdate.date' => 'The birthdate must be a valid date format.',
+            'birthdate.before_or_equal' => 'The birthdate cannot be in the future.',
+            'sex.required' => 'Please select a gender.',
+            'sex.in' => 'Please select a valid gender.',
+            'civil_status.required' => 'Please select a civil status.',
+            'civil_status.in' => 'Please select a valid civil status.'
         ]);
 
-        // Store data in session
         Session::put('registration.step1', $validated);
-
+        
         return redirect()->route('admin.residents.create.step2');
     }
 
@@ -111,7 +196,6 @@ class ResidentController extends Controller
     public function storeStep2(Request $request)
     {
         $validated = $request->validate([
-            // Match field names with form inputs in step2.blade.php
             'citizenship_type' => 'required|string|in:FILIPINO,Dual Citizen,Foreigner',
             'citizenship_country' => 'nullable|required_if:citizenship_type,Dual Citizen,Foreigner|string|max:100',
             'profession_occupation' => 'required|string|max:100',
@@ -131,13 +215,20 @@ class ResidentController extends Controller
         ], 
         [
             'citizenship_type.required' => 'Please select your citizenship type.',
+            'citizenship_type.in' => 'Please select a valid citizenship type.',
             'citizenship_country.required_if' => 'Please specify the country for dual citizenship or foreign citizenship.',
-            'educational_attainment.required' => 'Please specify your highest educational attainment.',
-            'address.required' => 'Please provide your current address.',
-            'contact_number.required' => 'Please provide a contact number.',
-            'contact_number.regex' => 'The contact number must be a valid Philippine mobile number (e.g. 09XXXXXXXXX or +639XXXXXXXXX).',
+            'profession_occupation.required' => 'The profession/occupation field is required.',
             'monthly_income.numeric' => 'Monthly income must be a valid number.',
             'monthly_income.min' => 'Monthly income cannot be negative.',
+            'contact_number.required' => 'The contact number field is required.',
+            'contact_number.numeric' => 'The contact number must contain only numbers.',
+            'contact_number.digits' => 'The contact number must be exactly 11 digits.',
+            'email_address.required' => 'The email address field is required.',
+            'email_address.email' => 'Please enter a valid email address.',
+            'email_address.max' => 'The email address must not exceed 255 characters.',
+            'educational_attainment.required' => 'Please specify your highest educational attainment.',
+            'address.required' => 'The address field is required.',
+            'address.max' => 'The address must not exceed 255 characters.',
         ]);
 
         // Store validated data in session
@@ -168,7 +259,7 @@ class ResidentController extends Controller
     {
         $validated = $request->validate([
             'primary_name' => 'required|string|max:255',
-            'primary_birthday' => 'required|date',
+            'primary_birthday' => 'required|date|before_or_equal:today',
             'primary_gender' => 'required|in:Male,Female',
             'primary_phone' => 'required|numeric|digits:11',
             'primary_work' => 'nullable|string|max:100',
@@ -176,7 +267,7 @@ class ResidentController extends Controller
             'primary_medical_condition' => 'nullable|string|max:255',
             
             'secondary_name' => 'nullable|string|max:255',
-            'secondary_birthday' => 'nullable|date',
+            'secondary_birthday' => 'nullable|date|before_or_equal:today',
             'secondary_gender' => 'nullable|in:Male,Female',
             'secondary_phone' => 'nullable|numeric|digits:11',
             'secondary_work' => 'nullable|string|max:100',
@@ -188,15 +279,37 @@ class ResidentController extends Controller
             'emergency_work' => 'nullable|string|max:100',
             'emergency_phone' => 'nullable|numeric|digits:11',
         ], [
+            'primary_name.required' => 'The primary person\'s name is required.',
+            'primary_birthday.required' => 'The primary person\'s birthday is required.',
+            'primary_birthday.date' => 'The birthday must be a valid date format.',
+            'primary_birthday.before_or_equal' => 'The birthday cannot be in the future.',
+            'primary_gender.required' => 'Please select the primary person\'s gender.',
+            'primary_gender.in' => 'Please select a valid gender.',
+            'primary_phone.required' => 'The primary phone number is required.',
+            'primary_phone.numeric' => 'The phone number must contain only numbers.',
             'primary_phone.digits' => 'The primary phone number must be exactly 11 digits.',
+            'secondary_phone.numeric' => 'The phone number must contain only numbers.',
             'secondary_phone.digits' => 'The secondary phone number must be exactly 11 digits.',
-            'emergency_phone.digits' => 'The emergency contact phone number must be exactly 11 digits.'
+            'emergency_phone.numeric' => 'The emergency contact phone number must contain only numbers.',
+            'emergency_phone.digits' => 'The emergency contact phone number must be exactly 11 digits.',
+            'secondary_birthday.date' => 'The birthday must be a valid date format.',
+            'secondary_birthday.before_or_equal' => 'The birthday cannot be in the future.',
+            'secondary_gender.in' => 'Please select a valid gender.',
         ]);
 
         // Store data in session
         Session::put('registration.step3', $validated);
 
-        return redirect()->route('admin.residents.create.step4');
+        // Check if the registered person is 60 or older to determine next step
+        $birthdate = Session::get('registration.step1.birthdate');
+        $age = Carbon::parse($birthdate)->age;
+
+        // If 60 or older, go to senior citizen step, otherwise go to family members step
+        if ($age >= 60) {
+            return redirect()->route('admin.residents.create.step4-senior');
+        } else {
+            return redirect()->route('admin.residents.create.step4');
+        }
     }
 
     /**
@@ -221,7 +334,7 @@ class ResidentController extends Controller
     {
         $validated = $request->validate([
             'family_members.*.name' => 'nullable|string|max:255',
-            'family_members.*.birthday' => 'nullable|date',
+            'family_members.*.birthday' => 'nullable|date|before_or_equal:today',
             'family_members.*.gender' => 'nullable|in:Male,Female',
             'family_members.*.relationship' => 'nullable|string|max:100',
             'family_members.*.related_to' => 'nullable|in:primary,secondary,both',
@@ -230,8 +343,13 @@ class ResidentController extends Controller
             'family_members.*.allergies' => 'nullable|string|max:255',
             'family_members.*.medical_condition' => 'nullable|string|max:255',
         ], [
-            'family_members.*.phone.digits' => 'Each family member phone number must be exactly 11 digits.',
+            'family_members.*.name.max' => 'The family member name must not exceed 255 characters.',
+            'family_members.*.phone.numeric' => 'The family member phone number must contain only numbers.',
+            'family_members.*.phone.digits' => 'The family member phone number must be exactly 11 digits.',
             'family_members.*.related_to.in' => 'The family member relation must be either primary, secondary, or both.',
+            'family_members.*.birthday.date' => 'The birthday must be a valid date format.',
+            'family_members.*.birthday.before_or_equal' => 'The birthday cannot be in the future.',
+            'family_members.*.gender.in' => 'Please select a valid gender for the family member.',
         ]);
 
         // Store data in session
@@ -337,7 +455,17 @@ class ResidentController extends Controller
             $resident->philsys_id = Session::get('registration.step2.philsys_id');
             
             if (Session::has('registration.step2.population_sectors')) {
-                $resident->population_sectors = Session::get('registration.step2.population_sectors');
+                $sectors = Session::get('registration.step2.population_sectors');
+                
+                // If Senior Citizen is not already in population sectors but resident is 60+, add it
+                $birthdate = \Carbon\Carbon::parse($resident->birthdate);
+                $age = $birthdate->age;
+                
+                if ($age >= 60 && !in_array('Senior Citizen', $sectors)) {
+                    $sectors[] = 'Senior Citizen';
+                }
+                
+                $resident->population_sectors = $sectors;
             }
             
             // Mother's maiden name if provided
@@ -405,6 +533,63 @@ class ResidentController extends Controller
                     $familyMember->resident_id = $resident->id;
                     $familyMember->save();
                 }
+            }
+
+            // Check if resident is a senior citizen (60 years or older)
+            $birthdate = \Carbon\Carbon::parse($resident->birthdate);
+            $age = $birthdate->age;
+            
+            if ($age >= 60) {
+                // Create senior citizen record
+                $seniorCitizen = new \App\Models\SeniorCitizen();
+                $seniorCitizen->resident_id = $resident->id;
+                $seniorCitizen->senior_id_number = \App\Models\SeniorCitizen::generateSeniorIdNumber();
+                $seniorCitizen->senior_id_issued_at = now();
+                $seniorCitizen->senior_id_expires_at = now()->addYears(5);
+                $seniorCitizen->senior_id_status = 'issued';
+                
+                // Copy health information from household if available
+                $seniorCitizen->health_conditions = Session::get('registration.step3.primary_medical_condition') ?? null;
+                $seniorCitizen->allergies = Session::get('registration.step3.primary_allergies') ?? null;
+                
+                // Set emergency contact from household data
+                if (Session::get('registration.step3.emergency_contact_name')) {
+                    $seniorCitizen->emergency_contact_name = Session::get('registration.step3.emergency_contact_name');
+                    $seniorCitizen->emergency_contact_number = Session::get('registration.step3.emergency_phone');
+                    $seniorCitizen->emergency_contact_relationship = Session::get('registration.step3.emergency_relationship');
+                }
+                
+                // Add senior-specific information from step 5
+                if ($request->has('senior_info')) {
+                    $seniorInfo = $request->senior_info;
+                    
+                    // Override emergency contact if provided
+                    if (!empty($seniorInfo['contact_person'])) {
+                        $seniorCitizen->emergency_contact_name = $seniorInfo['contact_person'];
+                    }
+                    
+                    if (!empty($seniorInfo['contact_number'])) {
+                        $seniorCitizen->emergency_contact_number = $seniorInfo['contact_number'];
+                    }
+                    
+                    // Add additional health information if provided
+                    if (!empty($seniorInfo['additional_health'])) {
+                        $seniorCitizen->health_conditions = !empty($seniorCitizen->health_conditions) 
+                            ? $seniorCitizen->health_conditions . '; ' . $seniorInfo['additional_health'] 
+                            : $seniorInfo['additional_health'];
+                    }
+                    
+                    // Store pension type and living arrangement
+                    if (!empty($seniorInfo['pension_type'])) {
+                        $seniorCitizen->pension_type = $seniorInfo['pension_type'];
+                    }
+                    
+                    if (!empty($seniorInfo['living_arrangement'])) {
+                        $seniorCitizen->living_arrangement = $seniorInfo['living_arrangement'];
+                    }
+                }
+                
+                $seniorCitizen->save();
             }
 
             // Commit the transaction
@@ -504,20 +689,165 @@ class ResidentController extends Controller
     }
 
     /**
-     * Remove the specified resident from storage.
+     * Archive the specified resident instead of permanently deleting.
      */
     public function destroy(Resident $resident)
     {
         try {
-            // Delete the resident
-            // This should cascade to related records if set up properly in the database
+            // Archive (soft delete) the resident
             $resident->delete();
             
             return redirect()->route('admin.residents.index')
-                ->with('success', 'Resident deleted successfully!');
+                ->with('success', 'Resident archived successfully! You can restore it from the archive.');
         } catch (\Exception $e) {
             return redirect()->back()
-                ->with('error', 'Error deleting resident: ' . $e->getMessage());
+                ->with('error', 'Error archiving resident: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Display archived residents.
+     */
+    public function archived(Request $request)
+    {
+        $query = Resident::onlyTrashed();
+
+        // Search functionality for archived residents
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                    ->orWhere('middle_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%")
+                    ->orWhere('barangay_id', 'like', "%{$search}%")
+                    ->orWhere('contact_number', 'like', "%{$search}%");
+            });
+        }
+
+        // Sort by deletion date (most recently archived first)
+        $query->orderBy('deleted_at', 'desc');
+
+        $archivedResidents = $query->paginate(10);
+        $archivedResidents->appends($request->query());
+
+        return view('admin.residents.archived', compact('archivedResidents'));
+    }
+
+    /**
+     * Restore an archived resident.
+     */
+    public function restore($id)
+    {
+        try {
+            $resident = Resident::onlyTrashed()->findOrFail($id);
+            $resident->restore();
+            
+            return redirect()->route('admin.residents.archived')
+                ->with('success', 'Resident restored successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Error restoring resident: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Permanently delete an archived resident.
+     */
+    public function forceDelete($id)
+    {
+        try {
+            $resident = Resident::onlyTrashed()->findOrFail($id);
+            
+            // Delete related records first
+            if ($resident->household) {
+                $resident->household->delete();
+            }
+            
+            $resident->familyMembers()->delete();
+            
+            if ($resident->seniorCitizen) {
+                $resident->seniorCitizen->delete();
+            }
+            
+            if ($resident->gad) {
+                $resident->gad->delete();
+            }
+            
+            // Permanently delete the resident
+            $resident->forceDelete();
+            
+            return redirect()->route('admin.residents.archived')
+                ->with('success', 'Resident permanently deleted!');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Error permanently deleting resident: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Show the senior citizens step of resident registration.
+     */
+    public function createStep4Senior()
+    {
+        // Check if previous steps have been completed
+        if (!Session::has('registration.step3')) {
+            return redirect()->route('admin.residents.create.step3')
+                ->with('error', 'Please complete step 3 first');
+        }
+
+        // Check if this person is 60 or older to qualify as a senior
+        $birthdate = Session::get('registration.step1.birthdate');
+        $age = Carbon::parse($birthdate)->age;
+
+        // If under 60, skip this step and go to family members
+        if ($age < 60) {
+            return redirect()->route('admin.residents.create.step4')
+                ->with('info', 'Senior citizen form is only for residents aged 60 and above.');
+        }
+
+        return view('admin.residents.create.step4-senior');
+    }
+
+    /**
+     * Store the senior citizens step of resident registration.
+     */
+    public function storeStep4Senior(Request $request)
+    {
+        $validated = $request->validate([
+            'health_conditions' => 'nullable|string',
+            'medications' => 'nullable|string',
+            'allergies' => 'nullable|string',
+            'blood_type' => 'nullable|string|max:10',
+            'emergency_contact_name' => 'nullable|string|max:255',
+            'emergency_contact_number' => 'nullable|string|max:20',
+            'emergency_contact_relationship' => 'nullable|string|max:100',
+            'receiving_pension' => 'nullable|boolean',
+            'pension_type' => 'nullable|string|max:50',
+            'pension_amount' => 'nullable|numeric',
+            'has_philhealth' => 'nullable|boolean',
+            'philhealth_number' => 'nullable|string|max:20',
+            'has_senior_discount_card' => 'nullable|boolean',
+            'programs_enrolled' => 'nullable|array',
+            'programs_enrolled.*' => 'string',
+            'last_medical_checkup' => 'nullable|date',
+            'special_needs' => 'nullable|string',
+            'notes' => 'nullable|string',
+        ]);
+
+        // Store data in session
+        Session::put('registration.step4-senior', $validated);
+
+        return redirect()->route('admin.residents.create.step4');
+    }
+
+    /**
+     * Show services page for a specific resident.
+     */
+    public function services(Resident $resident)
+    {
+        // Load related data
+        $resident->load('household', 'familyMembers');
+        
+        return view('admin.residents.services', compact('resident'));
     }
 }

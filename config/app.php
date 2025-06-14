@@ -171,6 +171,7 @@ return [
         App\Providers\FortifyServiceProvider::class,
         App\Providers\JetstreamServiceProvider::class,
         App\Providers\PHPMailerServiceProvider::class,
+        App\Providers\PaginationServiceProvider::class,
     ])->toArray(),
 
     /*

@@ -6,13 +6,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use App\Traits\TracksActivity;
 
 class Resident extends Model
 {
-    use HasFactory, TracksActivity;
+    use HasFactory, TracksActivity, SoftDeletes;
 
     protected $fillable = [
         'barangay_id',
@@ -140,6 +141,30 @@ class Resident extends Model
     public function familyMembers(): HasMany
     {
         return $this->hasMany(FamilyMember::class);
+    }
+    
+    /**
+     * Relationship with senior citizen information
+     */
+    public function seniorCitizen(): HasOne
+    {
+        return $this->hasOne(SeniorCitizen::class);
+    }
+    
+    /**
+     * Relationship with GAD (Gender and Development) information
+     */
+    public function gad(): HasOne
+    {
+        return $this->hasOne(Gad::class);
+    }
+    
+    /**
+     * Check if resident is a senior citizen (60 years old or above)
+     */
+    public function getIsSeniorCitizenAttribute(): bool
+    {
+        return $this->birthdate && $this->birthdate->diffInYears(now()) >= 60;
     }
 
     /**

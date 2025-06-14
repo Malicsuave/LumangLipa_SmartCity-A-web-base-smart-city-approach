@@ -5,8 +5,23 @@
 <li class="breadcrumb-item active" aria-current="page">Register New Resident</li>
 @endsection
 
-@section('page-title', 'Register New Resident - Step 4')
+@section('page-title', 'Register New Resident - Step 5')
 @section('page-subtitle', 'Family Members')
+
+@section('styles')
+<style>
+    /* Styles for validation error messages */
+    .invalid-feedback, 
+    .text-danger {
+        position: static !important;
+        display: block;
+        width: 100%;
+        margin-top: 0.25rem;
+        font-size: 80%;
+        color: #dc3545;
+    }
+</style>
+@endsection
 
 @section('content')
 <div class="row">
@@ -29,10 +44,13 @@
                         <small class="text-success">✓ Household Info</small>
                     </div>
                     <div class="col text-center">
-                        <small class="text-primary font-weight-bold">Step 4: Family Members</small>
+                        <small class="text-success">✓ Senior Info</small>
                     </div>
                     <div class="col text-center">
-                        <small class="text-muted">Step 5: Review</small>
+                        <small class="text-primary font-weight-bold">Step 5: Family Members</small>
+                    </div>
+                    <div class="col text-center">
+                        <small class="text-muted">Step 6: Review</small>
                     </div>
                 </div>
             </div>
@@ -76,9 +94,9 @@
                                                     <input type="text" name="family_members[{{ $index }}][name]" 
                                                            class="form-control @error('family_members.'.$index.'.name') is-invalid @enderror" 
                                                            value="{{ $member['name'] ?? '' }}" required>
-                                                    @error('family_members.'.$index.'.name')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
+                                                    @error('member_name')
+                                        <div class="text-danger mt-1">{{ $message }}</div>
+                                    @enderror
                                                 </div>
                                             </div>
                                             <div class="col-md-2">
@@ -96,9 +114,9 @@
                                                         <option value="In-Law" {{ (isset($member['relationship']) && $member['relationship'] == 'In-Law') ? 'selected' : '' }}>In-Law</option>
                                                         <option value="Other" {{ (isset($member['relationship']) && $member['relationship'] == 'Other') ? 'selected' : '' }}>Other Relative</option>
                                                     </select>
-                                                    @error('family_members.'.$index.'.relationship')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
+                                                    @error('member_relationship')
+                                        <div class="text-danger mt-1">{{ $message }}</div>
+                                    @enderror
                                                 </div>
                                             </div>
                                             <div class="col-md-2">
@@ -106,10 +124,10 @@
                                                     <label class="form-label">Birthday <span class="text-danger">*</span></label>
                                                     <input type="date" name="family_members[{{ $index }}][birthday]" 
                                                            class="form-control @error('family_members.'.$index.'.birthday') is-invalid @enderror" 
-                                                           value="{{ $member['birthday'] ?? '' }}" required>
-                                                    @error('family_members.'.$index.'.birthday')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
+                                                           value="{{ $member['birthday'] ?? '' }}" max="{{ date('Y-m-d') }}" required>
+                                                    @error('member_birthdate')
+                                        <div class="text-danger mt-1">{{ $message }}</div>
+                                    @enderror
                                                 </div>
                                             </div>
                                             <div class="col-md-2">
@@ -121,9 +139,9 @@
                                                         <option value="Male" {{ ($member['gender'] ?? '') == 'Male' ? 'selected' : '' }}>Male</option>
                                                         <option value="Female" {{ ($member['gender'] ?? '') == 'Female' ? 'selected' : '' }}>Female</option>
                                                     </select>
-                                                    @error('family_members.'.$index.'.gender')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
+                                                    @error('member_gender')
+                                        <div class="text-danger mt-1">{{ $message }}</div>
+                                    @enderror
                                                 </div>
                                             </div>
                                             <div class="col-md-3">
@@ -132,9 +150,9 @@
                                                     <input type="text" name="family_members[{{ $index }}][work]" 
                                                            class="form-control @error('family_members.'.$index.'.work') is-invalid @enderror" 
                                                            value="{{ $member['work'] ?? '' }}" placeholder="Student, Teacher, etc.">
-                                                    @error('family_members.'.$index.'.work')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
+                                                    @error('member_occupation')
+                                        <div class="text-danger mt-1">{{ $message }}</div>
+                                    @enderror
                                                 </div>
                                             </div>
                                         </div>
@@ -146,7 +164,7 @@
                                                            class="form-control @error('family_members.'.$index.'.medical_condition') is-invalid @enderror" 
                                                            value="{{ $member['medical_condition'] ?? '' }}" placeholder="Any medical conditions">
                                                     @error('family_members.'.$index.'.medical_condition')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                        <div class="text-danger mt-1">{{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
@@ -157,7 +175,7 @@
                                                            class="form-control @error('family_members.'.$index.'.allergies') is-invalid @enderror" 
                                                            value="{{ $member['allergies'] ?? '' }}" placeholder="Food, medicine, etc.">
                                                     @error('family_members.'.$index.'.allergies')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                        <div class="text-danger mt-1">{{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
@@ -174,7 +192,7 @@
                                                         <option value="both" {{ (isset($member['related_to']) && $member['related_to'] == 'both') ? 'selected' : '' }}>Both</option>
                                                     </select>
                                                     @error('family_members.'.$index.'.related_to')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                        <div class="text-danger mt-1">{{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
@@ -194,11 +212,13 @@
                     <div class="row mt-4">
                         <div class="col-md-12">
                             <div class="d-flex justify-content-between">
-                                <a href="{{ route('admin.residents.create.step3') }}" class="btn btn-secondary">
-                                    <i class="fe fe-arrow-left fe-16 mr-2"></i>Back: Household Information
+                                <a href="{{ route('admin.residents.create.step4-senior') }}" class="btn btn-secondary d-flex align-items-center justify-content-center">
+                                    <i class="fe fe-arrow-left fe-16 mr-2"></i>
+                                    <span>Back: Senior Information</span>
                                 </a>
-                                <button type="submit" class="btn btn-primary">
-                                    Next: Review & Submit <i class="fe fe-arrow-right fe-16 ml-2"></i>
+                                <button type="submit" class="btn btn-primary d-flex align-items-center justify-content-center">
+                                    <span>Next: Review & Submit</span>
+                                    <i class="fe fe-arrow-right fe-16 ml-2"></i>
                                 </button>
                             </div>
                         </div>
@@ -245,7 +265,7 @@
                 <div class="col-md-2">
                     <div class="form-group">
                         <label class="form-label">Birthday <span class="text-danger">*</span></label>
-                        <input type="date" name="family_members[INDEX][birthday]" class="form-control" required>
+                        <input type="date" name="family_members[INDEX][birthday]" class="form-control" max="{{ date('Y-m-d') }}" required>
                     </div>
                 </div>
                 <div class="col-md-2">
@@ -320,6 +340,47 @@ document.addEventListener('DOMContentLoaded', function() {
         const hasMembers = container.children.length > 0;
         noMembersAlert.style.display = hasMembers ? 'none' : 'block';
     }
+    
+    // Add custom validation for birthday fields
+    function setupBirthdayValidation() {
+        const birthdayInputs = document.querySelectorAll('input[type="date"][name*="birthday"]');
+        birthdayInputs.forEach(input => {
+            input.addEventListener('input', function(e) {
+                validateBirthdayField(this);
+            });
+            
+            // Initial validation on page load
+        });
+    }
+    
+    function validateBirthdayField(field) {
+        // Remove any previous error message
+        const parent = field.closest('.form-group');
+        const existingError = parent.querySelector('.invalid-feedback');
+        if (existingError) {
+            existingError.remove();
+        }
+        
+        field.classList.remove('is-invalid');
+        
+        // Check if date is in the future
+        const selectedDate = new Date(field.value);
+        const today = new Date();
+        
+        if (selectedDate > today) {
+            field.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback';
+            errorDiv.style.display = 'block';
+            errorDiv.textContent = 'The birthday cannot be a future date.';
+            parent.appendChild(errorDiv);
+            
+            // Prevent form submission if there are errors
+            field.setCustomValidity('Future date not allowed');
+        } else {
+            field.setCustomValidity('');
+        }
+    }
 
     addButton.addEventListener('click', function() {
         const templateContent = template.content.cloneNode(true);
@@ -346,6 +407,9 @@ document.addEventListener('DOMContentLoaded', function() {
             updateMemberNumbers();
             toggleNoMembersAlert();
         });
+        
+        // Setup validation for the new birthday field
+        setupBirthdayValidation();
     });
 
     // Add remove functionality to existing cards
@@ -361,6 +425,26 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize
     updateMemberNumbers();
     toggleNoMembersAlert();
+    setupBirthdayValidation();
+    
+    // Handle form submission
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        const birthdayInputs = document.querySelectorAll('input[type="date"][name*="birthday"]');
+        let hasErrors = false;
+        
+        birthdayInputs.forEach(input => {
+            validateBirthdayField(input);
+            if (input.validity.customError) {
+                hasErrors = true;
+            }
+        });
+        
+        if (hasErrors) {
+            e.preventDefault();
+            alert('Please fix the errors in the form before submitting.');
+        }
+    });
 });
 </script>
 

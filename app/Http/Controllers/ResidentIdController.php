@@ -20,10 +20,17 @@ class ResidentIdController extends Controller
      * Display the ID management page for a specific resident.
      *
      * @param Resident $resident
-     * @return \Illuminate\View\View
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
      */
     public function show(Resident $resident)
     {
+        // Check if this resident is a senior citizen
+        if ($resident->seniorCitizen) {
+            // Automatically redirect to senior citizen ID management
+            return redirect()->route('admin.senior-citizens.id-management', $resident->seniorCitizen)
+                ->with('info', 'Redirected to Senior Citizen ID Management - this resident has both Resident ID and Senior Citizen ID available.');
+        }
+        
         return view('admin.residents.id', compact('resident'));
     }
 
@@ -217,22 +224,48 @@ class ResidentIdController extends Controller
         
         $qrCode = QrCode::generateQrCode($qrData, 300);
         
-        // Generate PDF
-        $pdf = Pdf::loadView('admin.residents.id-pdf', [
+        // If the QR code already has the data URI prefix, extract just the base64 part
+        if (strpos($qrCode, 'data:image/png;base64,') === 0) {
+            $qrCode = substr($qrCode, 22); // Remove the prefix to match senior citizen handling
+        }
+        
+        // Generate PDF using Snappy with same settings as senior citizen ID
+        $pdf = \Barryvdh\Snappy\Facades\SnappyPdf::loadView('admin.residents.id-pdf', [
             'resident' => $resident,
             'qrCode' => $qrCode,
         ]);
         
-        // Set paper size to standard ID card dimensions (CR-80 format)
-        // 3.375" × 2.125" (85.6mm × 54mm) - standard credit card size
-        $pdf->setPaper([0, 0, 243, 153], 'landscape');
+        // Set PDF options to match senior citizen ID exactly
+        $pdf->setOptions([
+            'page-width' => '148mm',    // Same as senior citizen ID
+            'page-height' => '180mm',   // Same as senior citizen ID
+            'orientation' => 'Portrait',
+            'margin-top' => '8mm',
+            'margin-right' => '8mm',
+            'margin-bottom' => '8mm',
+            'margin-left' => '8mm',
+            'encoding' => 'UTF-8',
+            'enable-local-file-access' => true,
+            'disable-smart-shrinking' => true,
+            'dpi' => 300,
+            'image-quality' => 100,
+            'zoom' => 1.0,
+            'load-error-handling' => 'ignore',
+            'load-media-error-handling' => 'ignore',
+            'enable-external-links' => true,
+            'enable-internal-links' => true,
+            'javascript-delay' => 1000,
+            'no-stop-slow-scripts' => true,
+            'debug-javascript' => true
+        ]);
         
         // Record download activity
         Activity::causedBy(auth()->user())
             ->performedOn($resident)
             ->log('downloaded_id_card');
 
-        return $pdf->download($resident->barangay_id . '_ID.pdf');
+        $filename = 'RESIDENT_ID_' . $resident->last_name . '_' . $resident->first_name . '.pdf';
+        return $pdf->download($filename);
     }
 
     /**
@@ -255,113 +288,350 @@ class ResidentIdController extends Controller
     }
 
     /**
-     * Display a listing of residents with IDs pending issuance or renewal.
+     * Remove a resident from the renewal queue.
      *
-     * @return \Illuminate\View\View
+     * @param Resident $resident
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function pendingIds()
+    public function removeFromRenewal(Resident $resident)
     {
-        // Get residents who don't have an ID issue date yet
-        $residents = Resident::whereNull('id_issued_at')
-            ->where('status', 'active')
-            ->orderBy('last_name')
-            ->paginate(25);
-            
-        Activity::log('Viewed pending ID issuance list');
+        $resident->update([
+            'id_status' => 'issued', // Change back to issued status
+        ]);
         
-        return view('admin.residents.pending-ids', compact('residents'));
+        Activity::causedBy(auth()->user())
+            ->performedOn($resident)
+            ->log('removed_from_renewal_queue');
+
+        return back()->with('success', 'Resident has been removed from the renewal queue.');
     }
 
     /**
-     * Batch action to issue multiple IDs.
+     * Display residents with pending ID issuance or renewal.
+     *
+     * @param Request $request
+     * @return \Illuminate\View\View
+     */
+    public function pendingIds(Request $request)
+    {
+        // Status filter (Default, All, Issued, Not Issued)
+        $statusFilter = $request->input('status_filter', 'default');
+        
+        // Expiry timeframe filter
+        $expiryFilter = $request->input('expiry_filter', 'default');
+        
+        // New: Custom date range filters
+        $startDate = $request->input('expiry_start_date');
+        $endDate = $request->input('expiry_end_date');
+        $customDateRange = ($startDate && $endDate);
+        
+        // Start with all residents
+        $residents = Resident::query();
+        
+        // Apply status filter
+        if ($statusFilter === 'issued') {
+            $residents->where('id_status', 'issued');
+        } elseif ($statusFilter === 'not_issued') {
+            $residents->where(function($query) {
+                $query->whereNull('id_status')
+                    ->orWhere('id_status', '!=', 'issued');
+            });
+        } elseif ($statusFilter === 'default') {
+            // Default filter shows those with photos and ready for issuance
+            $residents->where('photo', '!=', '');
+        }
+        
+        // Get three collections
+        
+        // 1. Pending ID Issuance
+        $pendingIssuance = clone $residents;
+        $pendingIssuance = $pendingIssuance->where('id_status', '!=', 'needs_renewal')
+            ->where('photo', '!=', '')
+            ->paginate(10, ['*'], 'issuance_page')
+            ->appends(request()->except('issuance_page'));
+        
+        // 2. Pending renewals
+        $pendingRenewal = Resident::where('id_status', 'needs_renewal')
+            ->paginate(10, ['*'], 'renewal_page')
+            ->appends(request()->except('renewal_page'));
+        
+        // 3. Expiring soon
+        $expiringQuery = Resident::where('id_status', 'issued')
+            ->whereNotNull('id_expires_at');
+        
+        // Apply expiry filter timeframe
+        if ($expiryFilter === 'default' && !$customDateRange) {
+            $expiringQuery->where('id_expires_at', '<=', Carbon::now()->addMonths(3));
+        } elseif ($expiryFilter === '1month' && !$customDateRange) {
+            $expiringQuery->where('id_expires_at', '<=', Carbon::now()->addMonth());
+        } elseif ($expiryFilter === '6months' && !$customDateRange) {
+            $expiringQuery->where('id_expires_at', '<=', Carbon::now()->addMonths(6));
+        } elseif ($expiryFilter === '1year' && !$customDateRange) {
+            $expiringQuery->where('id_expires_at', '<=', Carbon::now()->addYear());
+        } elseif ($customDateRange) {
+            // Apply custom date range filter if both dates are provided
+            $expiringQuery->whereBetween('id_expires_at', [
+                Carbon::parse($startDate)->startOfDay(),
+                Carbon::parse($endDate)->endOfDay()
+            ]);
+        }
+        
+        $expiringSoon = $expiringQuery->paginate(10, ['*'], 'expiring_page')
+            ->appends(request()->except('expiring_page'));
+        
+        return view('admin.residents.pending-ids', compact('pendingIssuance', 'pendingRenewal', 'expiringSoon'));
+    }
+
+    /**
+     * Display the bulk photo upload form.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function bulkUpload()
+    {
+        // Get residents who are ready for ID issuance
+        $readyForIssuance = Resident::where('status', 'active')
+            ->orderBy('last_name')
+            ->get();
+            
+        Activity::log('Viewed bulk ID photo upload page');
+        
+        return view('admin.residents.bulk-upload', compact('readyForIssuance'));
+    }
+
+    /**
+     * Process bulk photo uploads.
      *
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function batchIssue(Request $request)
+    public function processBulkUpload(Request $request)
     {
+        // First check if there are any files in the request
+        if (!$request->hasFile('photos')) {
+            return redirect()->route('admin.residents.id.bulk-upload')
+                ->with('error', 'No photos were selected. Please select at least one photo file.');
+        }
+
+        // Validate the uploaded files
         $request->validate([
-            'residents' => 'required|array',
-            'residents.*' => 'exists:residents,id',
-            'issue_date' => 'required|date',
-            'expiry_date' => 'required|date|after:issue_date',
+            'photos.*' => 'required|image|max:5120', // 5MB max
+            'naming_pattern' => 'required|in:barangay_id,full_name,last_first',
         ]);
-        
-        $issueDate = Carbon::parse($request->issue_date);
-        $expiryDate = Carbon::parse($request->expiry_date);
-        $count = 0;
-        
-        foreach ($request->residents as $residentId) {
-            $resident = Resident::find($residentId);
-            if ($resident) {
-                $resident->id_issued_at = $issueDate;
-                $resident->id_expiry = $expiryDate;
-                $resident->save();
-                $count++;
+
+        $uploadedCount = 0;
+        $errors = [];
+        $debugInfo = [];
+
+        // Process each uploaded photo
+        foreach ($request->file('photos') as $photo) {
+            try {
+                $filename = $photo->getClientOriginalName();
+                $pattern = $request->naming_pattern;
+                
+                // Find the resident based on naming pattern
+                $resident = $this->findResidentByFilename($filename, $pattern);
+                
+                if ($resident) {
+                    // Process and save the photo
+                    $image = Image::make($photo);
+                    
+                    // Resize to a standard ID photo size (2x2 inches at 300dpi = 600x600 pixels)
+                    $image->fit(600, 600);
+                    
+                    // Generate unique filename for storage
+                    $storedFilename = $resident->barangay_id . '_' . Str::random(10) . '.jpg';
+                    
+                    // Ensure directory exists
+                    $directory = 'app/public/residents/photos';
+                    $storagePath = storage_path($directory);
+                    
+                    if (!file_exists($storagePath)) {
+                        mkdir($storagePath, 0755, true);
+                    }
+                    
+                    // Save the processed image
+                    $path = $storagePath . '/' . $storedFilename;
+                    
+                    // Save image with compression
+                    $image->save($path, 80);
+                    
+                    // Update the resident record
+                    $resident->update([
+                        'photo' => $storedFilename
+                    ]);
+                    
+                    $uploadedCount++;
+                    
+                    // Log the activity
+                    Activity::causedBy(auth()->user())
+                        ->performedOn($resident)
+                        ->log('uploaded_id_photo_via_bulk');
+                } else {
+                    $errors[] = "No matching resident found for file: {$filename}";
+                }
+            } catch (\Exception $e) {
+                Log::error('Error processing bulk upload photo: ' . $e->getMessage());
+                $errors[] = "Error processing {$filename}: " . $e->getMessage();
             }
         }
-        
-        Activity::log("Batch issued {$count} resident IDs");
-        
-        return redirect()->route('admin.residents.id.pending')
-            ->with('success', "{$count} resident IDs have been successfully issued.");
-    }
 
-    /**
-     * Get ID card preview data for modal display via Ajax
-     *
-     * @param Resident $resident
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function getIdPreviewData(Resident $resident)
-    {
-        // Generate QR code data (contains barangay ID and name)
-        $qrData = json_encode([
-            'id' => $resident->barangay_id,
-            'name' => $resident->full_name,
-            'dob' => $resident->birthdate ? $resident->birthdate->format('Y-m-d') : null,
-        ]);
-        
-        $qrCode = QrCode::generateQrCode($qrData, 200);
-        
-        // Get resident data needed for the ID
-        $residentData = [
-            'full_name' => $resident->full_name,
-            'barangay_id' => $resident->barangay_id,
-            'address' => $resident->address,
-            'birthdate' => $resident->birthdate ? $resident->birthdate->format('M d, Y') : 'N/A',
-            'birthplace' => $resident->birthplace,
-            'age' => $resident->age,
-            'sex' => $resident->sex,
-            'civil_status' => $resident->civil_status,
-            'contact_number' => $resident->contact_number,
-            'issue_date' => $resident->id_issued_at ? $resident->id_issued_at->format('m/d/Y') : date('m/d/Y'),
-            'expiry_date' => $resident->id_expires_at ? $resident->id_expires_at->format('m/d/Y') : Carbon::now()->addYears(15)->format('m/d/Y'),
-            'id_status' => $resident->id_status,
-            'photo_url' => $resident->photo_url,
-            'signature_url' => $resident->signature ? url('storage/residents/signatures/' . $resident->signature) : null,
-            'is_senior' => in_array('Senior Citizen', (array)$resident->population_sectors),
-        ];
-        
-        // Include the household and emergency contact data
-        $householdData = null;
-        if ($resident->household) {
-            $householdData = [
-                'emergency_contact_name' => $resident->household->emergency_contact_name,
-                'emergency_relationship' => $resident->household->emergency_relationship,
-                'emergency_phone' => $resident->household->emergency_phone
-            ];
+        if ($uploadedCount > 0) {
+            return redirect()->route('admin.residents.id.bulk-upload')
+                ->with('success', "{$uploadedCount} photos uploaded successfully.")
+                ->with('errors', $errors);
         }
-        
-        return response()->json([
-            'resident' => $residentData,
-            'household' => $householdData,
-            'qr_code' => $qrCode,
-        ]);
+
+        // If we get here, no photos were successfully uploaded
+        return redirect()->route('admin.residents.id.bulk-upload')
+            ->with('error', 'No photos were uploaded. Please check the file names match the selected pattern.')
+            ->with('errors', $errors);
     }
 
     /**
-     * Update the ID information for a resident.
+     * Process bulk signature uploads.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function processBulkSignatureUpload(Request $request)
+    {
+        // First check if there are any files in the request
+        if (!$request->hasFile('signatures')) {
+            return redirect()->route('admin.residents.id.bulk-upload')
+                ->with('error', 'No signatures were selected. Please select at least one signature file.');
+        }
+
+        // Validate the uploaded files
+        $request->validate([
+            'signatures.*' => 'required|image|max:2048', // 2MB max
+            'signature_naming_pattern' => 'required|in:barangay_id,full_name,last_first',
+        ]);
+
+        $uploadedCount = 0;
+        $errors = [];
+
+        // Process each uploaded signature
+        foreach ($request->file('signatures') as $signature) {
+            try {
+                $filename = $signature->getClientOriginalName();
+                $pattern = $request->signature_naming_pattern;
+                
+                // Find the resident based on naming pattern
+                $resident = $this->findResidentByFilename($filename, $pattern);
+                
+                if ($resident) {
+                    // Delete old signature if exists
+                    if ($resident->signature) {
+                        Storage::disk('public')->delete('residents/signatures/' . $resident->signature);
+                    }
+
+                    // Process and save the signature
+                    $image = Image::make($signature);
+                    
+                    // Resize to a standard signature size
+                    $image->resize(400, null, function ($constraint) {
+                        $constraint->aspectRatio();
+                        $constraint->upsize();
+                    });
+                    
+                    // Generate unique filename for storage
+                    $storedFilename = $resident->barangay_id . '_' . Str::random(10) . '.png';
+                    
+                    // Ensure directory exists
+                    $directory = 'app/public/residents/signatures';
+                    $storagePath = storage_path($directory);
+                    
+                    if (!file_exists($storagePath)) {
+                        mkdir($storagePath, 0755, true);
+                    }
+                    
+                    // Save the processed signature
+                    $path = $storagePath . '/' . $storedFilename;
+                    
+                    // Save with transparency (PNG format)
+                    $image->save($path);
+                    
+                    // Update the resident record
+                    $resident->update([
+                        'signature' => $storedFilename
+                    ]);
+                    
+                    $uploadedCount++;
+                    
+                    // Log the activity
+                    Activity::causedBy(auth()->user())
+                        ->performedOn($resident)
+                        ->log('uploaded_signature_via_bulk');
+                } else {
+                    $errors[] = "No matching resident found for file: {$filename}";
+                }
+            } catch (\Exception $e) {
+                Log::error('Error processing bulk upload signature: ' . $e->getMessage());
+                $errors[] = "Error processing {$filename}: " . $e->getMessage();
+            }
+        }
+
+        if ($uploadedCount > 0) {
+            return redirect()->route('admin.residents.id.bulk-upload')
+                ->with('success', "{$uploadedCount} signatures uploaded successfully.")
+                ->with('errors', $errors);
+        }
+
+        // If we get here, no signatures were successfully uploaded
+        return redirect()->route('admin.residents.id.bulk-upload')
+            ->with('error', 'No signatures were uploaded. Please check the file names match the selected pattern.')
+            ->with('errors', $errors);
+    }
+
+    /**
+     * Issue ID cards in bulk to residents.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function bulkIssue(Request $request)
+    {
+        $request->validate([
+            'resident_ids' => 'required|array',
+            'resident_ids.*' => 'exists:residents,id',
+        ]);
+
+        $issuedCount = 0;
+        
+        foreach ($request->resident_ids as $residentId) {
+            $resident = Resident::findOrFail($residentId);
+            
+            // Only issue ID if resident has photo
+            if ($resident->photo && $resident->id_status !== 'issued') {
+                // Set ID expiration (valid for 5 years)
+                $issuedAt = Carbon::now();
+                $expiresAt = $issuedAt->copy()->addYears(5);
+                
+                $resident->id_status = 'issued';
+                $resident->id_issued_at = $issuedAt;
+                $resident->id_expires_at = $expiresAt;
+                $resident->save();
+                
+                $issuedCount++;
+                
+                // Record activity
+                Activity::causedBy(auth()->user())
+                    ->performedOn($resident)
+                    ->withProperties([
+                        'id_issued_at' => $issuedAt,
+                        'id_expires_at' => $expiresAt,
+                    ])
+                    ->log('issued_id_card_via_bulk');
+            }
+        }
+
+        return redirect()->route('admin.residents.id.bulk-upload')
+            ->with('success', "ID cards issued for {$issuedCount} residents.");
+    }
+
+    /**
+     * Update Resident ID information.
      *
      * @param Request $request
      * @param Resident $resident
@@ -369,54 +639,71 @@ class ResidentIdController extends Controller
      */
     public function updateIdInfo(Request $request, Resident $resident)
     {
+        // Merge the current id_status if it's not provided in the request
+        if (!$request->has('id_status') && $resident->id_status) {
+            $request->merge(['id_status' => $resident->id_status]);
+        }
+
         $request->validate([
-            'barangay_id' => 'nullable|string|max:50',
-            'id_expires_at' => 'nullable|date|after_or_equal:today',
+            'id_number' => 'nullable|string|max:50',
+            'id_issued_at' => 'nullable|date',
+            'id_expires_at' => 'nullable|date|after_or_equal:id_issued_at',
+            'id_status' => 'required|string|in:issued,needs_renewal,expired',
         ]);
 
-        try {
-            // Update the resident record with ID information
-            $resident->update([
-                'barangay_id' => $request->barangay_id,
-                'id_expires_at' => $request->id_expires_at,
-            ]);
-            
-            // Record activity
-            Activity::causedBy(auth()->user())
-                ->performedOn($resident)
-                ->withProperties([
-                    'barangay_id' => $request->barangay_id,
-                    'id_expires_at' => $request->id_expires_at,
-                ])
-                ->log('updated_id_info');
-
-            return back()->with('success', 'ID information updated successfully.');
-        } catch (\Exception $e) {
-            Log::error('Error updating resident ID info: ' . $e->getMessage());
-            return back()->with('error', 'Failed to update ID information. Please try again.');
-        }
-    }
-
-    /**
-     * Revoke a previously issued ID card.
-     *
-     * @param Resident $resident
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function revokeId(Resident $resident)
-    {
-        // Update resident record to revoke the ID
+        // Update resident ID information
         $resident->update([
-            'id_status' => null,
-            'id_issued_at' => null,
-            'id_expires_at' => null,
+            'id_number' => $request->id_number,
+            'id_issued_at' => $request->id_issued_at,
+            'id_expires_at' => $request->id_expires_at,
+            'id_status' => $request->id_status,
         ]);
         
         // Record activity
         Activity::causedBy(auth()->user())
             ->performedOn($resident)
-            ->log('revoked_id_card');
+            ->withProperties($request->only(['id_number', 'id_issued_at', 'id_expires_at', 'id_status']))
+            ->log('updated_id_information');
 
-        return back()->with('success', 'ID card has been successfully revoked.');
+        return back()->with('success', 'ID information has been updated successfully.');
+    }
+
+    /**
+     * Helper method to find resident by filename based on naming pattern.
+     *
+     * @param string $filename
+     * @param string $pattern
+     * @return \App\Models\Resident|null
+     */
+    private function findResidentByFilename($filename, $pattern)
+    {
+        // Remove file extension
+        $name = pathinfo($filename, PATHINFO_FILENAME);
+        
+        switch ($pattern) {
+            case 'barangay_id':
+                return Resident::where('barangay_id', $name)->first();
+                
+            case 'full_name':
+                // Assumes format "FirstnameLastname" with no spaces
+                $name = str_replace([' ', '_', '-'], '', $name);
+                return Resident::whereRaw("CONCAT(REPLACE(LOWER(first_name), ' ', ''), REPLACE(LOWER(last_name), ' ', '')) = ?", [strtolower($name)])
+                    ->orWhereRaw("CONCAT(REPLACE(LOWER(last_name), ' ', ''), REPLACE(LOWER(first_name), ' ', '')) = ?", [strtolower($name)])
+                    ->first();
+                
+            case 'last_first':
+                // Assumes format "Lastname_Firstname"
+                $parts = explode('_', $name);
+                if (count($parts) >= 2) {
+                    $lastName = $parts[0];
+                    $firstName = $parts[1];
+                    return Resident::whereRaw("LOWER(last_name) = ? AND LOWER(first_name) LIKE ?", [strtolower($lastName), strtolower($firstName).'%'])
+                        ->first();
+                }
+                return null;
+                
+            default:
+                return null;
+        }
     }
 }

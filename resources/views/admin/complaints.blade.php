@@ -82,7 +82,7 @@
                     <div class="col-md-12">
                         <h5 class="mt-3 mb-4">Recent Complaints</h5>
                         <div class="table-responsive">
-                            <table class="table table-borderless table-striped">
+                            <table class="table table-borderless table-striped" id="complaintsTable">
                                 <thead>
                                     <tr>
                                         <th>ID</th>
@@ -178,11 +178,11 @@
                         </div>
                         <nav aria-label="Table Paging" class="my-3">
                             <ul class="pagination justify-content-end mb-0">
-                                <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a></li>
+                                <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1" aria-disabled="true"><i class="fe fe-arrow-left"></i> Previous</a></li>
                                 <li class="page-item active"><a class="page-link" href="#">1</a></li>
                                 <li class="page-item"><a class="page-link" href="#">2</a></li>
                                 <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                                <li class="page-item"><a class="page-link" href="#">Next <i class="fe fe-arrow-right"></i></a></li>
                             </ul>
                         </nav>
                     </div>
@@ -196,15 +196,18 @@
 @section('scripts')
 <script>
     $(document).ready(function() {
-        // Initialize datatable if needed
-        if ($.fn.dataTable) {
-            $('.data-table').DataTable({
-                "paging": true,
+        // Initialize datatable with pagination disabled
+        if ($.fn.DataTable) {
+            $('#complaintsTable').DataTable({
+                "paging": false, // Disable DataTables pagination as we're using our own
                 "searching": true,
                 "ordering": true,
-                "info": true,
+                "info": false, // Hide the "Showing X to Y of Z entries" text
                 "responsive": true,
-                "pageLength": 10
+                "dom": '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>><"row"<"col-sm-12"tr>>', // Only show search and table
+                "language": {
+                    "emptyTable": "No complaints found"
+                }
             });
         }
     });

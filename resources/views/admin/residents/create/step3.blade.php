@@ -29,10 +29,13 @@
                         <small class="text-primary font-weight-bold">Step 3: Household Info</small>
                     </div>
                     <div class="col text-center">
-                        <small class="text-muted">Step 4: Family Members</small>
+                        <small class="text-muted">Step 4: Senior Info</small>
                     </div>
                     <div class="col text-center">
-                        <small class="text-muted">Step 5: Review</small>
+                        <small class="text-muted">Step 5: Family</small>
+                    </div>
+                    <div class="col text-center">
+                        <small class="text-muted">Step 6: Review</small>
                     </div>
                 </div>
             </div>
@@ -66,7 +69,7 @@
                                         <input type="text" class="form-control @error('primary_name') is-invalid @enderror" 
                                                id="primary_name" name="primary_name" value="{{ old('primary_name', session('registration.step3.primary_name')) }}" required>
                                         @error('primary_name')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            <div class="text-danger mt-1">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -76,7 +79,7 @@
                                         <input type="date" class="form-control @error('primary_birthday') is-invalid @enderror" 
                                                id="primary_birthday" name="primary_birthday" value="{{ old('primary_birthday', session('registration.step3.primary_birthday')) }}" required>
                                         @error('primary_birthday')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            <div class="text-danger mt-1">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -104,12 +107,13 @@
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="form-group">
-                                        <label for="primary_phone" class="form-label">Phone Number</label>
-                                        <input type="text" class="form-control @error('primary_phone') is-invalid @enderror" 
+                                        <label for="primary_phone" class="form-label">Phone Number <span class="text-danger">*</span></label>
+                                        <input type="tel" class="form-control @error('primary_phone') is-invalid @enderror" 
                                                id="primary_phone" name="primary_phone" value="{{ old('primary_phone', session('registration.step3.primary_phone')) }}" 
-                                               placeholder="09123456789">
+                                               placeholder="09123456789" maxlength="11" pattern="[0-9]{11}" 
+                                               title="Please enter exactly 11 digits (e.g., 09123456789)" required>
                                         @error('primary_phone')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            <div class="text-danger mt-1">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -119,7 +123,7 @@
                                         <input type="text" class="form-control @error('primary_work') is-invalid @enderror" 
                                                id="primary_work" name="primary_work" value="{{ old('primary_work', session('registration.step3.primary_work')) }}">
                                         @error('primary_work')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            <div class="text-danger mt-1">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -130,7 +134,7 @@
                                                id="primary_allergies" name="primary_allergies" value="{{ old('primary_allergies', session('registration.step3.primary_allergies')) }}" 
                                                placeholder="Food, medicine, etc.">
                                         @error('primary_allergies')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            <div class="text-danger mt-1">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -143,7 +147,7 @@
                                                   id="primary_medical_condition" name="primary_medical_condition" rows="2" 
                                                   placeholder="Any ongoing medical conditions">{{ old('primary_medical_condition', session('registration.step3.primary_medical_condition')) }}</textarea>
                                         @error('primary_medical_condition')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            <div class="text-danger mt-1">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -167,7 +171,7 @@
                                         <input type="text" class="form-control @error('secondary_name') is-invalid @enderror" 
                                                id="secondary_name" name="secondary_name" value="{{ old('secondary_name', session('registration.step3.secondary_name')) }}">
                                         @error('secondary_name')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            <div class="text-danger mt-1">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -177,7 +181,7 @@
                                         <input type="date" class="form-control @error('secondary_birthday') is-invalid @enderror" 
                                                id="secondary_birthday" name="secondary_birthday" value="{{ old('secondary_birthday', session('registration.step3.secondary_birthday')) }}">
                                         @error('secondary_birthday')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            <div class="text-danger mt-1">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -206,11 +210,12 @@
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <label for="secondary_phone" class="form-label">Phone Number</label>
-                                        <input type="text" class="form-control @error('secondary_phone') is-invalid @enderror" 
+                                        <input type="tel" class="form-control @error('secondary_phone') is-invalid @enderror" 
                                                id="secondary_phone" name="secondary_phone" value="{{ old('secondary_phone', session('registration.step3.secondary_phone')) }}" 
-                                               placeholder="09123456789">
+                                               placeholder="09123456789" maxlength="11" pattern="[0-9]{11}" 
+                                               title="Please enter exactly 11 digits (e.g., 09123456789)">
                                         @error('secondary_phone')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            <div class="text-danger mt-1">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -220,7 +225,7 @@
                                         <input type="text" class="form-control @error('secondary_work') is-invalid @enderror" 
                                                id="secondary_work" name="secondary_work" value="{{ old('secondary_work', session('registration.step3.secondary_work')) }}">
                                         @error('secondary_work')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            <div class="text-danger mt-1">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -231,7 +236,7 @@
                                                id="secondary_allergies" name="secondary_allergies" value="{{ old('secondary_allergies', session('registration.step3.secondary_allergies')) }}" 
                                                placeholder="Food, medicine, etc.">
                                         @error('secondary_allergies')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            <div class="text-danger mt-1">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -244,7 +249,7 @@
                                                   id="secondary_medical_condition" name="secondary_medical_condition" rows="2" 
                                                   placeholder="Any ongoing medical conditions">{{ old('secondary_medical_condition', session('registration.step3.secondary_medical_condition')) }}</textarea>
                                         @error('secondary_medical_condition')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            <div class="text-danger mt-1">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -268,7 +273,7 @@
                                         <input type="text" class="form-control @error('emergency_contact_name') is-invalid @enderror" 
                                                id="emergency_contact_name" name="emergency_contact_name" value="{{ old('emergency_contact_name', session('registration.step3.emergency_contact_name')) }}">
                                         @error('emergency_contact_name')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            <div class="text-danger mt-1">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -279,7 +284,7 @@
                                                id="emergency_relationship" name="emergency_relationship" value="{{ old('emergency_relationship', session('registration.step3.emergency_relationship')) }}" 
                                                placeholder="e.g., Son, Daughter, Brother">
                                         @error('emergency_relationship')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            <div class="text-danger mt-1">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -289,7 +294,7 @@
                                         <input type="text" class="form-control @error('emergency_work') is-invalid @enderror" 
                                                id="emergency_work" name="emergency_work" value="{{ old('emergency_work', session('registration.step3.emergency_work')) }}">
                                         @error('emergency_work')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            <div class="text-danger mt-1">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -300,7 +305,7 @@
                                                id="emergency_phone" name="emergency_phone" value="{{ old('emergency_phone', session('registration.step3.emergency_phone')) }}" 
                                                placeholder="09123456789">
                                         @error('emergency_phone')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            <div class="text-danger mt-1">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -312,11 +317,13 @@
                     <div class="row mt-4">
                         <div class="col-md-12">
                             <div class="d-flex justify-content-between">
-                                <a href="{{ route('admin.residents.create.step2') }}" class="btn btn-secondary">
-                                    <i class="fe fe-arrow-left fe-16 mr-2"></i>Back: Citizenship & Education
+                                <a href="{{ route('admin.residents.create.step2') }}" class="btn btn-secondary d-flex align-items-center justify-content-center">
+                                    <i class="fe fe-arrow-left fe-16 mr-2"></i>
+                                    <span>Back: Citizenship & Education</span>
                                 </a>
-                                <button type="submit" class="btn btn-primary">
-                                    Next: Family Members <i class="fe fe-arrow-right fe-16 ml-2"></i>
+                                <button type="submit" class="btn btn-primary d-flex align-items-center justify-content-center">
+                                    <span>Next: Senior Info</span>
+                                    <i class="fe fe-arrow-right fe-16 ml-2"></i>
                                 </button>
                             </div>
                         </div>

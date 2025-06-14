@@ -244,6 +244,34 @@
                     </div>
                 </div>
 
+                <!-- Pagination for processed requests -->
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <div class="text-muted small">
+                        Showing {{ $processedRequests->firstItem() ?? 0 }} to {{ $processedRequests->lastItem() ?? 0 }} of {{ $processedRequests->total() }} processed requests
+                    </div>
+                    <nav aria-label="Table Paging" class="mb-0">
+                        <ul class="pagination justify-content-end mb-0">
+                            @if($processedRequests->onFirstPage())
+                                <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1" aria-disabled="true"><i class="fe fe-arrow-left"></i> Previous</a></li>
+                            @else
+                                <li class="page-item"><a class="page-link" href="{{ $processedRequests->previousPageUrl() }}"><i class="fe fe-arrow-left"></i> Previous</a></li>
+                            @endif
+                            
+                            @for($i = 1; $i <= $processedRequests->lastPage(); $i++)
+                                <li class="page-item {{ $i == $processedRequests->currentPage() ? 'active' : '' }}">
+                                    <a class="page-link" href="{{ $processedRequests->url($i) }}">{{ $i }}</a>
+                                </li>
+                            @endfor
+                            
+                            @if($processedRequests->hasMorePages())
+                                <li class="page-item"><a class="page-link" href="{{ $processedRequests->nextPageUrl() }}">Next <i class="fe fe-arrow-right"></i></a></li>
+                            @else
+                                <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1" aria-disabled="true">Next <i class="fe fe-arrow-right"></i></a></li>
+                            @endif
+                        </ul>
+                    </nav>
+                </div>
+                
                 <!-- Access Request Information -->
                
             </div>
