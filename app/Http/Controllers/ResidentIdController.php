@@ -31,7 +31,17 @@ class ResidentIdController extends Controller
                 ->with('info', 'Redirected to Senior Citizen ID Management - this resident has both Resident ID and Senior Citizen ID available.');
         }
         
-        return view('admin.residents.id', compact('resident'));
+        // Get suggested issue ID for new cards
+        $suggestedIssueId = $this->generateIssueIdNumber();
+        
+        // Get ID issuance history from activity log
+        $idHistory = \Spatie\Activitylog\Models\Activity::where('subject_type', get_class($resident))
+            ->where('subject_id', $resident->id)
+            ->whereIn('description', ['issued_id_card', 'updated_id_information'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        return view('admin.residents.id', compact('resident', 'suggestedIssueId', 'idHistory'));
     }
 
     /**
@@ -173,7 +183,90 @@ class ResidentIdController extends Controller
             ])
             ->log('issued_id_card');
 
-        return back()->with('success', 'ID card has been successfully issued. Valid until ' . $expiresAt->format('M d, Y') . '.');
+        // Generate digital ID card to send via email
+        try {
+            if ($resident->email_address) {
+                // Generate QR code data
+                $qrData = json_encode([
+                    'id' => $resident->barangay_id,
+                    'name' => $resident->full_name,
+                    'dob' => $resident->birthdate ? $resident->birthdate->format('Y-m-d') : null,
+                ]);
+                
+                $qrCode = QrCode::generateQrCode($qrData, 300);
+                
+                // If the QR code already has the data URI prefix, extract just the base64 part
+                if (strpos($qrCode, 'data:image/png;base64,') === 0) {
+                    $qrCode = substr($qrCode, 22); // Remove the prefix
+                }
+                
+                // Generate PDF using Snappy with same settings as senior citizen ID
+                $pdf = \Barryvdh\Snappy\Facades\SnappyPdf::loadView('admin.residents.id-pdf', [
+                    'resident' => $resident,
+                    'qrCode' => $qrCode,
+                ]);
+                
+                // Set PDF options
+                $pdf->setOptions([
+                    'page-width' => '148mm',
+                    'page-height' => '180mm',
+                    'orientation' => 'Portrait',
+                    'margin-top' => '8mm',
+                    'margin-right' => '8mm',
+                    'margin-bottom' => '8mm',
+                    'margin-left' => '8mm',
+                    'encoding' => 'UTF-8',
+                    'enable-local-file-access' => true,
+                    'disable-smart-shrinking' => true,
+                    'dpi' => 300,
+                    'image-quality' => 100,
+                ]);
+                
+                // Create temporary file for PDF
+                $tempPath = storage_path('app/temp');
+                if (!file_exists($tempPath)) {
+                    mkdir($tempPath, 0755, true);
+                }
+                
+                $pdfFileName = 'resident_id_' . $resident->id . '_' . time() . '.pdf';
+                $pdfPath = $tempPath . '/' . $pdfFileName;
+                
+                // Save PDF to temp directory
+                $pdf->save($pdfPath);
+                
+                // Send notification with PDF attached
+                $resident->notify(new \App\Notifications\ResidentIdIssued($resident, $pdfPath));
+                
+                // Log email sent activity
+                Activity::causedBy(auth()->user())
+                    ->performedOn($resident)
+                    ->log('sent_id_card_email');
+                
+                // Clean up temp file after a delay (using queue)
+                \Illuminate\Support\Facades\Queue::later(now()->addMinutes(5), function () use ($pdfPath) {
+                    if (file_exists($pdfPath)) {
+                        unlink($pdfPath);
+                    }
+                });
+            }
+        } catch (\Exception $e) {
+            // Log error but don't stop the process
+            Log::error('Error sending ID card via email: ' . $e->getMessage());
+            
+            // Continue with success message but add note about email
+            return back()->with('success', 'ID card has been successfully issued. Valid until ' . $expiresAt->format('M d, Y') . '. Note: There was an issue sending the email notification.')
+                ->with('error_details', 'Email notification error: ' . $e->getMessage());
+        }
+
+        $successMessage = 'ID card has been successfully issued. Valid until ' . $expiresAt->format('M d, Y') . '.';
+        
+        if ($resident->email_address) {
+            $successMessage .= ' A digital copy has been sent to the resident\'s email.';
+        } else {
+            $successMessage .= ' No email was sent as the resident does not have an email address on file.';
+        }
+
+        return back()->with('success', $successMessage);
     }
 
     /**
@@ -314,69 +407,127 @@ class ResidentIdController extends Controller
      */
     public function pendingIds(Request $request)
     {
+        // Base query for residents
+        $baseQuery = Resident::query();
+
+        // Search filters
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $baseQuery->where(function($query) use ($search) {
+                $query->where('first_name', 'like', "%$search%")
+                    ->orWhere('middle_name', 'like', "%$search%")
+                    ->orWhere('last_name', 'like', "%$search%")
+                    ->orWhere('barangay_id', 'like', "%$search%")
+                    ->orWhere('contact_number', 'like', "%$search%");
+            });
+        }
+
+        // Type filter
+        if ($request->has('type') && !empty($request->type)) {
+            $baseQuery->where('type_of_resident', $request->type);
+        }
+
+        // Gender filter
+        if ($request->has('gender') && !empty($request->gender)) {
+            $baseQuery->where('sex', $request->gender);
+        }
+
+        // Age group filter
+        if ($request->has('age_group') && !empty($request->age_group)) {
+            $ageGroup = $request->age_group;
+            
+            $baseQuery->where(function($query) use ($ageGroup) {
+                $today = Carbon::today();
+                
+                if ($ageGroup === '0-17') {
+                    // Age 0-17: Born after today minus 18 years
+                    $query->whereDate('birthdate', '>', $today->copy()->subYears(18));
+                }
+                else if ($ageGroup === '18-59') {
+                    // Age 18-59: Born between today minus 60 years and today minus 18 years
+                    $query->whereDate('birthdate', '<=', $today->copy()->subYears(18))
+                          ->whereDate('birthdate', '>', $today->copy()->subYears(60));
+                }
+                else if ($ageGroup === '60+') {
+                    // Age 60+: Born on or before today minus 60 years
+                    $query->whereDate('birthdate', '<=', $today->copy()->subYears(60));
+                }
+            });
+        }
+
+        // Photo status filter
+        if ($request->has('has_photo') && !empty($request->has_photo)) {
+            if ($request->has_photo == 'yes') {
+                $baseQuery->whereNotNull('photo');
+            } else {
+                $baseQuery->whereNull('photo');
+            }
+        }
+
         // Status filter (Default, All, Issued, Not Issued)
-        $statusFilter = $request->input('status_filter', 'default');
-        
-        // Expiry timeframe filter
-        $expiryFilter = $request->input('expiry_filter', 'default');
-        
-        // New: Custom date range filters
-        $startDate = $request->input('expiry_start_date');
-        $endDate = $request->input('expiry_end_date');
-        $customDateRange = ($startDate && $endDate);
-        
-        // Start with all residents
-        $residents = Resident::query();
-        
-        // Apply status filter
+        $statusFilter = $request->input('id_status', null);
         if ($statusFilter === 'issued') {
-            $residents->where('id_status', 'issued');
+            $baseQuery->where('id_status', 'issued');
         } elseif ($statusFilter === 'not_issued') {
-            $residents->where(function($query) {
+            $baseQuery->where(function($query) {
                 $query->whereNull('id_status')
                     ->orWhere('id_status', '!=', 'issued');
             });
-        } elseif ($statusFilter === 'default') {
-            // Default filter shows those with photos and ready for issuance
-            $residents->where('photo', '!=', '');
+        } elseif ($statusFilter === 'needs_renewal') {
+            $baseQuery->where('id_status', 'needs_renewal');
+        } elseif ($statusFilter === 'expired') {
+            $baseQuery->where(function($query) {
+                $query->where('id_status', 'expired')
+                    ->orWhere(function($q) {
+                        $q->where('id_status', 'issued')
+                            ->whereNotNull('id_expires_at')
+                            ->where('id_expires_at', '<', Carbon::now());
+                    });
+            });
+        } elseif ($statusFilter === 'ready') {
+            $baseQuery->where(function($query) {
+                $query->whereNotNull('photo')
+                    ->where(function($q) {
+                        $q->whereNull('id_status')
+                            ->orWhere('id_status', '!=', 'issued');
+                    });
+            });
+        } elseif ($statusFilter === 'valid') {
+            $baseQuery->where('id_status', 'issued')
+                ->where(function($query) {
+                    $query->whereNull('id_expires_at')
+                        ->orWhere('id_expires_at', '>', Carbon::now());
+                });
+        }
+
+        // 1. Pending ID Issuance - Use cloned query to maintain filters
+        $pendingIssuanceQuery = clone $baseQuery;
+        
+        // Only apply the needs_renewal exclusion if no specific ID status filter is applied
+        if (!$request->has('id_status') || empty($request->id_status)) {
+            $pendingIssuanceQuery->where(function($query) {
+                $query->whereNull('id_status')
+                    ->orWhere('id_status', '!=', 'needs_renewal');
+            });
         }
         
-        // Get three collections
-        
-        // 1. Pending ID Issuance
-        $pendingIssuance = clone $residents;
-        $pendingIssuance = $pendingIssuance->where('id_status', '!=', 'needs_renewal')
-            ->where('photo', '!=', '')
+        $pendingIssuance = $pendingIssuanceQuery
             ->paginate(10, ['*'], 'issuance_page')
             ->appends(request()->except('issuance_page'));
         
-        // 2. Pending renewals
-        $pendingRenewal = Resident::where('id_status', 'needs_renewal')
+        // 2. Pending renewals (with search filters applied)
+        $pendingRenewalQuery = clone $baseQuery;
+        $pendingRenewal = $pendingRenewalQuery->where('id_status', 'needs_renewal')
             ->paginate(10, ['*'], 'renewal_page')
             ->appends(request()->except('renewal_page'));
         
-        // 3. Expiring soon
-        $expiringQuery = Resident::where('id_status', 'issued')
-            ->whereNotNull('id_expires_at');
-        
-        // Apply expiry filter timeframe
-        if ($expiryFilter === 'default' && !$customDateRange) {
-            $expiringQuery->where('id_expires_at', '<=', Carbon::now()->addMonths(3));
-        } elseif ($expiryFilter === '1month' && !$customDateRange) {
-            $expiringQuery->where('id_expires_at', '<=', Carbon::now()->addMonth());
-        } elseif ($expiryFilter === '6months' && !$customDateRange) {
-            $expiringQuery->where('id_expires_at', '<=', Carbon::now()->addMonths(6));
-        } elseif ($expiryFilter === '1year' && !$customDateRange) {
-            $expiringQuery->where('id_expires_at', '<=', Carbon::now()->addYear());
-        } elseif ($customDateRange) {
-            // Apply custom date range filter if both dates are provided
-            $expiringQuery->whereBetween('id_expires_at', [
-                Carbon::parse($startDate)->startOfDay(),
-                Carbon::parse($endDate)->endOfDay()
-            ]);
-        }
-        
-        $expiringSoon = $expiringQuery->paginate(10, ['*'], 'expiring_page')
+        // 3. Expiring soon - Filter for not yet expired but about to expire in 3 months
+        $expiringQuery = clone $baseQuery;
+        $expiringSoon = $expiringQuery->where('id_status', 'issued')
+            ->whereNotNull('id_expires_at')
+            ->where('id_expires_at', '<=', Carbon::now()->addMonths(3))
+            ->where('id_expires_at', '>=', Carbon::now())
+            ->paginate(10, ['*'], 'expiring_page')
             ->appends(request()->except('expiring_page'));
         
         return view('admin.residents.pending-ids', compact('pendingIssuance', 'pendingRenewal', 'expiringSoon'));
@@ -598,6 +749,8 @@ class ResidentIdController extends Controller
         ]);
 
         $issuedCount = 0;
+        $emailSentCount = 0;
+        $noEmailCount = 0;
         
         foreach ($request->resident_ids as $residentId) {
             $resident = Resident::findOrFail($residentId);
@@ -623,11 +776,94 @@ class ResidentIdController extends Controller
                         'id_expires_at' => $expiresAt,
                     ])
                     ->log('issued_id_card_via_bulk');
+                
+                // Send digital ID via email if resident has email address
+                try {
+                    if ($resident->email_address) {
+                        // Generate QR code data
+                        $qrData = json_encode([
+                            'id' => $resident->barangay_id,
+                            'name' => $resident->full_name,
+                            'dob' => $resident->birthdate ? $resident->birthdate->format('Y-m-d') : null,
+                        ]);
+                        
+                        $qrCode = QrCode::generateQrCode($qrData, 300);
+                        
+                        // If the QR code already has the data URI prefix, extract just the base64 part
+                        if (strpos($qrCode, 'data:image/png;base64,') === 0) {
+                            $qrCode = substr($qrCode, 22); // Remove the prefix
+                        }
+                        
+                        // Generate PDF using Snappy
+                        $pdf = \Barryvdh\Snappy\Facades\SnappyPdf::loadView('admin.residents.id-pdf', [
+                            'resident' => $resident,
+                            'qrCode' => $qrCode,
+                        ]);
+                        
+                        // Set PDF options
+                        $pdf->setOptions([
+                            'page-width' => '148mm',
+                            'page-height' => '180mm',
+                            'orientation' => 'Portrait',
+                            'margin-top' => '8mm',
+                            'margin-right' => '8mm',
+                            'margin-bottom' => '8mm',
+                            'margin-left' => '8mm',
+                            'encoding' => 'UTF-8',
+                            'enable-local-file-access' => true,
+                            'disable-smart-shrinking' => true,
+                            'dpi' => 300,
+                            'image-quality' => 100,
+                        ]);
+                        
+                        // Create temporary file for PDF
+                        $tempPath = storage_path('app/temp');
+                        if (!file_exists($tempPath)) {
+                            mkdir($tempPath, 0755, true);
+                        }
+                        
+                        $pdfFileName = 'resident_id_' . $resident->id . '_' . time() . '.pdf';
+                        $pdfPath = $tempPath . '/' . $pdfFileName;
+                        
+                        // Save PDF to temp directory
+                        $pdf->save($pdfPath);
+                        
+                        // Send notification with PDF attached
+                        $resident->notify(new \App\Notifications\ResidentIdIssued($resident, $pdfPath));
+                        
+                        // Log email sent activity
+                        Activity::causedBy(auth()->user())
+                            ->performedOn($resident)
+                            ->log('sent_id_card_email_via_bulk');
+                        
+                        $emailSentCount++;
+                        
+                        // Clean up temp file after a delay (using queue)
+                        \Illuminate\Support\Facades\Queue::later(now()->addMinutes(5), function () use ($pdfPath) {
+                            if (file_exists($pdfPath)) {
+                                unlink($pdfPath);
+                            }
+                        });
+                    } else {
+                        $noEmailCount++;
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Error sending bulk ID card via email: ' . $e->getMessage() . ' for resident ID: ' . $resident->id);
+                    $noEmailCount++;
+                }
             }
+        }
+        
+        $message = "ID cards issued for {$issuedCount} residents.";
+        if ($emailSentCount > 0) {
+            $message .= " Digital copies sent to {$emailSentCount} residents via email.";
+        }
+        if ($noEmailCount > 0) {
+            $message .= " {$noEmailCount} residents did not receive digital copies (no email address or send error).";
         }
 
         return redirect()->route('admin.residents.id.bulk-upload')
-            ->with('success', "ID cards issued for {$issuedCount} residents.");
+            ->with('success', $message);
     }
 
     /**
@@ -666,6 +902,30 @@ class ResidentIdController extends Controller
             ->log('updated_id_information');
 
         return back()->with('success', 'ID information has been updated successfully.');
+    }
+
+    /**
+     * Generate a unique issue ID number with format YYYY-NNN
+     * 
+     * @return string
+     */
+    private function generateIssueIdNumber(): string
+    {
+        $year = date('Y');
+        $latestId = \App\Models\Resident::whereNotNull('id_number')
+            ->where('id_number', 'like', "$year-%")
+            ->orderByRaw('CAST(SUBSTRING_INDEX(id_number, "-", -1) AS UNSIGNED) DESC')
+            ->first();
+            
+        if ($latestId) {
+            $parts = explode('-', $latestId->id_number);
+            $lastNumber = (int)end($parts);
+            $nextNumber = $lastNumber + 1;
+        } else {
+            $nextNumber = 1;
+        }
+        
+        return $year . '-' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
     }
 
     /**

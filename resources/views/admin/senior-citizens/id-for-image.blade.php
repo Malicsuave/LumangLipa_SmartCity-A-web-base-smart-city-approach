@@ -315,9 +315,9 @@
 <body>
     <!-- Document Header - Professional info above ID cards -->
     <div class="document-header">
-        <div class="document-title">SENIOR CITIZEN IDENTIFICATION CARD</div>
+        <div class="document-title">SENIOR RESIDENT IDENTIFICATION CARD</div>
         <div class="document-subtitle">Republic of the Philippines</div>
-        <div class="document-subtitle">Province of Batangas - City of Lipa - Barangay Lumanglipa</div>
+        <div class="document-subtitle">Province of Batangas - Barangay Lumanglipa</div>
     </div>
     
     <!-- Document Information -->
@@ -337,8 +337,8 @@
                 <img src="{{ public_path('images/logo.png') }}" alt="Barangay Logo" class="barangay-logo-left">
                 <div class="id-card-title">
                     <h6 class="mb-0">Barangay Lumanglipa</h6>
-                    <h6 class="small mb-0">Matasnakahoy, Lipa City Batangas</h6>
-                    <h6 class="mb-0">Senior Citizen ID Card</h6>
+                    <h6 class="small mb-0">Matasnakahoy, Batangas</h6>
+                    <h6 class="mb-0">Senior Resident Card</h6>
                 </div>
                 <img src="{{ public_path('images/citylogo.png') }}" alt="City Logo" class="barangay-logo-right">
             </div>
@@ -455,7 +455,7 @@
             <span>Contact: {{ $seniorCitizen->resident->contact_number ?: 'N/A' }}</span>
         </div>
         <div class="footer-info">
-            <span>Address: Matasnakahoy, Lipa City, Batangas</span>
+            <span>Address: Matasnakahoy, Batangas</span>
             <span>Reference: {{ $seniorCitizen->resident->barangay_id }}</span>
         </div>
         <div class="footer-note">

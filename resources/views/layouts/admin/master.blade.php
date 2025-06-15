@@ -47,7 +47,7 @@
     <!-- Complaint table styling - for improved table appearance -->
     <link rel="stylesheet" href="{{ asset('css/complaint-table.css') }}">
     <!-- Metric cards fix - overrides other styles -->
-    <link rel="stylesheet" href="{{ asset('css/metric-cards-fix.css') }}">
+    
     <!-- Hover card effects - prevents loss of styling on hover -->
     <link rel="stylesheet" href="{{ asset('css/hover-card.css') }}">
     <!-- Light mode cards - forces proper background color in light mode -->
@@ -173,6 +173,30 @@
       [data-theme="dark"] .nav-item.dropdown .collapse .nav-item .nav-link:hover {
         background-color: #4a5568 !important;
         color: #e2e8f0 !important;
+      }
+      
+      /* Dropdown menu fix for single row tables */
+      .table-responsive {
+        overflow-x: visible !important;
+        overflow-y: visible !important;
+      }
+      
+      .table tr:only-child .dropdown-menu {
+        right: 0 !important;
+        left: auto !important;
+        transform: none !important;
+        top: 100% !important;
+        position: absolute !important;
+      }
+      
+      .dropdown-menu.show {
+        display: block !important;
+        z-index: 1050 !important;
+      }
+      
+      .dropdown {
+        position: relative !important;
+        z-index: 900 !important;
       }
     </style>
 
@@ -411,13 +435,7 @@
       }
       
       // Safely load theme persistence
-      loadScriptSafely("{{ asset('js/theme-persistence.js') }}", function(success) {
-        // Continue regardless of success
-        // Safely load sidebar persistence 
-        loadScriptSafely("{{ asset('js/persistent-sidebar.js') }}", function(success) {
-          // Continue with page regardless of script load success
-        });
-      });
+    
     </script>
     
     <!-- Deferred JavaScript (loaded after page renders) -->
@@ -431,8 +449,6 @@
           '{{ asset("admin/dark/js/daterangepicker.js") }}',
           '{{ asset("admin/dark/js/jquery.stickOnScroll.js") }}',
           '{{ asset("admin/dark/js/tinycolor-min.js") }}',
-          '{{ asset("admin/dark/js/config.js") }}',
-          '{{ asset("admin/dark/js/apps.js") }}',
           '{{ asset("js/admin-custom.js") }}'
         ];
         

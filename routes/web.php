@@ -211,7 +211,15 @@ Route::middleware([
             Route::get('/{gad}', [App\Http\Controllers\Admin\GadController::class, 'show'])->name('show');
             Route::get('/{gad}/edit', [App\Http\Controllers\Admin\GadController::class, 'edit'])->name('edit');
             Route::put('/{gad}', [App\Http\Controllers\Admin\GadController::class, 'update'])->name('update');
+            Route::post('/{gad}/direct-update', [App\Http\Controllers\Admin\GadController::class, 'directUpdate'])->name('direct-update');
             Route::delete('/{gad}', [App\Http\Controllers\Admin\GadController::class, 'destroy'])->name('destroy');
+            
+            // Archived GAD Records
+            Route::get('/archived/list', [App\Http\Controllers\Admin\GadController::class, 'archived'])->name('archived');
+            Route::post('/archived/{gad}/restore', [App\Http\Controllers\Admin\GadController::class, 'restore'])->name('restore');
+            Route::delete('/archived/{gad}', [App\Http\Controllers\Admin\GadController::class, 'forceDelete'])->name('force-delete');
+            
+            // GAD Reports
             Route::get('/reports/generate', [App\Http\Controllers\Admin\GadController::class, 'reports'])->name('reports');
         });
         
@@ -283,6 +291,13 @@ Route::middleware([
         Route::get('/admin/approvals/pending', [AdminApprovalController::class, 'pendingRequests'])
             ->name('admin.approvals.pending');
     });
+});
+
+// Test routes for debugging
+Route::prefix('test')->group(function () {
+    Route::get('household-update/{resident_id}', [App\Http\Controllers\TestController::class, 'testHouseholdUpdate']);
+    Route::get('database-structure', [App\Http\Controllers\TestController::class, 'showDatabaseStructure']);
+    Route::get('household-data/{resident_id}', [App\Http\Controllers\TestController::class, 'getHouseholdData']);
 });
 
 // Temporary diagnostic route - remove after debugging

@@ -158,6 +158,23 @@
                                                 @enderror
                                             </div>
                                             <div class="form-group">
+                                                <label for="id_number" class="form-label">Issue ID / Reference Number</label>
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control @error('id_number') is-invalid @enderror" id="id_number" name="id_number" value="{{ old('id_number', $resident->id_number) }}" placeholder="e.g. {{ $suggestedIssueId }}" pattern="^\d{4}-\d{3,}$">
+                                                    <div class="input-group-append">
+                                                        <button type="button" class="btn btn-outline-info" id="generateIssueId" title="Generate Issue ID">
+                                                            <i class="fe fe-refresh-cw"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <small class="form-text text-muted">
+                                                    A unique reference number for this ID issuance (format: YYYY-NNN).
+                                                </small>
+                                                @error('id_number')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                            <div class="form-group">
                                                 <label for="id_expires_at" class="form-label">Expiration Date</label>
                                                 <input type="date" class="form-control @error('id_expires_at') is-invalid @enderror" id="id_expires_at" name="id_expires_at" value="{{ old('id_expires_at', $resident->id_expires_at ? $resident->id_expires_at->format('Y-m-d') : '') }}">
                                                 @error('id_expires_at')
@@ -299,6 +316,71 @@
 
                     <div class="row">
                         <div class="col-12">
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="fe fe-clock fe-16 mr-2"></i>ID Issuance History</h6>
+                                </div>
+                                <div class="card-body">
+                                    @if($idHistory && $idHistory->count() > 0)
+                                        <div class="table-responsive">
+                                            <table class="table table-striped table-sm">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Date</th>
+                                                        <th>Action</th>
+                                                        <th>Issue ID</th>
+                                                        <th>Admin</th>
+                                                        <th>Details</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($idHistory as $activity)
+                                                        <tr>
+                                                            <td>{{ $activity->created_at->format('M d, Y h:i A') }}</td>
+                                                            <td>
+                                                                @if($activity->description == 'issued_id_card')
+                                                                    <span class="badge badge-success">Issued</span>
+                                                                @elseif($activity->description == 'updated_id_information')
+                                                                    <span class="badge badge-info">Updated</span>
+                                                                @elseif($activity->description == 'sent_id_card_email')
+                                                                    <span class="badge badge-primary">Emailed</span>
+                                                                @elseif($activity->description == 'downloaded_id_card')
+                                                                    <span class="badge badge-secondary">Downloaded</span>
+                                                                @elseif($activity->description == 'marked_id_for_renewal')
+                                                                    <span class="badge badge-warning">Marked for Renewal</span>
+                                                                @else
+                                                                    <span class="badge badge-dark">{{ str_replace('_', ' ', ucfirst($activity->description)) }}</span>
+                                                                @endif
+                                                            </td>
+                                                            <td>{{ $activity->properties['id_number'] ?? 'N/A' }}</td>
+                                                            <td>{{ $activity->causer ? $activity->causer->name : 'System' }}</td>
+                                                            <td>
+                                                                @if(isset($activity->properties['id_issued_at']) || isset($activity->properties['id_expires_at']))
+                                                                    @if(isset($activity->properties['id_issued_at']))
+                                                                        Issued: {{ \Carbon\Carbon::parse($activity->properties['id_issued_at'])->format('M d, Y') }}<br>
+                                                                    @endif
+                                                                    @if(isset($activity->properties['id_expires_at']))
+                                                                        Expires: {{ \Carbon\Carbon::parse($activity->properties['id_expires_at'])->format('M d, Y') }}
+                                                                    @endif
+                                                                @endif
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    @else
+                                        <div class="alert alert-light" role="alert">
+                                            <i class="fe fe-info fe-16 mr-2"></i> No ID issuance history found for this resident.
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
                             <a href="{{ route('admin.residents.id.pending') }}" class="btn btn-secondary">
                                 <i class="fe fe-arrow-left"></i> Back to ID Management
                             </a>
@@ -332,10 +414,32 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const signatureContainer = $('.border.rounded.p-3.bg-light');
-                    signatureContainer.html('<img src="' + e.target.result + '" alt="Signature" class="img-fluid" style="max-height: 80px;">');
+                    $('img[alt="Signature"]').attr('src', e.target.result);
                 }
                 reader.readAsDataURL(file);
+            }
+        });
+
+        // Generate Issue ID button click handler
+        $('#generateIssueId').click(function() {
+            // Use the suggested ID from the controller
+            $('#id_number').val('{{ $suggestedIssueId }}').trigger('focus');
+        });
+        
+        // Validate issue ID format
+        $('#id_number').on('input', function() {
+            const input = $(this);
+            const value = input.val();
+            const pattern = /^\d{4}-\d{3,}$/;
+            
+            if (value && !pattern.test(value)) {
+                input.addClass('is-invalid');
+                if (!input.next('.invalid-feedback').length) {
+                    input.after('<div class="invalid-feedback">Format should be YYYY-NNN (e.g., 2025-001)</div>');
+                }
+            } else {
+                input.removeClass('is-invalid');
+                input.next('.invalid-feedback').remove();
             }
         });
     });

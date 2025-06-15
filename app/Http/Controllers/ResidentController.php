@@ -636,52 +636,256 @@ class ResidentController extends Controller
      */
     public function update(Request $request, Resident $resident)
     {
-        // Validate the incoming request
+        // Validate the incoming request with enhanced validation
         $validated = $request->validate([
-            'first_name' => 'required|string|max:100',
-            'last_name' => 'required|string|max:100',
-            'middle_name' => 'nullable|string|max:100',
+            // Strict name validation - only letters, spaces, dots, hyphens, and apostrophes
+            'first_name' => ['required', 'string', 'max:100', 'regex:/^[a-zA-Z\s\.\-\']+$/'],
+            'last_name' => ['required', 'string', 'max:100', 'regex:/^[a-zA-Z\s\.\-\']+$/'],
+            'middle_name' => ['nullable', 'string', 'max:100', 'regex:/^[a-zA-Z\s\.\-\']+$/'],
             'suffix' => 'nullable|string|max:10',
-            'birthdate' => 'required|date',
+            
+            // Date validation with reasonable age limits
+            'birthdate' => [
+                'required', 
+                'date', 
+                'before_or_equal:today',
+                function ($attribute, $value, $fail) {
+                    $date = \Carbon\Carbon::parse($value);
+                    $maxAge = 120;
+                    if ($date->diffInYears(now()) > $maxAge) {
+                        $fail('The birthdate cannot be more than '.$maxAge.' years ago.');
+                    }
+                }
+            ],
             'sex' => 'required|in:Male,Female',
             'civil_status' => 'required|string',
-            'address' => 'required|string|max:255',
-            'contact_number' => 'required|string|max:20',
-            'email_address' => 'required|email|max:100',
-            // Add more validation rules as needed
+            
+            // Address validation with minimum length
+            'address' => ['required', 'string', 'max:255', 'min:5'],
+            
+            // Phone number validation (11 digits)
+            'contact_number' => ['required', 'string', 'regex:/^\d{11}$/'],
+            
+            // Enhanced email validation
+            'email_address' => ['required', 'email:rfc,dns', 'max:100'],
+            
+            'type_of_resident' => 'required|string|max:20',
+            'birthplace' => 'required|string|max:255',
+            'citizenship_type' => 'required|string',
+            'citizenship_country' => 'nullable|string|max:100',
+            'religion' => 'nullable|string|max:100',
+            'philsys_id' => 'nullable|string|max:100',
+            'profession_occupation' => 'nullable|string|max:100',
+            
+            // Numeric validation for positive numbers only
+            'monthly_income' => 'nullable|numeric|min:0',
+            
+            'educational_attainment' => 'nullable|string',
+            'education_status' => 'nullable|string',
+            'mother_first_name' => ['nullable', 'string', 'max:100', 'regex:/^[a-zA-Z\s\.\-\']+$/'],
+            'mother_middle_name' => ['nullable', 'string', 'max:100', 'regex:/^[a-zA-Z\s\.\-\']+$/'],
+            'mother_last_name' => ['nullable', 'string', 'max:100', 'regex:/^[a-zA-Z\s\.\-\']+$/'],
             'population_sectors' => 'nullable|array',
             'population_sectors.*' => 'string',
+            
+            // Household validation
+            'household' => 'nullable|array',
+            'household.primary_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s\.\-\']+$/'],
+            'household.primary_birthday' => [
+                'nullable', 
+                'date', 
+                'before_or_equal:today',
+                function ($attribute, $value, $fail) {
+                    if($value) {
+                        $date = \Carbon\Carbon::parse($value);
+                        $maxAge = 120;
+                        if ($date->diffInYears(now()) > $maxAge) {
+                            $fail('The primary birthday cannot be more than '.$maxAge.' years ago.');
+                        }
+                    }
+                }
+            ],
+            'household.primary_gender' => 'nullable|string|in:Male,Female',
+            'household.primary_phone' => ['nullable', 'string', 'regex:/^\d{11}$/'],
+            'household.primary_work' => 'nullable|string|max:100',
+            'household.primary_allergies' => 'nullable|string|max:255',
+            'household.primary_medical_condition' => 'nullable|string|max:255',
+            
+            'household.secondary_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s\.\-\']+$/'],
+            'household.secondary_birthday' => [
+                'nullable', 
+                'date', 
+                'before_or_equal:today',
+                function ($attribute, $value, $fail) {
+                    if($value) {
+                        $date = \Carbon\Carbon::parse($value);
+                        $maxAge = 120;
+                        if ($date->diffInYears(now()) > $maxAge) {
+                            $fail('The secondary birthday cannot be more than '.$maxAge.' years ago.');
+                        }
+                    }
+                }
+            ],
+            'household.secondary_gender' => 'nullable|string|in:Male,Female',
+            'household.secondary_phone' => ['nullable', 'string', 'regex:/^\d{11}$/'],
+            'household.secondary_work' => 'nullable|string|max:100',
+            'household.secondary_allergies' => 'nullable|string|max:255',
+            'household.secondary_medical_condition' => 'nullable|string|max:255',
+            
+            'household.emergency_contact_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s\.\-\']+$/'],
+            'household.emergency_relationship' => 'nullable|string|max:100',
+            'household.emergency_work' => 'nullable|string|max:100',
+            'household.emergency_phone' => ['nullable', 'string', 'regex:/^\d{11}$/'],
+            
+            // Family members validation
+            'family_members' => 'nullable|array',
+            'family_members.*.id' => 'nullable|integer|exists:family_members,id',
+            'family_members.*.name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s\.\-\']+$/'],
+            'family_members.*.relationship' => 'nullable|string|max:100',
+            'family_members.*.related_to' => 'nullable|string|max:100',
+            'family_members.*.gender' => 'nullable|string|in:Male,Female',
+            'family_members.*.birthday' => [
+                'nullable', 
+                'date', 
+                'before_or_equal:today',
+                function ($attribute, $value, $fail) {
+                    if($value) {
+                        $date = \Carbon\Carbon::parse($value);
+                        $maxAge = 120;
+                        if ($date->diffInYears(now()) > $maxAge) {
+                            $fail('The family member birthday cannot be more than '.$maxAge.' years ago.');
+                        }
+                    }
+                }
+            ],
+            'family_members.*.work' => 'nullable|string|max:100',
+            'family_members.*.contact_number' => ['nullable', 'string', 'regex:/^\d{11}$/'],
+            'family_members.*.allergies' => 'nullable|string|max:255',
+            'family_members.*.medical_condition' => 'nullable|string|max:255',
+        ], [
+            // Custom validation error messages
+            'first_name.regex' => 'The first name may only contain letters, spaces, dots, hyphens, and apostrophes.',
+            'last_name.regex' => 'The last name may only contain letters, spaces, dots, hyphens, and apostrophes.',
+            'middle_name.regex' => 'The middle name may only contain letters, spaces, dots, hyphens, and apostrophes.',
+            'mother_first_name.regex' => 'The mother\'s first name may only contain letters, spaces, dots, hyphens, and apostrophes.',
+            'mother_middle_name.regex' => 'The mother\'s middle name may only contain letters, spaces, dots, hyphens, and apostrophes.',
+            'mother_last_name.regex' => 'The mother\'s last name may only contain letters, spaces, dots, hyphens, and apostrophes.',
+            'address.min' => 'The address must be at least 5 characters.',
+            'contact_number.regex' => 'The contact number must be exactly 11 digits.',
+            'household.primary_name.regex' => 'The primary person name may only contain letters, spaces, dots, hyphens, and apostrophes.',
+            'household.secondary_name.regex' => 'The secondary person name may only contain letters, spaces, dots, hyphens, and apostrophes.',
+            'household.emergency_contact_name.regex' => 'The emergency contact name may only contain letters, spaces, dots, hyphens, and apostrophes.',
+            'household.primary_phone.regex' => 'The primary phone number must be exactly 11 digits.',
+            'household.secondary_phone.regex' => 'The secondary phone number must be exactly 11 digits.',
+            'household.emergency_phone.regex' => 'The emergency contact phone number must be exactly 11 digits.',
+            'monthly_income.min' => 'The monthly income must be a positive number.',
+            'family_members.*.name.regex' => 'The family member name may only contain letters, spaces, dots, hyphens, and apostrophes.',
+            'family_members.*.contact_number.regex' => 'The family member contact number must be exactly 11 digits.',
         ]);
 
         // Start database transaction
         DB::beginTransaction();
 
         try {
-            // Update resident record
-            $resident->update($validated);
+            // Update resident record (excluding household and family_members)
+            $residentData = collect($validated)->except(['household', 'family_members'])->toArray();
+            $resident->update($residentData);
 
-            // Update population_sectors if present
-            if ($request->has('population_sectors')) {
-                $resident->population_sectors = $request->input('population_sectors');
-                $resident->save();
-            }
+            // Handle household information
+            \Log::info('Handling household data', [
+                'has_household_data' => $request->has('household') ? 'Yes' : 'No',
+                'household_data' => $request->input('household')
+            ]);
             
-            // Update household if needed
+            // Add cross-field validation after the initial validation passes
             if ($request->has('household')) {
-                $resident->household->update($request->household);
+                // Validate cross-field requirements (e.g., if secondary_name exists, secondary_gender is required)
+                if (!empty($request->input('household.secondary_name')) && empty($request->input('household.secondary_gender'))) {
+                    return redirect()->back()->withErrors(['household.secondary_gender' => 'The secondary person gender is required when secondary name is provided.'])->withInput();
+                }
+            }
+
+            if ($request->has('household')) {
+                $householdData = $request->input('household');
+                
+                // Create or update the household record
+                if ($resident->household) {
+                    \Log::info('Updating existing household', ['household_id' => $resident->household->id]);
+                    $resident->household->update($householdData);
+                } else {
+                    \Log::info('Creating new household');
+                    $household = new Household($householdData);
+                    $household->resident_id = $resident->id;
+                    $household->address = $resident->address;
+                    $household->save();
+                }
             }
             
-            // Update family members if needed
-            // This would require more complex handling based on your form structure
+            // Handle family members
+            if ($request->has('family_members') && is_array($request->family_members)) {
+                $familyMembersData = $request->family_members;
+                $existingIds = [];
+                
+                foreach ($familyMembersData as $memberData) {
+                    // Skip empty entries
+                    if (empty($memberData['name'])) {
+                        continue;
+                    }
+                    
+                    // Map contact_number to phone if needed
+                    if (isset($memberData['contact_number'])) {
+                        $memberData['phone'] = $memberData['contact_number'];
+                        unset($memberData['contact_number']);
+                    }
+                    
+                    // Update existing family member
+                    if (isset($memberData['id'])) {
+                        $member = FamilyMember::find($memberData['id']);
+                        if ($member && $member->resident_id == $resident->id) {
+                            $member->update($memberData);
+                            $existingIds[] = $member->id;
+                            \Log::info('Updated family member', [
+                                'id' => $member->id,
+                                'data' => $memberData
+                            ]);
+                        }
+                    } 
+                    // Create new family member
+                    else {
+                        $member = new FamilyMember($memberData);
+                        $member->resident_id = $resident->id;
+                        $member->household_id = $resident->household ? $resident->household->id : null;
+                        $member->save();
+                        $existingIds[] = $member->id;
+                        \Log::info('Created new family member', [
+                            'id' => $member->id,
+                            'data' => $memberData
+                        ]);
+                    }
+                }
+                
+                // Delete family members that were removed from the form
+                $resident->familyMembers()->whereNotIn('id', $existingIds)->delete();
+            }
             
             // Commit the transaction
             DB::commit();
             
-            return redirect()->route('admin.residents.show', $resident->id)
-                ->with('success', 'Resident updated successfully!');
+            \Log::info('Resident update completed successfully', [
+                'resident_id' => $resident->id
+            ]);
+            
+            return redirect()->route('admin.residents.index')
+                ->with('success', 'Resident "' . $resident->first_name . ' ' . $resident->last_name . '" has been updated successfully!');
         } catch (\Exception $e) {
             // Roll back the transaction in case of error
             DB::rollBack();
+            
+            \Log::error('Error updating resident', [
+                'resident_id' => $resident->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             
             return redirect()->back()
                 ->with('error', 'Error updating resident: ' . $e->getMessage());

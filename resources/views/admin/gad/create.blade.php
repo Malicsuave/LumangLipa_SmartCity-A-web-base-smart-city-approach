@@ -358,12 +358,11 @@
                         </div>
                     </div>
                     
-                    <div class="d-flex justify-content-end mt-4">
-                        <a href="{{ route('admin.gad.index') }}" class="btn btn-outline-secondary mr-2">
-                            <i class="fe fe-x fe-16 mr-2"></i>Cancel
-                        </a>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fe fe-save fe-16 mr-2"></i>Create GAD Record
+                    <!-- Submit Buttons -->
+                    <div class="text-right mt-4">
+                        <a href="{{ route('admin.gad.index') }}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary" id="submit-btn">
+                            <i class="fe fe-save fe-16 mr-2"></i>Save GAD Record
                         </button>
                     </div>
                 </form>
@@ -375,53 +374,325 @@
 
 @section('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialize select2 for dropdowns
-        $('.custom-select').select2({
-            theme: 'bootstrap4',
-            width: '100%'
-        });
-        
-        // Gender details visibility
-        const genderIdentity = document.getElementById('gender_identity');
-        const genderDetailsRow = document.getElementById('gender-details-row');
-        
-        genderIdentity.addEventListener('change', function() {
-            if (this.value === 'Other') {
-                genderDetailsRow.style.display = 'flex';
-            } else {
-                genderDetailsRow.style.display = 'none';
-            }
-        });
-        
-        // Initialize on page load
-        if (genderIdentity.value === 'Other') {
-            genderDetailsRow.style.display = 'flex';
-        } else {
-            genderDetailsRow.style.display = 'none';
+document.addEventListener('DOMContentLoaded', function() {
+    // Form and field variables
+    const form = document.querySelector('form');
+    const submitBtn = document.getElementById('submit-btn');
+    const residentField = document.getElementById('resident_id');
+    const genderIdentityField = document.getElementById('gender_identity');
+    const genderDetailsField = document.getElementById('gender_details');
+    const genderDetailsRow = document.getElementById('gender-details-row');
+    const enrollmentDateField = document.getElementById('enrollment_date');
+    const programEndDateField = document.getElementById('program_end_date');
+    const isPregnantToggle = document.getElementById('is_pregnant_toggle');
+    const dueDateField = document.getElementById('due_date');
+    const pregnancySection = document.querySelector('.pregnancy-section');
+    const isSoloParentToggle = document.getElementById('is_solo_parent_toggle');
+    const soloParentSection = document.querySelector('.solo-parent-section');
+    const soloParentIdField = document.getElementById('solo_parent_id');
+    const soloParentIdIssuedField = document.getElementById('solo_parent_id_issued');
+    const soloParentIdExpiryField = document.getElementById('solo_parent_id_expiry');
+
+    // Validation error messages container
+    const createErrorContainer = (field) => {
+        // Remove existing error message if any
+        const existingError = field.parentNode.querySelector('.validation-error');
+        if (existingError) {
+            existingError.remove();
         }
         
-        // Toggle sections
-        const pregnancyToggle = document.getElementById('is_pregnant_toggle');
-        const pregnancySection = document.querySelector('.pregnancy-section');
+        // Create and insert error message element
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'validation-error text-danger small mt-1';
         
-        pregnancyToggle.addEventListener('change', function() {
-            pregnancySection.style.display = this.checked ? 'block' : 'none';
+        // If field is inside input group, append after the input group
+        const parentNode = field.closest('.input-group') || field.parentNode;
+        parentNode.parentNode.insertBefore(errorDiv, parentNode.nextSibling);
+        
+        return errorDiv;
+    };
+    
+    // Show validation error
+    const showError = (field, message) => {
+        field.classList.add('is-invalid');
+        const errorDiv = createErrorContainer(field);
+        errorDiv.textContent = message;
+    };
+    
+    // Clear validation error
+    const clearError = (field) => {
+        field.classList.remove('is-invalid');
+        const errorDiv = field.parentNode.querySelector('.validation-error') || 
+            field.closest('.input-group')?.parentNode.querySelector('.validation-error');
+        if (errorDiv) {
+            errorDiv.remove();
+        }
+    };
+    
+    // Validate form fields in real time
+    
+    // Resident validation
+    if (residentField) {
+        residentField.addEventListener('change', () => {
+            if (!residentField.value) {
+                showError(residentField, 'Please select a resident.');
+            } else {
+                clearError(residentField);
+            }
         });
-        
-        const soloParentToggle = document.getElementById('is_solo_parent_toggle');
-        const soloParentSection = document.querySelector('.solo-parent-section');
-        
-        soloParentToggle.addEventListener('change', function() {
-            soloParentSection.style.display = this.checked ? 'block' : 'none';
-        });
-        
-        const vawCaseToggle = document.getElementById('is_vaw_case_toggle');
-        const vawCaseSection = document.querySelector('.vaw-case-section');
-        
-        vawCaseToggle.addEventListener('change', function() {
-            vawCaseSection.style.display = this.checked ? 'block' : 'none';
-        });
+    }
+    
+    // Gender Identity validation
+    genderIdentityField.addEventListener('change', () => {
+        if (!genderIdentityField.value) {
+            showError(genderIdentityField, 'Please select a gender identity.');
+        } else {
+            clearError(genderIdentityField);
+            
+            // Show/hide gender details field based on selection
+            if (genderIdentityField.value === 'Other') {
+                genderDetailsRow.style.display = 'flex';
+                genderDetailsField.setAttribute('required', 'required');
+            } else {
+                genderDetailsRow.style.display = 'none';
+                genderDetailsField.removeAttribute('required');
+                clearError(genderDetailsField);
+            }
+        }
     });
+    
+    // Gender Details validation
+    genderDetailsField.addEventListener('input', () => {
+        if (genderIdentityField.value === 'Other') {
+            // Only validate when the field is required
+            if (!genderDetailsField.value.trim()) {
+                showError(genderDetailsField, 'Please provide gender details.');
+            } else if (!/^[a-zA-Z\s\.\-\']+$/.test(genderDetailsField.value)) {
+                showError(genderDetailsField, 'Gender details can only contain letters, spaces, dots, hyphens, and apostrophes.');
+            } else {
+                clearError(genderDetailsField);
+            }
+        }
+    });
+    
+    // Date validations
+    const validateDates = () => {
+        const currentDate = new Date();
+        const maxPastDate = new Date();
+        maxPastDate.setFullYear(currentDate.getFullYear() - 120);
+        
+        // Enrollment date validation
+        if (enrollmentDateField.value) {
+            const enrollmentDate = new Date(enrollmentDateField.value);
+            
+            if (enrollmentDate > currentDate) {
+                showError(enrollmentDateField, 'Enrollment date cannot be in the future.');
+            } else if (enrollmentDate < maxPastDate) {
+                showError(enrollmentDateField, 'Enrollment date cannot be more than 120 years ago.');
+            } else {
+                clearError(enrollmentDateField);
+            }
+            
+            // Program end date validation
+            if (programEndDateField.value) {
+                const endDate = new Date(programEndDateField.value);
+                
+                if (endDate < enrollmentDate) {
+                    showError(programEndDateField, 'Program end date must be after enrollment date.');
+                } else {
+                    clearError(programEndDateField);
+                }
+            }
+        } else {
+            clearError(enrollmentDateField);
+        }
+    };
+    
+    enrollmentDateField.addEventListener('change', validateDates);
+    programEndDateField.addEventListener('change', validateDates);
+    
+    // Pregnancy section validations
+    isPregnantToggle.addEventListener('change', () => {
+        pregnancySection.style.display = isPregnantToggle.checked ? 'block' : 'none';
+        
+        if (isPregnantToggle.checked) {
+            dueDateField.setAttribute('required', 'required');
+        } else {
+            dueDateField.removeAttribute('required');
+            clearError(dueDateField);
+        }
+    });
+    
+    dueDateField.addEventListener('change', () => {
+        if (isPregnantToggle.checked) {
+            const currentDate = new Date();
+            currentDate.setHours(0, 0, 0, 0);
+            const dueDate = new Date(dueDateField.value);
+            
+            if (!dueDateField.value) {
+                showError(dueDateField, 'Due date is required when pregnancy is indicated.');
+            } else if (dueDate < currentDate) {
+                showError(dueDateField, 'Due date must be today or a future date.');
+            } else {
+                clearError(dueDateField);
+            }
+        }
+    });
+    
+    // Solo parent section validations
+    isSoloParentToggle.addEventListener('change', () => {
+        soloParentSection.style.display = isSoloParentToggle.checked ? 'block' : 'none';
+        
+        if (isSoloParentToggle.checked) {
+            soloParentIdField.setAttribute('required', 'required');
+            soloParentIdIssuedField.setAttribute('required', 'required');
+            if (soloParentIdExpiryField) {
+                soloParentIdExpiryField.setAttribute('required', 'required');
+            }
+        } else {
+            soloParentIdField.removeAttribute('required');
+            soloParentIdIssuedField.removeAttribute('required');
+            if (soloParentIdExpiryField) {
+                soloParentIdExpiryField.removeAttribute('required');
+            }
+            clearError(soloParentIdField);
+            clearError(soloParentIdIssuedField);
+            if (soloParentIdExpiryField) {
+                clearError(soloParentIdExpiryField);
+            }
+        }
+    });
+    
+    soloParentIdField.addEventListener('input', () => {
+        if (isSoloParentToggle.checked) {
+            if (!soloParentIdField.value.trim()) {
+                showError(soloParentIdField, 'Solo Parent ID is required when indicating solo parent status.');
+            } else if (!/^[a-zA-Z0-9\-]+$/.test(soloParentIdField.value)) {
+                showError(soloParentIdField, 'Solo Parent ID can only contain letters, numbers, and hyphens.');
+            } else {
+                clearError(soloParentIdField);
+            }
+        }
+    });
+    
+    soloParentIdIssuedField.addEventListener('change', () => {
+        if (isSoloParentToggle.checked) {
+            const currentDate = new Date();
+            currentDate.setHours(0, 0, 0, 0);
+            const issuedDate = new Date(soloParentIdIssuedField.value);
+            
+            if (!soloParentIdIssuedField.value) {
+                showError(soloParentIdIssuedField, 'ID issuance date is required for solo parents.');
+            } else if (issuedDate > currentDate) {
+                showError(soloParentIdIssuedField, 'ID issuance date cannot be in the future.');
+            } else {
+                clearError(soloParentIdIssuedField);
+            }
+        }
+    });
+    
+    if (soloParentIdExpiryField) {
+        soloParentIdExpiryField.addEventListener('change', () => {
+            if (isSoloParentToggle.checked && soloParentIdIssuedField.value) {
+                const issuedDate = new Date(soloParentIdIssuedField.value);
+                const expiryDate = new Date(soloParentIdExpiryField.value);
+                
+                if (!soloParentIdExpiryField.value) {
+                    showError(soloParentIdExpiryField, 'ID expiry date is required for solo parents.');
+                } else if (expiryDate <= issuedDate) {
+                    showError(soloParentIdExpiryField, 'ID expiry date must be after the issuance date.');
+                } else {
+                    clearError(soloParentIdExpiryField);
+                }
+            }
+        });
+    }
+
+    // Form submission validation
+    form.addEventListener('submit', function(e) {
+        let hasErrors = false;
+        
+        // Basic required field validations
+        if (!residentField.value) {
+            showError(residentField, 'Please select a resident.');
+            hasErrors = true;
+        }
+        
+        if (!genderIdentityField.value) {
+            showError(genderIdentityField, 'Please select a gender identity.');
+            hasErrors = true;
+        }
+        
+        if (genderIdentityField.value === 'Other' && !genderDetailsField.value.trim()) {
+            showError(genderDetailsField, 'Please provide gender details.');
+            hasErrors = true;
+        }
+        
+        // Validate dates
+        validateDates();
+        
+        // Pregnancy validation
+        if (isPregnantToggle.checked && !dueDateField.value) {
+            showError(dueDateField, 'Due date is required when pregnancy is indicated.');
+            hasErrors = true;
+        }
+        
+        // Solo parent validation
+        if (isSoloParentToggle.checked) {
+            if (!soloParentIdField.value.trim()) {
+                showError(soloParentIdField, 'Solo Parent ID is required.');
+                hasErrors = true;
+            }
+            
+            if (!soloParentIdIssuedField.value) {
+                showError(soloParentIdIssuedField, 'ID issuance date is required.');
+                hasErrors = true;
+            }
+            
+            if (soloParentIdExpiryField && !soloParentIdExpiryField.value) {
+                showError(soloParentIdExpiryField, 'ID expiry date is required.');
+                hasErrors = true;
+            }
+        }
+        
+        if (hasErrors) {
+            e.preventDefault();
+            // Scroll to the first error
+            const firstError = document.querySelector('.is-invalid');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            
+            // Show alert
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+            alertDiv.innerHTML = `
+                <strong>Error!</strong> Please correct the errors in the form before submitting.
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            `;
+            
+            const cardHeader = document.querySelector('.card-header');
+            const existingAlert = document.querySelector('.alert');
+            
+            if (existingAlert) {
+                existingAlert.remove();
+            }
+            
+            cardHeader.insertAdjacentElement('afterend', alertDiv);
+        }
+    });
+    
+    // Initialize toggle states
+    if (genderIdentityField.value === 'Other') {
+        genderDetailsRow.style.display = 'flex';
+    } else {
+        genderDetailsRow.style.display = 'none';
+    }
+    
+    pregnancySection.style.display = isPregnantToggle.checked ? 'block' : 'none';
+    soloParentSection.style.display = isSoloParentToggle.checked ? 'block' : 'none';
+});
 </script>
 @endsection

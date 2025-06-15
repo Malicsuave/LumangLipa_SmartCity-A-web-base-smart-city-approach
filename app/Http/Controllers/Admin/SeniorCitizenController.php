@@ -59,24 +59,156 @@ class SeniorCitizenController extends Controller
      */
     public function update(Request $request, SeniorCitizen $seniorCitizen)
     {
+        $maxBirthYear = now()->subYears(120)->year; // Max age 120 years
+        $today = now()->format('Y-m-d');
+
         $validated = $request->validate([
-            'senior_id_number' => 'nullable|string|max:50|unique:senior_citizens,senior_id_number,' . $seniorCitizen->id,
-            'health_conditions' => 'nullable|string',
-            'medications' => 'nullable|string',
-            'allergies' => 'nullable|string',
-            'blood_type' => 'nullable|string|max:10',
-            'emergency_contact_name' => 'nullable|string|max:255',
-            'emergency_contact_number' => 'nullable|string|max:20',
-            'emergency_contact_relationship' => 'nullable|string|max:100',
+            // ID information with enhanced validation
+            'senior_id_number' => [
+                'nullable',
+                'string',
+                'max:50',
+                'regex:/^[A-Za-z0-9\-]+$/', // Only alphanumeric characters and hyphens
+                'unique:senior_citizens,senior_id_number,' . $seniorCitizen->id
+            ],
+            'senior_id_expires_at' => [
+                'nullable', 
+                'date', 
+                'after_or_equal:today'
+            ],
+
+            // Health Information with sanitization and validation
+            'health_conditions' => [
+                'nullable',
+                'string',
+                function ($attribute, $value, $fail) {
+                    if (preg_match('/<script\b[^>]*>.*<\/script>/is', $value)) {
+                        $fail('Health conditions cannot contain script tags.');
+                    }
+                }
+            ],
+            'medications' => [
+                'nullable',
+                'string',
+                function ($attribute, $value, $fail) {
+                    if (preg_match('/<script\b[^>]*>.*<\/script>/is', $value)) {
+                        $fail('Medications cannot contain script tags.');
+                    }
+                }
+            ],
+            'allergies' => [
+                'nullable',
+                'string',
+                function ($attribute, $value, $fail) {
+                    if (preg_match('/<script\b[^>]*>.*<\/script>/is', $value)) {
+                        $fail('Allergies cannot contain script tags.');
+                    }
+                }
+            ],
+            'blood_type' => [
+                'nullable', 
+                'string', 
+                'max:10',
+                'regex:/^(A|B|AB|O)[+-]?$/'
+            ],
+            'living_arrangement' => [
+                'nullable',
+                'string',
+                'min:3',
+                'max:100',
+                'regex:/^[A-Za-z0-9\s\.,\-\']+$/' // Letters, numbers, spaces, commas, dots, hyphens, apostrophes
+            ],
+
+            // Emergency Contact with enhanced validation
+            'emergency_contact_name' => [
+                'nullable',
+                'string',
+                'max:255',
+                'regex:/^[A-Za-z\s\.\-\']+$/' // Only letters, spaces, dots, hyphens, and apostrophes
+            ],
+            'emergency_contact_number' => [
+                'nullable',
+                'string',
+                'max:20',
+                'regex:/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/' // Phone number format
+            ],
+            'emergency_contact_relationship' => [
+                'nullable',
+                'string',
+                'max:100',
+                'regex:/^[A-Za-z\s\-]+$/' // Only letters, spaces, and hyphens
+            ],
+
+            // Benefits information with enhanced numeric validation
             'receiving_pension' => 'nullable|boolean',
-            'pension_type' => 'nullable|string|max:50',
-            'pension_amount' => 'nullable|numeric',
+            'pension_type' => [
+                'nullable',
+                'string',
+                'max:50',
+                'regex:/^[A-Za-z0-9\s\-\.]+$/' // Only letters, numbers, spaces, hyphens, and dots
+            ],
+            'pension_amount' => [
+                'nullable',
+                'numeric',
+                'min:0',
+                'regex:/^\d+(\.\d{1,2})?$/' // Ensure only numeric with up to 2 decimal places
+            ],
             'has_philhealth' => 'nullable|boolean',
-            'philhealth_number' => 'nullable|string|max:20',
+            'philhealth_number' => [
+                'nullable',
+                'string',
+                'max:20',
+                'regex:/^[0-9\-]+$/' // Only numbers and hyphens
+            ],
             'has_senior_discount_card' => 'nullable|boolean',
-            'living_arrangement' => 'nullable|string|max:100',
-            'senior_id_expires_at' => 'nullable|date|after_or_equal:today',
+        ], [
+            // Custom error messages
+            'senior_id_number.regex' => 'Senior ID number can only contain letters, numbers, and hyphens.',
+            'blood_type.regex' => 'Blood type must be a valid format (A+, B-, AB+, O-, etc.).',
+            'living_arrangement.min' => 'Living arrangement must be at least 3 characters.',
+            'living_arrangement.regex' => 'Living arrangement can only contain letters, numbers, spaces, commas, dots, hyphens, and apostrophes.',
+            'emergency_contact_name.regex' => 'Emergency contact name can only contain letters, spaces, dots, hyphens, and apostrophes.',
+            'emergency_contact_number.regex' => 'Please enter a valid phone number format.',
+            'emergency_contact_relationship.regex' => 'Relationship can only contain letters, spaces, and hyphens.',
+            'pension_type.regex' => 'Pension type can only contain letters, numbers, spaces, hyphens, and dots.',
+            'pension_amount.min' => 'Pension amount cannot be negative.',
+            'pension_amount.regex' => 'Pension amount must be a valid number with up to 2 decimal places.',
+            'philhealth_number.regex' => 'PhilHealth number can only contain numbers and hyphens.',
         ]);
+
+        // Cross-field validation
+        if ($request->has_philhealth && empty($request->philhealth_number)) {
+            return redirect()->back()
+                ->withErrors(['philhealth_number' => 'PhilHealth number is required when PhilHealth is checked.'])
+                ->withInput();
+        }
+
+        if ($request->receiving_pension) {
+            if (empty($request->pension_type)) {
+                return redirect()->back()
+                    ->withErrors(['pension_type' => 'Pension type is required when receiving pension is checked.'])
+                    ->withInput();
+            }
+            
+            if (is_null($request->pension_amount)) {
+                return redirect()->back()
+                    ->withErrors(['pension_amount' => 'Pension amount is required when receiving pension is checked.'])
+                    ->withInput();
+            }
+        }
+
+        // Ensure emergency contact information consistency
+        if (!empty($request->emergency_contact_name) && empty($request->emergency_contact_number)) {
+            return redirect()->back()
+                ->withErrors(['emergency_contact_number' => 'Emergency contact number is required when contact name is provided.'])
+                ->withInput();
+        }
+
+        if (empty($request->emergency_contact_name) && !empty($request->emergency_contact_number)) {
+            return redirect()->back()
+                ->withErrors(['emergency_contact_name' => 'Emergency contact name is required when contact number is provided.'])
+                ->withInput();
+        }
 
         try {
             $seniorCitizen->update($validated);
@@ -413,12 +545,14 @@ class SeniorCitizenController extends Controller
     {
         $request->validate([
             'senior_id_number' => 'nullable|string|max:50|unique:senior_citizens,senior_id_number,' . $seniorCitizen->id,
+            'senior_issue_id' => 'nullable|string|max:50',
             'senior_id_expires_at' => 'nullable|date|after_or_equal:today',
         ]);
 
         try {
             $seniorCitizen->update([
                 'senior_id_number' => $request->senior_id_number,
+                'senior_issue_id' => $request->senior_issue_id,
                 'senior_id_expires_at' => $request->senior_id_expires_at,
             ]);
 
@@ -427,6 +561,7 @@ class SeniorCitizenController extends Controller
                 ->performedOn($seniorCitizen)
                 ->withProperties([
                     'senior_id_number' => $request->senior_id_number,
+                    'senior_issue_id' => $request->senior_issue_id,
                     'senior_id_expires_at' => $request->senior_id_expires_at,
                 ])
                 ->log('updated senior citizen ID information');

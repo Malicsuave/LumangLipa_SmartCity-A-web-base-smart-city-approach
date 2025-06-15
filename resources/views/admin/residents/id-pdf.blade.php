@@ -317,7 +317,7 @@
     <div class="document-header">
         <div class="document-title">RESIDENT IDENTIFICATION CARD</div>
         <div class="document-subtitle">Republic of the Philippines</div>
-        <div class="document-subtitle">Province of Batangas - City of Lipa - Barangay Lumanglipa</div>
+        <div class="document-subtitle">Province of Batangas - Barangay Lumanglipa</div>
     </div>
     
     <!-- Document Information -->
@@ -337,7 +337,7 @@
                 <img src="{{ public_path('images/logo.png') }}" alt="Barangay Logo" class="barangay-logo-left">
                 <div class="id-card-title">
                     <h6 class="mb-0">Barangay Lumanglipa</h6>
-                    <h6 class="small mb-0">Matasnakahoy, Lipa City Batangas</h6>
+                    <h6 class="small mb-0">Matasnakahoy, Batangas</h6>
                     <h6 class="mb-0">Residence Card</h6>
                 </div>
                 <img src="{{ public_path('images/citylogo.png') }}" alt="City Logo" class="barangay-logo-right">
@@ -455,7 +455,7 @@
             <span>Contact: {{ $resident->contact_number ?: 'N/A' }}</span>
         </div>
         <div class="footer-info">
-            <span>Address: Matasnakahoy, Lipa City, Batangas</span>
+            <span>Address: Matasnakahoy, Batangas</span>
             <span>Reference: {{ $resident->barangay_id }}</span>
         </div>
         <div class="footer-note">

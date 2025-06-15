@@ -8,12 +8,13 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Notifications\Notifiable;
 use Carbon\Carbon;
 use App\Traits\TracksActivity;
 
 class Resident extends Model
 {
-    use HasFactory, TracksActivity, SoftDeletes;
+    use HasFactory, TracksActivity, SoftDeletes, Notifiable;
 
     protected $fillable = [
         'barangay_id',
@@ -239,5 +240,16 @@ class Resident extends Model
             'needs_renewal' => 'Needs Renewal',
             default => 'Not Issued'
         };
+    }
+    
+    /**
+     * Route notifications for the mail channel.
+     *
+     * @param  \Illuminate\Notifications\Notification  $notification
+     * @return array|string
+     */
+    public function routeNotificationForMail($notification)
+    {
+        return $this->email_address ?: $this->email; // Try both possible email field names
     }
 }

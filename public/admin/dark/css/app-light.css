@@ -42,6 +42,33 @@
   color: #000000 !important;
  
 }
+
+/* Fix for dropdown menus in tables with few rows */
+.table-responsive {
+  overflow-x: visible !important;
+  overflow-y: visible !important;
+}
+
+/* When there's only one row in a table, adjust dropdown menu positioning */
+.table tr:only-child .dropdown-menu {
+  right: 0 !important;
+  left: auto !important;
+  transform: none !important;
+  top: 100% !important;
+  position: absolute !important;
+}
+
+/* For dropdowns in single row tables, maintain visibility */
+.dropdown-menu.show {
+  display: block !important;
+  z-index: 1050 !important;
+}
+
+/* Ensure dropdowns are always displayed above other elements */
+.dropdown {
+  position: relative !important;
+  z-index: 900 !important;
+}
 /* list group */
 /* modal */
 /* tabs */

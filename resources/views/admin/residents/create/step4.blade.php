@@ -138,10 +138,24 @@
                                                         <option value="">Select</option>
                                                         <option value="Male" {{ ($member['gender'] ?? '') == 'Male' ? 'selected' : '' }}>Male</option>
                                                         <option value="Female" {{ ($member['gender'] ?? '') == 'Female' ? 'selected' : '' }}>Female</option>
+                                                        <option value="Non-binary" {{ ($member['gender'] ?? '') == 'Non-binary' ? 'selected' : '' }}>Non-binary</option>
+                                                        <option value="Transgender" {{ ($member['gender'] ?? '') == 'Transgender' ? 'selected' : '' }}>Transgender</option>
+                                                        <option value="Other" {{ ($member['gender'] ?? '') == 'Other' ? 'selected' : '' }}>Other</option>
                                                     </select>
                                                     @error('member_gender')
-                                        <div class="text-danger mt-1">{{ $message }}</div>
-                                    @enderror
+                                                        <div class="text-danger mt-1">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3" id="gender-details-row-{{ $index }}" style="{{ ($member['gender'] ?? '') == 'Other' ? '' : 'display: none;' }}">
+                                                <div class="form-group">
+                                                    <label class="form-label">Gender Details</label>
+                                                    <input type="text" name="family_members[{{ $index }}][gender_details]" 
+                                                           class="form-control @error('family_members.'.$index.'.gender_details') is-invalid @enderror" 
+                                                           value="{{ $member['gender_details'] ?? '' }}">
+                                                    @error('family_members.'.$index.'.gender_details')
+                                                        <div class="text-danger mt-1">{{ $message }}</div>
+                                                    @enderror
                                                 </div>
                                             </div>
                                             <div class="col-md-3">
@@ -271,11 +285,20 @@
                 <div class="col-md-2">
                     <div class="form-group">
                         <label class="form-label">Gender <span class="text-danger">*</span></label>
-                        <select name="family_members[INDEX][gender]" class="form-control" required>
+                        <select name="family_members[INDEX][gender]" class="form-control family-member-gender" required>
                             <option value="">Select</option>
                             <option value="Male">Male</option>
                             <option value="Female">Female</option>
+                            <option value="Non-binary">Non-binary</option>
+                            <option value="Transgender">Transgender</option>
+                            <option value="Other">Other</option>
                         </select>
+                    </div>
+                </div>
+                <div class="col-md-3 gender-details-container" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">Gender Details</label>
+                        <input type="text" name="family_members[INDEX][gender_details]" class="form-control" placeholder="Please specify">
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -325,6 +348,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const template = document.getElementById('familyMemberTemplate');
     const noMembersAlert = document.getElementById('noFamilyMembers');
     const addButton = document.getElementById('addFamilyMember');
+
+    // Handle gender "Other" option for existing family members
+    function setupGenderDetailsVisibility() {
+        // For existing family members
+        document.querySelectorAll('select[name*="[gender]"]').forEach(select => {
+            select.addEventListener('change', function() {
+                const rowIndex = this.closest('.family-member-card').getAttribute('data-index');
+                const detailsRow = document.getElementById('gender-details-row-' + rowIndex);
+                if (detailsRow) {
+                    detailsRow.style.display = this.value === 'Other' ? '' : 'none';
+                }
+            });
+        });
+    }
 
     function updateMemberNumbers() {
         const cards = container.querySelectorAll('.family-member-card');
@@ -395,6 +432,17 @@ document.addEventListener('DOMContentLoaded', function() {
         newCard.setAttribute('data-index', memberIndex);
         
         container.appendChild(newCard);
+        
+        // Set up gender "Other" option events for new card
+        const genderSelect = newCard.querySelector('.family-member-gender');
+        const genderDetailsContainer = newCard.querySelector('.gender-details-container');
+        
+        if (genderSelect && genderDetailsContainer) {
+            genderSelect.addEventListener('change', function() {
+                genderDetailsContainer.style.display = this.value === 'Other' ? '' : 'none';
+            });
+        }
+        
         memberIndex++;
         
         updateMemberNumbers();
@@ -426,6 +474,7 @@ document.addEventListener('DOMContentLoaded', function() {
     updateMemberNumbers();
     toggleNoMembersAlert();
     setupBirthdayValidation();
+    setupGenderDetailsVisibility();
     
     // Handle form submission
     const form = document.querySelector('form');

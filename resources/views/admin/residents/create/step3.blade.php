@@ -86,19 +86,24 @@
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <label class="form-label">Gender <span class="text-danger">*</span></label>
-                                        <div class="d-flex">
-                                            <div class="custom-control custom-radio mr-3">
-                                                <input type="radio" id="primary_male" name="primary_gender" value="Male" 
-                                                       class="custom-control-input" {{ old('primary_gender', session('registration.step3.primary_gender')) == 'Male' ? 'checked' : '' }}>
-                                                <label class="custom-control-label" for="primary_male">Male</label>
-                                            </div>
-                                            <div class="custom-control custom-radio">
-                                                <input type="radio" id="primary_female" name="primary_gender" value="Female" 
-                                                       class="custom-control-input" {{ old('primary_gender', session('registration.step3.primary_gender')) == 'Female' ? 'checked' : '' }}>
-                                                <label class="custom-control-label" for="primary_female">Female</label>
-                                            </div>
-                                        </div>
+                                        <select name="primary_gender" id="primary_gender" class="form-control @error('primary_gender') is-invalid @enderror" required>
+                                            <option value="">Select Gender</option>
+                                            <option value="Male" {{ old('primary_gender', session('registration.step3.primary_gender')) == 'Male' ? 'selected' : '' }}>Male</option>
+                                            <option value="Female" {{ old('primary_gender', session('registration.step3.primary_gender')) == 'Female' ? 'selected' : '' }}>Female</option>
+                                            <option value="Non-binary" {{ old('primary_gender', session('registration.step3.primary_gender')) == 'Non-binary' ? 'selected' : '' }}>Non-binary</option>
+                                            <option value="Transgender" {{ old('primary_gender', session('registration.step3.primary_gender')) == 'Transgender' ? 'selected' : '' }}>Transgender</option>
+                                            <option value="Other" {{ old('primary_gender', session('registration.step3.primary_gender')) == 'Other' ? 'selected' : '' }}>Other</option>
+                                        </select>
                                         @error('primary_gender')
+                                            <div class="text-danger mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-md-3" id="primary-gender-details-row" style="{{ old('primary_gender', session('registration.step3.primary_gender')) == 'Other' ? '' : 'display: none;' }}">
+                                    <div class="form-group">
+                                        <label for="primary_gender_details" class="form-label">Gender Details</label>
+                                        <input type="text" name="primary_gender_details" id="primary_gender_details" class="form-control @error('primary_gender_details') is-invalid @enderror" value="{{ old('primary_gender_details', session('registration.step3.primary_gender_details')) }}">
+                                        @error('primary_gender_details')
                                             <div class="text-danger mt-1">{{ $message }}</div>
                                         @enderror
                                     </div>
@@ -188,19 +193,24 @@
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <label class="form-label">Gender</label>
-                                        <div class="d-flex">
-                                            <div class="custom-control custom-radio mr-3">
-                                                <input type="radio" id="secondary_male" name="secondary_gender" value="Male" 
-                                                       class="custom-control-input" {{ old('secondary_gender', session('registration.step3.secondary_gender')) == 'Male' ? 'checked' : '' }}>
-                                                <label class="custom-control-label" for="secondary_male">Male</label>
-                                            </div>
-                                            <div class="custom-control custom-radio">
-                                                <input type="radio" id="secondary_female" name="secondary_gender" value="Female" 
-                                                       class="custom-control-input" {{ old('secondary_gender', session('registration.step3.secondary_gender')) == 'Female' ? 'checked' : '' }}>
-                                                <label class="custom-control-label" for="secondary_female">Female</label>
-                                            </div>
-                                        </div>
+                                        <select name="secondary_gender" id="secondary_gender" class="form-control @error('secondary_gender') is-invalid @enderror">
+                                            <option value="">Select Gender</option>
+                                            <option value="Male" {{ old('secondary_gender', session('registration.step3.secondary_gender')) == 'Male' ? 'selected' : '' }}>Male</option>
+                                            <option value="Female" {{ old('secondary_gender', session('registration.step3.secondary_gender')) == 'Female' ? 'selected' : '' }}>Female</option>
+                                            <option value="Non-binary" {{ old('secondary_gender', session('registration.step3.secondary_gender')) == 'Non-binary' ? 'selected' : '' }}>Non-binary</option>
+                                            <option value="Transgender" {{ old('secondary_gender', session('registration.step3.secondary_gender')) == 'Transgender' ? 'selected' : '' }}>Transgender</option>
+                                            <option value="Other" {{ old('secondary_gender', session('registration.step3.secondary_gender')) == 'Other' ? 'selected' : '' }}>Other</option>
+                                        </select>
                                         @error('secondary_gender')
+                                            <div class="text-danger mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-md-3" id="secondary-gender-details-row" style="{{ old('secondary_gender', session('registration.step3.secondary_gender')) == 'Other' ? '' : 'display: none;' }}">
+                                    <div class="form-group">
+                                        <label for="secondary_gender_details" class="form-label">Gender Details</label>
+                                        <input type="text" name="secondary_gender_details" id="secondary_gender_details" class="form-control @error('secondary_gender_details') is-invalid @enderror" value="{{ old('secondary_gender_details', session('registration.step3.secondary_gender_details')) }}">
+                                        @error('secondary_gender_details')
                                             <div class="text-danger mt-1">{{ $message }}</div>
                                         @enderror
                                     </div>
@@ -341,4 +351,24 @@
     });
 </script>
 @endif
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle primary gender "Other" option visibility
+    const primaryGenderSelect = document.getElementById('primary_gender');
+    const primaryGenderDetailsRow = document.getElementById('primary-gender-details-row');
+    
+    primaryGenderSelect.addEventListener('change', function() {
+        primaryGenderDetailsRow.style.display = this.value === 'Other' ? '' : 'none';
+    });
+    
+    // Handle secondary gender "Other" option visibility
+    const secondaryGenderSelect = document.getElementById('secondary_gender');
+    const secondaryGenderDetailsRow = document.getElementById('secondary-gender-details-row');
+    
+    secondaryGenderSelect.addEventListener('change', function() {
+        secondaryGenderDetailsRow.style.display = this.value === 'Other' ? '' : 'none';
+    });
+});
+</script>
 @endsection

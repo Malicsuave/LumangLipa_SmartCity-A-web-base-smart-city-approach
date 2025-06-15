@@ -81,6 +81,16 @@
                                                 @enderror
                                             </div>
                                             <div class="form-group">
+                                                <label for="senior_issue_id" class="form-label">Issue ID / Reference Number</label>
+                                                <input type="text" class="form-control @error('senior_issue_id') is-invalid @enderror" id="senior_issue_id" name="senior_issue_id" value="{{ old('senior_issue_id', $seniorCitizen->senior_issue_id) }}" placeholder="Enter issue number (e.g. SC-2025-001)">
+                                                <small class="form-text text-muted">
+                                                    A unique reference number for this ID issuance.
+                                                </small>
+                                                @error('senior_issue_id')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                            <div class="form-group">
                                                 <label for="senior_id_expires_at" class="form-label">Expiration Date</label>
                                                 <input type="date" class="form-control @error('senior_id_expires_at') is-invalid @enderror" id="senior_id_expires_at" name="senior_id_expires_at" value="{{ old('senior_id_expires_at', $seniorCitizen->senior_id_expires_at ? $seniorCitizen->senior_id_expires_at->format('Y-m-d') : '') }}">
                                                 @error('senior_id_expires_at')

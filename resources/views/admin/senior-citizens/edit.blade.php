@@ -259,10 +259,10 @@
                     </div>
 
                     <div class="form-group">
-                        <button type="submit" class="btn btn-success btn-lg">
+                        <button type="submit" class="btn btn-primary">
                             <i class="fe fe-save fe-16 mr-2"></i>Update Senior Citizen Information
                         </button>
-                        <a href="{{ route('admin.senior-citizens.index') }}" class="btn btn-outline-secondary btn-lg ml-2">
+                        <a href="{{ route('admin.senior-citizens.index') }}" class="btn btn-outline-secondary ml-2">
                             <i class="fe fe-x fe-16 mr-2"></i>Cancel
                         </a>
                     </div>
@@ -271,4 +271,128 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to sanitize text inputs to prevent XSS attacks
+        function sanitizeInput(input) {
+            return input.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+                        .replace(/on\w+="[^"]*"/gi, '')
+                        .replace(/on\w+='[^']*'/gi, '');
+        }
+
+        // Apply sanitization to all textarea and text inputs on blur
+        const textInputs = document.querySelectorAll('textarea, input[type="text"]');
+        textInputs.forEach(input => {
+            input.addEventListener('blur', function() {
+                const sanitizedValue = sanitizeInput(this.value);
+                if (sanitizedValue !== this.value) {
+                    this.value = sanitizedValue;
+                    // Visual feedback that content was sanitized
+                    this.classList.add('sanitized-input');
+                    setTimeout(() => {
+                        this.classList.remove('sanitized-input');
+                    }, 1000);
+                }
+            });
+        });
+
+        // Name fields validation - restrict to only letters, spaces, dots, hyphens, and apostrophes
+        document.getElementById('emergency_contact_name').addEventListener('input', function() {
+            this.value = this.value.replace(/[^a-zA-Z\s.\-']/g, '');
+        });
+
+        document.getElementById('emergency_contact_relationship').addEventListener('input', function() {
+            this.value = this.value.replace(/[^a-zA-Z\s\-]/g, '');
+        });
+
+        // Phone number validation
+        document.getElementById('emergency_contact_number').addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9+\-\s().]/g, '');
+        });
+
+        // PhilHealth number validation - numbers and hyphens only
+        document.getElementById('philhealth_number').addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9\-]/g, '');
+        });
+
+        // Numeric validation for pension amount
+        document.getElementById('pension_amount').addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9.]/g, '');
+            // Ensure only 2 decimal places
+            const parts = this.value.split('.');
+            if (parts.length > 1 && parts[1].length > 2) {
+                parts[1] = parts[1].substring(0, 2);
+                this.value = parts.join('.');
+            }
+        });
+
+        // Cross-field validation
+        const receivingPensionCheckbox = document.getElementById('receiving_pension');
+        const pensionTypeField = document.getElementById('pension_type');
+        const pensionAmountField = document.getElementById('pension_amount');
+        
+        receivingPensionCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                pensionTypeField.setAttribute('required', 'required');
+                pensionAmountField.setAttribute('required', 'required');
+                document.querySelector('label[for="pension_type"]').classList.add('required-field');
+                document.querySelector('label[for="pension_amount"]').classList.add('required-field');
+            } else {
+                pensionTypeField.removeAttribute('required');
+                pensionAmountField.removeAttribute('required');
+                document.querySelector('label[for="pension_type"]').classList.remove('required-field');
+                document.querySelector('label[for="pension_amount"]').classList.remove('required-field');
+            }
+        });
+
+        const hasPhilhealthCheckbox = document.getElementById('has_philhealth');
+        const philhealthNumberField = document.getElementById('philhealth_number');
+        
+        hasPhilhealthCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                philhealthNumberField.setAttribute('required', 'required');
+                document.querySelector('label[for="philhealth_number"]').classList.add('required-field');
+            } else {
+                philhealthNumberField.removeAttribute('required');
+                document.querySelector('label[for="philhealth_number"]').classList.remove('required-field');
+            }
+        });
+        
+        // Trigger the change event to set initial state based on checked status
+        receivingPensionCheckbox.dispatchEvent(new Event('change'));
+        hasPhilhealthCheckbox.dispatchEvent(new Event('change'));
+        
+        // Auto-scroll to first error if there are validation errors
+        const firstErrorElement = document.querySelector('.is-invalid');
+        if (firstErrorElement) {
+            firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            firstErrorElement.focus();
+            
+            // Find the parent section of the error and expand it if collapsed
+            // This assumes the structure of Bootstrap accordions or collapsible elements
+            const errorSection = firstErrorElement.closest('.collapse:not(.show)');
+            if (errorSection) {
+                const sectionToggle = document.querySelector(`[data-target="#${errorSection.id}"]`) || 
+                                     document.querySelector(`[href="#${errorSection.id}"]`);
+                if (sectionToggle) {
+                    sectionToggle.click();
+                }
+            }
+        }
+    });
+</script>
+<style>
+    .sanitized-input {
+        background-color: #fff3cd;
+        transition: background-color 1s;
+    }
+    
+    .required-field::after {
+        content: " *";
+        color: #dc3545;
+    }
+</style>
 @endsection

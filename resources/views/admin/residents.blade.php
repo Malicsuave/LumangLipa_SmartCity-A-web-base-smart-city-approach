@@ -410,6 +410,16 @@
                 }
             });
         }
+        
+        // Scroll to success message if it exists
+        if ($('.alert-success').length > 0) {
+            $('html, body').animate({
+                scrollTop: $('.alert-success').offset().top - 100
+            }, 200);
+            
+            // Make success message more noticeable with a fade effect
+            $('.alert-success').fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100);
+        }
     });
 </script>
 @endsection

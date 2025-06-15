@@ -7,6 +7,10 @@ use App\Models\Gad;
 use App\Models\Resident;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Http\Requests\GadRequest;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class GadController extends Controller
 {
@@ -94,44 +98,254 @@ class GadController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'resident_id' => 'required|exists:residents,id',
-            'gender_identity' => 'required|string',
-            'programs_enrolled' => 'nullable|array',
-            'enrollment_date' => 'nullable|date',
-            'program_end_date' => 'nullable|date|after_or_equal:enrollment_date',
-            'program_status' => 'nullable|string',
-            'is_pregnant' => 'nullable|boolean',
-            'due_date' => 'nullable|date|required_if:is_pregnant,1',
-            'is_lactating' => 'nullable|boolean',
-            'needs_maternity_support' => 'nullable|boolean',
-            'is_solo_parent' => 'nullable|boolean',
-            'solo_parent_id' => 'nullable|string|required_if:is_solo_parent,1',
-            'solo_parent_id_issued' => 'nullable|date|required_if:is_solo_parent,1',
-            'solo_parent_id_expiry' => 'nullable|date|after:solo_parent_id_issued|required_if:is_solo_parent,1',
-            'is_vaw_case' => 'nullable|boolean',
-            'vaw_report_date' => 'nullable|date|required_if:is_vaw_case,1',
-            'vaw_case_number' => 'nullable|string|required_if:is_vaw_case,1',
-            'notes' => 'nullable|string|max:500',
-        ]);
-        
-        // Create GAD record
-        $gad = Gad::create($request->all());
-        
-        // Update resident's population sectors to include relevant tags
-        $resident = Resident::find($request->resident_id);
-        $sectors = $resident->population_sectors ?? [];
-        
-        if ($request->is_solo_parent && !in_array('Solo Parent', $sectors)) {
-            $sectors[] = 'Solo Parent';
+        try {
+            // Log the incoming request data for debugging
+            Log::debug('GAD Store - Request received', [
+                'user_id' => auth()->id(),
+                'request_data' => $request->all()
+            ]);
+            
+            // Custom validation for new GAD records
+            $validator = \Validator::make($request->all(), [
+                // Resident validation
+                'resident_id' => 'required|exists:residents,id',
+                
+                // Basic information
+                'gender_identity' => 'required|string|in:Male,Female,Non-binary,Transgender,Other',
+                'gender_details' => [
+                    'nullable',
+                    'string',
+                    'max:100',
+                    function ($attribute, $value, $fail) use ($request) {
+                        if ($request->gender_identity === 'Other' && empty($value)) {
+                            $fail('Gender details are required when selecting "Other" as gender identity.');
+                        }
+                    },
+                ],
+                'email' => [
+                    'nullable', 
+                    'email:rfc,dns'
+                ],
+                'phone_number' => [
+                    'nullable',
+                    'string',
+                ],
+                
+                // Program information
+                'programs_enrolled' => 'nullable|array',
+                'enrollment_date' => [
+                    'nullable',
+                    'date',
+                    'before_or_equal:today',
+                ],
+                'program_end_date' => [
+                    'nullable',
+                    'date',
+                    function ($attribute, $value, $fail) use ($request) {
+                        if (!empty($value) && !empty($request->enrollment_date) && $value < $request->enrollment_date) {
+                            $fail('Program end date must be after enrollment date.');
+                        }
+                    },
+                ],
+                'program_status' => 'nullable|string|in:Active,Completed,On Hold,Discontinued',
+                
+                // Pregnancy information - only validate if is_pregnant is checked
+                'due_date' => [
+                    'nullable',
+                    'date',
+                    'after:today',
+                    function ($attribute, $value, $fail) use ($request) {
+                        if ($request->has('is_pregnant') && empty($value)) {
+                            $fail('Due date is required when pregnancy is indicated.');
+                        }
+                        
+                        // Additional check to ensure the date is in the future
+                        if (!empty($value) && strtotime($value) <= strtotime('today')) {
+                            $fail('Due date must be in the future.');
+                        }
+                    },
+                ],
+                
+                // Solo parent information - only validate if is_solo_parent is checked
+                'solo_parent_id' => [
+                    'nullable',
+                    'string',
+                    'max:50',
+                    function ($attribute, $value, $fail) use ($request) {
+                        if ($request->has('is_solo_parent') && empty($value)) {
+                            $fail('Solo Parent ID is required when solo parent status is indicated.');
+                        }
+                    },
+                ],
+                'solo_parent_id_issued' => [
+                    'nullable',
+                    'date',
+                    'before_or_equal:today',
+                    function ($attribute, $value, $fail) use ($request) {
+                        if ($request->has('is_solo_parent') && empty($value)) {
+                            $fail('ID issuance date is required for solo parents.');
+                        }
+                    },
+                ],
+                'solo_parent_id_expiry' => [
+                    'nullable',
+                    'date',
+                    function ($attribute, $value, $fail) use ($request) {
+                        if ($request->has('is_solo_parent')) {
+                            if (empty($value)) {
+                                $fail('ID expiry date is required for solo parents.');
+                            } elseif (!empty($request->solo_parent_id_issued) && $value <= $request->solo_parent_id_issued) {
+                                $fail('ID expiry date must be after the issuance date.');
+                            }
+                        }
+                    },
+                ],
+                
+                // VAW case information - only validate if is_vaw_case is checked
+                'vaw_report_date' => [
+                    'nullable',
+                    'date',
+                    'before_or_equal:today',
+                    function ($attribute, $value, $fail) use ($request) {
+                        if ($request->has('is_vaw_case') && empty($value)) {
+                            $fail('Report date is required for VAW cases.');
+                        }
+                    },
+                ],
+                'vaw_case_number' => [
+                    'nullable',
+                    'string',
+                    'max:50',
+                    function ($attribute, $value, $fail) use ($request) {
+                        if ($request->has('is_vaw_case') && empty($value)) {
+                            $fail('Case number is required for VAW cases.');
+                        }
+                    },
+                ],
+                'vaw_case_status' => [
+                    'nullable',
+                    'string',
+                    'in:Pending,Ongoing,Resolved,Closed',
+                    function ($attribute, $value, $fail) use ($request) {
+                        if ($request->has('is_vaw_case') && empty($value)) {
+                            $fail('Case status is required for VAW cases.');
+                        }
+                    },
+                ],
+                'vaw_case_details' => [
+                    'nullable',
+                    'string',
+                    'max:1000',
+                    function ($attribute, $value, $fail) use ($request) {
+                        if ($request->has('is_vaw_case')) {
+                            if (empty($value)) {
+                                $fail('Case details are required for VAW cases.');
+                            } elseif (strlen($value) < 10) {
+                                $fail('Case details should contain at least 10 characters.');
+                            }
+                        }
+                    },
+                ],
+                
+                // Additional notes
+                'notes' => 'nullable|string|max:500',
+            ]);
+            
+            // If validation fails, redirect back with errors
+            if ($validator->fails()) {
+                Log::debug('GAD Store - Validation failed', [
+                    'errors' => $validator->errors()->toArray()
+                ]);
+                
+                return redirect()->back()
+                    ->withErrors($validator)
+                    ->withInput();
+            }
+            
+            // Get validated data
+            $data = $validator->validated();
+            
+            // Explicitly handle boolean fields (checkboxes)
+            $booleanFields = ['is_pregnant', 'is_lactating', 'needs_maternity_support', 
+                             'is_solo_parent', 'is_vaw_case', 'has_philhealth'];
+            
+            foreach ($booleanFields as $field) {
+                $data[$field] = $request->has($field) ? true : false;
+            }
+            
+            // Handle optional fields for sections that are not active
+            if (!$request->has('is_pregnant')) {
+                $data['due_date'] = null;
+                $data['is_lactating'] = false;
+                $data['needs_maternity_support'] = false;
+            }
+            
+            if (!$request->has('is_solo_parent')) {
+                $data['solo_parent_id'] = null;
+                $data['solo_parent_id_issued'] = null;
+                $data['solo_parent_id_expiry'] = null;
+                $data['solo_parent_details'] = null;
+            }
+            
+            if (!$request->has('is_vaw_case')) {
+                $data['vaw_case_number'] = null;
+                $data['vaw_report_date'] = null;
+                $data['vaw_case_status'] = null;
+                $data['vaw_case_details'] = null;
+            }
+            
+            // Ensure programs_enrolled is an array
+            if (!isset($data['programs_enrolled']) || !is_array($data['programs_enrolled'])) {
+                $data['programs_enrolled'] = [];
+            }
+            
+            // Use DB transaction to ensure atomicity
+            DB::beginTransaction();
+            
+            // Create GAD record
+            $gad = Gad::create($data);
+            
+            // Update resident's population sectors
+            $resident = Resident::find($data['resident_id']);
+            $sectors = $resident->population_sectors ?? [];
+            
+            if ($data['is_solo_parent'] && !in_array('Solo Parent', $sectors)) {
+                $sectors[] = 'Solo Parent';
+            }
+            
+            // Save updated population sectors
+            $resident->population_sectors = array_unique($sectors);
+            $resident->save();
+            
+            // Commit transaction
+            DB::commit();
+            
+            // Log success
+            Log::info('GAD record created successfully', [
+                'gad_id' => $gad->id,
+                'resident_id' => $gad->resident_id,
+                'user_id' => auth()->id()
+            ]);
+            
+            // Redirect to show page with success message
+            return redirect()->route('admin.gad.show', $gad->id)
+                ->with('success', 'GAD record created successfully!');
+                
+        } catch (\Exception $e) {
+            // Roll back transaction in case of error
+            DB::rollBack();
+            
+            // Log the error
+            Log::error('Error creating GAD record', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            // Return with error message
+            return redirect()->back()
+                ->with('error', 'Error creating GAD record: ' . $e->getMessage())
+                ->withInput();
         }
-        
-        // Save updated population sectors
-        $resident->population_sectors = array_unique($sectors);
-        $resident->save();
-        
-        return redirect()->route('admin.gad.show', $gad->id)
-            ->with('success', 'GAD record created successfully!');
     }
 
     /**
@@ -169,44 +383,331 @@ class GadController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'gender_identity' => 'required|string',
-            'programs_enrolled' => 'nullable|array',
-            'enrollment_date' => 'nullable|date',
-            'program_end_date' => 'nullable|date|after_or_equal:enrollment_date',
-            'program_status' => 'nullable|string',
-            'is_pregnant' => 'nullable|boolean',
-            'due_date' => 'nullable|date|required_if:is_pregnant,1',
-            'is_lactating' => 'nullable|boolean',
-            'needs_maternity_support' => 'nullable|boolean',
-            'is_solo_parent' => 'nullable|boolean',
-            'solo_parent_id' => 'nullable|string|required_if:is_solo_parent,1',
-            'solo_parent_id_issued' => 'nullable|date|required_if:is_solo_parent,1',
-            'solo_parent_id_expiry' => 'nullable|date|after:solo_parent_id_issued|required_if:is_solo_parent,1',
-            'is_vaw_case' => 'nullable|boolean',
-            'vaw_report_date' => 'nullable|date|required_if:is_vaw_case,1',
-            'vaw_case_number' => 'nullable|string|required_if:is_vaw_case,1',
-            'notes' => 'nullable|string|max:500',
-        ]);
-        
-        $gad = Gad::findOrFail($id);
-        $gad->update($request->all());
-        
-        // Update resident's population sectors
-        $resident = $gad->resident;
-        $sectors = $resident->population_sectors ?? [];
-        
-        if ($request->is_solo_parent && !in_array('Solo Parent', $sectors)) {
-            $sectors[] = 'Solo Parent';
-        } elseif (!$request->is_solo_parent && in_array('Solo Parent', $sectors)) {
-            $sectors = array_diff($sectors, ['Solo Parent']);
+        try {
+            // Log the incoming request data for debugging
+            Log::debug('GAD Update - Request received', [
+                'gad_id' => $id,
+                'user_id' => auth()->id(),
+                'request_data' => $request->all()
+            ]);
+            
+            $gad = Gad::findOrFail($id);
+            
+            // Custom validation that allows numbers in fields
+            $validator = \Validator::make($request->all(), [
+                // Basic information
+                'gender_identity' => 'required|string|in:Male,Female,Non-binary,Transgender,Other',
+                'gender_details' => [
+                    'nullable',
+                    'string',
+                    'max:100',
+                    function ($attribute, $value, $fail) use ($request) {
+                        if ($request->gender_identity === 'Other' && empty($value)) {
+                            $fail('Gender details are required when selecting "Other" as gender identity.');
+                        }
+                    },
+                ],
+                
+                // Program information
+                'programs_enrolled' => 'nullable|array',
+                'enrollment_date' => 'nullable|date',
+                'program_end_date' => 'nullable|date',
+                'program_status' => 'nullable|string|in:Active,Completed,On Hold,Discontinued',
+                
+                // Pregnancy information - only validate if is_pregnant is checked
+                'due_date' => [
+                    'nullable',
+                    'date',
+                    'after:today', // Changed from 'after_or_equal' to 'after' to ensure future date only
+                    function ($attribute, $value, $fail) use ($request) {
+                        if ($request->has('is_pregnant') && empty($value)) {
+                            $fail('Due date is required when pregnancy is indicated.');
+                        }
+                        
+                        // Additional check to ensure the date is in the future
+                        if (!empty($value) && strtotime($value) <= strtotime('today')) {
+                            $fail('Due date must be in the future.');
+                        }
+                    },
+                ],
+                
+                // Solo parent information - only validate if is_solo_parent is checked
+                'solo_parent_id' => [
+                    'nullable',
+                    'string',
+                    'max:50',
+                    function ($attribute, $value, $fail) use ($request) {
+                        if ($request->has('is_solo_parent') && empty($value)) {
+                            $fail('Solo Parent ID is required when solo parent status is indicated.');
+                        }
+                    },
+                ],
+                'solo_parent_id_issued' => [
+                    'nullable',
+                    'date',
+                    function ($attribute, $value, $fail) use ($request) {
+                        if ($request->has('is_solo_parent') && empty($value)) {
+                            $fail('ID issuance date is required for solo parents.');
+                        }
+                    },
+                ],
+                'solo_parent_id_expiry' => [
+                    'nullable',
+                    'date',
+                    function ($attribute, $value, $fail) use ($request) {
+                        if ($request->has('is_solo_parent')) {
+                            if (empty($value)) {
+                                $fail('ID expiry date is required for solo parents.');
+                            } elseif (!empty($request->solo_parent_id_issued) && $value <= $request->solo_parent_id_issued) {
+                                $fail('ID expiry date must be after the issuance date.');
+                            }
+                        }
+                    },
+                ],
+                
+                // VAW case information - only validate if is_vaw_case is checked
+                'vaw_report_date' => [
+                    'nullable',
+                    'date',
+                    function ($attribute, $value, $fail) use ($request) {
+                        if ($request->has('is_vaw_case') && empty($value)) {
+                            $fail('Report date is required for VAW cases.');
+                        }
+                    },
+                ],
+                'vaw_case_number' => [
+                    'nullable',
+                    'string',
+                    'max:50',
+                    function ($attribute, $value, $fail) use ($request) {
+                        if ($request->has('is_vaw_case') && empty($value)) {
+                            $fail('Case number is required for VAW cases.');
+                        }
+                    },
+                ],
+                'vaw_case_status' => [
+                    'nullable',
+                    'string',
+                    'in:Pending,Ongoing,Resolved,Closed',
+                    function ($attribute, $value, $fail) use ($request) {
+                        if ($request->has('is_vaw_case') && empty($value)) {
+                            $fail('Case status is required for VAW cases.');
+                        }
+                    },
+                ],
+                'vaw_case_details' => [
+                    'nullable',
+                    'string',
+                    'max:1000',
+                    function ($attribute, $value, $fail) use ($request) {
+                        if ($request->has('is_vaw_case')) {
+                            if (empty($value)) {
+                                $fail('Case details are required for VAW cases.');
+                            } elseif (strlen($value) < 10) {
+                                $fail('Case details should contain at least 10 characters.');
+                            }
+                        }
+                    },
+                ],
+                
+                // Additional notes
+                'notes' => 'nullable|string|max:500',
+            ]);
+            
+            // If validation fails, redirect back with errors
+            if ($validator->fails()) {
+                Log::debug('GAD Update - Validation failed', [
+                    'errors' => $validator->errors()->toArray()
+                ]);
+                
+                return redirect()->back()
+                    ->withErrors($validator)
+                    ->withInput();
+            }
+            
+            // Get validated data
+            $data = $validator->validated();
+            
+            // Explicitly handle boolean fields (checkboxes)
+            $booleanFields = ['is_pregnant', 'is_lactating', 'needs_maternity_support', 
+                             'is_solo_parent', 'is_vaw_case', 'has_philhealth'];
+            
+            foreach ($booleanFields as $field) {
+                $data[$field] = $request->has($field) ? true : false;
+            }
+            
+            // Handle optional fields for sections that are not active
+            if (!$request->has('is_pregnant')) {
+                $data['due_date'] = null;
+                $data['is_lactating'] = false;
+                $data['needs_maternity_support'] = false;
+            }
+            
+            if (!$request->has('is_solo_parent')) {
+                $data['solo_parent_id'] = null;
+                $data['solo_parent_id_issued'] = null;
+                $data['solo_parent_id_expiry'] = null;
+                $data['solo_parent_details'] = null;
+            }
+            
+            if (!$request->has('is_vaw_case')) {
+                $data['vaw_case_number'] = null;
+                $data['vaw_report_date'] = null;
+                $data['vaw_case_status'] = null;
+                $data['vaw_case_details'] = null;
+            }
+            
+            // Ensure programs_enrolled is an array
+            if (!isset($data['programs_enrolled']) || !is_array($data['programs_enrolled'])) {
+                $data['programs_enrolled'] = [];
+            }
+            
+            // Use DB transaction to ensure atomicity
+            DB::beginTransaction();
+            
+            // Log before update
+            Log::debug('GAD Update - Before update', [
+                'current_data' => $gad->toArray(),
+                'new_data' => $data
+            ]);
+            
+            // Update GAD record with prepared data - use fill and save instead of update()
+            $gad->fill($data);
+            $saveResult = $gad->save();
+            
+            // Log after update
+            Log::debug('GAD Update - After save', [
+                'save_result' => $saveResult,
+                'updated_gad' => $gad->fresh()->toArray()
+            ]);
+
+            // Update resident's population sectors
+            $resident = $gad->resident;
+            $sectors = $resident->population_sectors ?? [];
+
+            if ($data['is_solo_parent'] && !in_array('Solo Parent', $sectors)) {
+                $sectors[] = 'Solo Parent';
+            } elseif (!$data['is_solo_parent'] && in_array('Solo Parent', $sectors)) {
+                $sectors = array_diff($sectors, ['Solo Parent']);
+            }
+
+            $resident->population_sectors = array_unique($sectors);
+            $resident->save();
+            
+            // Commit transaction
+            DB::commit();
+            
+            // Log success
+            Log::info('GAD record updated successfully', [
+                'gad_id' => $gad->id,
+                'resident_id' => $gad->resident_id,
+                'user_id' => auth()->id()
+            ]);
+            
+            // Redirect to show page with success message
+            return redirect()->route('admin.gad.show', $gad->id)
+                ->with('success', 'GAD record updated successfully!');
+            
+        } catch (\Exception $e) {
+            // Roll back transaction in case of error
+            DB::rollBack();
+            
+            // Log the error
+            Log::error('Error updating GAD record', [
+                'gad_id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            // Return with error message
+            return redirect()->back()
+                ->with('error', 'Error updating GAD record: ' . $e->getMessage())
+                ->withInput();
         }
+    }
+
+    /**
+     * Direct update for the GAD record - bypasses complex validation for troubleshooting.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function directUpdate(Request $request, $id)
+    {
+        try {
+            // Get the GAD record
+            $gad = Gad::findOrFail($id);
+            
+            // Get all input data
+            $data = $request->all();
+            
+            // Handle boolean fields which come as checkbox values
+            $booleanFields = ['is_pregnant', 'is_lactating', 'needs_maternity_support', 
+                             'is_solo_parent', 'is_vaw_case', 'has_philhealth'];
+            
+            foreach ($booleanFields as $field) {
+                // Set boolean fields - if not present in request, it means unchecked (false)
+                $data[$field] = $request->has($field) ? true : false;
+            }
+            
+            // Clear fields that should be null when sections are toggled off
+            if (!$data['is_pregnant']) {
+                $data['due_date'] = null;
+            }
+            
+            if (!$data['is_solo_parent']) {
+                $data['solo_parent_id'] = null;
+                $data['solo_parent_id_issued'] = null;
+                $data['solo_parent_id_expiry'] = null;
+                $data['solo_parent_details'] = null;
+            }
+            
+            if (!$data['is_vaw_case']) {
+                $data['vaw_case_number'] = null;
+                $data['vaw_report_date'] = null;
+                $data['vaw_case_status'] = null;
+                $data['vaw_case_details'] = null;
+            }
+            
+            // Handle programs enrolled array
+            if (!isset($data['programs_enrolled'])) {
+                $data['programs_enrolled'] = [];
+            }
+            
+            // Log the data being saved
+            \Log::info('GAD Direct Update - Data being saved', [
+                'gad_id' => $id,
+                'data' => $data
+            ]);
+            
+            // Direct update of GAD record
+            $result = $gad->update($data);
+            
+            // Log the result
+            \Log::info('GAD Direct Update - Result', [
+                'gad_id' => $id,
+                'result' => $result,
+                'updated_gad' => $gad->fresh()->toArray()
+            ]);
+            
+            // Return with simple success message
+            return redirect()->route('admin.gad.show', $gad->id)
+                ->with('success', 'GAD record updated successfully!');
         
-        $resident->population_sectors = array_unique($sectors);
-        $resident->save();
-        
-        return redirect()->route('admin.gad.show', $gad->id)
-            ->with('success', 'GAD record updated successfully!');
+        } catch (\Exception $e) {
+            // Log any errors
+            \Log::error('GAD Direct Update - Error', [
+                'gad_id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            // Return with error message
+            return redirect()->back()
+                ->with('error', 'Error updating GAD record: ' . $e->getMessage())
+                ->withInput();
+        }
     }
 
     /**
@@ -334,18 +835,18 @@ class GadController extends Controller
         // Date range filters
         $startDate = $request->input('start_date') ? date('Y-m-d', strtotime($request->input('start_date'))) : null;
         $endDate = $request->input('end_date') ? date('Y-m-d', strtotime($request->input('end_date'))) : null;
-        
+
         // Base query
         $query = Gad::with('resident');
-        
+
         // Apply date filters if provided
         if ($startDate && $endDate) {
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
-        
+
         // GAD records
         $gadRecords = $query->get();
-        
+
         // Generate statistics
         $stats = [
             'total' => $gadRecords->count(),
@@ -356,33 +857,32 @@ class GadController extends Controller
             'pregnant_women' => $gadRecords->where('is_pregnant', true)->count(),
             'solo_parents' => $gadRecords->where('is_solo_parent', true)->count(),
             'vaw_cases' => $gadRecords->where('is_vaw_case', true)->count(),
-            'program_participation' => collect(),
+            'program_participation' => [],
         ];
-        
+
         // Calculate program participation statistics
         foreach ($gadRecords as $gad) {
             if ($gad->programs_enrolled) {
                 foreach ($gad->programs_enrolled as $program) {
-                    if (!$stats['program_participation']->has($program)) {
+                    if (!array_key_exists($program, $stats['program_participation'])) {
                         $stats['program_participation'][$program] = 0;
                     }
                     $stats['program_participation'][$program]++;
                 }
             }
         }
-        
+
         // Check if export was requested
-        if ($request->has('export') && $request->export == 'pdf') {
-            // Export to PDF
-            $pdf = \PDF::loadView('admin.gad.reports-pdf', [
+        if ($request->has('export') && $request->export === 'pdf') {
+            $pdf = Pdf::loadView('admin.gad.reports-pdf', [
                 'stats' => $stats,
                 'startDate' => $startDate,
                 'endDate' => $endDate,
             ]);
-            
+
             return $pdf->download('gad-report-' . date('Y-m-d') . '.pdf');
         }
-        
+
         return view('admin.gad.reports', [
             'stats' => $stats,
             'startDate' => $startDate,

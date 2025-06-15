@@ -40,7 +40,7 @@
                                             <img src="{{ asset('images/logo.png') }}" alt="Barangay Logo" class="barangay-logo-left">
                                             <div class="id-card-title text-primary">
                                                 <h6 class="mb-0">Barangay Lumanglipa</h6>
-                                                <h6 class="small mb-0">Matasnakahoy, Lipa City Batangas</h6>
+                                                <h6 class="small mb-0">Matasnakahoy, Batangas</h6>
                                                 <h6 class="mb-0">Residence Card</h6>
                                             </div>
                                             <img src="{{ asset('images/citylogo.png') }}" alt="City Logo" class="barangay-logo-right ml-auto">
@@ -172,21 +172,26 @@
         background: white;
         height: 250px;
     }
+    
+    /* Updated background logo CSS to match PDF version exactly */
     .id-card-front-bg {
         position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+        top: 60%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 280px;
+        height: 280px;
+        opacity: 0.08;
         z-index: 1;
-        overflow: hidden;
+        pointer-events: none;
     }
+    
     .id-card-front-bg img {
         width: 100%;
         height: 100%;
-        object-fit: cover;
-        opacity: 0.1;
+        object-fit: contain;
     }
+    
     .id-card-header {
         background: linear-gradient(to right, #e3f2fd, #bbdefb);
         padding: 5px;
@@ -228,6 +233,8 @@
     .id-card-body {
         padding: 15px;
         text-align: left;
+        position: relative;
+        z-index: 2;
     }
     .id-card-photo-container {
         width: 100px;

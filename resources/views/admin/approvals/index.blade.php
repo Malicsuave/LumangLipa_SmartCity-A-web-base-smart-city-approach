@@ -52,19 +52,21 @@
                             <table class="table table-borderless table-striped">
                                 <thead>
                                     <tr>
-                                        <th>Email</th>
-                                        <th>Role</th>
-                                        <th>Status</th>
-                                        <th>Approved By</th>
-                                        <th>Approved Date</th>
-                                        <th>User Created</th>
-                                        <th class="text-center">Actions</th>
+                                        <th style="min-width: 180px;">Email</th>
+                                        <th style="width: 130px;">Role</th>
+                                        <th style="width: 80px;">Status</th>
+                                        <th style="min-width: 140px;">Approved By</th>
+                                        <th style="width: 140px;">Approved Date</th>
+                                        <th style="width: 80px;" class="text-center">User Created</th>
+                                        <th style="width: 80px;" class="text-center">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @forelse($approvals as $approval)
                                         <tr class="{{ $approval->is_active ? '' : 'text-muted' }}">
-                                            <td>{{ $approval->email }}</td>
+                                            <td class="text-truncate" style="max-width: 200px;" title="{{ $approval->email }}">
+                                                {{ $approval->email }}
+                                            </td>
                                             <td>
                                                 <span class="badge badge-pill badge-primary">
                                                     {{ $approval->role->name ?? 'No Role' }}
@@ -77,9 +79,11 @@
                                                     <span class="badge badge-danger">Inactive</span>
                                                 @endif
                                             </td>
-                                            <td>{{ $approval->approved_by }}</td>
+                                            <td class="text-truncate" style="max-width: 150px;" title="{{ $approval->approved_by }}">
+                                                {{ $approval->approved_by }}
+                                            </td>
                                             <td>{{ $approval->approved_at ? $approval->approved_at->format('M d, Y H:i') : 'N/A' }}</td>
-                                            <td>
+                                            <td class="text-center">
                                                 @if($approval->user)
                                                     <span class="badge badge-success">Yes</span>
                                                 @else
@@ -163,4 +167,25 @@
             }
         }
     </script>
+
+    <style>
+    /* Additional styles to enhance table responsiveness */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .text-truncate {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    /* Make sure the table doesn't expand too wide on mobile */
+    @media (max-width: 768px) {
+        .table th, .table td {
+            white-space: nowrap;
+        }
+    }
+    </style>
 @endsection
