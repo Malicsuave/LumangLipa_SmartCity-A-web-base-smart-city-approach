@@ -52,6 +52,10 @@
                         <a class="nav-link {{ Route::currentRouteName() == 'public.contact' ? 'active' : '' }}" 
                            href="{{ route('public.contact') }}">Contact Us</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ str_contains(Route::currentRouteName(), 'public.pre-registration') ? 'active' : '' }}" 
+                           href="{{ route('public.pre-registration.create') }}">Pre-Registration</a>
+                    </li>
                     @auth
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a>

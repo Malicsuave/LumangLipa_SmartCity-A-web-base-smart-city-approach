@@ -26,6 +26,15 @@ Route::get('/about', [PublicController::class, 'about'])->name('public.about');
 Route::get('/services', [PublicController::class, 'services'])->name('public.services');
 Route::get('/contact', [PublicController::class, 'contact'])->name('public.contact');
 
+// Public Pre-Registration Routes
+Route::prefix('pre-registration')->name('public.pre-registration.')->group(function () {
+    Route::get('/', [App\Http\Controllers\Public\PreRegistrationController::class, 'create'])->name('create');
+    Route::post('/', [App\Http\Controllers\Public\PreRegistrationController::class, 'store'])->name('store');
+    Route::get('/success', [App\Http\Controllers\Public\PreRegistrationController::class, 'success'])->name('success');
+    Route::get('/check-status', [App\Http\Controllers\Public\PreRegistrationController::class, 'checkStatus'])->name('check-status');
+    Route::post('/check-status', [App\Http\Controllers\Public\PreRegistrationController::class, 'checkStatus'])->name('check-status.post');
+});
+
 // Resident ID full preview route
 Route::get('/resident/{resident}/id/full-preview', [App\Http\Controllers\ResidentIdController::class, 'fullPreview'])->name('id.full-preview');
 
@@ -192,6 +201,15 @@ Route::middleware([
         Route::get('/admin/population/duplicates', [App\Http\Controllers\PopulationController::class, 'duplicates'])->name('admin.population.duplicates');
         Route::post('/admin/population/merge-duplicate', [App\Http\Controllers\PopulationController::class, 'mergeDuplicate'])->name('admin.population.merge-duplicate');
         Route::delete('/admin/population/remove-duplicate/{type}/{id}', [App\Http\Controllers\PopulationController::class, 'removeDuplicate'])->name('admin.population.remove-duplicate');
+        
+        // Pre-Registration Management Routes
+        Route::prefix('admin/pre-registrations')->name('admin.pre-registrations.')->group(function() {
+            Route::get('/', [App\Http\Controllers\Admin\PreRegistrationController::class, 'index'])->name('index');
+            Route::get('/{preRegistration}', [App\Http\Controllers\Admin\PreRegistrationController::class, 'show'])->name('show');
+            Route::post('/{preRegistration}/approve', [App\Http\Controllers\Admin\PreRegistrationController::class, 'approve'])->name('approve');
+            Route::post('/{preRegistration}/reject', [App\Http\Controllers\Admin\PreRegistrationController::class, 'reject'])->name('reject');
+            Route::delete('/{preRegistration}', [App\Http\Controllers\Admin\PreRegistrationController::class, 'destroy'])->name('destroy');
+        });
     });
     
     // Health Worker routes

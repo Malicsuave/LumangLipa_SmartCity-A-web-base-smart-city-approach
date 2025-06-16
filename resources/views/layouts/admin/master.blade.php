@@ -267,6 +267,13 @@
                 <span class="ml-3 item-text">Document Requests</span>
               </a>
             </li>
+
+            <li class="nav-item {{ Request::routeIs('admin.pre-registrations.*') ? 'active' : '' }}">
+              <a href="{{ route('admin.pre-registrations.index') }}" class="nav-link {{ Request::routeIs('admin.pre-registrations.*') ? 'active' : '' }}">
+                <i class="fe fe-user-plus fe-16"></i>
+                <span class="ml-3 item-text">Pre-Registrations</span>
+              </a>
+            </li>
             
             <li class="nav-item dropdown {{ Request::routeIs('admin.residents.*') || Request::routeIs('admin.gad.*') || Request::routeIs('admin.senior-citizens.*') ? 'active' : '' }}">
               <a href="#residents" data-toggle="collapse" aria-expanded="{{ Request::routeIs('admin.residents.*') || Request::routeIs('admin.gad.*') || Request::routeIs('admin.senior-citizens.*') ? 'true' : 'false' }}" 

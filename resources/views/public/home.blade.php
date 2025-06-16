@@ -32,6 +32,20 @@
         
         <div class="row g-4">
             <div class="col-md-4">
+                <div class="card h-100 shadow text-center p-4 border-primary">
+                    <div class="card-body">
+                        <i class="fe fe-user-plus fe-48 text-primary mb-4"></i>
+                        <h4>Resident Pre-Registration</h4>
+                        <p>Register as a new resident online and get your digital barangay ID after approval.</p>
+                        <a href="{{ route('public.pre-registration.create') }}" class="btn btn-primary mt-2">Register Now</a>
+                        <div class="mt-2">
+                            <small><a href="{{ route('public.pre-registration.check-status') }}" class="text-muted">Check Registration Status</a></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
                 <div class="card h-100 shadow text-center p-4">
                     <div class="card-body">
                         <i class="fe fe-file-text fe-48 text-primary mb-4"></i>
@@ -52,7 +66,9 @@
                     </div>
                 </div>
             </div>
-            
+        </div>
+        
+        <div class="row g-4 mt-2">
             <div class="col-md-4">
                 <div class="card h-100 shadow text-center p-4">
                     <div class="card-body">
@@ -60,6 +76,28 @@
                         <h4>File Complaints</h4>
                         <p>Report issues and concerns in the community for prompt resolution by barangay officials.</p>
                         <a href="{{ route('public.services') }}#complaints" class="btn btn-sm btn-primary mt-2">Learn More</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 shadow text-center p-4">
+                    <div class="card-body">
+                        <i class="fe fe-info fe-48 text-info mb-4"></i>
+                        <h4>Community Updates</h4>
+                        <p>Stay informed about barangay announcements, events, and important community news.</p>
+                        <a href="{{ route('public.about') }}" class="btn btn-sm btn-primary mt-2">Learn More</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 shadow text-center p-4">
+                    <div class="card-body">
+                        <i class="fe fe-phone fe-48 text-success mb-4"></i>
+                        <h4>Emergency Hotline</h4>
+                        <p>Quick access to emergency contacts and hotlines for urgent situations and assistance.</p>
+                        <a href="{{ route('public.contact') }}" class="btn btn-sm btn-primary mt-2">View Contacts</a>
                     </div>
                 </div>
             </div>
