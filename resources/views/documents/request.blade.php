@@ -57,7 +57,14 @@
                                 Enter your registered Barangay ID to verify your information
                             </div>
                         </div>                        <!-- Resident Information Display -->
-                        <div id="residentInfo" class="card border-success mb-4" style="display: none;">
+                        <div id="residentInfo" class="card border-success mb-4 blurred-section" style="display: none;">
+                            <div class="blur-overlay">
+                                <div class="overlay-message">
+                                    <i class="fas fa-lock fa-2x mb-3"></i>
+                                    <h5>Verify Email to View</h5>
+                                    <p>Complete email verification to see your information</p>
+                                </div>
+                            </div>
                             <div class="card-header bg-light">
                                 <h6 class="mb-0 text-success">
                                     <i class="fas fa-user-check me-2"></i>
@@ -341,6 +348,57 @@
     color: #6c757d;
 }
 
+/* Blur effect styles for resident information */
+.blurred-section {
+    position: relative;
+    transition: filter 0.3s ease;
+}
+
+.blurred-section.blurred {
+    filter: blur(3px);
+    pointer-events: none;
+    user-select: none;
+}
+
+.blurred-section .blur-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    border-radius: 0.375rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.blurred-section.blurred .blur-overlay {
+    opacity: 1;
+}
+
+.overlay-message {
+    text-align: center;
+    color: #6c757d;
+}
+
+.overlay-message i {
+    color: #ffc107;
+}
+
+.overlay-message h5 {
+    color: #495057;
+    font-weight: 600;
+}
+
+.overlay-message p {
+    color: #6c757d;
+    margin: 0;
+}
+
 .blur-message h5 {
     color: #495057;
     margin-bottom: 0.5rem;
@@ -421,10 +479,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('residentAddress').textContent = data.resident.address;
                 document.getElementById('residentAge').textContent = data.resident.age;
                 document.getElementById('residentContact').textContent = data.resident.contact_number || 'N/A';
-                
-                residentInfo.style.display = 'block';
+                  residentInfo.style.display = 'block';
                 otpSection.style.display = 'block';
                 residentVerified = true;
+                
+                // Add blur effect to resident info until OTP is verified
+                residentInfo.classList.add('blurred');
                 
                 // Change button to show "Found" in green
                 checkResidentBtn.innerHTML = '<i class="fas fa-check"></i> Resident Found';
@@ -521,10 +581,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 otpVerified = true;
                 document.getElementById('otpVerifyStep').style.display = 'none';
                 document.getElementById('otpVerifiedStep').style.display = 'block';
-                
-                // Remove blur effect and enable form fields
+                  // Remove blur effect and enable form fields
                 formFieldsSection.classList.remove('blurred');
                 formFieldsSection.classList.add('form-fields-reveal');
+                
+                // Remove blur from resident info
+                const residentInfoSection = document.getElementById('residentInfo');
+                if (residentInfoSection) {
+                    residentInfoSection.classList.remove('blurred');
+                }
                 
                 documentTypeSelect.disabled = false;
                 purposeTextarea.disabled = false;
@@ -656,9 +721,7 @@ document.addEventListener('DOMContentLoaded', function() {
             submitBtn.disabled = false;
             submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit Request';
         });
-    });
-
-    function resetForm() {
+    });    function resetForm() {
         residentInfo.style.display = 'none';
         otpSection.style.display = 'none';
         documentTypeSelect.disabled = true;
@@ -668,6 +731,10 @@ document.addEventListener('DOMContentLoaded', function() {
         otpVerified = false;
         documentTypeSelect.value = '';
         purposeTextarea.value = '';
+        
+        // Reset blur effects
+        formFieldsSection.classList.add('blurred');
+        residentInfo.classList.remove('blurred'); // Will be added back when resident is verified
         
         // Reset OTP section
         document.getElementById('otpRequestStep').style.display = 'block';
