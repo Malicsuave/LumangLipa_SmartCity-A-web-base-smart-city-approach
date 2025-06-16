@@ -174,6 +174,30 @@
         background-color: #4a5568 !important;
         color: #e2e8f0 !important;
       }
+      
+      /* Dropdown menu fix for single row tables */
+      .table-responsive {
+        overflow-x: visible !important;
+        overflow-y: visible !important;
+      }
+      
+      .table tr:only-child .dropdown-menu {
+        right: 0 !important;
+        left: auto !important;
+        transform: none !important;
+        top: 100% !important;
+        position: absolute !important;
+      }
+      
+      .dropdown-menu.show {
+        display: block !important;
+        z-index: 1050 !important;
+      }
+      
+      .dropdown {
+        position: relative !important;
+        z-index: 900 !important;
+      }
     </style>
 
     @stack('styles')

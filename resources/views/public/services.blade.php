@@ -24,11 +24,7 @@
                         <li>• Business Permit</li>
                         <li>• Other Official Documents</li>
                     </ul>
-                    @auth
-                        <a href="{{ route('dashboard') }}" class="btn btn-primary">Request Now</a>
-                    @else
-                        <a href="{{ route('register') }}" class="btn btn-primary">Register to Request</a>
-                    @endauth
+                    <a href="{{ route('documents.request') }}" class="btn btn-primary">Request Now</a>
                 </div>
             </div>
         </div>
@@ -37,21 +33,18 @@
         <div class="col-lg-4 col-md-6">
             <div class="card h-100 shadow">
                 <div class="card-body text-center">
-                    <i class="fe fe-heart fe-48 text-primary mb-3"></i>
+                    <i class="fe fe-heart fe-48 text-danger mb-3"></i>
                     <h4>Health Services</h4>
-                    <p>Access health programs:</p>
+                    <p>Access health programs and services:</p>
                     <ul class="list-unstyled text-start">
-                        <li>• Medical Assistance</li>
-                        <li>• Health Check-ups</li>
+                        <li>• Medical Consultation</li>
+                        <li>• Blood Pressure Check</li>
                         <li>• Vaccination Programs</li>
-                        <li>• Maternal Care</li>
-                        <li>• Senior Citizen Programs</li>
+                        <li>• Prenatal Checkup</li>
+                        <li>• Health Certificates</li>
+                        <li>• Medicine Distribution</li>
                     </ul>
-                    @auth
-                        <a href="{{ route('dashboard') }}" class="btn btn-primary">Access Services</a>
-                    @else
-                        <a href="{{ route('register') }}" class="btn btn-primary">Register to Access</a>
-                    @endauth
+                    <a href="{{ route('health.request') }}" class="btn btn-danger">Request Service</a>
                 </div>
             </div>
         </div>
@@ -60,7 +53,7 @@
         <div class="col-lg-4 col-md-6">
             <div class="card h-100 shadow">
                 <div class="card-body text-center">
-                    <i class="fe fe-message-circle fe-48 text-primary mb-3"></i>
+                    <i class="fe fe-message-circle fe-48 text-warning mb-3"></i>
                     <h4>File Complaints</h4>
                     <p>Report issues and concerns:</p>
                     <ul class="list-unstyled text-start">
@@ -70,11 +63,7 @@
                         <li>• Infrastructure Problems</li>
                         <li>• Other Community Concerns</li>
                     </ul>
-                    @auth
-                        <a href="{{ route('dashboard') }}" class="btn btn-primary">File Complaint</a>
-                    @else
-                        <a href="{{ route('register') }}" class="btn btn-primary">Register to File</a>
-                    @endauth
+                    <a href="{{ route('complaints.create') }}" class="btn btn-warning">File Complaint</a>
                 </div>
             </div>
         </div>

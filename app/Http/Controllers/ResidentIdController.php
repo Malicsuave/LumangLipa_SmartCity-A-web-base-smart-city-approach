@@ -314,69 +314,127 @@ class ResidentIdController extends Controller
      */
     public function pendingIds(Request $request)
     {
+        // Base query for residents
+        $baseQuery = Resident::query();
+
+        // Search filters
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $baseQuery->where(function($query) use ($search) {
+                $query->where('first_name', 'like', "%$search%")
+                    ->orWhere('middle_name', 'like', "%$search%")
+                    ->orWhere('last_name', 'like', "%$search%")
+                    ->orWhere('barangay_id', 'like', "%$search%")
+                    ->orWhere('contact_number', 'like', "%$search%");
+            });
+        }
+
+        // Type filter
+        if ($request->has('type') && !empty($request->type)) {
+            $baseQuery->where('type_of_resident', $request->type);
+        }
+
+        // Gender filter
+        if ($request->has('gender') && !empty($request->gender)) {
+            $baseQuery->where('sex', $request->gender);
+        }
+
+        // Age group filter
+        if ($request->has('age_group') && !empty($request->age_group)) {
+            $ageGroup = $request->age_group;
+            
+            $baseQuery->where(function($query) use ($ageGroup) {
+                $today = Carbon::today();
+                
+                if ($ageGroup === '0-17') {
+                    // Age 0-17: Born after today minus 18 years
+                    $query->whereDate('birthdate', '>', $today->copy()->subYears(18));
+                }
+                else if ($ageGroup === '18-59') {
+                    // Age 18-59: Born between today minus 60 years and today minus 18 years
+                    $query->whereDate('birthdate', '<=', $today->copy()->subYears(18))
+                          ->whereDate('birthdate', '>', $today->copy()->subYears(60));
+                }
+                else if ($ageGroup === '60+') {
+                    // Age 60+: Born on or before today minus 60 years
+                    $query->whereDate('birthdate', '<=', $today->copy()->subYears(60));
+                }
+            });
+        }
+
+        // Photo status filter
+        if ($request->has('has_photo') && !empty($request->has_photo)) {
+            if ($request->has_photo == 'yes') {
+                $baseQuery->whereNotNull('photo');
+            } else {
+                $baseQuery->whereNull('photo');
+            }
+        }
+
         // Status filter (Default, All, Issued, Not Issued)
-        $statusFilter = $request->input('status_filter', 'default');
-        
-        // Expiry timeframe filter
-        $expiryFilter = $request->input('expiry_filter', 'default');
-        
-        // New: Custom date range filters
-        $startDate = $request->input('expiry_start_date');
-        $endDate = $request->input('expiry_end_date');
-        $customDateRange = ($startDate && $endDate);
-        
-        // Start with all residents
-        $residents = Resident::query();
-        
-        // Apply status filter
+        $statusFilter = $request->input('id_status', null);
         if ($statusFilter === 'issued') {
-            $residents->where('id_status', 'issued');
+            $baseQuery->where('id_status', 'issued');
         } elseif ($statusFilter === 'not_issued') {
-            $residents->where(function($query) {
+            $baseQuery->where(function($query) {
                 $query->whereNull('id_status')
                     ->orWhere('id_status', '!=', 'issued');
             });
-        } elseif ($statusFilter === 'default') {
-            // Default filter shows those with photos and ready for issuance
-            $residents->where('photo', '!=', '');
+        } elseif ($statusFilter === 'needs_renewal') {
+            $baseQuery->where('id_status', 'needs_renewal');
+        } elseif ($statusFilter === 'expired') {
+            $baseQuery->where(function($query) {
+                $query->where('id_status', 'expired')
+                    ->orWhere(function($q) {
+                        $q->where('id_status', 'issued')
+                            ->whereNotNull('id_expires_at')
+                            ->where('id_expires_at', '<', Carbon::now());
+                    });
+            });
+        } elseif ($statusFilter === 'ready') {
+            $baseQuery->where(function($query) {
+                $query->whereNotNull('photo')
+                    ->where(function($q) {
+                        $q->whereNull('id_status')
+                            ->orWhere('id_status', '!=', 'issued');
+                    });
+            });
+        } elseif ($statusFilter === 'valid') {
+            $baseQuery->where('id_status', 'issued')
+                ->where(function($query) {
+                    $query->whereNull('id_expires_at')
+                        ->orWhere('id_expires_at', '>', Carbon::now());
+                });
+        }
+
+        // 1. Pending ID Issuance - Use cloned query to maintain filters
+        $pendingIssuanceQuery = clone $baseQuery;
+        
+        // Only apply the needs_renewal exclusion if no specific ID status filter is applied
+        if (!$request->has('id_status') || empty($request->id_status)) {
+            $pendingIssuanceQuery->where(function($query) {
+                $query->whereNull('id_status')
+                    ->orWhere('id_status', '!=', 'needs_renewal');
+            });
         }
         
-        // Get three collections
-        
-        // 1. Pending ID Issuance
-        $pendingIssuance = clone $residents;
-        $pendingIssuance = $pendingIssuance->where('id_status', '!=', 'needs_renewal')
-            ->where('photo', '!=', '')
+        $pendingIssuance = $pendingIssuanceQuery
             ->paginate(10, ['*'], 'issuance_page')
             ->appends(request()->except('issuance_page'));
         
-        // 2. Pending renewals
-        $pendingRenewal = Resident::where('id_status', 'needs_renewal')
+        // 2. Pending renewals (with search filters applied)
+        $pendingRenewalQuery = clone $baseQuery;
+        $pendingRenewal = $pendingRenewalQuery->where('id_status', 'needs_renewal')
             ->paginate(10, ['*'], 'renewal_page')
             ->appends(request()->except('renewal_page'));
         
-        // 3. Expiring soon
-        $expiringQuery = Resident::where('id_status', 'issued')
-            ->whereNotNull('id_expires_at');
-        
-        // Apply expiry filter timeframe
-        if ($expiryFilter === 'default' && !$customDateRange) {
-            $expiringQuery->where('id_expires_at', '<=', Carbon::now()->addMonths(3));
-        } elseif ($expiryFilter === '1month' && !$customDateRange) {
-            $expiringQuery->where('id_expires_at', '<=', Carbon::now()->addMonth());
-        } elseif ($expiryFilter === '6months' && !$customDateRange) {
-            $expiringQuery->where('id_expires_at', '<=', Carbon::now()->addMonths(6));
-        } elseif ($expiryFilter === '1year' && !$customDateRange) {
-            $expiringQuery->where('id_expires_at', '<=', Carbon::now()->addYear());
-        } elseif ($customDateRange) {
-            // Apply custom date range filter if both dates are provided
-            $expiringQuery->whereBetween('id_expires_at', [
-                Carbon::parse($startDate)->startOfDay(),
-                Carbon::parse($endDate)->endOfDay()
-            ]);
-        }
-        
-        $expiringSoon = $expiringQuery->paginate(10, ['*'], 'expiring_page')
+        // 3. Expiring soon - Filter for not yet expired but about to expire in 3 months
+        $expiringQuery = clone $baseQuery;
+        $expiringSoon = $expiringQuery->where('id_status', 'issued')
+            ->whereNotNull('id_expires_at')
+            ->where('id_expires_at', '<=', Carbon::now()->addMonths(3))
+            ->where('id_expires_at', '>=', Carbon::now())
+            ->paginate(10, ['*'], 'expiring_page')
             ->appends(request()->except('expiring_page'));
         
         return view('admin.residents.pending-ids', compact('pendingIssuance', 'pendingRenewal', 'expiringSoon'));

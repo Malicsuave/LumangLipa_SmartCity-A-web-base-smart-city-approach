@@ -113,7 +113,11 @@
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="contact_number">Contact Number</label>
-                                        <input type="text" class="form-control" id="contact_number" name="contact_number" value="{{ old('contact_number', $resident->contact_number) }}" required>
+                                        <input type="text" class="form-control" id="contact_number" name="contact_number" 
+                                            value="{{ old('contact_number', $resident->contact_number) }}" required
+                                            pattern="[0-9]{11}" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                            title="Please enter exactly 11 digits">
+                                        <div class="invalid-feedback">Contact number must be exactly 11 digits</div>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="email_address">Email Address</label>
@@ -185,53 +189,265 @@
                     </div>
                 </div>
                 
-                <div class="row">
-                    <!-- Mother's Information -->
-                    <div class="col-md-6 mb-4">
-                        <div class="card shadow">
-                            <div class="card-header">
-                                <h6 class="card-title mb-0">Mother's Information</h6>
+                <!-- Household Information Card (Collapsible) -->
+                <div class="card shadow mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center" style="cursor: pointer;" data-toggle="collapse" data-target="#householdSection" aria-expanded="false">
+                        <h6 class="card-title mb-0">Household Information</h6>
+                        <button type="button" class="btn btn-sm btn-link p-0">
+                            <i class="fe fe-chevron-down household-toggle-icon"></i>
+                        </button>
+                    </div>
+                    <div class="collapse" id="householdSection">
+                        <div class="card-body">
+                            <!-- Primary and Secondary Person Information -->
+                            <div class="row mb-4">
+                                <!-- Primary Person Information -->
+                                <div class="col-md-6 mb-4">
+                                    <div class="card border">
+                                        <div class="card-header bg-light">
+                                            <h6 class="text-primary mb-0">Primary Person</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-12 mb-3">
+                                                    <label for="primary_name">Full Name</label>
+                                                    <input type="text" class="form-control" id="primary_name" name="household[primary_name]" 
+                                                        value="{{ old('household.primary_name', $resident->household->primary_name ?? '') }}">
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="primary_birthday">Birthday</label>
+                                                    <input type="date" class="form-control" id="primary_birthday" name="household[primary_birthday]"
+                                                        value="{{ old('household.primary_birthday', $resident->household && $resident->household->primary_birthday ? $resident->household->primary_birthday->format('Y-m-d') : '') }}">
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="primary_gender">Gender</label>
+                                                    <select class="form-control" id="primary_gender" name="household[primary_gender]">
+                                                        <option value="">-- Select Gender --</option>
+                                                        <option value="Male" {{ $resident->household && $resident->household->primary_gender == 'Male' ? 'selected' : '' }}>Male</option>
+                                                        <option value="Female" {{ $resident->household && $resident->household->primary_gender == 'Female' ? 'selected' : '' }}>Female</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="primary_phone">Contact Number</label>
+                                                    <input type="text" class="form-control" id="primary_phone" name="household[primary_phone]"
+                                                        value="{{ old('household.primary_phone', $resident->household->primary_phone ?? '') }}"
+                                                        pattern="[0-9]{11}" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                                    <div class="invalid-feedback">Phone number must be exactly 11 digits</div>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="primary_work">Occupation</label>
+                                                    <input type="text" class="form-control" id="primary_work" name="household[primary_work]"
+                                                        value="{{ old('household.primary_work', $resident->household->primary_work ?? '') }}">
+                                                </div>
+                                                <div class="col-md-6 mb-3"></div>
+                                                    <label for="primary_allergies">Allergies</label>
+                                                    <input type="text" class="form-control" id="primary_allergies" name="household[primary_allergies]"
+                                                        value="{{ old('household.primary_allergies', $resident->household->primary_allergies ?? '') }}">
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="primary_medical_condition">Medical Conditions</label>
+                                                    <input type="text" class="form-control" id="primary_medical_condition" name="household[primary_medical_condition]"
+                                                        value="{{ old('household.primary_medical_condition', $resident->household->primary_medical_condition ?? '') }}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Secondary Person Information -->
+                                <div class="col-md-6 mb-4">
+                                    <div class="card border">
+                                        <div class="card-header bg-light">
+                                            <h6 class="text-primary mb-0">Secondary Person</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-12 mb-3">
+                                                    <label for="secondary_name">Full Name</label>
+                                                    <input type="text" class="form-control" id="secondary_name" name="household[secondary_name]"
+                                                        value="{{ old('household.secondary_name', $resident->household->secondary_name ?? '') }}">
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="secondary_birthday">Birthday</label>
+                                                    <input type="date" class="form-control" id="secondary_birthday" name="household[secondary_birthday]"
+                                                        value="{{ old('household.secondary_birthday', $resident->household && $resident->household->secondary_birthday ? $resident->household->secondary_birthday->format('Y-m-d') : '') }}">
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="secondary_gender">Gender</label>
+                                                    <select class="form-control" id="secondary_gender" name="household[secondary_gender]">
+                                                        <option value="">-- Select Gender --</option>
+                                                        <option value="Male" {{ $resident->household && $resident->household->secondary_gender == 'Male' ? 'selected' : '' }}>Male</option>
+                                                        <option value="Female" {{ $resident->household && $resident->household->secondary_gender == 'Female' ? 'selected' : '' }}>Female</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="secondary_phone">Contact Number</label>
+                                                    <input type="text" class="form-control" id="secondary_phone" name="household[secondary_phone]"
+                                                        value="{{ old('household.secondary_phone', $resident->household->secondary_phone ?? '') }}"
+                                                        pattern="[0-9]{11}" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                                    <div class="invalid-feedback">Phone number must be exactly 11 digits</div>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="secondary_work">Occupation</label>
+                                                    <input type="text" class="form-control" id="secondary_work" name="household[secondary_work]"
+                                                        value="{{ old('household.secondary_work', $resident->household->secondary_work ?? '') }}">
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="secondary_allergies">Allergies</label>
+                                                    <input type="text" class="form-control" id="secondary_allergies" name="household[secondary_allergies]"
+                                                        value="{{ old('household.secondary_allergies', $resident->household->secondary_allergies ?? '') }}">
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="secondary_medical_condition">Medical Conditions</label>
+                                                    <input type="text" class="form-control" id="secondary_medical_condition" name="household[secondary_medical_condition]"
+                                                        value="{{ old('household.secondary_medical_condition', $resident->household->secondary_medical_condition ?? '') }}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-4 mb-3">
-                                        <label for="mother_first_name">First Name</label>
-                                        <input type="text" class="form-control" id="mother_first_name" name="mother_first_name" value="{{ old('mother_first_name', $resident->mother_first_name) }}">
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="mother_middle_name">Middle Name</label>
-                                        <input type="text" class="form-control" id="mother_middle_name" name="mother_middle_name" value="{{ old('mother_middle_name', $resident->mother_middle_name) }}">
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="mother_last_name">Last Name</label>
-                                        <input type="text" class="form-control" id="mother_last_name" name="mother_last_name" value="{{ old('mother_last_name', $resident->mother_last_name) }}">
+
+                            <!-- Emergency Contact Information -->
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="card border">
+                                        <div class="card-header bg-light">
+                                            <h6 class="text-primary mb-0">Emergency Contact</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-4 mb-3">
+                                                    <label for="emergency_contact_name">Full Name</label>
+                                                    <input type="text" class="form-control" id="emergency_contact_name" name="household[emergency_contact_name]"
+                                                        value="{{ old('household.emergency_contact_name', $resident->household->emergency_contact_name ?? '') }}">
+                                                </div>
+                                                <div class="col-md-3 mb-3">
+                                                    <label for="emergency_relationship">Relationship</label>
+                                                    <input type="text" class="form-control" id="emergency_relationship" name="household[emergency_relationship]"
+                                                        value="{{ old('household.emergency_relationship', $resident->household->emergency_relationship ?? '') }}">
+                                                </div>
+                                                <div class="col-md-3 mb-3">
+                                                    <label for="emergency_work">Occupation</label>
+                                                    <input type="text" class="form-control" id="emergency_work" name="household[emergency_work]"
+                                                        value="{{ old('household.emergency_work', $resident->household->emergency_work ?? '') }}">
+                                                </div>
+                                                <div class="col-md-2 mb-3">
+                                                    <label for="emergency_phone">Contact Number</label>
+                                                    <input type="text" class="form-control" id="emergency_phone" name="household[emergency_phone]"
+                                                        value="{{ old('household.emergency_phone', $resident->household->emergency_phone ?? '') }}"
+                                                        pattern="[0-9]{11}" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                                    <div class="invalid-feedback">Phone number must be exactly 11 digits</div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Population Sectors -->
-                    <div class="col-md-6">
-                        <div class="card shadow">
-                            <div class="card-header">
-                                <h6 class="card-title mb-0">Population Sectors</h6>
+                </div>
+
+                <!-- Family Members Card (Also Collapsible) -->
+                <div class="card shadow mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center" style="cursor: pointer;" data-toggle="collapse" data-target="#familyMembersSection" aria-expanded="false">
+                        <h6 class="card-title mb-0">Family Members</h6>
+                        <div>
+                            <button type="button" class="btn btn-sm btn-primary mr-2" id="addFamilyMemberBtn" style="display:none;">
+                                <i class="fe fe-plus mr-1"></i> Add Family Member
+                            </button>
+                            <i class="fe fe-chevron-down family-toggle-icon"></i>
+                        </div>
+                    </div>
+                    <div class="collapse" id="familyMembersSection">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <button type="button" class="btn btn-sm btn-primary" id="addFamilyMemberBtnInside">
+                                    <i class="fe fe-plus mr-1"></i> Add Family Member
+                                </button>
                             </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    @foreach(App\Models\Resident::getPopulationSectors() as $sector)
-                                        <div class="col-md-6 mb-2">
-                                            <div class="custom-control custom-checkbox">
-                                                <input type="checkbox" class="custom-control-input" 
-                                                    id="sector_{{ Str::slug($sector) }}" 
-                                                    name="population_sectors[]" 
-                                                    value="{{ $sector }}" 
-                                                    {{ is_array($resident->population_sectors) && in_array($sector, $resident->population_sectors) ? 'checked' : '' }}>
-                                                <label class="custom-control-label" for="sector_{{ Str::slug($sector) }}">{{ $sector }}</label>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
+                            <div class="table-responsive">
+                                <table class="table table-striped" id="familyMembersTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Relationship</th>
+                                            <th>Related To</th>
+                                            <th>Gender</th>
+                                            <th>Birthday</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="familyMembersList">
+                                        @if(isset($resident->familyMembers) && $resident->familyMembers->count() > 0)
+                                            @foreach($resident->familyMembers as $index => $member)
+                                                <tr class="family-member-row">
+                                                    <td>
+                                                        <input type="hidden" name="family_members[{{ $index }}][id]" value="{{ $member->id }}">
+                                                        <input type="text" class="form-control" name="family_members[{{ $index }}][name]" 
+                                                            value="{{ $member->name }}" required>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control" name="family_members[{{ $index }}][relationship]" 
+                                                            value="{{ $member->relationship }}" required>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control" name="family_members[{{ $index }}][related_to]" 
+                                                            value="{{ $member->related_to }}">
+                                                    </td>
+                                                    <td>
+                                                        <select class="form-control" name="family_members[{{ $index }}][gender]" required>
+                                                            <option value="">Select</option>
+                                                            <option value="Male" {{ $member->gender == 'Male' ? 'selected' : '' }}>Male</option>
+                                                            <option value="Female" {{ $member->gender == 'Female' ? 'selected' : '' }}>Female</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <input type="date" class="form-control" name="family_members[{{ $index }}][birthday]" 
+                                                            value="{{ $member->birthday ? $member->birthday->format('Y-m-d') : '' }}">
+                                                    </td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-sm btn-danger remove-family-member">
+                                                            <i class="fe fe-trash"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                <tr class="family-member-row-details">
+                                                    <td colspan="6">
+                                                        <div class="row">
+                                                            <div class="col-md-4 mb-2">
+                                                                <label>Occupation</label>
+                                                                <input type="text" class="form-control" name="family_members[{{ $index }}][work]" 
+                                                                    value="{{ $member->work }}">
+                                                            </div>
+                                                            <div class="col-md-3 mb-2">
+                                                                <label>Contact Number</label>
+                                                                <input type="text" class="form-control" name="family_members[{{ $index }}][contact_number]" 
+                                                                    value="{{ $member->contact_number }}"
+                                                                    pattern="[0-9]{11}" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                                                <div class="invalid-feedback">Phone number must be exactly 11 digits</div>
+                                                            </div>
+                                                            <div class="col-md-2 mb-2">
+                                                                <label>Allergies</label>
+                                                                <input type="text" class="form-control" name="family_members[{{ $index }}][allergies]" 
+                                                                    value="{{ $member->allergies }}">
+                                                            </div>
+                                                            <div class="col-md-3 mb-2">
+                                                                <label>Medical Conditions</label>
+                                                                <input type="text" class="form-control" name="family_members[{{ $index }}][medical_condition]" 
+                                                                    value="{{ $member->medical_condition }}">
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        @else
+                                            <tr id="noFamilyMembersRow">
+                                                <td colspan="6" class="text-center">No family members added yet</td>
+                                            </tr>
+                                        @endif
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -280,6 +496,520 @@
 </div>
 @endsection
 
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        // Initialize family member index
+        let familyMemberIndex = {{ isset($resident->familyMembers) && $resident->familyMembers->count() > 0 ? $resident->familyMembers->count() : 0 }};
+        
+        // Toggle icons for household section
+        $('#householdSection').on('show.bs.collapse', function() {
+            $('.household-toggle-icon').removeClass('fe-chevron-down').addClass('fe-chevron-up');
+        }).on('hide.bs.collapse', function() {
+            $('.household-toggle-icon').removeClass('fe-chevron-up').addClass('fe-chevron-down');
+        });
+        
+        // Toggle icons for family members section
+        $('#familyMembersSection').on('show.bs.collapse', function() {
+            $('.family-toggle-icon').removeClass('fe-chevron-down').addClass('fe-chevron-up');
+        }).on('hide.bs.collapse', function() {
+            $('.family-toggle-icon').removeClass('fe-chevron-up').addClass('fe-chevron-down');
+        });
+        
+        // Add new family member from the outside button
+        $('#addFamilyMemberBtn').click(function() {
+            // Open the section if it's collapsed
+            $('#familyMembersSection').collapse('show');
+            addFamilyMemberRow();
+        });
+        
+        // Add new family member from the inside button
+        $('#addFamilyMemberBtnInside').click(function() {
+            addFamilyMemberRow();
+        });
+        
+        // Remove family member
+        $(document).on('click', '.remove-family-member', function() {
+            const row = $(this).closest('.family-member-row');
+            const detailsRow = row.next('.family-member-row-details');
+            
+            row.remove();
+            detailsRow.remove();
+            
+            // Show 'no members' message if no members left
+            if ($('#familyMembersList tr.family-member-row').length === 0) {
+                $('#familyMembersList').append(`
+                    <tr id="noFamilyMembersRow">
+                        <td colspan="6" class="text-center">No family members added yet</td>
+                    </tr>
+                `);
+            }
+        });
+        
+        // Add required field indicators
+        function addRequiredFieldMarkers() {
+            const requiredFields = [
+                '#first_name', '#last_name', '#birthdate', '#birthplace', '#address', 
+                '#contact_number', '#email_address', '#type_of_resident', 
+                '#sex', '#civil_status', '#citizenship_type'
+            ];
+            
+            requiredFields.forEach(field => {
+                const label = $(field).prev('label');
+                if (label.length && !label.find('.required-marker').length) {
+                    label.append(' <span class="required-marker text-danger">*</span>');
+                }
+            });
+        }
+        
+        // Name validation - allow only letters, spaces, dots, hyphens, and apostrophes
+        function validateNameField($field) {
+            const value = $field.val();
+            if (value) {
+                const nameRegex = /^[a-zA-Z\s\.\-\']+$/;
+                if (!nameRegex.test(value)) {
+                    $field.addClass('is-invalid');
+                    if (!$field.next('.invalid-feedback').length) {
+                        $field.after('<div class="invalid-feedback">Name may only contain letters, spaces, dots, hyphens, and apostrophes</div>');
+                    }
+                    return false;
+                }
+            }
+            $field.removeClass('is-invalid');
+            return true;
+        }
+        
+        // Email validation with stricter pattern
+        function validateEmailField($field) {
+            const value = $field.val();
+            if (value) {
+                const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                if (!emailRegex.test(value)) {
+                    $field.addClass('is-invalid');
+                    if (!$field.next('.invalid-feedback').length) {
+                        $field.after('<div class="invalid-feedback">Please enter a valid email format</div>');
+                    }
+                    return false;
+                }
+            }
+            $field.removeClass('is-invalid');
+            return true;
+        }
+        
+        // Phone number validation function
+        function validatePhoneNumber(phone) {
+            // Only accept exactly 11 numeric digits (e.g., 09123456789)
+            const phoneRegex = /^\d{11}$/;
+            return phoneRegex.test(phone);
+        }
+        
+        // Validate phone field
+        function validatePhoneField($field) {
+            const value = $field.val();
+            if (value) {
+                // If not empty, ensure it's 11 digits
+                if (!validatePhoneNumber(value)) {
+                    $field.addClass('is-invalid');
+                    if (!$field.next('.invalid-feedback').length) {
+                        $field.after('<div class="invalid-feedback">Phone number must be exactly 11 digits</div>');
+                    }
+                    return false;
+                } else {
+                    $field.removeClass('is-invalid');
+                    return true;
+                }
+            }
+            return true; // Empty is fine if not required
+        }
+        
+        // Birthday validation with age range check
+        function validateBirthdayField($field) {
+            const value = $field.val();
+            if (value) {
+                const selectedDate = new Date(value);
+                const today = new Date();
+                
+                // Check if date is in the future
+                if (selectedDate > today) {
+                    $field.addClass('is-invalid');
+                    if (!$field.next('.invalid-feedback').length) {
+                        $field.after('<div class="invalid-feedback">Birthday cannot be in the future</div>');
+                    }
+                    return false;
+                }
+                
+                // Check if date is too far in the past (e.g., more than 120 years)
+                const minDate = new Date();
+                minDate.setFullYear(today.getFullYear() - 120);
+                if (selectedDate < minDate) {
+                    $field.addClass('is-invalid');
+                    if (!$field.next('.invalid-feedback').length) {
+                        $field.after('<div class="invalid-feedback">Please enter a valid birthdate (not older than 120 years)</div>');
+                    }
+                    return false;
+                }
+            }
+            $field.removeClass('is-invalid');
+            return true;
+        }
+        
+        // Numeric validation for income fields
+        function validateNumericField($field) {
+            const value = $field.val();
+            if (value) {
+                if (isNaN(value) || parseFloat(value) < 0) {
+                    $field.addClass('is-invalid');
+                    if (!$field.next('.invalid-feedback').length) {
+                        $field.after('<div class="invalid-feedback">Please enter a valid positive number</div>');
+                    }
+                    return false;
+                }
+            }
+            $field.removeClass('is-invalid');
+            return true;
+        }
+        
+        // Address validation
+        function validateAddressField($field) {
+            const value = $field.val();
+            if (value) {
+                if (value.length < 5) {
+                    $field.addClass('is-invalid');
+                    if (!$field.next('.invalid-feedback').length) {
+                        $field.after('<div class="invalid-feedback">Address should be at least 5 characters</div>');
+                    }
+                    return false;
+                }
+                
+                // Check for potentially dangerous characters
+                const dangerousPattern = /[<>{}]/g;
+                if (dangerousPattern.test(value)) {
+                    $field.addClass('is-invalid');
+                    if (!$field.next('.invalid-feedback').length) {
+                        $field.after('<div class="invalid-feedback">Address contains invalid characters</div>');
+                    }
+                    return false;
+                }
+            }
+            $field.removeClass('is-invalid');
+            return true;
+        }
+        
+        // Cross-field validation
+        function validateRelatedFields() {
+            let isValid = true;
+            
+            // Validate that if secondary person exists, required fields are filled
+            const secondaryName = $('#secondary_name').val();
+            if (secondaryName && secondaryName.trim() !== '') {
+                // Secondary person info provided, ensure other fields are filled
+                const secondaryGender = $('#secondary_gender').val();
+                if (!secondaryGender) {
+                    $('#secondary_gender').addClass('is-invalid');
+                    $('#secondary_gender').next('.invalid-feedback').text('Gender is required when secondary person is specified');
+                    isValid = false;
+                }
+            }
+            
+            return isValid;
+        }
+        
+        // Comprehensive form validation
+        function validateAllFields() {
+            let isValid = true;
+            
+            // Validate personal info fields
+            isValid = validateNameField($('#first_name')) && isValid;
+            isValid = validateNameField($('#last_name')) && isValid;
+            
+            if ($('#middle_name').val()) {
+                isValid = validateNameField($('#middle_name')) && isValid;
+            }
+            
+            isValid = validateEmailField($('#email_address')) && isValid;
+            isValid = validatePhoneField($('#contact_number')) && isValid;
+            isValid = validateBirthdayField($('#birthdate')) && isValid;
+            isValid = validateAddressField($('#address')) && isValid;
+            
+            if ($('#monthly_income').val()) {
+                isValid = validateNumericField($('#monthly_income')) && isValid;
+            }
+            
+            // Validate household info if it exists
+            if ($('#primary_name').val()) {
+                isValid = validateNameField($('#primary_name')) && isValid;
+                
+                if ($('#primary_phone').val()) {
+                    isValid = validatePhoneField($('#primary_phone')) && isValid;
+                }
+            }
+            
+            if ($('#secondary_name').val()) {
+                isValid = validateNameField($('#secondary_name')) && isValid;
+                
+                if ($('#secondary_phone').val()) {
+                    isValid = validatePhoneField($('#secondary_phone')) && isValid;
+                }
+                
+                // Cross-field validation - if secondary name exists, gender is required
+                if (!$('#secondary_gender').val()) {
+                    $('#secondary_gender').addClass('is-invalid');
+                    if (!$('#secondary_gender').next('.invalid-feedback').length) {
+                        $('#secondary_gender').after('<div class="invalid-feedback">Gender is required when secondary person is specified</div>');
+                    }
+                    isValid = false;
+                }
+            }
+            
+            // Validate cross-field relationships
+            isValid = validateRelatedFields() && isValid;
+            
+            return isValid;
+        }
+        
+        // Text field sanitization to prevent script injection
+        function sanitizeInput(input) {
+            // Store the current cursor position
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            
+            // Get the value before sanitization
+            const originalValue = input.value;
+            
+            // Sanitize the value (remove HTML tags and script patterns)
+            const sanitizedValue = originalValue.replace(/<\/?[^>]+(>|$)/g, "");
+            
+            // Only update and highlight if value changed
+            if (originalValue !== sanitizedValue) {
+                // Update the input value
+                input.value = sanitizedValue;
+                
+                // Add highlighting effect
+                $(input).addClass('sanitized-field');
+                setTimeout(() => {
+                    $(input).removeClass('sanitized-field');
+                }, 1000);
+                
+                // Restore cursor position, accounting for removed characters
+                const diff = originalValue.length - sanitizedValue.length;
+                input.setSelectionRange(start - diff, end - diff);
+            }
+        }
+        
+        // Apply input masking to name fields
+        function applyNameInputMasks() {
+            const nameFields = $('input[name="first_name"], input[name="last_name"], input[name="middle_name"], input[name*="name"]');
+            
+            nameFields.on('input', function(e) {
+                // Replace any character that isn't a letter, space, dot, hyphen, or apostrophe
+                this.value = this.value.replace(/[^a-zA-Z\s\.\-\']/g, '');
+            });
+        }
+        
+        // Apply input masking to phone fields
+        function applyPhoneInputMasks() {
+            $('input[type="text"][name*="phone"], input[type="text"][name*="contact_number"]').on('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '').substring(0, 11);
+            });
+        }
+        
+        // Apply validation to existing fields
+        function applyValidationToExistingFields() {
+            // Add required field markers
+            addRequiredFieldMarkers();
+            
+            // Name fields
+            $('input[name="first_name"], input[name="last_name"], input[name="middle_name"], input[name*="name"]').each(function() {
+                $(this).on('blur', function() {
+                    validateNameField($(this));
+                }).on('input', function() {
+                    sanitizeInput(this);
+                });
+            });
+            
+            // Email field
+            $('input[name="email_address"]').on('blur', function() {
+                validateEmailField($(this));
+            }).on('input', function() {
+                sanitizeInput(this);
+            });
+            
+            // Phone number fields
+            $('input[type="text"][name*="phone"], input[type="text"][name*="contact_number"]').on('blur', function() {
+                validatePhoneField($(this));
+            });
+            
+            // Birthday fields
+            $('input[type="date"]').each(function() {
+                $(this).on('change', function() {
+                    validateBirthdayField($(this));
+                });
+            });
+            
+            // Numeric fields
+            $('#monthly_income').on('blur', function() {
+                validateNumericField($(this));
+            });
+            
+            // Address field
+            $('#address').on('blur', function() {
+                validateAddressField($(this));
+            }).on('input', function() {
+                sanitizeInput(this);
+            });
+            
+            // Apply input masks
+            applyNameInputMasks();
+            applyPhoneInputMasks();
+        }
+        
+        // Function to add a new family member row with enhanced validation
+        function addFamilyMemberRow() {
+            // Remove 'no members' message if present
+            $('#noFamilyMembersRow').remove();
+            
+            // Create new family member row
+            const newRow = `
+                <tr class="family-member-row">
+                    <td>
+                        <input type="text" class="form-control name-field" name="family_members[${familyMemberIndex}][name]" required>
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" name="family_members[${familyMemberIndex}][relationship]" required>
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" name="family_members[${familyMemberIndex}][related_to]">
+                    </td>
+                    <td>
+                        <select class="form-control" name="family_members[${familyMemberIndex}][gender]" required>
+                            <option value="">Select</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input type="date" class="form-control birth-date-field" name="family_members[${familyMemberIndex}][birthday]">
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-danger remove-family-member">
+                            <i class="fe fe-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr class="family-member-row-details">
+                    <td colspan="6">
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <label>Occupation</label>
+                                <input type="text" class="form-control" name="family_members[${familyMemberIndex}][work]">
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label>Contact Number</label>
+                                <input type="text" class="form-control phone-field" name="family_members[${familyMemberIndex}][contact_number]">
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <label>Allergies</label>
+                                <input type="text" class="form-control" name="family_members[${familyMemberIndex}][allergies]">
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label>Medical Conditions</label>
+                                <input type="text" class="form-control" name="family_members[${familyMemberIndex}][medical_condition]">
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            
+            $('#familyMembersList').append(newRow);
+            
+            // Apply validation to new fields
+            const newRow$ = $('.family-member-row').last();
+            newRow$.find('.name-field').on('blur', function() {
+                validateNameField($(this));
+            }).on('input', function() {
+                sanitizeInput(this);
+                this.value = this.value.replace(/[^a-zA-Z\s\.\-\']/g, '');
+            });
+            
+            newRow$.find('.phone-field').on('blur', function() {
+                validatePhoneField($(this));
+            }).on('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '').substring(0, 11);
+            });
+            
+            newRow$.find('.birth-date-field').on('change', function() {
+                validateBirthdayField($(this));
+            });
+            
+            familyMemberIndex++;
+        }
+        
+        // Handle form submission with enhanced validation
+        $('#residentUpdateForm').on('submit', function(e) {
+            if (!validateAllFields()) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // If there are errors in the collapsed sections, expand them
+                if ($('#familyMembersList .is-invalid').length > 0) {
+                    $('#familyMembersSection').collapse('show');
+                }
+                
+                if ($('#householdSection .is-invalid').length > 0) {
+                    $('#householdSection').collapse('show');
+                }
+                
+                // Scroll to first error
+                if ($('.is-invalid').length > 0) {
+                    $('html, body').animate({
+                        scrollTop: $('.is-invalid:first').offset().top - 100
+                    }, 500);
+                    
+                    // Focus the first invalid field
+                    $('.is-invalid:first').focus();
+                }
+                
+                return false;
+            }
+        });
+        
+        // Ensure form validation expands sections with errors on page load
+        function handleInitialErrors() {
+            // Check if there are errors
+            if ($('.is-invalid').length > 0 || $('.alert-danger').length > 0) {
+                // Expand sections that contain errors
+                if ($('#familyMembersList .is-invalid').length > 0) {
+                    $('#familyMembersSection').collapse('show');
+                }
+                
+                if ($('#householdSection .is-invalid').length > 0) {
+                    $('#householdSection').collapse('show');
+                }
+                
+                // Scroll to the first error after a slight delay to ensure expanded sections are visible
+                setTimeout(() => {
+                    if ($('.is-invalid').length > 0) {
+                        $('html, body').animate({
+                            scrollTop: $('.is-invalid:first').offset().top - 100
+                        }, 500);
+                    } else if ($('.alert-danger').length > 0) {
+                        $('html, body').animate({
+                            scrollTop: $('.alert-danger:first').offset().top - 100
+                        }, 500);
+                    }
+                }, 300);
+            }
+        }
+        
+        // Run the error handler on page load
+        handleInitialErrors();
+        
+        // Initialize form validation
+        applyValidationToExistingFields();
+    });
+</script>
+@endpush
+
 @push('styles')
 <style>
     .avatar {
@@ -304,6 +1034,29 @@
         color: white;
         font-size: 36px;
         font-weight: bold;
+    }
+    
+    /* Validation indicators */
+    .is-invalid {
+        border-color: #dc3545 !important;
+    }
+    
+    .invalid-feedback {
+        display: block;
+    }
+    
+    .required-marker {
+        font-size: 0.875rem;
+        vertical-align: super;
+    }
+    
+    .sanitized-field {
+        animation: highlightSanitized 1s ease;
+    }
+    
+    @keyframes highlightSanitized {
+        0% { background-color: rgba(220, 53, 69, 0.1); }
+        100% { background-color: transparent; }
     }
 </style>
 @endpush
