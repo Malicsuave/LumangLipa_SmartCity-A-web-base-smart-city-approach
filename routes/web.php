@@ -53,6 +53,27 @@ Route::prefix('pre-registration')->name('public.pre-registration.')->group(funct
     Route::post('/check-status', [App\Http\Controllers\Public\PreRegistrationController::class, 'checkStatus'])->name('check-status.post');
 });
 
+// Document Request Public Routes
+Route::get('/request-document', [App\Http\Controllers\DocumentRequestController::class, 'create'])->name('documents.request');
+Route::post('/request-document', [App\Http\Controllers\DocumentRequestController::class, 'store'])->name('documents.store');
+Route::post('/check-resident', [App\Http\Controllers\DocumentRequestController::class, 'checkResident'])->name('documents.check-resident');
+Route::post('/send-otp', [App\Http\Controllers\DocumentRequestController::class, 'sendOtp'])->name('documents.send-otp');
+Route::post('/verify-otp', [App\Http\Controllers\DocumentRequestController::class, 'verifyOtp'])->name('documents.verify-otp');
+
+// Health Service Public Routes
+Route::get('/health/request', [App\Http\Controllers\HealthServiceController::class, 'create'])->name('health.request');
+Route::post('/health/request', [App\Http\Controllers\HealthServiceController::class, 'store'])->name('health.store');
+Route::post('/health/check-resident', [App\Http\Controllers\HealthServiceController::class, 'checkResident'])->name('health.check-resident');
+Route::post('/health/send-otp', [App\Http\Controllers\HealthServiceController::class, 'sendOtp'])->name('health.send-otp');
+Route::post('/health/verify-otp', [App\Http\Controllers\HealthServiceController::class, 'verifyOtp'])->name('health.verify-otp');
+
+// Complaint Public Routes
+Route::get('/complaints/file', [App\Http\Controllers\ComplaintController::class, 'create'])->name('complaints.create');
+Route::post('/complaints/file', [App\Http\Controllers\ComplaintController::class, 'store'])->name('complaints.store');
+Route::post('/complaints/check-resident', [App\Http\Controllers\ComplaintController::class, 'checkResident'])->name('complaints.check-resident');
+Route::post('/complaints/send-otp', [App\Http\Controllers\ComplaintController::class, 'sendOtp'])->name('complaints.send-otp');
+Route::post('/complaints/verify-otp', [App\Http\Controllers\ComplaintController::class, 'verifyOtp'])->name('complaints.verify-otp');
+
 // Resident ID full preview route
 Route::get('/resident/{resident}/id/full-preview', [App\Http\Controllers\ResidentIdController::class, 'fullPreview'])->name('id.full-preview');
 
@@ -124,9 +145,14 @@ Route::middleware([
     // Admin-only routes (Barangay Captain, Secretary)
     Route::middleware('role:Barangay Captain,Barangay Secretary')->group(function () {
         Route::get('/admin/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('admin.dashboard');
-        Route::get('/admin/documents', function () {
-            return view('admin.documents');
-        })->name('admin.documents');
+        
+        // Document Requests Management
+        Route::get('/admin/documents', [App\Http\Controllers\DocumentRequestController::class, 'index'])->name('admin.documents');
+        Route::get('/admin/documents/{documentRequest}', [App\Http\Controllers\DocumentRequestController::class, 'show']);
+        Route::post('/admin/documents/{documentRequest}/approve', [App\Http\Controllers\DocumentRequestController::class, 'approve']);
+        Route::post('/admin/documents/{documentRequest}/reject', [App\Http\Controllers\DocumentRequestController::class, 'reject']);
+        Route::get('/admin/documents/{documentRequest}/view', [App\Http\Controllers\DocumentGeneratorController::class, 'generateDocument'])->name('admin.documents.view');
+        Route::get('/admin/documents/{documentRequest}/print', [App\Http\Controllers\DocumentGeneratorController::class, 'generateDocument'])->name('admin.documents.print');
         
         // Resident Management Routes - Multi-step Form
         Route::prefix('admin/residents')->name('admin.residents.')->group(function () {
@@ -232,9 +258,23 @@ Route::middleware([
     
     // Health Worker routes
     Route::middleware('role:Health Worker,Barangay Captain,Barangay Secretary')->group(function () {
-        Route::get('/admin/health', function () {
-            return view('admin.health');
-        })->name('admin.health');
+        Route::get('/admin/health', [App\Http\Controllers\HealthServiceController::class, 'adminDashboard'])->name('admin.health');
+        
+        // Health Service Management Routes
+        Route::prefix('admin/health-services')->name('admin.health-services.')->group(function() {
+            Route::get('/', [App\Http\Controllers\HealthServiceController::class, 'index'])->name('index');
+            Route::get('/{id}', [App\Http\Controllers\HealthServiceController::class, 'show'])->name('show');
+            Route::post('/{id}/approve', [App\Http\Controllers\HealthServiceController::class, 'approve'])->name('approve');
+            Route::post('/{id}/complete', [App\Http\Controllers\HealthServiceController::class, 'complete'])->name('complete');
+            Route::post('/{id}/reject', [App\Http\Controllers\HealthServiceController::class, 'reject'])->name('reject');
+        });
+        
+        // Health Meeting Management Routes
+        Route::prefix('admin/health-meetings')->name('admin.health-meetings.')->group(function() {
+            Route::post('/', [App\Http\Controllers\HealthMeetingController::class, 'store'])->name('store');
+            Route::post('/{id}/complete', [App\Http\Controllers\HealthMeetingController::class, 'complete'])->name('complete');
+            Route::post('/{id}/cancel', [App\Http\Controllers\HealthMeetingController::class, 'cancel'])->name('cancel');
+        });
         
         // GAD (Gender and Development) Routes
         Route::prefix('admin/gad')->name('admin.gad.')->group(function() {
@@ -298,9 +338,23 @@ Route::middleware([
 
     // Complaint Manager routes
     Route::middleware('role:Complaint Manager,Barangay Captain,Barangay Secretary')->group(function () {
-        Route::get('/admin/complaints', function () {
-            return view('admin.complaints');
-        })->name('admin.complaints');
+        Route::get('/admin/complaints', [App\Http\Controllers\ComplaintController::class, 'adminDashboard'])->name('admin.complaints');
+        
+        // Complaint Management Routes
+        Route::prefix('admin/complaints')->name('admin.')->group(function() {
+            Route::get('/management', [App\Http\Controllers\ComplaintController::class, 'index'])->name('complaint-management');
+            Route::get('/{id}', [App\Http\Controllers\ComplaintController::class, 'show'])->name('complaints.show');
+            Route::post('/{id}/approve', [App\Http\Controllers\ComplaintController::class, 'approve'])->name('complaints.approve');
+            Route::post('/{id}/resolve', [App\Http\Controllers\ComplaintController::class, 'resolve'])->name('complaints.resolve');
+            Route::post('/{id}/dismiss', [App\Http\Controllers\ComplaintController::class, 'dismiss'])->name('complaints.dismiss');
+        });
+        
+        // Complaint Meeting Management Routes
+        Route::prefix('admin/complaint-meetings')->name('admin.complaint-meetings.')->group(function() {
+            Route::post('/', [App\Http\Controllers\ComplaintMeetingController::class, 'store'])->name('store');
+            Route::post('/{id}/complete', [App\Http\Controllers\ComplaintMeetingController::class, 'complete'])->name('complete');
+            Route::post('/{id}/cancel', [App\Http\Controllers\ComplaintMeetingController::class, 'cancel'])->name('cancel');
+        });
     });
 
     // Super Admin (Barangay Captain) exclusive routes

@@ -69,7 +69,6 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-white">
         <div class="container">
             <a class="navbar-brand" href="{{ route('public.home') }}">
-                <img src="{{ asset('images/logo.png') }}" height="40" alt="Barangay Lumanglipa Logo">
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
@@ -78,7 +77,7 @@
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto" style="margin-right: -70px;">
                     <li class="nav-item">
                         <a class="nav-link {{ Route::currentRouteName() == 'public.home' ? 'active' : '' }}" 
                            href="{{ route('public.home') }}">Home</a>
@@ -90,6 +89,12 @@
                     <li class="nav-item">
                         <a class="nav-link {{ Route::currentRouteName() == 'public.services' ? 'active' : '' }}" 
                            href="{{ route('public.services') }}">eServices</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Route::currentRouteName() == 'documents.request' ? 'active' : '' }}" 
+                           href="{{ route('documents.request') }}">
+                            <i class="fas fa-file-alt me-1"></i>Request Documents
+                        </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ Route::currentRouteName() == 'public.contact' ? 'active' : '' }}" 
@@ -118,16 +123,18 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-6">
-                    <div class="d-flex align-items-center">
-                        <img src="{{ asset('images/logo.png') }}" alt="Barangay Logo" class="logo-small me-3">
-                        <div>
-                            <div class="republic-text">Republic of the Philippines</div>
-                            <div class="barangay-title">Barangay Lumanglipa</div>
+                    <a href="{{ route('public.home') }}" class="text-decoration-none">
+                        <div class="d-flex align-items-center" style="margin-left: -70px;">
+                            <img src="{{ asset('images/logo.png') }}" alt="Barangay Logo" class="logo-small me-3" style="width: 80px; height: 80px;">
+                            <div>
+                                <div class="republic-text" style="color: white; font-size: 16px; font-weight: 500;">Republic of the Philippines</div>
+                                <div class="barangay-title" style="color: white; font-size: 24px; font-weight: bold;">Barangay Lumanglipa</div>
+                            </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
                 <div class="col-md-6 text-end">
-                    <div class="time-display">
+                    <div class="time-display" style="margin-right: -60px;">
                         <div>Philippine Standard Time</div>
                         <div class="current-time" id="philippineTime"></div>
                         <div id="currentDate"></div>
@@ -147,7 +154,6 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-4 mb-4 mb-md-0">
-                    <h5 class="text-uppercase mb-4">Barangay Lumanglipa</h5>
                     <p>Providing essential services and improving the quality of life for our residents.</p>
                     <div class="d-flex gap-3 mt-4">
                         <a href="#" class="text-white"><i class="fe fe-facebook"></i></a>

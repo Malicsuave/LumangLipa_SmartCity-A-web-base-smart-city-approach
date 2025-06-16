@@ -11,14 +11,28 @@
     <div class="col-md-12">
         <div class="card shadow">
             <div class="card-header">
-                <strong class="card-title">Manage Health Services</strong>
+                <strong class="card-title">Health Services Dashboard</strong>
             </div>
             <div class="card-body">
-                <p class="mb-4">This is the health services management module for Barangay Captain and Health Workers.</p>
+                <p class="mb-4">Welcome to the health services management module.</p>
                 
-                <!-- This is a placeholder for actual health services functionality -->
-                
-                
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <i class="fe fe-clipboard me-2"></i>
+                                    Manage Health Service Requests
+                                </h5>
+                                <p class="card-text">Review, approve, and schedule health service requests from residents.</p>
+                                <a href="/admin/health-services" class="btn btn-light">
+                                    <i class="fe fe-arrow-right me-1"></i>
+                                    View Requests
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 
                 <div class="row mb-4">
                     <div class="col-md-4">
@@ -31,9 +45,9 @@
                                         </span>
                                     </div>
                                     <div class="col">
-                                        <p class="small text-muted mb-0">Vaccination</p>
-                                        <span class="h3 metric-counter">124</span>
-                                        <span class="small text-muted">Residents</span>
+                                        <p class="small text-muted mb-0">Total Requests</p>
+                                        <span class="h3 metric-counter">{{ $totalRequests ?? 0 }}</span>
+                                        <span class="small text-muted">All time</span>
                                     </div>
                                 </div>
                             </div>
@@ -45,13 +59,13 @@
                                 <div class="row align-items-center">
                                     <div class="col-3 text-center">
                                         <span class="circle circle-sm bg-warning metric-icon">
-                                            <i class="fe fe-heart text-white"></i>
+                                            <i class="fe fe-clock text-white"></i>
                                         </span>
                                     </div>
                                     <div class="col">
-                                        <p class="small text-muted mb-0">Checkups</p>
-                                        <span class="h3 metric-counter">45</span>
-                                        <span class="small text-muted">This month</span>
+                                        <p class="small text-muted mb-0">Pending</p>
+                                        <span class="h3 metric-counter">{{ $pendingRequests ?? 0 }}</span>
+                                        <span class="small text-muted">Awaiting approval</span>
                                     </div>
                                 </div>
                             </div>
@@ -63,13 +77,13 @@
                                 <div class="row align-items-center">
                                     <div class="col-3 text-center">
                                         <span class="circle circle-sm bg-success metric-icon">
-                                            <i class="fe fe-activity text-white"></i>
+                                            <i class="fe fe-check text-white"></i>
                                         </span>
                                     </div>
                                     <div class="col">
-                                        <p class="small text-muted mb-0">Medicine</p>
-                                        <span class="h3 metric-counter">84</span>
-                                        <span class="small text-muted">Distributed</span>
+                                        <p class="small text-muted mb-0">Completed</p>
+                                        <span class="h3 metric-counter">{{ $completedRequests ?? 0 }}</span>
+                                        <span class="small text-muted">This month</span>
                                     </div>
                                 </div>
                             </div>
@@ -79,110 +93,40 @@
                 
                 <div class="row">
                     <div class="col-md-12">
-                        <h5 class="mt-3 mb-4">Recent Health Services</h5>
-                        <table class="table table-borderless table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Resident</th>
-                                    <th>Service</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                    <th class="text-center">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Juan Dela Cruz</td>
-                                    <td>Blood Pressure Check</td>
-                                    <td>May 5, 2025</td>
-                                    <td><span class="badge badge-success">Completed</span></td>
-                                    <td class="text-center">
-                                        <div class="dropdown">
-                                            <button class="btn btn-sm btn-icon" type="button" id="dropdownMenuButton-health1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                <i class="fe fe-more-vertical fe-16"></i>
-                                            </button>
-                                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton-health1">
-                                                <a class="dropdown-item" href="#">
-                                                    <i class="fe fe-eye fe-16 mr-2 text-primary"></i>View Details
-                                                </a>
-                                                <a class="dropdown-item" href="#">
-                                                    <i class="fe fe-file-text fe-16 mr-2 text-secondary"></i>Medical Record
-                                                </a>
-                                                <a class="dropdown-item" href="#">
-                                                    <i class="fe fe-calendar fe-16 mr-2 text-info"></i>Schedule Follow-up
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Maria Santos</td>
-                                    <td>Vaccination - COVID-19</td>
-                                    <td>May 4, 2025</td>
-                                    <td><span class="badge badge-success">Completed</span></td>
-                                    <td class="text-center">
-                                        <div class="dropdown">
-                                            <button class="btn btn-sm btn-icon" type="button" id="dropdownMenuButton-health2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                <i class="fe fe-more-vertical fe-16"></i>
-                                            </button>
-                                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton-health2">
-                                                <a class="dropdown-item" href="#">
-                                                    <i class="fe fe-eye fe-16 mr-2 text-primary"></i>View Details
-                                                </a>
-                                                <a class="dropdown-item" href="#">
-                                                    <i class="fe fe-file-text fe-16 mr-2 text-secondary"></i>Medical Record
-                                                </a>
-                                                <a class="dropdown-item" href="#">
-                                                    <i class="fe fe-printer fe-16 mr-2 text-info"></i>Print Certificate
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Pedro Reyes</td>
-                                    <td>Medical Consultation</td>
-                                    <td>May 3, 2025</td>
-                                    <td><span class="badge badge-warning">Pending</span></td>
-                                    <td class="text-center">
-                                        <div class="dropdown">
-                                            <button class="btn btn-sm btn-icon" type="button" id="dropdownMenuButton-health3" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                <i class="fe fe-more-vertical fe-16"></i>
-                                            </button>
-                                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton-health3">
-                                                <a class="dropdown-item" href="#">
-                                                    <i class="fe fe-eye fe-16 mr-2 text-primary"></i>View Details
-                                                </a>
-                                                <a class="dropdown-item" href="#">
-                                                    <i class="fe fe-check-circle fe-16 mr-2 text-success"></i>Complete
-                                                </a>
-                                                <a class="dropdown-item" href="#">
-                                                    <i class="fe fe-message-circle fe-16 mr-2 text-info"></i>Send Reminder
-                                                </a>
-                                                <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger" href="#">
-                                                    <i class="fe fe-x-circle fe-16 mr-2"></i>Cancel
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        
-                        <!-- Pagination -->
-                        <div class="d-flex justify-content-between align-items-center mt-4">
-                            <div class="text-muted small">
-                                Showing 1 to 3 of 3 health services
-                            </div>
-                            <nav aria-label="Table Paging" class="mb-0">
-                                <ul class="pagination justify-content-end mb-0">
-                                    <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1" aria-disabled="true"><i class="fe fe-arrow-left"></i> Previous</a></li>
-                                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                    <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1" aria-disabled="true">Next <i class="fe fe-arrow-right"></i></a></li>
-                                </ul>
-                            </nav>
+                        <h5 class="mt-3 mb-4">Recent Health Service Requests</h5>
+                        @if(isset($recentRequests) && $recentRequests->count() > 0)
+                        <div class="table-responsive">
+                            <table class="table table-borderless table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Resident</th>
+                                        <th>Service</th>
+                                        <th>Priority</th>
+                                        <th>Status</th>
+                                        <th>Date Requested</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($recentRequests as $request)
+                                    <tr>
+                                        <td>{{ $request->resident_name }}</td>
+                                        <td>{{ ucwords(str_replace('_', ' ', $request->service_type)) }}</td>
+                                        <td>{!! $request->priority_badge !!}</td>
+                                        <td>{!! $request->status_badge !!}</td>
+                                        <td>{{ $request->requested_at->format('M d, Y') }}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
+                        
+                        @else
+                        <div class="text-center py-4">
+                            <i class="fe fe-heart fe-48 text-muted mb-3"></i>
+                            <h6 class="text-muted">No health service requests yet</h6>
+                            <p class="text-muted">Health service requests will appear here once residents submit them.</p>
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>

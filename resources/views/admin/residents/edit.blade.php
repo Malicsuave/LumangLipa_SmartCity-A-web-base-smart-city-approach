@@ -476,113 +476,88 @@
                                 </button>
                             </div>
                             
-                            <div id="familyMembersList" class="row">
-                                @if(isset($resident->familyMembers) && $resident->familyMembers->count() > 0)
-                                    @foreach($resident->familyMembers as $index => $member)
-                                        <div class="col-md-6 mb-3 family-member-card">
-                                            <div class="card border">
-                                                <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                                                    <h6 class="mb-0 text-primary">{{ $member->name }}</h6>
-                                                    <button type="button" class="btn btn-sm btn-danger remove-family-member">
-                                                        <i class="fe fe-trash"></i>
-                                                    </button>
-                                                </div>
-                                                <div class="card-body">
-                                                    <input type="hidden" name="family_members[{{ $index }}][id]" value="{{ $member->id }}">
-                                                    
-                                                    <div class="row">
-                                                        <div class="col-md-6 mb-2">
-                                                            <label>Full Name <span class="text-danger">*</span></label>
-                                                            <input type="text" class="form-control name-field" 
-                                                                name="family_members[{{ $index }}][name]" 
-                                                                value="{{ $member->name }}" required>
+                            <div class="table-responsive">
+                                <table class="table table-striped" id="familyMembersTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Relationship</th>
+                                            <th>Related To</th>
+                                            <th>Gender</th>
+                                            <th>Birthday</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="familyMembersList">
+                                        @if(isset($resident->familyMembers) && $resident->familyMembers->count() > 0)
+                                            @foreach($resident->familyMembers as $index => $member)
+                                                <tr class="family-member-row">
+                                                    <td>
+                                                        <input type="hidden" name="family_members[{{ $index }}][id]" value="{{ $member->id }}">
+                                                        <input type="text" class="form-control" name="family_members[{{ $index }}][name]" 
+                                                            value="{{ $member->name }}" required>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control" name="family_members[{{ $index }}][relationship]" 
+                                                            value="{{ $member->relationship }}" required>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control" name="family_members[{{ $index }}][related_to]" 
+                                                            value="{{ $member->related_to }}">
+                                                    </td>
+                                                    <td>
+                                                        <select class="form-control" name="family_members[{{ $index }}][gender]" required>
+                                                            <option value="">Select</option>
+                                                            <option value="Male" {{ $member->gender == 'Male' ? 'selected' : '' }}>Male</option>
+                                                            <option value="Female" {{ $member->gender == 'Female' ? 'selected' : '' }}>Female</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <input type="date" class="form-control" name="family_members[{{ $index }}][birthday]" 
+                                                            value="{{ $member->birthday ? $member->birthday->format('Y-m-d') : '' }}">
+                                                    </td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-sm btn-danger remove-family-member">
+                                                            <i class="fe fe-trash"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                <tr class="family-member-row-details">
+                                                    <td colspan="6">
+                                                        <div class="row">
+                                                            <div class="col-md-4 mb-2">
+                                                                <label>Occupation</label>
+                                                                <input type="text" class="form-control" name="family_members[{{ $index }}][work]" 
+                                                                    value="{{ $member->work }}">
+                                                            </div>
+                                                            <div class="col-md-3 mb-2">
+                                                                <label>Contact Number</label>
+                                                                <input type="text" class="form-control" name="family_members[{{ $index }}][contact_number]" 
+                                                                    value="{{ $member->contact_number }}"
+                                                                    pattern="[0-9]{11}" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                                                <div class="invalid-feedback">Phone number must be exactly 11 digits</div>
+                                                            </div>
+                                                            <div class="col-md-2 mb-2">
+                                                                <label>Allergies</label>
+                                                                <input type="text" class="form-control" name="family_members[{{ $index }}][allergies]" 
+                                                                    value="{{ $member->allergies }}">
+                                                            </div>
+                                                            <div class="col-md-3 mb-2">
+                                                                <label>Medical Conditions</label>
+                                                                <input type="text" class="form-control" name="family_members[{{ $index }}][medical_condition]" 
+                                                                    value="{{ $member->medical_condition }}">
+                                                            </div>
                                                         </div>
-                                                        <div class="col-md-6 mb-2">
-                                                            <label>Relationship <span class="text-danger">*</span></label>
-                                                            <select class="form-control" name="family_members[{{ $index }}][relationship]" required>
-                                                                <option value="">Select Relationship</option>
-                                                                <option value="Spouse" {{ $member->relationship == 'Spouse' ? 'selected' : '' }}>Spouse</option>
-                                                                <option value="Child" {{ $member->relationship == 'Child' ? 'selected' : '' }}>Child</option>
-                                                                <option value="Parent" {{ $member->relationship == 'Parent' ? 'selected' : '' }}>Parent</option>
-                                                                <option value="Sibling" {{ $member->relationship == 'Sibling' ? 'selected' : '' }}>Sibling</option>
-                                                                <option value="Grandparent" {{ $member->relationship == 'Grandparent' ? 'selected' : '' }}>Grandparent</option>
-                                                                <option value="Grandchild" {{ $member->relationship == 'Grandchild' ? 'selected' : '' }}>Grandchild</option>
-                                                                <option value="In-Law" {{ $member->relationship == 'In-Law' ? 'selected' : '' }}>In-Law</option>
-                                                                <option value="Other" {{ $member->relationship == 'Other' ? 'selected' : '' }}>Other Relative</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <div class="row">
-                                                        <div class="col-md-4 mb-2">
-                                                            <label>Gender <span class="text-danger">*</span></label>
-                                                            <select class="form-control" name="family_members[{{ $index }}][gender]" required>
-                                                                <option value="">Select</option>
-                                                                <option value="Male" {{ $member->gender == 'Male' ? 'selected' : '' }}>Male</option>
-                                                                <option value="Female" {{ $member->gender == 'Female' ? 'selected' : '' }}>Female</option>
-                                                            </select>
-                                                        </div>
-                                                        <div class="col-md-4 mb-2">
-                                                            <label>Birthday</label>
-                                                            <input type="date" class="form-control birth-date-field" 
-                                                                name="family_members[{{ $index }}][birthday]" 
-                                                                value="{{ $member->birthday ? $member->birthday->format('Y-m-d') : '' }}">
-                                                        </div>
-                                                        <div class="col-md-4 mb-2">
-                                                            <label>Related To</label>
-                                                            <select class="form-control" name="family_members[{{ $index }}][related_to]">
-                                                                <option value="">Select</option>
-                                                                <option value="primary" {{ $member->related_to == 'primary' ? 'selected' : '' }}>Primary Person</option>
-                                                                <option value="secondary" {{ $member->related_to == 'secondary' ? 'selected' : '' }}>Secondary Person</option>
-                                                                <option value="both" {{ $member->related_to == 'both' ? 'selected' : '' }}>Both</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <div class="row">
-                                                        <div class="col-md-4 mb-2">
-                                                            <label>Occupation</label>
-                                                            <input type="text" class="form-control" 
-                                                                name="family_members[{{ $index }}][work]" 
-                                                                value="{{ $member->work }}">
-                                                        </div>
-                                                        <div class="col-md-4 mb-2">
-                                                            <label>Contact Number</label>
-                                                            <input type="text" class="form-control phone-field @error('family_members.' . $index . '.contact_number') is-invalid @enderror" 
-                                                                name="family_members[{{ $index }}][contact_number]" 
-                                                                value="{{ $member->contact_number }}"
-                                                                pattern="[0-9]{11}" maxlength="11">
-                                                            @error('family_members.' . $index . '.contact_number')
-                                                                <div class="invalid-feedback">{{ $message }}</div>
-                                                            @enderror
-                                                        </div>
-                                                        <div class="col-md-4 mb-2">
-                                                            <label>Allergies</label>
-                                                            <input type="text" class="form-control" 
-                                                                name="family_members[{{ $index }}][allergies]" 
-                                                                value="{{ $member->allergies }}">
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <div class="row">
-                                                        <div class="col-md-12">
-                                                            <label>Medical Conditions</label>
-                                                            <input type="text" class="form-control" 
-                                                                name="family_members[{{ $index }}][medical_condition]" 
-                                                                value="{{ $member->medical_condition }}">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                @else
-                                    <div class="col-12" id="noFamilyMembersRow">
-                                        <div class="alert alert-info">
-                                            <i class="fe fe-info mr-2"></i> No family members added yet
-                                        </div>
-                                    </div>
-                                @endif
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        @else
+                                            <tr id="noFamilyMembersRow">
+                                                <td colspan="6" class="text-center">No family members added yet</td>
+                                            </tr>
+                                        @endif
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -665,18 +640,18 @@
         
         // Remove family member
         $(document).on('click', '.remove-family-member', function() {
-            const card = $(this).closest('.family-member-card');
+            const row = $(this).closest('.family-member-row');
+            const detailsRow = row.next('.family-member-row-details');
             
-            card.remove();
+            row.remove();
+            detailsRow.remove();
             
             // Show 'no members' message if no members left
-            if ($('#familyMembersList .family-member-card').length === 0) {
-                $('#familyMembersList').html(`
-                    <div class="col-12" id="noFamilyMembersRow">
-                        <div class="alert alert-info">
-                            <i class="fe fe-info mr-2"></i> No family members added yet
-                        </div>
-                    </div>
+            if ($('#familyMembersList tr.family-member-row').length === 0) {
+                $('#familyMembersList').append(`
+                    <tr id="noFamilyMembersRow">
+                        <td colspan="6" class="text-center">No family members added yet</td>
+                    </tr>
                 `);
             }
         });
@@ -1008,113 +983,76 @@
             // Remove 'no members' message if present
             $('#noFamilyMembersRow').remove();
             
-            // Create new family member card
-            const newCard = `
-                <div class="col-md-6 mb-3 family-member-card">
-                    <div class="card border">
-                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                            <h6 class="mb-0 text-primary">New Family Member</h6>
-                            <button type="button" class="btn btn-sm btn-danger remove-family-member">
-                                <i class="fe fe-trash"></i>
-                            </button>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6 mb-2">
-                                    <label>Full Name <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control name-field" 
-                                        name="family_members[${familyMemberIndex}][name]" required>
-                                </div>
-                                <div class="col-md-6 mb-2">
-                                    <label>Relationship <span class="text-danger">*</span></label>
-                                    <select class="form-control" name="family_members[${familyMemberIndex}][relationship]" required>
-                                        <option value="">Select Relationship</option>
-                                        <option value="Spouse">Spouse</option>
-                                        <option value="Child">Child</option>
-                                        <option value="Parent">Parent</option>
-                                        <option value="Sibling">Sibling</option>
-                                        <option value="Grandparent">Grandparent</option>
-                                        <option value="Grandchild">Grandchild</option>
-                                        <option value="In-Law">In-Law</option>
-                                        <option value="Other">Other Relative</option>
-                                    </select>
-                                </div>
+            // Create new family member row
+            const newRow = `
+                <tr class="family-member-row">
+                    <td>
+                        <input type="text" class="form-control name-field" name="family_members[${familyMemberIndex}][name]" required>
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" name="family_members[${familyMemberIndex}][relationship]" required>
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" name="family_members[${familyMemberIndex}][related_to]">
+                    </td>
+                    <td>
+                        <select class="form-control" name="family_members[${familyMemberIndex}][gender]" required>
+                            <option value="">Select</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input type="date" class="form-control birth-date-field" name="family_members[${familyMemberIndex}][birthday]">
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-danger remove-family-member">
+                            <i class="fe fe-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr class="family-member-row-details">
+                    <td colspan="6">
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <label>Occupation</label>
+                                <input type="text" class="form-control" name="family_members[${familyMemberIndex}][work]">
                             </div>
-                            
-                            <div class="row">
-                                <div class="col-md-4 mb-2">
-                                    <label>Gender <span class="text-danger">*</span></label>
-                                    <select class="form-control" name="family_members[${familyMemberIndex}][gender]" required>
-                                        <option value="">Select</option>
-                                        <option value="Male">Male</option>
-                                        <option value="Female">Female</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4 mb-2">
-                                    <label>Birthday</label>
-                                    <input type="date" class="form-control birth-date-field" 
-                                        name="family_members[${familyMemberIndex}][birthday]">
-                                </div>
-                                <div class="col-md-4 mb-2">
-                                    <label>Related To</label>
-                                    <select class="form-control" name="family_members[${familyMemberIndex}][related_to]">
-                                        <option value="">Select</option>
-                                        <option value="primary">Primary Person</option>
-                                        <option value="secondary">Secondary Person</option>
-                                        <option value="both">Both</option>
-                                    </select>
-                                </div>
+                            <div class="col-md-3 mb-2">
+                                <label>Contact Number</label>
+                                <input type="text" class="form-control phone-field" name="family_members[${familyMemberIndex}][contact_number]">
                             </div>
-                            
-                            <div class="row">
-                                <div class="col-md-4 mb-2">
-                                    <label>Occupation</label>
-                                    <input type="text" class="form-control" 
-                                        name="family_members[${familyMemberIndex}][work]">
-                                </div>
-                                <div class="col-md-4 mb-2">
-                                    <label>Contact Number</label>
-                                    <input type="text" class="form-control phone-field" 
-                                        name="family_members[${familyMemberIndex}][contact_number]"
-                                        pattern="[0-9]{11}" maxlength="11">
-                                </div>
-                                <div class="col-md-4 mb-2">
-                                    <label>Allergies</label>
-                                    <input type="text" class="form-control" 
-                                        name="family_members[${familyMemberIndex}][allergies]">
-                                </div>
+                            <div class="col-md-2 mb-2">
+                                <label>Allergies</label>
+                                <input type="text" class="form-control" name="family_members[${familyMemberIndex}][allergies]">
                             </div>
-                            
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <label>Medical Conditions</label>
-                                    <input type="text" class="form-control" 
-                                        name="family_members[${familyMemberIndex}][medical_condition]">
-                                </div>
+                            <div class="col-md-3 mb-2">
+                                <label>Medical Conditions</label>
+                                <input type="text" class="form-control" name="family_members[${familyMemberIndex}][medical_condition]">
                             </div>
                         </div>
-                    </div>
-                </div>
+                    </td>
+                </tr>
             `;
             
-            $('#familyMembersList').append(newCard);
+            $('#familyMembersList').append(newRow);
             
             // Apply validation to new fields
-            const newCard$ = $('.family-member-card').last();
-            newCard$.find('.name-field').on('blur', function() {
+            const newRow$ = $('.family-member-row').last();
+            newRow$.find('.name-field').on('blur', function() {
                 validateNameField($(this));
             }).on('input', function() {
                 sanitizeInput(this);
                 this.value = this.value.replace(/[^a-zA-Z\s\.\-\']/g, '');
             });
             
-            newCard$.find('.phone-field').on('blur', function() {
+            newRow$.find('.phone-field').on('blur', function() {
                 validatePhoneField($(this));
             }).on('input', function() {
                 this.value = this.value.replace(/[^0-9]/g, '').substring(0, 11);
             });
             
-            newCard$.find('.birth-date-field').on('change', function() {
+            newRow$.find('.birth-date-field').on('change', function() {
                 validateBirthdayField($(this));
             });
             
@@ -1224,6 +1162,7 @@
     
     .required-marker {
         font-size: 0.875rem;
+        vertical-align: super;
     }
     
     .sanitized-field {
