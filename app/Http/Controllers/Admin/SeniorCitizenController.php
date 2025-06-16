@@ -248,18 +248,128 @@ class SeniorCitizenController extends Controller
      */
     public function issueId(SeniorCitizen $seniorCitizen)
     {
+        // Load the resident relationship
+        $seniorCitizen->load('resident');
+        $resident = $seniorCitizen->resident;
+        
+        // Validate required fields for ID issuance
+        if (!$resident->photo) {
+            return redirect()->back()
+                ->with('error', 'Unable to issue Senior Citizen ID card: Resident photo is required.');
+        }
+
         if (!$seniorCitizen->senior_id_number) {
             $seniorCitizen->senior_id_number = SeniorCitizen::generateSeniorIdNumber();
         }
 
+        // Set ID expiration (valid for 5 years)
+        $issuedAt = \Carbon\Carbon::now();
+        $expiresAt = $issuedAt->copy()->addYears(5);
+
         $seniorCitizen->update([
             'senior_id_status' => 'issued',
-            'senior_id_issued_at' => now(),
-            'senior_id_expires_at' => now()->addYears(5),
+            'senior_id_issued_at' => $issuedAt,
+            'senior_id_expires_at' => $expiresAt,
         ]);
 
+        // Record activity
+        \Spatie\Activitylog\Facades\Activity::causedBy(auth()->user())
+            ->performedOn($seniorCitizen)
+            ->withProperties([
+                'senior_id_issued_at' => $issuedAt,
+                'senior_id_expires_at' => $expiresAt,
+                'senior_id_number' => $seniorCitizen->senior_id_number,
+            ])
+            ->log('issued_senior_citizen_id_card');
+
+        // Generate digital ID card to send via email
+        try {
+            if ($resident->email_address) {
+                // Generate QR code data
+                $qrData = json_encode([
+                    'id' => $seniorCitizen->senior_id_number,
+                    'name' => $resident->full_name,
+                    'dob' => $resident->birthdate ? $resident->birthdate->format('Y-m-d') : null,
+                ]);
+                
+                $qrCode = \App\Facades\QrCode::generateQrCode($qrData, 300);
+                
+                // If the QR code already has the data URI prefix, extract just the base64 part
+                if (strpos($qrCode, 'data:image/png;base64,') === 0) {
+                    $qrCode = substr($qrCode, 22); // Remove the prefix
+                }
+                
+                // Generate PDF using Snappy with same settings as download method
+                $pdf = \Barryvdh\Snappy\Facades\SnappyPdf::loadView('admin.senior-citizens.id-for-image', [
+                    'seniorCitizen' => $seniorCitizen,
+                    'qrCode' => $qrCode,
+                ]);
+                
+                // Set PDF options to match the download method
+                $pdf->setOptions([
+                    'page-width' => '148mm',
+                    'page-height' => '180mm',
+                    'orientation' => 'Portrait',
+                    'margin-top' => '8mm',
+                    'margin-right' => '8mm',
+                    'margin-bottom' => '8mm',
+                    'margin-left' => '8mm',
+                    'encoding' => 'UTF-8',
+                    'enable-local-file-access' => true,
+                    'disable-smart-shrinking' => true,
+                    'dpi' => 300,
+                    'image-quality' => 100,
+                ]);
+                
+                // Create temporary file for PDF
+                $tempPath = storage_path('app/temp');
+                if (!file_exists($tempPath)) {
+                    mkdir($tempPath, 0755, true);
+                }
+                
+                $pdfFileName = 'senior_citizen_id_' . $seniorCitizen->id . '_' . time() . '.pdf';
+                $pdfPath = $tempPath . '/' . $pdfFileName;
+                
+                // Save PDF to temp directory
+                $pdf->save($pdfPath);
+                
+                // Send notification with PDF attached
+                $resident->notify(new \App\Notifications\SeniorCitizenIdIssued($seniorCitizen, $pdfPath));
+                
+                // Log email sent activity
+                \Spatie\Activitylog\Facades\Activity::causedBy(auth()->user())
+                    ->performedOn($seniorCitizen)
+                    ->log('sent_senior_citizen_id_card_email');
+                
+                // Clean up temp file after a delay (using queue)
+                \Illuminate\Support\Facades\Queue::later(now()->addMinutes(5), function () use ($pdfPath) {
+                    if (file_exists($pdfPath)) {
+                        unlink($pdfPath);
+                    }
+                });
+            }
+        } catch (\Exception $e) {
+            // Log error but don't stop the process
+            \Illuminate\Support\Facades\Log::error('Error sending Senior Citizen ID card via email: ' . $e->getMessage());
+            
+            // Continue with success message but add note about email
+            $successMessage = 'Senior citizen ID issued successfully. Valid until ' . $expiresAt->format('M d, Y') . '. Note: There was an issue sending the email notification.';
+            
+            return redirect()->back()
+                ->with('success', $successMessage)
+                ->with('error_details', 'Email notification error: ' . $e->getMessage());
+        }
+
+        $successMessage = 'Senior citizen ID issued successfully. Valid until ' . $expiresAt->format('M d, Y') . '.';
+        
+        if ($resident->email_address) {
+            $successMessage .= ' A digital copy has been sent to the resident\'s email.';
+        } else {
+            $successMessage .= ' No email was sent as the resident does not have an email address on file.';
+        }
+
         return redirect()->back()
-            ->with('success', 'Senior citizen ID issued successfully!');
+            ->with('success', $successMessage);
     }
 
     /**

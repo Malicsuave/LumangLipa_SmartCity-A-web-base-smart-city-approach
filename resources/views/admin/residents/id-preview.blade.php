@@ -40,7 +40,7 @@
                                             <img src="{{ asset('images/logo.png') }}" alt="Barangay Logo" class="barangay-logo-left">
                                             <div class="id-card-title text-primary">
                                                 <h6 class="mb-0">Barangay Lumanglipa</h6>
-                                                <h6 class="small mb-0">Matasnakahoy, Batangas</h6>
+                                                <h6 class="small mb-0">Mataasnakahoy, Batangas</h6>
                                                 <h6 class="mb-0">Residence Card</h6>
                                             </div>
                                             <img src="{{ asset('images/citylogo.png') }}" alt="City Logo" class="barangay-logo-right ml-auto">

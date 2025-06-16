@@ -337,7 +337,7 @@
                 <img src="{{ public_path('images/logo.png') }}" alt="Barangay Logo" class="barangay-logo-left">
                 <div class="id-card-title">
                     <h6 class="mb-0">Barangay Lumanglipa</h6>
-                    <h6 class="small mb-0">Matasnakahoy, Batangas</h6>
+                    <h6 class="small mb-0">Mataasnakahoy, Batangas</h6>
                     <h6 class="mb-0">Senior Resident Card</h6>
                 </div>
                 <img src="{{ public_path('images/citylogo.png') }}" alt="City Logo" class="barangay-logo-right">
@@ -455,7 +455,7 @@
             <span>Contact: {{ $seniorCitizen->resident->contact_number ?: 'N/A' }}</span>
         </div>
         <div class="footer-info">
-            <span>Address: Matasnakahoy, Batangas</span>
+            <span>Address: Mataasnakahoy, Batangas</span>
             <span>Reference: {{ $seniorCitizen->resident->barangay_id }}</span>
         </div>
         <div class="footer-note">
