@@ -1,0 +1,19 @@
+/* --- Prevent movement on hover for key elements --- */
+.card, .card-header, .progress, .progress-bar, .btn, .form-control {
+    transition: none !important;
+    box-shadow: none !important;
+    border-width: 1px !important;
+    outline: none !important;
+    transform: none !important;
+    position: static !important;
+}
+.card:hover, .card-header:hover, .progress:hover, .progress-bar:hover, .btn:hover, .form-control:hover,
+.card:focus, .card-header:focus, .progress:focus, .progress-bar:focus, .btn:focus, .form-control:focus {
+    transition: none !important;
+    box-shadow: none !important;
+    border-width: 1px !important;
+    outline: none !important;
+    transform: none !important;
+    position: static !important;
+}
+/* --- End movement fix --- */

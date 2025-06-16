@@ -1,4 +1,4 @@
-@extends('layouts.public')
+@extends('layouts.public.master')
 
 @section('title', 'Registration Successful - Barangay Lumanglipa')
 
@@ -8,26 +8,56 @@
         <div class="col-lg-6">
             <div class="card shadow-lg">
                 <div class="card-header bg-success text-white text-center">
-                    <h4 class="mb-0"><i class="fe fe-check-circle"></i> Registration Submitted Successfully!</h4>
+                    <h4 class="mb-0">
+                        <i class="fe fe-check-circle"></i> 
+                        @if(session('is_senior'))
+                            Senior Citizen Registration Submitted!
+                        @else
+                            Registration Submitted Successfully!
+                        @endif
+                    </h4>
                 </div>
                 
                 <div class="card-body text-center">
                     <div class="mb-4">
-                        <i class="fe fe-mail text-primary" style="font-size: 4rem;"></i>
+                        @if(session('is_senior'))
+                            <i class="fe fe-award text-warning" style="font-size: 4rem;"></i>
+                        @else
+                            <i class="fe fe-mail text-primary" style="font-size: 4rem;"></i>
+                        @endif
                     </div>
                     
-                    <h5 class="text-success mb-3">Thank you for your pre-registration!</h5>
+                    <h5 class="text-success mb-3">
+                        @if(session('is_senior'))
+                            Thank you for your Senior Citizen registration!
+                        @else
+                            Thank you for your pre-registration!
+                        @endif
+                    </h5>
                     
                     <p class="mb-4">
                         Your registration application has been successfully submitted and is now pending review by the Barangay Administration.
                     </p>
+
+                    @if(session('is_senior'))
+                        <div class="alert alert-warning">
+                            <h6><i class="fe fe-award"></i> Senior Citizen Benefits</h6>
+                            <p class="mb-2">Upon approval, you will receive your <strong>Senior Citizen ID</strong> which provides access to:</p>
+                            <ul class="text-left mb-0">
+                                <li>20% discount on medicines and medical services</li>
+                                <li>Priority lanes in government offices</li>
+                                <li>Transportation discounts</li>
+                                <li>Access to senior citizen programs</li>
+                            </ul>
+                        </div>
+                    @endif
                     
                     <div class="alert alert-info">
                         <h6><i class="fe fe-info"></i> What happens next?</h6>
                         <ul class="text-left mb-0">
                             <li>Your application will be reviewed by our admin team</li>
                             <li>You will receive an email notification once your application is processed</li>
-                            <li>If approved, your digital ID will be sent to your email automatically</li>
+                            <li>If approved, your @if(session('is_senior'))Senior Citizen ID@else digital ID@endif will be sent to your email automatically</li>
                             <li>You can visit the Barangay Hall to claim your physical ID card</li>
                         </ul>
                     </div>

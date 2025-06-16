@@ -26,9 +26,27 @@ Route::get('/about', [PublicController::class, 'about'])->name('public.about');
 Route::get('/services', [PublicController::class, 'services'])->name('public.services');
 Route::get('/contact', [PublicController::class, 'contact'])->name('public.contact');
 
-// Public Pre-Registration Routes
+// Public Pre-Registration Routes - Multi-step
 Route::prefix('pre-registration')->name('public.pre-registration.')->group(function () {
-    Route::get('/', [App\Http\Controllers\Public\PreRegistrationController::class, 'create'])->name('create');
+    // Multi-step registration process
+    Route::get('/step1', [App\Http\Controllers\Public\PreRegistrationController::class, 'createStep1'])->name('step1');
+    Route::post('/step1', [App\Http\Controllers\Public\PreRegistrationController::class, 'storeStep1'])->name('step1.store');
+    Route::get('/step2', [App\Http\Controllers\Public\PreRegistrationController::class, 'createStep2'])->name('step2');
+    Route::post('/step2', [App\Http\Controllers\Public\PreRegistrationController::class, 'storeStep2'])->name('step2.store');
+    Route::get('/step3', [App\Http\Controllers\Public\PreRegistrationController::class, 'createStep3'])->name('step3');
+    Route::post('/step3', [App\Http\Controllers\Public\PreRegistrationController::class, 'storeStep3'])->name('step3.store');
+    Route::get('/step4-senior', [App\Http\Controllers\Public\PreRegistrationController::class, 'createStep4Senior'])->name('step4-senior');
+    Route::post('/step4-senior', [App\Http\Controllers\Public\PreRegistrationController::class, 'storeStep4Senior'])->name('step4-senior.store');
+    Route::get('/step4', [App\Http\Controllers\Public\PreRegistrationController::class, 'createStep4'])->name('step4');
+    Route::post('/step4', [App\Http\Controllers\Public\PreRegistrationController::class, 'storeStep4'])->name('step4.store');
+    Route::get('/review', [App\Http\Controllers\Public\PreRegistrationController::class, 'createReview'])->name('review');
+    
+    // Legacy single-step route (redirect to step1)
+    Route::get('/', function() {
+        return redirect()->route('public.pre-registration.step1');
+    })->name('create');
+    
+    // Final submission and other routes
     Route::post('/', [App\Http\Controllers\Public\PreRegistrationController::class, 'store'])->name('store');
     Route::get('/success', [App\Http\Controllers\Public\PreRegistrationController::class, 'success'])->name('success');
     Route::get('/check-status', [App\Http\Controllers\Public\PreRegistrationController::class, 'checkStatus'])->name('check-status');

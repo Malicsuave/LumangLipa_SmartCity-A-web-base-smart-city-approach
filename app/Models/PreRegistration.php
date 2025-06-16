@@ -49,7 +49,7 @@ class PreRegistration extends Model
         'rejected_at',
         'approved_by',
         'rejected_by',
-        'resident_id',
+        'senior_info', // Added for senior citizen information
     ];
 
     /**
@@ -61,6 +61,7 @@ class PreRegistration extends Model
         'birthdate' => 'date',
         'monthly_income' => 'decimal:2',
         'population_sectors' => 'array',
+        'senior_info' => 'array',
         'approved_at' => 'datetime',
         'rejected_at' => 'datetime',
     ];

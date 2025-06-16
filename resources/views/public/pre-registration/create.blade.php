@@ -1,4 +1,4 @@
-@extends('layouts.public')
+@extends('layouts.public.master')
 
 @section('title', 'Pre-Registration - Barangay Lumanglipa')
 

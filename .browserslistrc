@@ -1,0 +1,12 @@
+# Browsers that we support
+
+# Last 2 versions of each major browser
+last 2 versions
+# At least 1% usage globally
+> 1%
+# Not dead browsers (browsers that are still maintained)
+not dead
+# Support Firefox ESR
+Firefox ESR
+# IE 11 and up
+IE >= 11

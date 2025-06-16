@@ -6,6 +6,47 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Barangay Lumanglipa')</title>
+    <!doctype html>
+<html lang="en" data-theme="{{ session('theme', 'dark') }}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Lumanglipa Barangay Management System">
+    <meta name="author" content="">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="icon" href="{{ asset('favicon.ico') }}">
+    <title>{{ config('app.name') }} - Admin Panel</title>
+    
+    <!-- Performance monitoring script -->
+    <script src="{{ asset('js/performance-monitor.js') }}"></script>
+    
+    <!-- Simple bar CSS -->
+    <link rel="stylesheet" href="{{ asset('admin/dark/css/simplebar.css') }}">
+    <!-- Fonts CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Icons CSS -->
+    <link rel="stylesheet" href="{{ asset('admin/dark/css/feather.css') }}">
+    <link rel="stylesheet" href="{{ asset('admin/dark/css/select2.css') }}">
+    <link rel="stylesheet" href="{{ asset('admin/dark/css/dropzone.css') }}">
+    <link rel="stylesheet" href="{{ asset('admin/dark/css/uppy.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('admin/dark/css/jquery.steps.css') }}">
+    <link rel="stylesheet" href="{{ asset('admin/dark/css/jquery.timepicker.css') }}">
+    <link rel="stylesheet" href="{{ asset('admin/dark/css/quill.snow.css') }}">
+    <!-- Date Range Picker CSS -->
+    <link rel="stylesheet" href="{{ asset('admin/dark/css/daterangepicker.css') }}">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="{{ asset('admin/dark/css/dataTables.bootstrap4.css') }}">
+    <!-- App CSS -->
+    <link rel="stylesheet" href="{{ asset('admin/dark/css/app-light.css') }}" id="lightTheme">
+   
+   
+    <!-- Custom Admin CSS -->
+    <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -16,10 +57,12 @@
     <!-- Public Styles -->
     <link rel="stylesheet" href="{{ asset('css/public.css') }}">
     
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Poppins and Nunito -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     
     @stack('styles')
+   
 </head>
 <body>
     <!-- Navigation -->
