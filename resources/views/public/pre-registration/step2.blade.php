@@ -235,7 +235,73 @@
 @endsection
 
 @section('styles')
-<link rel="stylesheet" href="{{ asset('css/pre-registration-form.css') }}">
+<style>
+.progress-steps {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.progress-steps::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #e9ecef;
+    z-index: 1;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+    background: white;
+    padding: 0 10px;
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.step.active .step-number {
+    background-color: #007bff;
+    color: white;
+}
+
+.step.completed .step-number {
+    background-color: #28a745;
+    color: white;
+}
+
+.step-title {
+    font-size: 12px;
+    text-align: center;
+    color: #6c757d;
+}
+
+.step.active .step-title {
+    color: #007bff;
+    font-weight: 600;
+}
+
+.step.completed .step-title {
+    color: #28a745;
+    font-weight: 600;
+}
+</style>
 @endsection
 
 @section('scripts')
