@@ -451,7 +451,7 @@
       document.addEventListener('DOMContentLoaded', function() {
         // Scripts to load in order, but without blocking page rendering
         const deferredScripts = [
-          '{{ asset("admin/dark/js/moment.min.js") }}',
+    
           '{{ asset("admin/dark/js/simplebar.min.js") }}',
           '{{ asset("admin/dark/js/daterangepicker.js") }}',
           '{{ asset("admin/dark/js/jquery.stickOnScroll.js") }}',

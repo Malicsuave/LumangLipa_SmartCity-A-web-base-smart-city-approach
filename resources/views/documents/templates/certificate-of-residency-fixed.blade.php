@@ -62,9 +62,9 @@
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 500px;
-            height: 500px;
-            background: url('/request/kahoylogo.png') no-repeat center center;
+            width: 700px;
+            height: 700px;
+            background: url('{{ asset("request/kahoylogo.png") }}') no-repeat center center;
             background-size: contain;
             opacity: 0.08;
             z-index: 0;
@@ -311,7 +311,7 @@
                             <tr>
                                 <td colspan="2" style="position:relative; padding-bottom:0;">
                                     <!-- LOGO TOP LEFT -->
-                                    <img src="/request/kahoylogo.png" alt="Barangay Logo" style="width:90px; position:absolute; margin-left:-25px; margin-top:-5px;">
+                                    <img src="{{ asset('request/kahoylogo.png') }}" alt="Barangay Logo" style="width:90px; position:absolute; margin-left:-25px; margin-top:-5px;">
                                     <div style="text-align:center;">
                                         <div class="republic-text">
                                             Republic of the Philippines<br>

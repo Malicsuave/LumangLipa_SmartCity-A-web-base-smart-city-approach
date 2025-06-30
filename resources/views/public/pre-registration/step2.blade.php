@@ -1,43 +1,43 @@
 @extends('layouts.public.master')
 
-@section('title', 'Pre-Registration Step 2 - Contact & Education')
+@section('title', 'Pre-Registration Step 2 - Contact & Education Information')
 
 @section('content')
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-10">
-            <!-- Progress Steps -->
-            <div class="card mb-4">
+            <!-- Progress Bar (Updated Design) -->
+            <div class="card shadow-sm mb-4">
                 <div class="card-body">
-                    <div class="progress-steps">
-                        <div class="step completed">
-                            <div class="step-number">1</div>
-                            <div class="step-title">Personal Info</div>
+                    <h5 class="card-title">Registration Progress</h5>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-primary" role="progressbar" style="width: 40%" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col text-center">
+                            <small class="text-muted">Step 1: Personal Info</small>
                         </div>
-                        <div class="step active">
-                            <div class="step-number">2</div>
-                            <div class="step-title">Contact & Education</div>
+                        <div class="col text-center">
+                            <small class="text-primary font-weight-bold">Step 2: Contact & Education</small>
                         </div>
-                        <div class="step">
-                            <div class="step-number">3</div>
-                            <div class="step-title">Additional Info</div>
+                        <div class="col text-center">
+                            <small class="text-muted">Step 3: Additional Info</small>
                         </div>
-                        <div class="step">
-                            <div class="step-number">4</div>
-                            <div class="step-title">Photo & Documents</div>
+                        <div class="col text-center">
+                            <small class="text-muted">Step 4: Photo & Documents</small>
                         </div>
-                        <div class="step">
-                            <div class="step-number">5</div>
-                            <div class="step-title">Review</div>
+                        <div class="col text-center">
+                            <small class="text-muted">Step 5: Review</small>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="card shadow-lg">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0"><i class="fe fe-phone"></i> Step 2: Contact & Education Information</h4>
-                    <p class="mb-0 mt-2">Provide your contact details and educational background</p>
+            <div class="card shadow">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">
+                        <i class="fe fe-phone fe-16 mr-2"></i>Contact & Education Information
+                    </h4>
                 </div>
                 
                 <div class="card-body">
@@ -68,7 +68,7 @@
                             <div class="col-md-6 mb-3">
                                 <label for="citizenship_type" class="form-label">Citizenship Type <span class="text-danger">*</span></label>
                                 <select class="form-control @error('citizenship_type') is-invalid @enderror" 
-                                        name="citizenship_type" id="citizenship_type" required>
+                                        name="citizenship_type" id="citizenship_type" required onchange="toggleCountryField()">
                                     <option value="">Select Type</option>
                                     <option value="FILIPINO" {{ old('citizenship_type', session('pre_registration.step2.citizenship_type')) == 'FILIPINO' ? 'selected' : '' }}>Filipino</option>
                                     <option value="Dual Citizen" {{ old('citizenship_type', session('pre_registration.step2.citizenship_type')) == 'Dual Citizen' ? 'selected' : '' }}>Dual Citizen</option>
@@ -79,17 +79,17 @@
                                 @enderror
                             </div>
                             
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-6 mb-3" id="citizenship_country_div" style="{{ (old('citizenship_type', session('pre_registration.step2.citizenship_type')) == 'Dual Citizen' || old('citizenship_type', session('pre_registration.step2.citizenship_type')) == 'Foreigner') ? '' : 'display: none;' }}">
                                 <label for="citizenship_country" class="form-label">Country (if Dual/Foreigner)</label>
                                 <input type="text" class="form-control @error('citizenship_country') is-invalid @enderror" 
                                        name="citizenship_country" value="{{ old('citizenship_country', session('pre_registration.step2.citizenship_country')) }}" 
-                                       id="citizenship_country" disabled>
+                                       id="citizenship_country" placeholder="e.g., United States, Japan">
                                 @error('citizenship_country')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
-
+                        
                         <!-- Contact Information -->
                         <div class="row mb-4">
                             <div class="col-12">
@@ -161,9 +161,19 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="educational_attainment" class="form-label">Educational Attainment <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control @error('educational_attainment') is-invalid @enderror" 
-                                       name="educational_attainment" value="{{ old('educational_attainment', session('pre_registration.step2.educational_attainment')) }}" 
-                                       placeholder="e.g., High School Graduate, College Graduate" required>
+                                <select class="form-control @error('educational_attainment') is-invalid @enderror" 
+                                       name="educational_attainment" id="educational_attainment" required>
+                                    <option value="">Select Educational Attainment</option>
+                                    <option value="No Formal Education" {{ old('educational_attainment', session('pre_registration.step2.educational_attainment')) == 'No Formal Education' ? 'selected' : '' }}>No Formal Education</option>
+                                    <option value="Elementary Level" {{ old('educational_attainment', session('pre_registration.step2.educational_attainment')) == 'Elementary Level' ? 'selected' : '' }}>Elementary Level</option>
+                                    <option value="Elementary Graduate" {{ old('educational_attainment', session('pre_registration.step2.educational_attainment')) == 'Elementary Graduate' ? 'selected' : '' }}>Elementary Graduate</option>
+                                    <option value="High School Level" {{ old('educational_attainment', session('pre_registration.step2.educational_attainment')) == 'High School Level' ? 'selected' : '' }}>High School Level</option>
+                                    <option value="High School Graduate" {{ old('educational_attainment', session('pre_registration.step2.educational_attainment')) == 'High School Graduate' ? 'selected' : '' }}>High School Graduate</option>
+                                    <option value="Vocational/Technical" {{ old('educational_attainment', session('pre_registration.step2.educational_attainment')) == 'Vocational/Technical' ? 'selected' : '' }}>Vocational/Technical</option>
+                                    <option value="College Level" {{ old('educational_attainment', session('pre_registration.step2.educational_attainment')) == 'College Level' ? 'selected' : '' }}>College Level</option>
+                                    <option value="College Graduate" {{ old('educational_attainment', session('pre_registration.step2.educational_attainment')) == 'College Graduate' ? 'selected' : '' }}>College Graduate</option>
+                                    <option value="Post Graduate" {{ old('educational_attainment', session('pre_registration.step2.educational_attainment')) == 'Post Graduate' ? 'selected' : '' }}>Post Graduate</option>
+                                </select>
                                 @error('educational_attainment')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -306,27 +316,20 @@
 
 @section('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Handle citizenship type change
-    const citizenshipType = document.getElementById('citizenship_type');
-    const citizenshipCountry = document.getElementById('citizenship_country');
+function toggleCountryField() {
+    var citizenshipType = document.getElementById('citizenship_type');
+    var citizenshipCountryDiv = document.getElementById('citizenship_country_div');
     
-    citizenshipType.addEventListener('change', function() {
-        if (this.value === 'Dual Citizen' || this.value === 'Foreigner') {
-            citizenshipCountry.disabled = false;
-            citizenshipCountry.required = true;
-        } else {
-            citizenshipCountry.disabled = true;
-            citizenshipCountry.required = false;
-            citizenshipCountry.value = '';
-        }
-    });
-    
-    // Initialize the field state
     if (citizenshipType.value === 'Dual Citizen' || citizenshipType.value === 'Foreigner') {
-        citizenshipCountry.disabled = false;
-        citizenshipCountry.required = true;
+        citizenshipCountryDiv.style.display = '';
+    } else {
+        citizenshipCountryDiv.style.display = 'none';
     }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    toggleCountryField();
 });
 </script>
 @endsection

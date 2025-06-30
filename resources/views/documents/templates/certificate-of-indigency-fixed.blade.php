@@ -60,7 +60,7 @@
             transform: translate(-50%, -50%);
             width: 700px;
             height: 700px;
-            background: url('/request/logobg.png') no-repeat center center;
+            background: url('{{ asset("request/logobg.png") }}') no-repeat center center;
             background-size: contain;
             opacity: 0.08;
             z-index: 0;
@@ -294,7 +294,7 @@
                             <tr>
                                 <td colspan="2" style="position:relative; padding-bottom:0;">
                                     <!-- LOGO TOP LEFT -->
-                                    <img src="/request/logo.png" alt="Barangay Logo" style="width:130px; position:absolute; top:0; left:0; margin-top:-20px; margin-left:-45px;">
+                                    <img src="{{ asset('request/logo.png') }}" alt="Barangay Logo" style="width:130px; position:absolute; top:0; left:0; margin-top:-20px; margin-left:-45px;">
                                     <div style="text-align:center;">
                                         <div class="republic-text">
                                             Republic of the Philippines<br>

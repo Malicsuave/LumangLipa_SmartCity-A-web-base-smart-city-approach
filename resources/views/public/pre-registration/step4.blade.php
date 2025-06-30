@@ -6,48 +6,38 @@
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-10">
-            <!-- Progress Steps -->
-            <div class="card mb-4">
+            <!-- Progress Bar (Updated Design) -->
+            <div class="card shadow-sm mb-4">
                 <div class="card-body">
-                    <div class="progress-steps">
-                        <div class="step completed">
-                            <div class="step-number">1</div>
-                            <div class="step-title">Personal Info</div>
+                    <h5 class="card-title">Registration Progress</h5>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-primary" role="progressbar" style="width: 80%" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col text-center">
+                            <small class="text-muted">Step 1: Personal Info</small>
                         </div>
-                        <div class="step completed">
-                            <div class="step-number">2</div>
-                            <div class="step-title">Contact & Education</div>
+                        <div class="col text-center">
+                            <small class="text-muted">Step 2: Contact & Education</small>
                         </div>
-                        <div class="step completed">
-                            <div class="step-number">3</div>
-                            <div class="step-title">Additional Info</div>
+                        <div class="col text-center">
+                            <small class="text-muted">Step 3: Additional Info</small>
                         </div>
-                        @php
-                            $birthdate = session('pre_registration.step1.birthdate');
-                            $isSenior = $birthdate ? \Carbon\Carbon::parse($birthdate)->age >= 60 : false;
-                        @endphp
-                        @if($isSenior)
-                        <div class="step completed senior">
-                            <div class="step-number"><i class="fe fe-award"></i></div>
-                            <div class="step-title">Senior Citizen</div>
+                        <div class="col text-center">
+                            <small class="text-primary font-weight-bold">Step 4: Photo & Documents</small>
                         </div>
-                        @endif
-                        <div class="step active">
-                            <div class="step-number">4</div>
-                            <div class="step-title">Photo & Documents</div>
-                        </div>
-                        <div class="step">
-                            <div class="step-number">5</div>
-                            <div class="step-title">Review</div>
+                        <div class="col text-center">
+                            <small class="text-muted">Step 5: Review</small>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="card shadow-lg">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0"><i class="fe fe-camera"></i> Step 4: Photo & Documents Upload</h4>
-                    <p class="mb-0 mt-2">Upload your photo and signature for ID generation</p>
+            <div class="card shadow">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">
+                        <i class="fe fe-camera fe-16 mr-2"></i>Photo & Documents
+                    </h4>
                 </div>
                 
                 <div class="card-body">
@@ -59,6 +49,13 @@
                                     <li>{{ $error }}</li>
                                 @endforeach
                             </ul>
+                        </div>
+                    @endif
+                    
+                    @if(session('error'))
+                        <div class="alert alert-danger">
+                            <h6><i class="fe fe-alert-circle"></i> Error</h6>
+                            <p class="mb-0">{{ session('error') }}</p>
                         </div>
                     @endif
 
@@ -85,10 +82,10 @@
                             <div class="col-md-6 mb-3">
                                 <label for="photo" class="form-label">Photo <span class="text-danger">*</span></label>
                                 <input type="file" class="form-control @error('photo') is-invalid @enderror" 
-                                       name="photo" accept="image/*" required id="photoInput">
+                                       name="photo" accept="image/*" {{ !isset($photoData) ? 'required' : '' }} id="photoInput">
                                 <small class="form-text text-muted">
                                     <strong>Requirements:</strong>
-                                    <ul class="mb-0 mt-1">
+                                    <ul class="mb-0 mt-2">
                                         <li>Clear, front-facing photo</li>
                                         <li>Good lighting, no shadows</li>
                                         <li>Neutral expression</li>
@@ -96,6 +93,11 @@
                                         <li>Formats: JPG, PNG</li>
                                     </ul>
                                 </small>
+                                @if(isset($photoData))
+                                    <div class="alert alert-info mt-2 small">
+                                        <i class="fe fe-info mr-1"></i> You already uploaded a photo. You can leave this empty to keep the existing photo, or choose a new one to replace it.
+                                    </div>
+                                @endif
                                 @error('photo')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -105,8 +107,12 @@
                                 <div class="photo-preview-container">
                                     <label class="form-label">Photo Preview</label>
                                     <div id="photoPreview" class="border rounded text-center p-4">
-                                        <i class="fe fe-camera fe-3x text-muted"></i>
-                                        <p class="text-muted mt-2">Photo preview will appear here</p>
+                                        @if(isset($photoData))
+                                            <img src="{{ $photoData }}" alt="Photo Preview" class="img-fluid" style="max-height: 180px;">
+                                        @else
+                                            <i class="fe fe-camera fe-3x text-muted"></i>
+                                            <p class="text-muted mt-2">Photo preview will appear here</p>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -128,13 +134,18 @@
                                        name="signature" accept="image/*" id="signatureInput">
                                 <small class="form-text text-muted">
                                     <strong>Requirements:</strong>
-                                    <ul class="mb-0 mt-1">
+                                    <ul class="mb-0 mt-2">
                                         <li>Clear signature on white background</li>
                                         <li>Black or blue ink preferred</li>
                                         <li>Maximum file size: 2MB</li>
                                         <li>Formats: JPG, PNG</li>
                                     </ul>
                                 </small>
+                                @if(isset($signatureData))
+                                    <div class="alert alert-info mt-2 small">
+                                        <i class="fe fe-info mr-1"></i> You already uploaded a signature. You can leave this empty to keep the existing signature, or choose a new one to replace it.
+                                    </div>
+                                @endif
                                 @error('signature')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -144,8 +155,12 @@
                                 <div class="signature-preview-container">
                                     <label class="form-label">Signature Preview</label>
                                     <div id="signaturePreview" class="border rounded text-center p-4">
-                                        <i class="fe fe-edit fe-3x text-muted"></i>
-                                        <p class="text-muted mt-2">Signature preview will appear here</p>
+                                        @if(isset($signatureData))
+                                            <img src="{{ $signatureData }}" alt="Signature Preview" class="img-fluid" style="max-height: 180px;">
+                                        @else
+                                            <i class="fe fe-edit fe-3x text-muted"></i>
+                                            <p class="text-muted mt-2">Signature preview will appear here</p>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -197,6 +212,35 @@
                             </div>
                         </div>
                     </form>
+                        
+                        <!-- Inline Script for Image Preview -->
+                        <script>
+                            // Direct inline script for preview functionality
+                            document.getElementById('photoInput').onchange = function(event) {
+                                var file = event.target.files[0];
+                                if (file) {
+                                    var reader = new FileReader();
+                                    reader.onload = function(e) {
+                                        document.getElementById('photoPreview').innerHTML = 
+                                            '<img src="' + e.target.result + '" alt="Photo Preview" class="img-fluid" style="max-height: 180px;">';
+                                    };
+                                    reader.readAsDataURL(file);
+                                }
+                            };
+                            
+                            document.getElementById('signatureInput').onchange = function(event) {
+                                var file = event.target.files[0];
+                                if (file) {
+                                    var reader = new FileReader();
+                                    reader.onload = function(e) {
+                                        document.getElementById('signaturePreview').innerHTML = 
+                                            '<img src="' + e.target.result + '" alt="Signature Preview" class="img-fluid" style="max-height: 180px;">';
+                                    };
+                                    reader.readAsDataURL(file);
+                                }
+                            };
+                        </script>
+                        
                 </div>
             </div>
         </div>
@@ -222,7 +266,7 @@
                     <li>Your data will be protected in accordance with the Data Privacy Act of 2012.</li>
                     <li>You understand that providing false information may result in rejection of your application.</li>
                     <li>Your registration is subject to verification and approval by the Barangay Administration.</li>
-                    <li>@if($isSenior)Senior Citizen @endif Digital ID cards sent via email are official and can be used for barangay transactions.</li>
+                    <li>{{ $isSenior ? 'Senior Citizen' : '' }} Digital ID cards sent via email are official and can be used for barangay transactions.</li>
                     @if($isSenior)
                     <li>Senior citizen benefits and discounts are subject to verification of your Senior Citizen ID.</li>
                     @endif
@@ -336,41 +380,11 @@
 
 @section('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Photo preview
-    const photoInput = document.getElementById('photoInput');
-    const photoPreview = document.getElementById('photoPreview');
-    
-    photoInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                photoPreview.innerHTML = `<img src="${e.target.result}" alt="Photo Preview" class="img-fluid">`;
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-    
-    // Signature preview
-    const signatureInput = document.getElementById('signatureInput');
-    const signaturePreview = document.getElementById('signaturePreview');
-    
-    signatureInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                signaturePreview.innerHTML = `<img src="${e.target.result}" alt="Signature Preview" class="img-fluid">`;
-            };
-            reader.readAsDataURL(file);
-        } else {
-            signaturePreview.innerHTML = `
-                <i class="fe fe-edit fe-3x text-muted"></i>
-                <p class="text-muted mt-2">Signature preview will appear here</p>
-            `;
-        }
-    });
+$(document).ready(function(){
+    // Debug info
+    console.log("DOM ready - scripts initialized");
+    console.log("Photo input element exists: ", $("#photoInput").length > 0);
+    console.log("Photo preview element exists: ", $("#photoPreview").length > 0);
 });
 </script>
 @endsection

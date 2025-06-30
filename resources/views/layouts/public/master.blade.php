@@ -1,21 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" >
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Barangay Lumanglipa')</title>
-    <!doctype html>
-<html lang="en" data-theme="{{ session('theme', 'dark') }}">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="Lumanglipa Barangay Management System">
     <meta name="author" content="">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" href="{{ asset('favicon.ico') }}">
-    <title>{{ config('app.name') }} - Admin Panel</title>
+    <title>@yield('title', 'Barangay Lumanglipa')</title>
     
     <!-- Performance monitoring script -->
     <script src="{{ asset('js/performance-monitor.js') }}"></script>
@@ -43,26 +36,15 @@
     <link rel="stylesheet" href="{{ asset('admin/dark/css/dataTables.bootstrap4.css') }}">
     <!-- App CSS -->
     <link rel="stylesheet" href="{{ asset('admin/dark/css/app-light.css') }}" id="lightTheme">
-   
-   
+    
     <!-- Custom Admin CSS -->
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Feather Icons -->
-    <link rel="stylesheet" href="{{ asset('admin/dark/css/feather.css') }}">
     
     <!-- Public Styles -->
     <link rel="stylesheet" href="{{ asset('css/public.css') }}">
     
-    <!-- Google Fonts: Poppins and Nunito -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-    
+    @yield('styles')
     @stack('styles')
-   
 </head>
 <body>
     <!-- Navigation -->
@@ -77,7 +59,7 @@
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto" style="margin-right: -70px;">
+                <ul class="navbar-nav ms-auto nav-equal-width" style="margin-right: -70px;">
                     <li class="nav-item">
                         <a class="nav-link {{ Route::currentRouteName() == 'public.home' ? 'active' : '' }}" 
                            href="{{ route('public.home') }}">Home</a>
@@ -86,15 +68,32 @@
                         <a class="nav-link {{ Route::currentRouteName() == 'public.about' ? 'active' : '' }}" 
                            href="{{ route('public.about') }}">About</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ Route::currentRouteName() == 'public.services' ? 'active' : '' }}" 
-                           href="{{ route('public.services') }}">eServices</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ Route::currentRouteName() == 'documents.request' ? 'active' : '' }}" 
-                           href="{{ route('documents.request') }}">
-                            <i class="fas fa-file-alt me-1"></i>Request Documents
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {{ in_array(Route::currentRouteName(), ['public.services', 'documents.request', 'complaints.create', 'health.request']) ? 'active' : '' }}" 
+                           href="#" id="navbarDropdownServices" role="button" 
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                           eServices
                         </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownServices">
+                            <li>
+                                <a class="dropdown-item {{ Route::currentRouteName() == 'health.request' ? 'active' : '' }}" 
+                                   href="{{ route('health.request') }}">
+                                    <i class="fas fa-heartbeat me-2"></i>Health Services
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item {{ Route::currentRouteName() == 'documents.request' ? 'active' : '' }}" 
+                                   href="{{ route('documents.request') }}">
+                                    <i class="fas fa-file-alt me-2"></i>Document Request
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item {{ Route::currentRouteName() == 'complaints.create' ? 'active' : '' }}" 
+                                   href="{{ route('complaints.create') }}">
+                                    <i class="fas fa-flag me-2"></i>File a Complaint
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ Route::currentRouteName() == 'public.contact' ? 'active' : '' }}" 

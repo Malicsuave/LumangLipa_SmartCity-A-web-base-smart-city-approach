@@ -30,7 +30,7 @@ class PreRegistrationController extends Controller
     public function storeStep1(Request $request)
     {
         $validated = $request->validate([
-            'type_of_resident' => 'required|in:Permanent,Temporary,Boarder/Transient',
+            'type_of_resident' => 'required|in:Migrant,Non-Migrant,Transient',
             'first_name' => ['required', 'string', 'max:100', 'regex:/^[a-zA-Z\s\.\-\']+$/'],
             'middle_name' => ['nullable', 'string', 'max:100', 'regex:/^[a-zA-Z\s\.\-\']+$/'],
             'last_name' => ['required', 'string', 'max:100', 'regex:/^[a-zA-Z\s\.\-\']+$/'],
@@ -202,7 +202,28 @@ class PreRegistrationController extends Controller
                 ->with('error', 'Please complete step 3 first');
         }
 
-        return view('public.pre-registration.step4');
+        // Check if person is senior citizen
+        $birthdate = Session::get('pre_registration.step1.birthdate');
+        $age = Carbon::parse($birthdate)->age;
+        $isSenior = $age >= 60;
+        
+        // Get previously uploaded photo/signature data if available
+        $photoData = null;
+        $signatureData = null;
+        
+        if (Session::has('pre_registration.step4')) {
+            $step4Data = Session::get('pre_registration.step4');
+            
+            if (isset($step4Data['photo'])) {
+                $photoData = 'data:' . $step4Data['photo']['mime'] . ';base64,' . $step4Data['photo']['data'];
+            }
+            
+            if (isset($step4Data['signature'])) {
+                $signatureData = 'data:' . $step4Data['signature']['mime'] . ';base64,' . $step4Data['signature']['data'];
+            }
+        }
+
+        return view('public.pre-registration.step4', compact('isSenior', 'photoData', 'signatureData'));
     }
 
     /**
@@ -210,42 +231,69 @@ class PreRegistrationController extends Controller
      */
     public function storeStep4(Request $request)
     {
-        $validated = $request->validate([
-            'photo' => 'required|image|mimes:jpeg,jpg,png|max:5000',
-            'signature' => 'nullable|image|mimes:jpeg,jpg,png|max:2000',
-            'terms_accepted' => 'required|accepted',
-        ], [
-            'photo.required' => 'Photo is required for ID generation.',
-            'photo.max' => 'Photo file size must not exceed 5MB.',
-            'signature.max' => 'Signature file size must not exceed 2MB.',
-            'terms_accepted.required' => 'You must accept the terms and conditions to proceed.',
-        ]);
-
-        // Store files temporarily in session as base64
-        $files = [];
-        
-        if ($request->hasFile('photo')) {
-            $photoFile = $request->file('photo');
-            $files['photo'] = [
-                'name' => $photoFile->getClientOriginalName(),
-                'data' => base64_encode(file_get_contents($photoFile->getPathname())),
-                'mime' => $photoFile->getMimeType()
+        try {
+            // Check if we already have photos in session
+            $hasExistingPhoto = Session::has('pre_registration.step4.photo');
+            
+            // Validate with conditional required for photo
+            $rules = [
+                'signature' => 'nullable|image|mimes:jpeg,jpg,png|max:2000',
+                'terms_accepted' => 'required|accepted',
             ];
-        }
-
-        if ($request->hasFile('signature')) {
-            $signatureFile = $request->file('signature');
-            $files['signature'] = [
-                'name' => $signatureFile->getClientOriginalName(),
-                'data' => base64_encode(file_get_contents($signatureFile->getPathname())),
-                'mime' => $signatureFile->getMimeType()
+            
+            // Only require photo if there isn't one already
+            if (!$hasExistingPhoto) {
+                $rules['photo'] = 'required|image|mimes:jpeg,jpg,png|max:5000';
+            } else {
+                $rules['photo'] = 'nullable|image|mimes:jpeg,jpg,png|max:5000';
+            }
+            
+            $messages = [
+                'photo.required' => 'Photo is required for ID generation.',
+                'photo.max' => 'Photo file size must not exceed 5MB.',
+                'signature.max' => 'Signature file size must not exceed 2MB.',
+                'terms_accepted.required' => 'You must accept the terms and conditions to proceed.',
             ];
-        }
+            
+            $validated = $request->validate($rules, $messages);
 
-        $files['terms_accepted'] = $validated['terms_accepted'];
-        
-        Session::put('pre_registration.step4', $files);
-        return redirect()->route('public.pre-registration.review');
+            // Get existing files data or initialize empty array
+            $files = Session::get('pre_registration.step4', []);
+            
+            // Handle photo upload if provided
+            if ($request->hasFile('photo')) {
+                $photoFile = $request->file('photo');
+                $files['photo'] = [
+                    'name' => $photoFile->getClientOriginalName(),
+                    'data' => base64_encode(file_get_contents($photoFile->getPathname())),
+                    'mime' => $photoFile->getMimeType()
+                ];
+            }
+            
+            // Handle signature upload if provided
+            if ($request->hasFile('signature')) {
+                $signatureFile = $request->file('signature');
+                $files['signature'] = [
+                    'name' => $signatureFile->getClientOriginalName(),
+                    'data' => base64_encode(file_get_contents($signatureFile->getPathname())),
+                    'mime' => $signatureFile->getMimeType()
+                ];
+            }
+
+            $files['terms_accepted'] = $validated['terms_accepted'];
+            
+            Session::put('pre_registration.step4', $files);
+            return redirect()->route('public.pre-registration.review');
+            
+        } catch (\Exception $e) {
+            // Log the error for debugging
+            \Log::error('Pre-registration step 4 error: ' . $e->getMessage());
+            
+            // Return with a more specific error message
+            return redirect()->back()
+                ->with('error', 'Error processing your upload: ' . $e->getMessage())
+                ->withInput();
+        }
     }
 
     /**
@@ -283,6 +331,18 @@ class PreRegistrationController extends Controller
             return redirect()->route('public.pre-registration.step1')
                 ->with('error', 'Registration data is incomplete. Please start again.');
         }
+        
+        // Get email address from session
+        $emailAddress = Session::get('pre_registration.step2.email_address');
+        
+        // Check if email is still unique (might have been taken since step 2 was completed)
+        $existingPreReg = PreRegistration::where('email_address', $emailAddress)->first();
+        $existingResident = Resident::where('email_address', $emailAddress)->first();
+        
+        if ($existingPreReg || $existingResident) {
+            return redirect()->back()
+                ->with('error', 'This email address is already registered or pending registration. Please go back to step 2 and use a different email address.');
+        }
 
         try {
             // Handle photo upload
@@ -314,15 +374,26 @@ class PreRegistrationController extends Controller
             if ($isSenior && !in_array('Senior Citizen', $populationSectors)) {
                 $populationSectors[] = 'Senior Citizen';
             }
+            
+            // Check if population_sectors is null, and make it an empty array
+            if ($populationSectors === null) {
+                $populationSectors = [];
+            }
 
+            // Add quotes around string values to prevent SQL truncation errors
+            $typeOfResident = "'" . $step1['type_of_resident'] . "'";
+            $sex = "'" . $step1['sex'] . "'";
+            $civilStatus = "'" . $step1['civil_status'] . "'";
+            $citizenshipType = "'" . $step2['citizenship_type'] . "'";
+            
             // Create pre-registration record
             $preRegistration = PreRegistration::create([
                 // Step 1 data
                 'type_of_resident' => $step1['type_of_resident'],
                 'first_name' => $step1['first_name'],
-                'middle_name' => $step1['middle_name'],
+                'middle_name' => $step1['middle_name'] ?? null,
                 'last_name' => $step1['last_name'],
-                'suffix' => $step1['suffix'],
+                'suffix' => $step1['suffix'] ?? null,
                 'birthplace' => $step1['birthplace'],
                 'birthdate' => $step1['birthdate'],
                 'sex' => $step1['sex'],
@@ -330,22 +401,22 @@ class PreRegistrationController extends Controller
                 
                 // Step 2 data
                 'citizenship_type' => $step2['citizenship_type'],
-                'citizenship_country' => $step2['citizenship_country'],
+                'citizenship_country' => $step2['citizenship_country'] ?? null,
                 'profession_occupation' => $step2['profession_occupation'],
-                'monthly_income' => $step2['monthly_income'],
+                'monthly_income' => $step2['monthly_income'] ?? null,
                 'contact_number' => $step2['contact_number'],
                 'email_address' => $step2['email_address'],
-                'religion' => $step2['religion'],
+                'religion' => $step2['religion'] ?? null,
                 'educational_attainment' => $step2['educational_attainment'],
                 'education_status' => $step2['education_status'],
                 'address' => $step2['address'],
                 
                 // Step 3 data
-                'philsys_id' => $step3['philsys_id'],
-                'population_sectors' => $populationSectors,
-                'mother_first_name' => $step3['mother_first_name'],
-                'mother_middle_name' => $step3['mother_middle_name'],
-                'mother_last_name' => $step3['mother_last_name'],
+                'philsys_id' => $step3['philsys_id'] ?? null,
+                'population_sectors' => json_encode($populationSectors), // Explicitly encode as JSON
+                'mother_first_name' => $step3['mother_first_name'] ?? null,
+                'mother_middle_name' => $step3['mother_middle_name'] ?? null,
+                'mother_last_name' => $step3['mother_last_name'] ?? null,
                 
                 // Files
                 'photo' => $photoFilename,
@@ -367,8 +438,44 @@ class PreRegistrationController extends Controller
                 ->with('is_senior', $isSenior);
 
         } catch (\Exception $e) {
+            // Log detailed error information
+            \Log::error('Pre-registration submission error: ' . $e->getMessage());
+            \Log::error('Error details: ' . $e->getTraceAsString());
+            
+            // If it's a PDO exception, log the SQL error code
+            if ($e instanceof \PDOException) {
+                \Log::error('SQL Error Code: ' . $e->getCode());
+                \Log::error('SQL Error Info: ' . json_encode($e->errorInfo ?? []));
+            }
+            
+            // Check if it's a database error
+            if (strpos($e->getMessage(), 'SQLSTATE') !== false) {
+                // Show detailed error in development
+                if (config('app.env') === 'local' || config('app.debug')) {
+                    return redirect()->back()
+                        ->with('error', 'Database error: ' . $e->getMessage());
+                } else {
+                    return redirect()->back()
+                        ->with('error', 'Database error: There was a problem saving your registration. This might be due to a duplicate email address or database connection issue.');
+                }
+            }
+            
+            // Check if it's a file system error
+            if (strpos($e->getMessage(), 'storage') !== false || strpos($e->getMessage(), 'permission') !== false) {
+                return redirect()->back()
+                    ->with('error', 'File system error: There was a problem saving your uploaded files. Please try again or contact support.');
+            }
+            
+            // Return with the actual error message for debugging in development
+            if (config('app.env') === 'local' || config('app.debug')) {
+                return redirect()->back()
+                    ->with('error', 'Error: ' . $e->getMessage())
+                    ->withInput();
+            }
+            
+            // Generic error message for production
             return redirect()->back()
-                ->with('error', 'There was an error processing your registration. Please try again.')
+                ->with('error', 'There was an error processing your registration. Please try again or contact support.')
                 ->withInput();
         }
     }

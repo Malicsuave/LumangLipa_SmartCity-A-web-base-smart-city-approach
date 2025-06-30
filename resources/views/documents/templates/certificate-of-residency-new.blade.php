@@ -60,9 +60,9 @@
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 500px ;
-            height: 500px;
-            background: url('/request/kahoylogo.png') no-repeat center center;
+            width: 700px;
+            height: 700px;
+            background: url('{{ asset("request/kahoylogo.png") }}') no-repeat center center;
             background-size: contain;
             opacity: 0.08;
             z-index: 0;

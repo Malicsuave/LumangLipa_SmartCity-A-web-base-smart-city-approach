@@ -61,23 +61,23 @@
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="custom-control custom-radio">
-                                        <input type="radio" id="permanent" name="type_of_resident" value="Permanent" 
-                                               class="custom-control-input" {{ old('type_of_resident', session('pre_registration.step1.type_of_resident')) == 'Permanent' ? 'checked' : '' }}>
-                                        <label class="custom-control-label" for="permanent">Permanent</label>
+                                        <input type="radio" id="migrant" name="type_of_resident" value="Migrant" 
+                                               class="custom-control-input" {{ old('type_of_resident', session('pre_registration.step1.type_of_resident')) == 'Migrant' ? 'checked' : '' }}>
+                                        <label class="custom-control-label" for="migrant">Migrant</label>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="custom-control custom-radio">
-                                        <input type="radio" id="temporary" name="type_of_resident" value="Temporary" 
-                                               class="custom-control-input" {{ old('type_of_resident', session('pre_registration.step1.type_of_resident')) == 'Temporary' ? 'checked' : '' }}>
-                                        <label class="custom-control-label" for="temporary">Temporary</label>
+                                        <input type="radio" id="nonmigrant" name="type_of_resident" value="Non-Migrant" 
+                                               class="custom-control-input" {{ old('type_of_resident', session('pre_registration.step1.type_of_resident')) == 'Non-Migrant' ? 'checked' : '' }}>
+                                        <label class="custom-control-label" for="nonmigrant">Non-Migrant</label>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="custom-control custom-radio">
-                                        <input type="radio" id="boarder" name="type_of_resident" value="Boarder/Transient" 
-                                               class="custom-control-input" {{ old('type_of_resident', session('pre_registration.step1.type_of_resident')) == 'Boarder/Transient' ? 'checked' : '' }}>
-                                        <label class="custom-control-label" for="boarder">Boarder/Transient</label>
+                                        <input type="radio" id="transient" name="type_of_resident" value="Transient" 
+                                               class="custom-control-input" {{ old('type_of_resident', session('pre_registration.step1.type_of_resident')) == 'Transient' ? 'checked' : '' }}>
+                                        <label class="custom-control-label" for="transient">Transient</label>
                                     </div>
                                 </div>
                             </div>

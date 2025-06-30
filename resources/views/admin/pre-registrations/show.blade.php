@@ -206,7 +206,7 @@
                 @endif
 
                 <!-- Population Sectors -->
-                @if($preRegistration->population_sectors)
+                @if($preRegistration->population_sectors && is_array($preRegistration->population_sectors) && count($preRegistration->population_sectors) > 0)
                     <div class="col-md-6 mb-4">
                         <div class="card">
                             <div class="card-header">

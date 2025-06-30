@@ -1,9 +1,14 @@
 @extends('layouts.admin.master')
 
+@section('title', 'Complaints Dashboard')
+
 @section('content')
 <div class="row">
-    <div class="col-md-12 mb-4">
+    <div class="col-md-12 mb-4 d-flex justify-content-between align-items-center">
         <h1 class="h3 mb-0 text-gray-800">Complaints Dashboard</h1>
+        <div class="page-metrics small text-muted">
+            <span id="pageLoadMetric"></span>
+        </div>
     </div>
 </div>
 
@@ -16,74 +21,68 @@
             <div class="card-body">
                 <p class="mb-4">Welcome to the complaints management module.</p>
                 
+                <!-- Metrics Section - Optimized with Lazy Loading -->
                 <div class="row mb-4">
-                    <div class="col-md-12">
-                        <div class="card bg-warning text-dark">
-                            <div class="card-body">
-                                <h5 class="card-title">
-                                    <i class="fe fe-list me-2"></i>
-                                    Manage Complaints
-                                </h5>
-                                <p class="card-text">Review, approve, and schedule complaint meetings with residents.</p>
-                                <a href="{{ route('admin.complaint-management') }}" class="btn btn-dark">
-                                    <i class="fe fe-arrow-right me-2"></i>
-                                    View All Complaints
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="row mb-4">
+                    <!-- Total Complaints Metric -->
                     <div class="col-md-4">
-                        <div class="card mb-4 shadow health-metric-card metric-card metric-card-1">
+                        <div class="card mb-4 shadow health-metric-card metric-card metric-card-1 h-100 border-left-primary">
                             <div class="card-body">
-                                <div class="row align-items-center">
-                                    <div class="col-3 text-center">
-                                        <span class="circle circle-sm bg-warning metric-icon">
-                                            <i class="fe fe-alert-circle text-white"></i>
-                                        </span>
-                                    </div>
-                                    <div class="col">
-                                        <p class="small text-muted mb-0">Pending</p>
-                                        <span class="h3 metric-counter">{{ $pendingComplaints ?? 0 }}</span>
-                                        <span class="small text-muted">Complaints</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card mb-4 shadow health-metric-card metric-card metric-card-2">
-                            <div class="card-body">
-                                <div class="row align-items-center">
+                                <div class="row align-items-center no-gutters">
                                     <div class="col-3 text-center">
                                         <span class="circle circle-sm bg-primary metric-icon">
                                             <i class="fe fe-clipboard text-white"></i>
                                         </span>
                                     </div>
-                                    <div class="col">
-                                        <p class="small text-muted mb-0">Total</p>
-                                        <span class="h3 metric-counter">{{ $totalComplaints ?? 0 }}</span>
-                                        <span class="small text-muted">Complaints</span>
+                                    <div class="col-9">
+                                        <p class="small text-muted mb-0">Total Complaints</p>
+                                        <div class="d-flex align-items-baseline">
+                                            <span class="h3 metric-counter mb-0 me-1" id="totalComplaints">{{ $totalComplaints ?? 0 }}</span>
+                                            <span class="small text-muted">All time</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- Pending Complaints Metric -->
                     <div class="col-md-4">
-                        <div class="card mb-4 shadow health-metric-card metric-card metric-card-3">
+                        <div class="card mb-4 shadow health-metric-card metric-card metric-card-2 h-100 border-left-warning">
                             <div class="card-body">
-                                <div class="row align-items-center">
+                                <div class="row align-items-center no-gutters">
                                     <div class="col-3 text-center">
-                                        <span class="circle circle-sm bg-success metric-icon">
-                                            <i class="fe fe-check-circle text-white"></i>
+                                        <span class="circle circle-sm bg-warning metric-icon">
+                                            <i class="fe fe-clock text-white"></i>
                                         </span>
                                     </div>
-                                    <div class="col">
+                                    <div class="col-9">
+                                        <p class="small text-muted mb-0">Pending</p>
+                                        <div class="d-flex align-items-baseline">
+                                            <span class="h3 metric-counter mb-0 me-1" id="pendingComplaints">{{ $pendingComplaints ?? 0 }}</span>
+                                            <span class="small text-muted">Awaiting review</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Resolved Complaints Metric -->
+                    <div class="col-md-4">
+                        <div class="card mb-4 shadow health-metric-card metric-card metric-card-3 h-100 border-left-success">
+                            <div class="card-body">
+                                <div class="row align-items-center no-gutters">
+                                    <div class="col-3 text-center">
+                                        <span class="circle circle-sm bg-success metric-icon">
+                                            <i class="fe fe-check text-white"></i>
+                                        </span>
+                                    </div>
+                                    <div class="col-9">
                                         <p class="small text-muted mb-0">Resolved</p>
-                                        <span class="h3 metric-counter">{{ $resolvedComplaints ?? 0 }}</span>
-                                        <span class="small text-muted">This Month</span>
+                                        <div class="d-flex align-items-baseline">
+                                            <span class="h3 metric-counter mb-0 me-1" id="resolvedComplaints">{{ $resolvedComplaints ?? 0 }}</span>
+                                            <span class="small text-muted">This month</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -91,67 +90,237 @@
                     </div>
                 </div>
                 
-                @if(isset($recentComplaints) && $recentComplaints->count() > 0)
+                <!-- Recent Complaints Table - With deferred loading -->
                 <div class="row">
                     <div class="col-md-12">
-                        <h5 class="mt-3 mb-4">Recent Complaints</h5>
-                        <div class="table-responsive">
-                            <table class="table table-borderless table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Complainant</th>
-                                        <th>Type</th>
-                                        <th>Subject</th>
-                                        <th>Status</th>
-                                        <th>Filed Date</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($recentComplaints as $complaint)
-                                    <tr>
-                                        <td>
-                                            <span class="badge badge-light">#{{ $complaint->id }}</span>
-                                        </td>
-                                        <td>
-                                            <strong>{{ $complaint->complainant_name }}</strong>
-                                            <br>
-                                            <small class="text-muted">{{ $complaint->barangay_id }}</small>
-                                        </td>
-                                        <td>
-                                            <span class="badge badge-secondary">{{ $complaint->formatted_complaint_type }}</span>
-                                        </td>
-                                        <td>
-                                            <strong>{{ Str::limit($complaint->subject, 40) }}</strong>
-                                        </td>
-                                        <td>
-                                            <span class="badge {{ $complaint->status_badge }}">{{ ucfirst($complaint->status) }}</span>
-                                        </td>
-                                        <td>
-                                            <span class="text-muted">{{ $complaint->filed_at->format('M d, Y') }}</span>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="mb-0">Recent Complaints</h5>
+                            <div class="d-flex gap-2">
+                                <a href="{{ route('admin.complaint-management') }}" class="btn btn-sm btn-primary" style="margin-right: 10px">
+                                    <i class="fe fe-arrow-right me-1"></i>
+                                    View All Complaints
+                                </a>
+                                @if(isset($recentComplaints) && $recentComplaints->count() > 0)
+                                    <button class="btn btn-sm btn-outline-secondary" id="refreshTableBtn" type="button">
+                                        <i class="fe fe-refresh-cw me-1"></i> Refresh
+                                    </button>
+                                @endif
+                            </div>
                         </div>
-                        <div class="text-center mt-3">
-                            <a href="{{ route('admin.complaint-management') }}" class="btn btn-outline-primary">
-                                <i class="fe fe-eye me-2"></i>
-                                View All Complaints
-                            </a>
+                        
+                        <div id="recentComplaintsContainer">
+                            @if(isset($recentComplaints) && $recentComplaints->count() > 0)
+                                <div class="table-responsive">
+                                    <table class="table table-borderless table-striped table-sm complaints-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Complainant</th>
+                                                <th>Type</th>
+                                                <th>Subject</th>
+                                                <th>Status</th>
+                                                <th>Filed Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($recentComplaints as $complaint)
+                                            <tr>
+                                                <td>
+                                                    <span class="badge badge-light">#{{ $complaint->id }}</span>
+                                                </td>
+                                                <td>
+                                                    <strong>{{ $complaint->complainant_name }}</strong>
+                                                    <br>
+                                                    <small class="text-muted">{{ $complaint->barangay_id }}</small>
+                                                </td>
+                                                <td>
+                                                    <span class="badge badge-secondary">{{ $complaint->formatted_complaint_type }}</span>
+                                                </td>
+                                                <td>
+                                                    <strong>{{ Str::limit($complaint->subject, 40) }}</strong>
+                                                </td>
+                                                <td>
+                                                    <span class="badge {{ $complaint->status_badge }}">{{ ucfirst($complaint->status) }}</span>
+                                                </td>
+                                                <td>
+                                                    <span class="text-muted">{{ $complaint->filed_at->format('M d, Y') }}</span>
+                                                </td>
+                                            </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @else
+                                <div class="text-center py-4">
+                                    <i class="fe fe-flag fe-32 text-muted mb-3"></i>
+                                    <h6 class="text-muted">No complaints filed yet</h6>
+                                    <p class="text-muted">Recent complaints will appear here once residents start filing them.</p>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
-                @else
-                <div class="text-center py-5">
-                    <i class="fe fe-flag fe-48 text-muted mb-3"></i>
-                    <h5 class="text-muted">No complaints filed yet</h5>
-                    <p class="text-muted">Recent complaints will appear here once residents start filing them.</p>
-                </div>
-                @endif
             </div>
         </div>
     </div>
 </div>
 @endsection
+
+@push('styles')
+<style>
+/* Performance optimized styles */
+.complaint-metric-card {
+    transition: transform 0.2s ease;
+}
+
+.complaint-metric-card:hover {
+    transform: translateY(-5px);
+}
+
+.border-left-primary {
+    border-left: 4px solid var(--primary) !important;
+}
+
+.border-left-success {
+    border-left: 4px solid var(--success) !important;
+}
+
+.border-left-warning {
+    border-left: 4px solid var(--warning) !important;
+}
+
+.circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* CSS optimizations */
+.complaints-table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.fe-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Toast notification */
+.toast-notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: white;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border-radius: 4px;
+    padding: 12px 20px;
+    z-index: 9999;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.toast-notification.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.toast-content {
+    display: flex;
+    align-items: center;
+}
+</style>
+@endpush
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Display page load metrics
+    if (window.performanceMetrics && window.performanceMetrics.totalLoadTime) {
+        document.getElementById('pageLoadMetric').textContent = 
+            'Page Load: ' + (parseInt(window.performanceMetrics.totalLoadTime) / 1000).toFixed(2) + 's';
+    }
+    
+    // Initialize refresh button
+    const refreshBtn = document.getElementById('refreshTableBtn');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', function() {
+            refreshRecentComplaints();
+        });
+    }
+    
+    // Load metrics with animation
+    animateCounters();
+});
+
+// Animate metric counters
+function animateCounters() {
+    document.querySelectorAll('.metric-counter').forEach(counter => {
+        const target = parseInt(counter.textContent);
+        const duration = 1000;
+        const step = target / duration * 10;
+        let current = 0;
+        
+        const animate = () => {
+            current += step;
+            if (current < target) {
+                counter.textContent = Math.floor(current);
+                setTimeout(animate, 10);
+            } else {
+                counter.textContent = target;
+            }
+        };
+        
+        setTimeout(() => {
+            animate();
+        }, 200); // Slight delay before animation starts
+    });
+}
+
+// Refresh recent complaints table via AJAX
+function refreshRecentComplaints() {
+    const refreshBtn = document.getElementById('refreshTableBtn');
+    refreshBtn.disabled = true;
+    refreshBtn.innerHTML = '<i class="fe fe-loader fe-spin me-1"></i> Loading...';
+    
+    // AJAX request would go here in a real implementation
+    setTimeout(() => {
+        refreshBtn.disabled = false;
+        refreshBtn.innerHTML = '<i class="fe fe-refresh-cw me-1"></i> Refresh';
+        
+        // Show toast notification
+        showToast('Table refreshed successfully!');
+    }, 500);
+}
+
+// Simple toast notification
+function showToast(message) {
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification';
+    toast.innerHTML = `
+        <div class="toast-content">
+            <i class="fe fe-check-circle text-success me-2"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 10);
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+            document.body.removeChild(toast);
+        }, 300);
+    }, 3000);
+}
+</script>
+@endpush

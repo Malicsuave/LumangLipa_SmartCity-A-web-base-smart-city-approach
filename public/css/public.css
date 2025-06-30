@@ -163,6 +163,58 @@ a {
   background-color: var(--blue);
 }
 
+/* Navbar enhancements for equal width items */
+.nav-equal-width .nav-item {
+  text-align: center;
+  display: flex;
+  align-items: center;
+}
+
+.nav-equal-width .nav-link {
+  padding-left: 0.75rem !important;
+  padding-right: 0.75rem !important;
+  white-space: nowrap;
+}
+
+/* Fix for navbar shifting issue during hover */
+.navbar-nav {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-nav .nav-item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  /* Set fixed width for consistent spacing */
+  min-width: 100px;  
+  justify-content: center;
+  margin: 0;
+}
+
+/* Fix dropdown toggle arrow position */
+.dropdown-toggle::after {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Fix hover effects without layout shifts */
+.navbar-light .navbar-nav .nav-link {
+  transition: color 0.3s ease;
+  position: relative;
+  text-align: center;
+  padding: 20px 15px 20px 15px;
+}
+
+/* Remove existing hover styles that might cause shifts */
+.navbar-light .navbar-nav .nav-link:hover {
+  transform: none;
+  margin: 0;
+  padding: 20px 15px 20px 15px;
+}
+
 /* Button styles */
 .btn {
   padding: 0.5rem 1.5rem;
@@ -204,48 +256,36 @@ footer a:hover {
   height: 100%;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .hero-section {
-    text-align: center;
-    padding: 3rem 0;
-    min-height: auto;
-  }
-  
-  .hero-section .row {
-    flex-direction: column-reverse;
-  }
-  
-  .hero-section img {
-    margin-bottom: 2rem;
-  }
-  
-  .blue-header {
-    text-align: center;
-  }
-  
-  .time-display {
-    text-align: center;
-    margin-top: 15px;
-  }
+/* Dropdown menu styles */
+.dropdown-menu {
+  border-radius: 0.5rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  border: none;
+  padding: 0.5rem 0;
 }
 
-/* Custom animations */
-.fade-in {
-  animation: fadeIn 0.5s ease-in;
+.dropdown-item {
+  padding: 0.5rem 1.5rem;
+  font-weight: 500;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.dropdown-item:hover, 
+.dropdown-item:focus,
+.dropdown-item.active {
+  background-color: rgba(13, 110, 253, 0.1);
+  color: var(--blue);
 }
 
+.dropdown-item i {
+  width: 20px;
+  text-align: center;
+}
+
+/* Fix for navbar shifting issue */
+.nav-item.dropdown .dropdown-toggle::after {
+  margin-left: 0.5em;
+  vertical-align: middle;
+}
 
 .navbar-nav {
     align-items: center;
@@ -314,4 +354,46 @@ footer a:hover {
 .btn span {
     display: inline-block;
     vertical-align: middle;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .hero-section {
+    text-align: center;
+    padding: 3rem 0;
+    min-height: auto;
+  }
+  
+  .hero-section .row {
+    flex-direction: column-reverse;
+  }
+  
+  .hero-section img {
+    margin-bottom: 2rem;
+  }
+  
+  .blue-header {
+    text-align: center;
+  }
+  
+  .time-display {
+    text-align: center;
+    margin-top: 15px;
+  }
+}
+
+ /* Custom animations */
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

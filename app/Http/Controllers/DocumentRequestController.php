@@ -91,7 +91,7 @@ class DocumentRequestController extends Controller
 
     public function approve($id)
     {
-        $documentRequest = DocumentRequest::findOrFail($id);
+        $documentRequest = DocumentRequest::with('resident')->findOrFail($id);
         
         $documentRequest->update([
             'status' => 'approved',
@@ -99,9 +99,25 @@ class DocumentRequestController extends Controller
             'approved_by' => auth()->id(),
         ]);
 
+        // Send notification to resident with PDF attachment
+        if ($documentRequest->resident && $documentRequest->resident->email_address) {
+            try {
+                $documentRequest->resident->notify(new \App\Notifications\DocumentRequestApproved($documentRequest));
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to send document approval notification', [
+                    'document_request_id' => $documentRequest->id,
+                    'resident_email' => $documentRequest->resident->email_address,
+                    'error' => $e->getMessage()
+                ]);
+                
+                // Continue with success response even if email fails
+                // The document is still approved
+            }
+        }
+
         return response()->json([
             'success' => true,
-            'message' => 'Document request approved successfully!'
+            'message' => 'Document request approved successfully! An email with the PDF document has been sent to the resident.'
         ]);
     }
 

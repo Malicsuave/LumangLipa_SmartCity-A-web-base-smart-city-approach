@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,600" />
 
     <!-- Styles -->
-    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+   
     <link href="{{ asset('css/auth.css') }}" rel="stylesheet">
 
    

@@ -41,9 +41,9 @@
                                 <label for="type_of_resident" class="form-label">Type of Resident <span class="text-danger">*</span></label>
                                 <select class="form-control @error('type_of_resident') is-invalid @enderror" name="type_of_resident" required>
                                     <option value="">Select Type</option>
-                                    <option value="Permanent" {{ old('type_of_resident') == 'Permanent' ? 'selected' : '' }}>Permanent</option>
-                                    <option value="Temporary" {{ old('type_of_resident') == 'Temporary' ? 'selected' : '' }}>Temporary</option>
-                                    <option value="Boarder/Transient" {{ old('type_of_resident') == 'Boarder/Transient' ? 'selected' : '' }}>Boarder/Transient</option>
+                                    <option value="Non-Migrant" {{ old('type_of_resident') == 'Non-Migrant' ? 'selected' : '' }}>Non-Migrant</option>
+                                    <option value="Migrant" {{ old('type_of_resident') == 'Migrant' ? 'selected' : '' }}>Migrant</option>
+                                    <option value="Transient" {{ old('type_of_resident') == 'Transient' ? 'selected' : '' }}>Transient</option>
                                 </select>
                                 @error('type_of_resident')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -398,12 +398,14 @@
                             </div>
                         </div>
 
-                        <!-- Submit Button -->
+                        <!-- Navigation Buttons -->
                         <div class="row">
                             <div class="col-12">
-                                <button type="submit" class="btn btn-primary btn-lg btn-block">
-                                    <i class="fe fe-send"></i> Submit Pre-Registration
-                                </button>
+                                <div class="d-flex justify-content-end">
+                                    <button type="submit" class="btn btn-primary">
+                                        Submit Pre-Registration <i class="fe fe-send"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </form>

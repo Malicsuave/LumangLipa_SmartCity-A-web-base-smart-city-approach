@@ -600,6 +600,16 @@ document.addEventListener('DOMContentLoaded', function() {
         const blurredSections = document.querySelectorAll('.blurred-section');
         blurredSections.forEach(section => {
             section.classList.remove('blurred');
+            // Remove the blur overlay completely
+            const blurOverlay = section.querySelector('.blur-overlay');
+            if (blurOverlay) {
+                blurOverlay.style.opacity = '0';
+                blurOverlay.style.pointerEvents = 'none';
+            }
+            // Ensure the section is interactive
+            section.style.pointerEvents = 'auto';
+            section.style.userSelect = 'auto';
+            section.style.filter = 'none';
         });
     }
     

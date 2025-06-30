@@ -6,38 +6,38 @@
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-10">
-            <!-- Progress Steps -->
-            <div class="card mb-4">
+            <!-- Progress Bar (Updated Design) -->
+            <div class="card shadow-sm mb-4">
                 <div class="card-body">
-                    <div class="progress-steps">
-                        <div class="step completed">
-                            <div class="step-number">1</div>
-                            <div class="step-title">Personal Info</div>
+                    <h5 class="card-title">Registration Progress</h5>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-primary" role="progressbar" style="width: 60%" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col text-center">
+                            <small class="text-muted">Step 1: Personal Info</small>
                         </div>
-                        <div class="step completed">
-                            <div class="step-number">2</div>
-                            <div class="step-title">Contact & Education</div>
+                        <div class="col text-center">
+                            <small class="text-muted">Step 2: Contact & Education</small>
                         </div>
-                        <div class="step active">
-                            <div class="step-number">3</div>
-                            <div class="step-title">Additional Info</div>
+                        <div class="col text-center">
+                            <small class="text-primary font-weight-bold">Step 3: Additional Info</small>
                         </div>
-                        <div class="step">
-                            <div class="step-number">4</div>
-                            <div class="step-title">Photo & Documents</div>
+                        <div class="col text-center">
+                            <small class="text-muted">Step 4: Photo & Documents</small>
                         </div>
-                        <div class="step">
-                            <div class="step-number">5</div>
-                            <div class="step-title">Review</div>
+                        <div class="col text-center">
+                            <small class="text-muted">Step 5: Review</small>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="card shadow-lg">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0"><i class="fe fe-info"></i> Step 3: Additional Information</h4>
-                    <p class="mb-0 mt-2">Provide additional details and select applicable population sectors</p>
+            <div class="card shadow">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">
+                        <i class="fe fe-file-text fe-16 mr-2"></i>Additional Information
+                    </h4>
                 </div>
                 
                 <div class="card-body">

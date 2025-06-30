@@ -57,7 +57,7 @@
                         <ul class="text-left mb-0">
                             <li>Your application will be reviewed by our admin team</li>
                             <li>You will receive an email notification once your application is processed</li>
-                            <li>If approved, your @if(session('is_senior'))Senior Citizen ID@else digital ID@endif will be sent to your email automatically</li>
+                            <li>If approved, your @if(session('is_senior'))Senior Citizen ID @else digital ID @endif will be sent to your email automatically</li>
                             <li>You can visit the Barangay Hall to claim your physical ID card</li>
                         </ul>
                     </div>

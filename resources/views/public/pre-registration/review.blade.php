@@ -47,6 +47,24 @@
                 </div>
                 
                 <div class="card-body">
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <h6><i class="fe fe-alert-circle"></i> Please correct the following errors:</h6>
+                            <ul class="mb-0">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                    
+                    @if(session('error'))
+                        <div class="alert alert-danger">
+                            <h6><i class="fe fe-alert-circle"></i> Error</h6>
+                            <p class="mb-0">{{ session('error') }}</p>
+                        </div>
+                    @endif
+
                     @if($isSenior)
                         <div class="alert alert-warning mb-4">
                             <h5><i class="fe fe-award"></i> Senior Citizen Registration</h5>
@@ -279,7 +297,7 @@
                             <ul class="mb-0">
                                 <li>Please review all information carefully before submitting</li>
                                 <li>Your registration will be reviewed by Barangay Administration</li>
-                                <li>@if($isSenior)Senior Citizen ID@else Digital ID@endif will be sent to your email upon approval</li>
+                                <li>{{ $isSenior ? 'Senior Citizen ID' : 'Digital ID' }} will be sent to your email upon approval</li>
                                 <li>You can check your registration status using your email address</li>
                             </ul>
                         </div>
@@ -303,7 +321,7 @@
                                     <a href="{{ route('public.pre-registration.step4') }}" class="btn btn-secondary">
                                         <i class="fe fe-arrow-left"></i> Back: Photo & Documents
                                     </a>
-                                    <button type="submit" class="btn btn-success btn-lg">
+                                    <button type="submit" class="btn btn-primary">
                                         <i class="fe fe-send"></i> Submit @if($isSenior)Senior Citizen @endif Registration
                                     </button>
                                 </div>
