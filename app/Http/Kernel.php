@@ -69,5 +69,8 @@ class Kernel extends HttpKernel
         'role' => \App\Http\Middleware\RoleMiddleware::class,
         'two-factor.redirect' => \App\Http\Middleware\RedirectTwoFactorSetup::class,
         'security' => \App\Http\Middleware\ValidateRequestSecurity::class,
+        'account.lockout' => \App\Http\Middleware\AccountLockoutMiddleware::class,
+        'session.security' => \App\Http\Middleware\SessionSecurityMiddleware::class,
+        'enforce.password.change' => \App\Http\Middleware\EnforcePasswordChange::class,
     ];
 }

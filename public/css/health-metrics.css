@@ -1,5 +1,6 @@
 /* Enhanced Health Service Metric Cards Styling */
 
+/* Remove the forced white background to allow custom backgrounds */
 /* Card styling with improved colors and contrast */
 .dark .health-metric-card {
     background-color: #334155 !important;
@@ -48,35 +49,15 @@
     margin: 0.25rem 0 !important;
 }
 
-/* Light mode styles */
-body:not(.dark) .health-metric-card {
+/* Light mode styles - Only apply to cards that don't have custom backgrounds */
+body:not(.dark) .health-metric-card:not([style*="background-color"]) {
     background-color: #FFFFFF !important;
     border: none !important;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05) !important;
 }
 
-body:not(.dark) .health-metric-card:hover {
+body:not(.dark) .health-metric-card:not([style*="background-color"]):hover {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
-}
-
-body:not(.dark) .health-metric-card .circle.bg-primary {
-    background-color: #3B82F6 !important;
-    box-shadow: 0 0 0 5px rgba(59, 130, 246, 0.1) !important;
-}
-
-body:not(.dark) .health-metric-card .circle.bg-warning {
-    background-color: #F59E0B !important;
-    box-shadow: 0 0 0 5px rgba(245, 158, 11, 0.1) !important;
-}
-
-body:not(.dark) .health-metric-card .circle.bg-danger {
-    background-color: #EF4444 !important;
-    box-shadow: 0 0 0 5px rgba(239, 68, 68, 0.1) !important;
-}
-
-body:not(.dark) .health-metric-card .circle.bg-success {
-    background-color: #10B981 !important;
-    box-shadow: 0 0 0 5px rgba(16, 185, 129, 0.1) !important;
 }
 
 /* Special styling for circle icon containers */

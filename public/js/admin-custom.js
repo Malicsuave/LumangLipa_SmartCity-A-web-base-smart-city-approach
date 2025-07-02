@@ -2,38 +2,41 @@
  * Admin custom JavaScript for sidebar functionality
  */
 document.addEventListener('DOMContentLoaded', function() {
+  console.log('Admin custom JS loaded');
+  
+  // Check if the main toggle handler is already set up
+  if (window.sidebarToggleSetup) {
+    console.log('Sidebar toggle already set up, skipping duplicate setup');
+    return;
+  }
+  
+  // Mark that we're setting up the toggle to prevent conflicts
+  window.sidebarToggleSetup = true;
+  
   // Check initial state and apply correct classes
   function updateSidebarState() {
     const body = document.body;
     const isCollapsed = body.classList.contains('collapsed-menu') || 
-                       body.classList.contains('vertical') && body.classList.contains('collapsed') ||
-                       body.classList.contains('vertical') && body.classList.contains('narrow');
+                       body.classList.contains('collapsed') ||
+                       body.classList.contains('narrow');
     
     if (isCollapsed) {
       body.classList.add('sidebar-collapsed');
+      console.log('Sidebar is collapsed');
     } else {
       body.classList.remove('sidebar-collapsed');
+      console.log('Sidebar is expanded');
     }
   }
   
   // Run on page load
   updateSidebarState();
   
-  // Add click event to toggle the sidebar-collapsed class
-  const collapseButtons = document.querySelectorAll('.collapseSidebar');
-  collapseButtons.forEach(function(button) {
-    button.addEventListener('click', function() {
-      // Wait for the core sidebar collapse to complete
-      setTimeout(updateSidebarState, 50);
-      // Also check again after a longer delay to catch any framework animations
-      setTimeout(updateSidebarState, 300);
-    });
-  });
-  
   // Also listen for any class changes on the body element
   const observer = new MutationObserver(function(mutations) {
     mutations.forEach(function(mutation) {
       if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+        console.log('Body class changed:', document.body.className);
         updateSidebarState();
       }
     });
@@ -43,7 +46,12 @@ document.addEventListener('DOMContentLoaded', function() {
     attributes: true,
     attributeFilter: ['class']
   });
-
+  
+  // Handle window resize to ensure proper sidebar behavior
+  window.addEventListener('resize', function() {
+    setTimeout(updateSidebarState, 100);
+  });
+  
   // Initialize DataTables on all tables with class 'data-table'
   if (typeof $.fn.DataTable !== 'undefined') {
     $('.data-table').each(function() {

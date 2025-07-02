@@ -12,6 +12,9 @@
     <!-- Performance monitoring script -->
     <script src="{{ asset('js/performance-monitor.js') }}"></script>
     
+    <!-- DEFINITIVE SIDEBAR TOGGLE FIX - Must load first -->
+    <script src="{{ asset('js/sidebar-toggle-fix.js') }}"></script>
+    
     <!-- Simple bar CSS -->
     <link rel="stylesheet" href="{{ asset('admin/dark/css/simplebar.css') }}">
     <!-- Fonts CSS -->
@@ -33,6 +36,10 @@
     <link rel="stylesheet" href="{{ asset('admin/dark/css/daterangepicker.css') }}">
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="{{ asset('admin/dark/css/dataTables.bootstrap4.css') }}">
+    
+    <!-- CSS Validation Fixes - Suppresses browser console warnings -->
+    <link rel="stylesheet" href="{{ asset('css/css-validation-fixes.css') }}">
+    
     <!-- App CSS -->
     <link rel="stylesheet" href="{{ asset('admin/dark/css/app-light.css') }}" id="lightTheme">
    
@@ -59,168 +66,195 @@
     <!-- Custom Admin CSS -->
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
     
-    <!-- Custom Font CSS -->
-    <style>
-      body, 
-      .navbar, 
-      .nav-link,
-      h1, h2, h3, h4, h5, h6, 
-      .dropdown-menu,
-      .card-title,
-      .modal-title,
-      .sidebar-left {
-        font-family: 'Poppins', sans-serif;
-      }
-      
-      .form-control, 
-      input, 
-      select, 
-      textarea, 
-      button {
-        font-family: 'Nunito', sans-serif;
-      }
-      
-      /* Ensure consistent button colors across themes */
-      .btn-success {
-        background-color: #28a745 !important;
-        border-color: #28a745 !important;
-        color: #fff !important;
-      }
-      
-      .btn-danger {
-        background-color: #dc3545 !important;
-        border-color: #dc3545 !important;
-        color: #fff !important;
-      }
-      
-      /* Sidebar text visibility styles */
-      /* Hide the text when sidebar is collapsed */
-      .vertical.collapsed .collapse-hide,
-      .vertical.narrow .collapse-hide,
-      body.collapsed-menu .collapse-hide,
-      .sidebar-collapsed .collapse-hide {
-        display: none !important;
-        visibility: hidden !important;
-        opacity: 0 !important;
-        width: 0 !important;
-        height: 0 !important;
-        overflow: hidden !important;
-      }
-      
-      /* Hide menu item text when collapsed */
-      .vertical.collapsed .item-text,
-      .vertical.narrow .item-text,
-      body.collapsed-menu .item-text,
-      .sidebar-collapsed .item-text {
-        display: none !important;
-        visibility: hidden !important;
-        opacity: 0 !important;
-      }
-      
-      /* Show text and expand sidebar on hover when collapsed */
-      .vertical.collapsed .sidebar-left:hover .item-text,
-      .vertical.collapsed .sidebar-left:hover .collapse-hide,
-      .vertical.narrow .sidebar-left:hover .item-text,
-      .vertical.narrow .sidebar-left:hover .collapse-hide,
-      body.collapsed-menu .sidebar-left:hover .item-text,
-      body.collapsed-menu .sidebar-left:hover .collapse-hide,
-      .sidebar-collapsed .sidebar-left:hover .item-text,
-      .sidebar-collapsed .sidebar-left:hover .collapse-hide {
-        display: inline-block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        width: auto !important;
-        height: auto !important;
-        overflow: visible !important;
-        transition: opacity 0.2s ease-in-out !important;
-      }
-      
-      /* Enhanced active state for dropdown menu items */
-      .nav-item.dropdown .collapse .nav-item.active .nav-link {
-        background-color: #4a5568 !important;
-        color: #ffffff !important;
-        border-radius: 8px;
-        margin: 2px 6px;
-        font-weight: 600;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        border-left: none !important;
-      }
-      
-      /* Hover effect for dropdown menu items */
-      .nav-item.dropdown .collapse .nav-item .nav-link:hover {
-        background-color: #e2e8f0 !important;
-        color: #2d3748 !important;
-        border-radius: 8px;
-        margin: 2px 6px;
-        transition: all 0.2s ease-in-out;
-      }
-      
-      /* Default state for dropdown menu items */
-      .nav-item.dropdown .collapse .nav-item .nav-link {
-        padding: 8px 12px;
-        margin: 1px 6px;
-        border-radius: 6px;
-        transition: all 0.2s ease-in-out;
-      }
-      
-      /* Override for dark theme active state */
-      [data-theme="dark"] .nav-item.dropdown .collapse .nav-item.active .nav-link {
-        background-color: #2d3748 !important;
-        color: #e2e8f0 !important;
-      }
-      
-      /* Override for dark theme hover state */
-      [data-theme="dark"] .nav-item.dropdown .collapse .nav-item .nav-link:hover {
-        background-color: #4a5568 !important;
-        color: #e2e8f0 !important;
-      }
-      
-      /* Dropdown menu fix for single row tables */
-      .table-responsive {
-        overflow-x: visible !important;
-        overflow-y: visible !important;
-      }
-      
-      .table tr:only-child .dropdown-menu {
-        right: 0 !important;
-        left: auto !important;
-        transform: none !important;
-        top: 100% !important;
-        position: absolute !important;
-      }
-      
-      .dropdown-menu.show {
-        display: block !important;
-        z-index: 1050 !important;
-      }
-      
-      .dropdown {
-        position: relative !important;
-        z-index: 900 !important;
-      }
-    </style>
+    <!-- Admin Layout Styles - contains all layout-specific CSS -->
+    <link rel="stylesheet" href="{{ asset('css/admin-layout.css') }}">
 
     @stack('styles')
   </head>
   <body class="vertical {{ session('theme', 'dark') }}">
     <div class="wrapper">
       <nav class="topnav navbar navbar-light">
-        <button type="button" class="navbar-toggler text-muted mt-2 p-0 mr-3 collapseSidebar">
-          <i class="fe fe-menu navbar-toggler-icon"></i>
+        <!-- Sidebar Toggle Button - moved to top left -->
+        <button type="button" class="btn btn-link text-muted collapseSidebar p-0 mr-3" id="sidebarToggle">
+          <i class="fe fe-menu fe-20"></i>
+          <i class="fe fe-x fe-20"></i>
         </button>
-        <form class="form-inline mr-auto searchform text-muted">
-          <input class="form-control mr-sm-2 bg-transparent border-0 pl-4 text-muted" type="search" placeholder="Search..." aria-label="Search">
-        </form>
+        
+        <div class="mr-auto d-flex align-items-center">
+          <div>
+            <h5 class="mb-0 text-dark">
+              @if(Request::routeIs('admin.dashboard'))
+                Dashboard
+              @elseif(Request::routeIs('admin.residents.*'))
+                Residents Management
+              @elseif(Request::routeIs('admin.pre-registrations.*'))
+                Pre-Registration Management
+              @elseif(Request::routeIs('admin.documents'))
+                Document Requests
+              @elseif(Request::routeIs('admin.health'))
+                Health Services
+              @elseif(Request::routeIs('admin.complaints'))
+                Complaints Management
+              @elseif(Request::routeIs('admin.analytics'))
+                Analytics & Reports
+              @elseif(Request::routeIs('admin.security.*'))
+                Security Dashboard
+              @else
+                Admin Panel
+              @endif
+            </h5>
+            <small class="text-muted">{{ Auth::user()->role->name }} • {{ \Carbon\Carbon::now()->format('M d, Y • g:i A') }}</small>
+          </div>
+        </div>
+        
         <ul class="nav">
+          <!-- Notifications Bell -->
+          @php
+            // Fetch actual records with timestamps instead of just counts
+            $pendingDocuments = collect();
+            $pendingPreRegistrations = collect();
+            $pendingComplaints = collect();
+            $pendingHealthRequests = collect();
+            $pendingApprovals = collect();
+            
+            // Check if models exist and user has permission to see them
+            if (class_exists('\App\Models\DocumentRequest') && in_array(Auth::user()->role->name, ['Barangay Captain', 'Barangay Secretary'])) {
+              $pendingDocuments = \App\Models\DocumentRequest::where('status', 'pending')
+                ->orderBy('created_at', 'desc')
+                ->limit(5)
+                ->get();
+            }
+            
+            if (class_exists('\App\Models\PreRegistration') && in_array(Auth::user()->role->name, ['Barangay Captain', 'Barangay Secretary'])) {
+              $pendingPreRegistrations = \App\Models\PreRegistration::where('status', 'pending')
+                ->orderBy('created_at', 'desc')
+                ->limit(5)
+                ->get();
+            }
+            
+            if (class_exists('\App\Models\Complaint') && in_array(Auth::user()->role->name, ['Barangay Captain', 'Complaint Manager'])) {
+              $pendingComplaints = \App\Models\Complaint::where('status', 'pending')
+                ->orderBy('created_at', 'desc')
+                ->limit(5)
+                ->get();
+            }
+            
+            if (class_exists('\App\Models\HealthService') && in_array(Auth::user()->role->name, ['Barangay Captain', 'Health Worker'])) {
+              $pendingHealthRequests = \App\Models\HealthService::where('status', 'pending')
+                ->orderBy('created_at', 'desc')
+                ->limit(5)
+                ->get();
+            }
+            
+            if (in_array(Auth::user()->role->name, ['Barangay Captain', 'Barangay Secretary', 'Admin'])) {
+              // Add any other pending approvals here
+              $pendingApprovals = collect(); // Placeholder for approval system
+            }
+            
+            $totalNotifications = $pendingDocuments->count() + $pendingPreRegistrations->count() + $pendingComplaints->count() + $pendingHealthRequests->count() + $pendingApprovals->count();
+          @endphp
+          
+          <li class="nav-item nav-notif mr-3">
+            <a class="nav-link text-muted my-2" href="#" id="notificationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <span class="fe fe-bell fe-16"></span>
+              @if($totalNotifications > 0)
+                <span class="dot dot-md bg-success"></span>
+              @endif
+            </a>
+            <div class="dropdown-menu dropdown-menu-right notification-dropdown" aria-labelledby="notificationDropdown">
+              <div class="notification-header">
+                <i class="fe fe-bell mr-2"></i>Notifications
+                @if($totalNotifications > 0)
+                  <span class="float-right badge badge-light">{{ $totalNotifications }}</span>
+                @endif
+              </div>
+              
+              @if($totalNotifications > 0)
+                <!-- Document Requests -->
+                @if($pendingDocuments->count() > 0)
+                  @php
+                    $latestDocument = $pendingDocuments->first();
+                  @endphp
+                  <a href="{{ route('admin.documents') }}" class="notification-item d-flex">
+                    <div class="notification-icon document">
+                      <i class="fe fe-file"></i>
+                    </div>
+                    <div class="notification-content">
+                      <div class="notification-title">Document Requests</div>
+                      <div class="notification-text">{{ $pendingDocuments->count() }} pending document{{ $pendingDocuments->count() > 1 ? 's' : '' }} need{{ $pendingDocuments->count() > 1 ? '' : 's' }} review</div>
+                      <div class="notification-time">{{ $latestDocument ? $latestDocument->created_at->diffForHumans() : 'Just now' }}</div>
+                    </div>
+                  </a>
+                @endif
+                
+                <!-- Pre-Registrations -->
+                @if($pendingPreRegistrations->count() > 0)
+                  @php
+                    $latestPreReg = $pendingPreRegistrations->first();
+                  @endphp
+                  <a href="{{ route('admin.pre-registrations.index') }}" class="notification-item d-flex">
+                    <div class="notification-icon resident">
+                      <i class="fe fe-user-plus"></i>
+                    </div>
+                    <div class="notification-content">
+                      <div class="notification-title">Pre-Registrations</div>
+                      <div class="notification-text">{{ $pendingPreRegistrations->count() }} new registration{{ $pendingPreRegistrations->count() > 1 ? 's' : '' }} awaiting approval</div>
+                      <div class="notification-time">{{ $latestPreReg ? $latestPreReg->created_at->diffForHumans() : 'Just now' }}</div>
+                    </div>
+                  </a>
+                @endif
+                
+                <!-- Complaints -->
+                @if($pendingComplaints->count() > 0)
+                  @php
+                    $latestComplaint = $pendingComplaints->first();
+                  @endphp
+                  <a href="{{ route('admin.complaints') }}" class="notification-item d-flex">
+                    <div class="notification-icon complaint">
+                      <i class="fe fe-alert-triangle"></i>
+                    </div>
+                    <div class="notification-content">
+                      <div class="notification-title">Complaints</div>
+                      <div class="notification-text">{{ $pendingComplaints->count() }} unresolved complaint{{ $pendingComplaints->count() > 1 ? 's' : '' }} require{{ $pendingComplaints->count() > 1 ? '' : 's' }} attention</div>
+                      <div class="notification-time">{{ $latestComplaint ? $latestComplaint->created_at->diffForHumans() : 'Just now' }}</div>
+                    </div>
+                  </a>
+                @endif
+                
+                <!-- Health Services -->
+                @if($pendingHealthRequests->count() > 0)
+                  @php
+                    $latestHealth = $pendingHealthRequests->first();
+                  @endphp
+                  <a href="{{ route('admin.health') }}" class="notification-item d-flex">
+                    <div class="notification-icon health">
+                      <i class="fe fe-heart"></i>
+                    </div>
+                    <div class="notification-content">
+                      <div class="notification-title">Health Services</div>
+                      <div class="notification-text">{{ $pendingHealthRequests->count() }} health request{{ $pendingHealthRequests->count() > 1 ? 's' : '' }} pending review</div>
+                      <div class="notification-time">{{ $latestHealth ? $latestHealth->created_at->diffForHumans() : 'Just now' }}</div>
+                    </div>
+                  </a>
+                @endif
+                
+                <div class="notification-footer">
+                  <a href="{{ route('admin.dashboard') }}">View All Notifications</a>
+                </div>
+              @else
+                <div class="empty-notifications">
+                  <i class="fe fe-check-circle"></i>
+                  <div><strong>All caught up!</strong></div>
+                  <div>No pending notifications</div>
+                </div>
+              @endif
+            </div>
+          </li>
           
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle text-muted pr-0" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <span class="avatar avatar-sm mt-2 mr-2">
-                <img src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" class="avatar-img rounded-circle" style="width: 100px; height: 100px; object-fit: cover; border: 2px solid #eaeaea;">
-              </span>
-              <span class="d-none d-sm-inline-block">
-                {{ Auth::user()->name }}
-                <small class="d-block text-muted">{{ Auth::user()->role->name }}</small>
+              <span class="avatar avatar-sm mt-2">
+                <img src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" class="avatar-img rounded-circle">
               </span>
             </a>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
@@ -234,9 +268,6 @@
         </ul>
       </nav>
       <aside class="sidebar-left border-right bg-white shadow" id="leftSidebar" data-simplebar>
-        <a href="#" class="btn collapseSidebar toggle-btn d-lg-none text-muted ml-2 mt-3" data-toggle="toggle">
-          <i class="fe fe-x"><span class="sr-only"></span></i>
-        </a>
         <nav class="vertnav navbar navbar-light">
           <!-- nav bar -->
           <div class="w-100 mb-4 d-flex flex-column">
@@ -441,8 +472,9 @@
         document.body.appendChild(script);
       }
       
-      // Safely load theme persistence
-    
+      // NOTE: Sidebar toggle functionality is now handled by sidebar-toggle-fix.js
+      // This prevents conflicts between multiple toggle implementations
+      console.log('Master layout loaded - sidebar toggle handled by external script');
     </script>
     
     <!-- Deferred JavaScript (loaded after page renders) -->

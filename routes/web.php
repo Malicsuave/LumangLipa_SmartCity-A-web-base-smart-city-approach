@@ -116,6 +116,9 @@ Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
+    'account.lockout',
+    'session.security', 
+    'enforce.password.change',
 ])->group(function () {
     // Override the default Jetstream profile route to redirect to admin profile
     Route::get('/user/profile', function () {
@@ -241,11 +244,18 @@ Route::middleware([
         Route::post('/admin/access-requests/{accessRequest}/deny', [App\Http\Controllers\Admin\AccessRequestController::class, 'deny'])
             ->name('admin.access-requests.deny');
         
-        // Population Duplicate Management Routes
-        Route::get('/admin/population/duplicates', [App\Http\Controllers\PopulationController::class, 'duplicates'])->name('admin.population.duplicates');
-        Route::post('/admin/population/merge-duplicate', [App\Http\Controllers\PopulationController::class, 'mergeDuplicate'])->name('admin.population.merge-duplicate');
-        Route::delete('/admin/population/remove-duplicate/{type}/{id}', [App\Http\Controllers\PopulationController::class, 'removeDuplicate'])->name('admin.population.remove-duplicate');
-        
+        // Admin Approval Management Routes
+        Route::prefix('admin/approvals')->name('admin.approvals.')->group(function() {
+            Route::get('/', [AdminApprovalController::class, 'index'])->name('index');
+            Route::get('/create', [AdminApprovalController::class, 'create'])->name('create');
+            Route::post('/', [AdminApprovalController::class, 'store'])->name('store');
+            Route::get('/{adminApproval}', [AdminApprovalController::class, 'show'])->name('show');
+            Route::get('/{adminApproval}/edit', [AdminApprovalController::class, 'edit'])->name('edit');
+            Route::put('/{adminApproval}', [AdminApprovalController::class, 'update'])->name('update');
+            Route::patch('/{adminApproval}/toggle', [AdminApprovalController::class, 'toggle'])->name('toggle');
+            Route::delete('/{adminApproval}', [AdminApprovalController::class, 'destroy'])->name('destroy');
+        });
+
         // Pre-Registration Management Routes
         Route::prefix('admin/pre-registrations')->name('admin.pre-registrations.')->group(function() {
             Route::get('/', [App\Http\Controllers\Admin\PreRegistrationController::class, 'index'])->name('index');
@@ -253,6 +263,24 @@ Route::middleware([
             Route::post('/{preRegistration}/approve', [App\Http\Controllers\Admin\PreRegistrationController::class, 'approve'])->name('approve');
             Route::post('/{preRegistration}/reject', [App\Http\Controllers\Admin\PreRegistrationController::class, 'reject'])->name('reject');
             Route::delete('/{preRegistration}', [App\Http\Controllers\Admin\PreRegistrationController::class, 'destroy'])->name('destroy');
+        });
+    });
+    
+    // Complaint Manager routes
+    Route::middleware('role:Complaint Manager,Barangay Captain,Barangay Secretary')->group(function () {
+        // Complaint Management Routes
+        Route::get('/admin/complaints', [App\Http\Controllers\ComplaintController::class, 'adminDashboard'])->name('admin.complaints');
+        Route::get('/admin/complaint-management', [App\Http\Controllers\ComplaintController::class, 'index'])->name('admin.complaint-management');
+        Route::get('/admin/complaints/{complaint}', [App\Http\Controllers\ComplaintController::class, 'show'])->name('admin.complaints.show');
+        Route::post('/admin/complaints/{complaint}/approve', [App\Http\Controllers\ComplaintController::class, 'approve'])->name('admin.complaints.approve');
+        Route::post('/admin/complaints/{complaint}/resolve', [App\Http\Controllers\ComplaintController::class, 'resolve'])->name('admin.complaints.resolve');
+        Route::post('/admin/complaints/{complaint}/dismiss', [App\Http\Controllers\ComplaintController::class, 'dismiss'])->name('admin.complaints.dismiss');
+        
+        // Complaint Meeting Management Routes
+        Route::prefix('admin/complaint-meetings')->name('admin.complaint-meetings.')->group(function() {
+            Route::post('/', [App\Http\Controllers\ComplaintMeetingController::class, 'store'])->name('store');
+            Route::post('/{id}/complete', [App\Http\Controllers\ComplaintMeetingController::class, 'complete'])->name('complete');
+            Route::post('/{id}/cancel', [App\Http\Controllers\ComplaintMeetingController::class, 'cancel'])->name('cancel');
         });
     });
     
@@ -327,59 +355,44 @@ Route::middleware([
         Route::get('/admin/activities', [App\Http\Controllers\UserActivityController::class, 'adminIndex'])
             ->name('admin.activities');
             
-        // User Activity and Security Dashboard Routes
-        Route::get('/admin/security/dashboard', [App\Http\Controllers\Admin\UserActivityController::class, 'dashboard'])
-            ->name('admin.security.dashboard');
-        Route::get('/admin/security/activities', [App\Http\Controllers\Admin\UserActivityController::class, 'index'])
+        // User Activity and Security Dashboard Routes - RENAMED to avoid conflict
+        Route::get('/admin/security/user-activities', [App\Http\Controllers\Admin\UserActivityController::class, 'dashboard'])
+            ->name('admin.security.user-activities');
+        Route::get('/admin/security/activities', [App\Http\Controllers\Admin\UserActivityController::class, 'activities'])
             ->name('admin.security.activities');
-        Route::get('/admin/security/activities/{id}', [App\Http\Controllers\Admin\UserActivityController::class, 'show'])
-            ->name('admin.security.activities.show');
+        Route::get('/admin/security/users/{user}/sessions', [App\Http\Controllers\Admin\UserActivityController::class, 'userSessions'])
+            ->name('admin.security.user-sessions');
+        Route::delete('/admin/security/sessions/{sessionId}', [App\Http\Controllers\Admin\UserActivityController::class, 'terminateSession'])
+            ->name('admin.security.terminate-session');
     });
 
-    // Complaint Manager routes
-    Route::middleware('role:Complaint Manager,Barangay Captain,Barangay Secretary')->group(function () {
-        Route::get('/admin/complaints', [App\Http\Controllers\ComplaintController::class, 'adminDashboard'])->name('admin.complaints');
+    // Enhanced Security Management Routes (Barangay Captain and Secretary only)
+    Route::middleware('role:Barangay Captain,Barangay Secretary')->group(function () {
+        // Main Security Dashboard - This should be the primary security dashboard
+        Route::get('/admin/security/dashboard', [App\Http\Controllers\Admin\SecurityController::class, 'dashboard'])
+            ->name('admin.security.dashboard');
+        Route::get('/admin/security', [App\Http\Controllers\Admin\SecurityController::class, 'dashboard'])
+            ->name('admin.security.index');
+        Route::get('/admin/security/analytics', [App\Http\Controllers\Admin\SecurityController::class, 'getAnalytics'])
+            ->name('admin.security.analytics');
         
-        // Complaint Management Routes
-        Route::prefix('admin/complaints')->name('admin.')->group(function() {
-            Route::get('/management', [App\Http\Controllers\ComplaintController::class, 'index'])->name('complaint-management');
-            Route::get('/{id}', [App\Http\Controllers\ComplaintController::class, 'show'])->name('complaints.show');
-            Route::post('/{id}/approve', [App\Http\Controllers\ComplaintController::class, 'approve'])->name('complaints.approve');
-            Route::post('/{id}/resolve', [App\Http\Controllers\ComplaintController::class, 'resolve'])->name('complaints.resolve');
-            Route::post('/{id}/dismiss', [App\Http\Controllers\ComplaintController::class, 'dismiss'])->name('complaints.dismiss');
-        });
+        // Analytics Route for Barangay Captain
+        Route::get('/admin/analytics', [App\Http\Controllers\Admin\AnalyticsController::class, 'index'])
+            ->name('admin.analytics');
         
-        // Complaint Meeting Management Routes
-        Route::prefix('admin/complaint-meetings')->name('admin.complaint-meetings.')->group(function() {
-            Route::post('/', [App\Http\Controllers\ComplaintMeetingController::class, 'store'])->name('store');
-            Route::post('/{id}/complete', [App\Http\Controllers\ComplaintMeetingController::class, 'complete'])->name('complete');
-            Route::post('/{id}/cancel', [App\Http\Controllers\ComplaintMeetingController::class, 'cancel'])->name('cancel');
-        });
-    });
-
-    // Super Admin (Barangay Captain) exclusive routes
-    Route::middleware('role:Barangay Captain')->group(function () {
-        Route::get('/admin/analytics', function () {
-            return view('admin.analytics');
-        })->name('admin.analytics');
+        // Account management actions
+        Route::post('/admin/security/users/{user}/unlock', [App\Http\Controllers\Admin\SecurityController::class, 'unlockAccount'])
+            ->name('admin.security.unlock-account');
+        Route::post('/admin/security/users/{user}/force-password-change', [App\Http\Controllers\Admin\SecurityController::class, 'forcePasswordChange'])
+            ->name('admin.security.force-password-change');
+        Route::post('/admin/security/users/{user}/disable', [App\Http\Controllers\Admin\SecurityController::class, 'disableAccount'])
+            ->name('admin.security.disable-account');
         
-        // Admin Approval Management Routes
-        Route::get('/admin/approvals', [AdminApprovalController::class, 'index'])
-            ->name('admin.approvals.index');
-        Route::get('/admin/approvals/create', [AdminApprovalController::class, 'create'])
-            ->name('admin.approvals.create');
-        Route::post('/admin/approvals', [AdminApprovalController::class, 'store'])
-            ->name('admin.approvals.store');
-        Route::get('/admin/approvals/{approval}/edit', [AdminApprovalController::class, 'edit'])
-            ->name('admin.approvals.edit');
-        Route::put('/admin/approvals/{approval}', [AdminApprovalController::class, 'update'])
-            ->name('admin.approvals.update');
-        Route::delete('/admin/approvals/{approval}', [AdminApprovalController::class, 'destroy'])
-            ->name('admin.approvals.destroy');
-        Route::patch('/admin/approvals/{approval}/toggle', [AdminApprovalController::class, 'toggleStatus'])
-            ->name('admin.approvals.toggle');
-        Route::get('/admin/approvals/pending', [AdminApprovalController::class, 'pendingRequests'])
-            ->name('admin.approvals.pending');
+        // Session management
+        Route::get('/admin/security/users/{user}/sessions', [App\Http\Controllers\Admin\SecurityController::class, 'getUserSessions'])
+            ->name('admin.security.get-user-sessions');
+        Route::delete('/admin/security/users/{user}/sessions/{sessionId}', [App\Http\Controllers\Admin\SecurityController::class, 'terminateSession'])
+            ->name('admin.security.terminate-user-session');
     });
 });
 

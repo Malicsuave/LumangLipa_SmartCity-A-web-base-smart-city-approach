@@ -32,6 +32,14 @@ class User extends Authenticatable
         'role_id',
         'profile_photo_path',
         'google_id',
+        'failed_login_attempts',
+        'locked_until',
+        'last_login_at',
+        'last_login_ip',
+        'password_changed_at',
+        'force_password_change',
+        'account_disabled',
+        'security_notes',
     ];
 
     /**
@@ -47,13 +55,22 @@ class User extends Authenticatable
     ];
 
     /**
-     * The attributes that should be cast.
+     * Get the attributes that should be cast.
      *
-     * @var array<string, string>
+     * @return array<string, string>
      */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+            'locked_until' => 'datetime',
+            'last_login_at' => 'datetime',
+            'password_changed_at' => 'datetime',
+            'force_password_change' => 'boolean',
+            'account_disabled' => 'boolean',
+        ];
+    }
 
     /**
      * The accessors to append to the model's array form.
@@ -134,5 +151,59 @@ class User extends Authenticatable
     public function isLocked()
     {
         return $this->locked_until && now()->lt($this->locked_until);
+    }
+
+    /**
+     * Check if account is currently locked
+     */
+    public function isAccountLocked(): bool
+    {
+        return $this->locked_until && $this->locked_until->isFuture();
+    }
+
+    /**
+     * Check if account is disabled
+     */
+    public function isAccountDisabled(): bool
+    {
+        return $this->account_disabled;
+    }
+
+    /**
+     * Check if user needs to change password
+     */
+    public function needsPasswordChange(): bool
+    {
+        return $this->force_password_change;
+    }
+
+    /**
+     * Check if password is expired (older than 90 days)
+     */
+    public function isPasswordExpired(): bool
+    {
+        // Check if password expiration is enabled in config
+        if (!config('auth.password_expiration_enabled', false)) {
+            return false;
+        }
+        
+        if (!$this->password_changed_at) {
+            return false; // If no change date, assume not expired
+        }
+        
+        $expirationDays = config('auth.password_expiration_days', 90);
+        return $this->password_changed_at->addDays($expirationDays)->isPast();
+    }
+
+    /**
+     * Get time remaining until account unlock
+     */
+    public function getUnlockTimeAttribute(): ?string
+    {
+        if (!$this->isAccountLocked()) {
+            return null;
+        }
+        
+        return $this->locked_until->diffForHumans();
     }
 }

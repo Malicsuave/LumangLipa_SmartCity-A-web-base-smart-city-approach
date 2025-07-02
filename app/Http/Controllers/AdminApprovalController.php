@@ -157,6 +157,38 @@ class AdminApprovalController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse
      */
+    public function toggle($id)
+    {
+        $approval = AdminApproval::findOrFail($id);
+        $approval->is_active = !$approval->is_active;
+        $approval->approved_by = Auth::user()->email;
+        $approval->approved_at = now();
+        $approval->save();
+        
+        // Update user role if exists
+        $user = User::where('email', $approval->email)->first();
+        if ($user) {
+            $user->update(['role_id' => $approval->is_active ? $approval->role_id : null]);
+        }
+        
+        Log::info('Admin approval status toggled', [
+            'id' => $approval->id,
+            'email' => $approval->email,
+            'is_active' => $approval->is_active,
+            'toggled_by' => Auth::user()->email,
+        ]);
+        
+        $status = $approval->is_active ? 'activated' : 'deactivated';
+        return redirect()->route('admin.approvals.index')
+            ->with('success', "Admin approval {$status} successfully.");
+    }
+
+    /**
+     * Toggle the active status of an admin approval.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function toggleStatus($id)
     {
         $approval = AdminApproval::findOrFail($id);

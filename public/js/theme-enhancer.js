@@ -4,12 +4,14 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
+  console.log('Theme enhancer loaded');
+  
   // Fix for sidebar collapse and logo switching
   function handleSidebarState() {
     const body = document.body;
     const sidebar = document.querySelector('.sidebar-left');
     
-    if (body.classList.contains('collapsed-menu')) {
+    if (body.classList.contains('collapsed-menu') || body.classList.contains('collapsed')) {
       body.classList.add('sidebar-collapsed');
     } else {
       body.classList.remove('sidebar-collapsed');
@@ -19,12 +21,15 @@ document.addEventListener('DOMContentLoaded', function() {
   // Initialize on page load
   handleSidebarState();
   
-  // Listen for sidebar toggle clicks
-  document.querySelectorAll('.collapseSidebar').forEach(button => {
-    button.addEventListener('click', function() {
+  // Listen for sidebar toggle clicks with more specific targeting
+  document.addEventListener('click', function(e) {
+    // Check if clicked element or its parent has the collapseSidebar class
+    if (e.target.closest('.collapseSidebar') || e.target.closest('#sidebarToggle')) {
+      console.log('Sidebar toggle detected by theme enhancer');
       // Wait a bit for the core toggle to complete
       setTimeout(handleSidebarState, 100);
-    });
+      setTimeout(handleSidebarState, 300);
+    }
   });
 
   // Apply tablet and mobile optimizations
@@ -35,54 +40,39 @@ document.addEventListener('DOMContentLoaded', function() {
  * Enhance mobile experience with better touch support and responsive behavior
  */
 function enhanceMobileExperience() {
-  // Make tables responsive on mobile devices
-  const tables = document.querySelectorAll('.table:not(.no-responsive)');
-  tables.forEach(table => {
-    table.classList.add('responsive-table-card');
+  // Add touch-friendly hover effects for mobile devices
+  if ('ontouchstart' in window) {
+    document.body.classList.add('touch-device');
     
-    // Add data attributes for mobile view
-    const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.trim());
-    
-    const bodyRows = table.querySelectorAll('tbody tr');
-    bodyRows.forEach(row => {
-      const cells = row.querySelectorAll('td');
-      cells.forEach((cell, index) => {
-        if (headers[index]) {
-          cell.setAttribute('data-title', headers[index]);
-        }
+    // Handle touch events for sidebar items
+    const sidebarItems = document.querySelectorAll('.sidebar-left .nav-item');
+    sidebarItems.forEach(item => {
+      item.addEventListener('touchstart', function() {
+        this.classList.add('touch-active');
+      });
+      
+      item.addEventListener('touchend', function() {
+        setTimeout(() => {
+          this.classList.remove('touch-active');
+        }, 150);
       });
     });
-  });
-
-  // Add back-to-top button for mobile users
-  const backToTop = document.createElement('button');
-  backToTop.className = 'back-to-top btn btn-primary btn-sm';
-  backToTop.innerHTML = '<i class="fe fe-arrow-up"></i>';
-  backToTop.style.position = 'fixed';
-  backToTop.style.bottom = '20px';
-  backToTop.style.right = '20px';
-  backToTop.style.display = 'none';
-  backToTop.style.zIndex = '1000';
-  backToTop.style.opacity = '0.7';
-  backToTop.style.borderRadius = '50%';
-  backToTop.style.width = '40px';
-  backToTop.style.height = '40px';
-  document.body.appendChild(backToTop);
+  }
   
-  // Show/hide back-to-top button based on scroll position
-  window.addEventListener('scroll', function() {
-    if (window.pageYOffset > 300) {
-      backToTop.style.display = 'block';
-    } else {
-      backToTop.style.display = 'none';
+  // Improve responsive behavior
+  function handleResponsiveChanges() {
+    const body = document.body;
+    const isSmallScreen = window.innerWidth < 992;
+    
+    if (isSmallScreen) {
+      // On small screens, always collapse sidebar initially
+      if (!body.classList.contains('collapsed')) {
+        body.classList.add('narrow');
+      }
     }
-  });
+  }
   
-  // Smooth scroll to top when button is clicked
-  backToTop.addEventListener('click', function() {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
-  });
+  // Run on load and resize
+  handleResponsiveChanges();
+  window.addEventListener('resize', handleResponsiveChanges);
 }

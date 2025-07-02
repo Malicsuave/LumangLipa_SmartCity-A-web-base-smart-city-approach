@@ -2,6 +2,10 @@
 
 @section('title', 'Pre-Registration Management')
 
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/admin-common.css') }}">
+@endpush
+
 @section('content')
 <div class="container-fluid">
     <div class="row justify-content-center">
@@ -135,7 +139,7 @@
             </form>
 
             <!-- Applications Table -->
-            <div class="card shadow-lg border-0" style="box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.15) !important;">
+            <div class="card shadow-lg border-0 admin-card-shadow">
                 <div class="card-header">
                     <strong class="card-title">Pre-Registration Applications</strong>
                 </div>
@@ -254,10 +258,10 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <form id="approveForm" method="POST" style="display: inline;">
+                <form id="approveForm" method="POST" class="admin-inline-form">
                     @csrf
                     <button type="submit" class="btn btn-success">
-                        <i class="fe fe-check"></i> Approve
+                        <i class="fe fe-check-circle fe-16 mr-2 text-white"></i> Approve
                     </button>
                 </form>
             </div>
@@ -311,7 +315,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <form id="deleteForm" method="POST" style="display: inline;">
+                <form id="deleteForm" method="POST" class="admin-inline-form">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-danger">

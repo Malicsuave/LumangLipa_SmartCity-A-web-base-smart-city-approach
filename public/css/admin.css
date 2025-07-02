@@ -371,7 +371,7 @@ body.collapsed-menu .sidebar-left {
 .complete-button i,
 .action-approve i,
 .action-complete i {
-  color: #2ecc71 !important; /* Bright green color */
+  color: #ffffff !important; /* Bright green color */
 }
 
 /* Warning action icons */
@@ -385,6 +385,161 @@ body.collapsed-menu .sidebar-left {
 .action-secondary i,
 .btn-secondary i {
   color: #ffffff !important; /* Grey color */
+}
+
+/* OVERRIDE RULES FOR CUSTOM ICON COLORS */
+/* Allow custom icon colors to override the global button colors */
+/* Higher specificity rules for table action buttons */
+table .btn i[style*="color"],
+.table .btn i[style*="color"],
+td .btn i[style*="color"],
+.action-column .btn i[style*="color"],
+.actions .btn i[style*="color"],
+.btn i[style*="color"] {
+  color: inherit !important;
+}
+
+/* Specific override for inline style colors */
+.btn i[style*="color: #dc3545"],
+.btn i[style*="color:#dc3545"],
+.btn i[style*="color: red"],
+.btn i[style*="color:#ff0000"],
+.btn-danger i[style*="color: #dc3545"],
+.btn-danger i[style*="color:#dc3545"] {
+  color: #dc3545 !important;
+}
+
+.btn i[style*="color: #28a745"],
+.btn i[style*="color:#28a745"],
+.btn i[style*="color: green"],
+.btn-success i[style*="color: #28a745"],
+.btn-success i[style*="color:#28a745"] {
+  color: #28a745 !important;
+}
+
+/* Allow any inline style color to override button defaults */
+[style*="color"] i {
+  color: inherit !important;
+}
+
+/* SPECIFIC OVERRIDES FOR BOOTSTRAP BUTTON ICONS */
+/* Make sure text-white class on icons in buttons works properly */
+.btn i.text-white,
+.btn-success i.text-white,
+.btn-danger i.text-white,
+.btn-primary i.text-white,
+.btn-warning i.text-white,
+.btn-info i.text-white,
+.btn-dark i.text-white {
+  color: #ffffff !important;
+}
+
+/* Override the previous global rules for specific button contexts */
+.btn-success i,
+.btn.btn-success i {
+  color: #ffffff !important;
+}
+
+.btn-danger i,
+.btn.btn-danger i {
+  color: #ffffff !important;
+}
+
+.btn-primary i,
+.btn.btn-primary i {
+  color: #ffffff !important;
+}
+
+/* Modal button icons - highest specificity */
+.modal-footer .btn-success i,
+.modal-footer .btn-danger i,
+.modal-footer .btn-primary i {
+  color: #ffffff !important;
+}
+
+/* ICON ALIGNMENT FIXES */
+/* Fix vertical alignment of icons in buttons */
+.btn i,
+.btn-success i,
+.btn-danger i,
+.btn-primary i,
+.btn-warning i,
+.btn-info i,
+.btn-secondary i,
+.btn-dark i,
+.btn-light i {
+  vertical-align: middle !important;
+  margin-top: -1px !important; /* Slight adjustment to center align */
+  display: inline-block !important;
+}
+
+/* Specific alignment for Feather icons */
+.btn .fe,
+.btn i.fe {
+  vertical-align: baseline !important;
+  margin-top: 0 !important;
+  line-height: 1 !important;
+}
+
+/* Alignment for Font Awesome icons */
+.btn .fa,
+.btn .fas,
+.btn .far,
+.btn .fal,
+.btn .fab,
+.btn i.fa,
+.btn i.fas,
+.btn i.far,
+.btn i.fal,
+.btn i.fab {
+  vertical-align: middle !important;
+  margin-top: -1px !important;
+}
+
+/* Ensure proper spacing between icon and text */
+.btn i.mr-1,
+.btn i.mr-2,
+.btn i + *,
+.btn .fe + * {
+  margin-left: 0.25rem !important;
+}
+
+/* Table action buttons alignment */
+table .btn i,
+.table .btn i,
+td .btn i,
+.action-column .btn i,
+.actions .btn i {
+  vertical-align: middle !important;
+  margin-top: -1px !important;
+}
+
+/* Modal and dropdown button alignment */
+.modal .btn i,
+.dropdown-menu .btn i {
+  vertical-align: middle !important;
+  margin-top: -1px !important;
+}
+
+/* Ensure dropdown menu icons keep their intended colors */
+.dropdown-menu .dropdown-item i.text-success {
+  color: #28a745 !important;
+}
+
+.dropdown-menu .dropdown-item i.text-danger {
+  color: #dc3545 !important;
+}
+
+.dropdown-menu .dropdown-item i.text-primary {
+  color: #007bff !important;
+}
+
+.dropdown-menu .dropdown-item i.text-info {
+  color: #17a2b8 !important;
+}
+
+.dropdown-menu .dropdown-item i.text-secondary {
+  color: #6c757d !important;
 }
 
 /* Hover state for all action icons */
@@ -690,5 +845,106 @@ body.collapsed-menu .sidebar-left:hover .nav-item.dropdown.active > .nav-link.dr
 .sidebar-left .nav-item a[href*="residents.id.pending"] i,
 .sidebar-left .nav-item.active a[href*="residents.id.pending"] i {
   color: #2c3e50 !important;
+}
+
+/* SIDEBAR TOGGLE FIXES */
+/* Ensure the toggle button is always visible and clickable */
+.collapseSidebar,
+#sidebarToggle {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  z-index: 1051 !important;
+}
+
+/* Override any media query that might hide the toggle button */
+@media (max-width: 991.98px) {
+  .collapseSidebar,
+  #sidebarToggle {
+    display: flex !important;
+  }
+}
+
+/* Ensure proper sidebar toggle classes work */
+.vertical.narrow .sidebar-left {
+  min-width: 5rem !important;
+  width: 5rem !important;
+  overflow: hidden !important;
+}
+
+.vertical:not(.narrow) .sidebar-left {
+  min-width: 16rem !important;
+  width: 16rem !important;
+}
+
+/* Smooth transitions for sidebar */
+.sidebar-left {
+  transition: width 0.3s ease-in-out, min-width 0.3s ease-in-out !important;
+}
+
+/* Adjust main content margin when sidebar is collapsed */
+.vertical.narrow .main-content,
+.vertical.narrow .topnav {
+  margin-left: 5rem !important;
+  transition: margin-left 0.3s ease-in-out !important;
+}
+
+.vertical:not(.narrow) .main-content,
+.vertical:not(.narrow) .topnav {
+  margin-left: 16rem !important;
+  transition: margin-left 0.3s ease-in-out !important;
+}
+
+/* Hide text elements when sidebar is narrow/collapsed */
+.vertical.narrow .sidebar-left .item-text,
+.vertical.narrow .sidebar-left .collapse-hide,
+.vertical.narrow .sidebar-left span:not(.fe):not(.material-icons) {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  width: 0 !important;
+  overflow: hidden !important;
+  transition: opacity 0.2s ease, visibility 0.2s ease !important;
+}
+
+/* Show text elements when sidebar is expanded */
+.vertical:not(.narrow) .sidebar-left .item-text,
+.vertical:not(.narrow) .sidebar-left .collapse-hide,
+.vertical:not(.narrow) .sidebar-left span:not(.fe):not(.material-icons) {
+  opacity: 1 !important;
+  visibility: visible !important;
+  width: auto !important;
+  overflow: visible !important;
+  transition: opacity 0.2s ease, visibility 0.2s ease !important;
+}
+
+/* Hover effect for collapsed sidebar */
+.vertical.narrow .sidebar-left:hover {
+  min-width: 16rem !important;
+  width: 16rem !important;
+  z-index: 1050 !important;
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.15) !important;
+}
+
+.vertical.narrow .sidebar-left:hover .item-text,
+.vertical.narrow .sidebar-left:hover .collapse-hide,
+.vertical.narrow .sidebar-left:hover span:not(.fe):not(.material-icons) {
+  opacity: 1 !important;
+  visibility: visible !important;
+  width: auto !important;
+  overflow: visible !important;
+}
+
+/* Toggle button icon rotation */
+.vertical.narrow #sidebarToggle i,
+.vertical.narrow .collapseSidebar i {
+  transform: rotate(180deg) !important;
+  transition: transform 0.3s ease !important;
+}
+
+.vertical:not(.narrow) #sidebarToggle i,
+.vertical:not(.narrow) .collapseSidebar i {
+  transform: rotate(0deg) !important;
+  transition: transform 0.3s ease !important;
 }
 

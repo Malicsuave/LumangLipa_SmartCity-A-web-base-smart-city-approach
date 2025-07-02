@@ -1,0 +1,161 @@
+/* Health Service Request Page Styles */
+
+/* Card styles */
+.card {
+    transition: all 0.3s ease;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.card-header {
+    border-radius: 0.5rem 0.5rem 0 0 !important;
+    padding: 1rem 1.5rem;
+}
+
+/* Form controls */
+.form-control,
+.form-select {
+    padding: 0.75rem 1rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Button styles */
+.btn-primary {
+    background: linear-gradient(45deg, #0d6efd, #0a58ca);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(45deg, #0a58ca, #084298);
+    transform: translateY(-1px);
+}
+
+.btn-warning:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+}
+
+/* OTP input styling */
+#otp_code {
+    font-size: 1.5rem;
+    letter-spacing: 0.5rem;
+    font-weight: bold;
+}
+
+#otp_code:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+}
+
+/* OTP timer */
+#otpTimer {
+    font-weight: 600;
+}
+
+/* Warning card header */
+.card-header.bg-warning {
+    border-bottom: 2px solid #ffc107;
+}
+
+/* Alert styles */
+.health-alert {
+    display: none;
+}
+
+.health-alert.show {
+    display: block;
+}
+
+/* Blur effect styles */
+.blurred-section {
+    position: relative;
+    transition: filter 0.3s ease;
+}
+
+.blurred-section.blurred {
+    filter: blur(3px);
+    pointer-events: none;
+    user-select: none;
+}
+
+.blurred-section .blur-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    border-radius: 0.5rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.blurred-section.blurred .blur-overlay {
+    opacity: 1;
+}
+
+.overlay-message {
+    text-align: center;
+    color: #6c757d;
+}
+
+.overlay-message i {
+    color: #ffc107;
+}
+
+.overlay-message h5 {
+    color: #495057;
+    font-weight: 600;
+}
+
+.overlay-message p {
+    color: #6c757d;
+    margin: 0;
+}
+
+/* Border start styles */
+.border-start {
+    transition: all 0.3s ease;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 0.25rem;
+}
+
+/* Floating form styles */
+.form-floating > .form-control,
+.form-floating > .form-select {
+    height: calc(3.5rem + 2px);
+    padding: 1rem 0.75rem;
+}
+
+.form-floating > label {
+    padding: 1rem 0.75rem;
+}
+
+/* Hidden sections */
+.health-section-hidden {
+    display: none;
+}
+
+/* Scheduled appointment section */
+.scheduled-appointment-section {
+    display: none;
+}
+
+.scheduled-appointment-section.show {
+    display: flex;
+}

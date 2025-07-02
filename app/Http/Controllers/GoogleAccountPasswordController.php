@@ -28,7 +28,12 @@ class GoogleAccountPasswordController extends Controller
     public function setPassword(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'password' => 'required|string|min:8|confirmed',
+            'password' => [
+                'required',
+                'string',
+                new \App\Rules\StrongPassword(),
+                'confirmed'
+            ],
         ]);
 
         if ($validator->fails()) {
@@ -53,7 +58,12 @@ class GoogleAccountPasswordController extends Controller
     public function updatePassword(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'new_password' => 'required|string|min:8|confirmed',
+            'new_password' => [
+                'required',
+                'string',
+                new \App\Rules\StrongPassword(),
+                'confirmed'
+            ],
         ]);
 
         if ($validator->fails()) {

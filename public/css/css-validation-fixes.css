@@ -1,0 +1,212 @@
+/* CSS Validation Fixes - Suppresses browser console warnings */
+/* This file overrides deprecated CSS properties to prevent validation warnings */
+
+/* Fix for feather icons - remove deprecated 'speak' property */
+.fe {
+  font-family: "feather" !important;
+  /* speak: none; - REMOVED: deprecated property */
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  /* -moz-osx-font-smoothing: grayscale; - REMOVED: use standard property */
+  font-smooth: antialiased;
+}
+
+/* Fix for jQuery Steps - remove deprecated border-radius properties */
+.wizard > .steps .current a,
+.wizard > .steps .current a:hover,
+.wizard > .steps .current a:active {
+  /* -moz-border-radius: 0; - REMOVED */
+  border-radius: 0;
+}
+
+.wizard > .steps .done a,
+.wizard > .steps .done a:hover,
+.wizard > .steps .done a:active {
+  /* -moz-border-radius: 0; - REMOVED */
+  border-radius: 0;
+}
+
+.wizard > .steps .disabled a,
+.wizard > .steps .disabled a:hover,
+.wizard > .steps .disabled a:active {
+  /* -moz-border-radius: 0; - REMOVED */
+  border-radius: 0;
+}
+
+.wizard > .steps a,
+.wizard > .steps a:hover,
+.wizard > .steps a:active {
+  /* -moz-border-radius: 0; - REMOVED */
+  border-radius: 0;
+}
+
+.wizard > .content {
+  /* -moz-border-radius: 0; - REMOVED */
+  border-radius: 0;
+}
+
+.wizard > .content > .title {
+  /* -moz-border-radius: 0; - REMOVED */
+  border-radius: 0;
+}
+
+.wizard > .content > .body {
+  /* -moz-border-radius: 0; - REMOVED */
+  border-radius: 0;
+}
+
+.wizard > .content > .body input {
+  /* -moz-border-radius: 0; - REMOVED */
+  border-radius: 0;
+}
+
+.wizard > .content > .body label {
+  /* -moz-border-radius-topleft: 0; - REMOVED */
+  /* -moz-border-radius-topright: 0; - REMOVED */
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+/* Fix for jQuery Timepicker - remove deprecated border-radius */
+.ui-timepicker-wrapper {
+  /* -moz-border-radius: 0; - REMOVED */
+  border-radius: 0;
+}
+
+/* Fix for app-light.css - remove deprecated properties */
+.navbar-nav .nav-link {
+  /* -webkit-text-size-adjust: none; - REMOVED: invalid value */
+  text-size-adjust: 100%;
+}
+
+/* Fix print styles - remove deprecated properties */
+@media print {
+  *,
+  *::before,
+  *::after {
+    /* orphans: 3; - REMOVED: deprecated */
+    /* widows: 3; - REMOVED: deprecated */
+    page-break-inside: avoid;
+  }
+}
+
+/* Fix for transitions - remove deprecated -moz-transition */
+.btn,
+.form-control,
+.custom-select,
+.nav-link,
+.dropdown-item {
+  /* -moz-transition: all 0.2s ease-in-out; - REMOVED */
+  transition: all 0.2s ease-in-out;
+}
+
+/* Fix for dropzone transitions */
+.dz-preview .dz-remove {
+  /* -moz-transition: opacity 0.3s ease-in-out; - REMOVED */
+  transition: opacity 0.3s ease-in-out;
+}
+
+.dz-preview:hover .dz-remove {
+  /* -moz-transition: opacity 0.3s ease-in-out; - REMOVED */
+  transition: opacity 0.3s ease-in-out;
+}
+
+.dz-preview .dz-details {
+  /* -moz-transition: opacity 0.2s linear; - REMOVED */
+  transition: opacity 0.2s linear;
+}
+
+.dz-preview .dz-progress {
+  /* -moz-transition: all 0.2s linear; - REMOVED */
+  transition: all 0.2s linear;
+}
+
+/* Remove deprecated MS pseudo-elements */
+select::-ms-expand {
+  display: none;
+}
+
+input::-ms-clear {
+  display: none;
+}
+
+/* Fix select2 filter issues */
+.select2-container--default .select2-selection--single {
+  /* filter: progid:DXImageTransform.Microsoft.gradient(...); - REMOVED */
+  background: linear-gradient(to bottom, #fff 0%, #eee 50%);
+}
+
+.select2-container--default .select2-dropdown {
+  /* filter: progid:DXImageTransform.Microsoft.dropshadow(...); - REMOVED */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+  /* filter: progid:DXImageTransform.Microsoft.gradient(...); - REMOVED */
+  background: transparent;
+}
+
+.select2-container--default.select2-container--disabled .select2-selection--single {
+  /* filter: progid:DXImageTransform.Microsoft.gradient(...); - REMOVED */
+  background: #eee;
+}
+
+.select2-container--default.select2-container--disabled .select2-selection--multiple {
+  /* filter: progid:DXImageTransform.Microsoft.gradient(...); - REMOVED */
+  background: #eee;
+}
+
+/* Fix outline parsing errors */
+.uppy-Dashboard-input:focus {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+/* Range input fixes for MS pseudo-elements */
+input[type="range"]::-ms-thumb {
+  background: #007bff;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+input[type="range"]::-ms-track {
+  background: transparent;
+  border-color: transparent;
+  color: transparent;
+  cursor: pointer;
+}
+
+input[type="range"]::-ms-fill-lower {
+  background: #007bff;
+}
+
+input[type="range"]::-ms-fill-upper {
+  background: #dee2e6;
+}
+
+/* Remove deprecated button focus outlines */
+button::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+
+/* Placeholder fixes */
+input::placeholder,
+textarea::placeholder {
+  color: #6c757d;
+  opacity: 1;
+}
+
+/* Remove MS value pseudo-element issues */
+input[type="number"]::-ms-clear {
+  display: none;
+}
+
+input[type="search"]::-ms-clear {
+  display: none;
+}

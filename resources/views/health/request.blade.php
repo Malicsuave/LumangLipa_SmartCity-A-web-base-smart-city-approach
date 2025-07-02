@@ -2,6 +2,10 @@
 
 @section('title', 'Health Service Request - Barangay Lumanglipa')
 
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/health-request.css') }}">
+@endpush
+
 @section('content')
 <div class="container-fluid p-0">
     <!-- Header Banner -->
@@ -40,13 +44,13 @@
 
             <div class="p-4">
                 <!-- Alerts -->
-                <div id="successAlert" class="alert alert-success alert-dismissible fade" role="alert" style="display: none;">
+                <div id="successAlert" class="alert alert-success alert-dismissible fade health-alert" role="alert">
                     <i class="fas fa-check-circle me-2"></i>
                     <span id="successMessage"></span>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
 
-                <div id="errorAlert" class="alert alert-danger alert-dismissible fade" role="alert" style="display: none;">
+                <div id="errorAlert" class="alert alert-danger alert-dismissible fade health-alert" role="alert">
                     <i class="fas fa-exclamation-triangle me-2"></i>
                     <span id="errorMessage"></span>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -90,7 +94,7 @@
                     </div>
 
                     <!-- Step 2: Resident Information -->
-                    <div id="residentInfo" class="card border shadow-sm mb-4 blurred-section" style="display: none;">
+                    <div id="residentInfo" class="card border shadow-sm mb-4 blurred-section health-section-hidden">
                         <div class="blur-overlay">
                             <div class="overlay-message">
                                 <i class="fas fa-lock fa-2x mb-3"></i>
@@ -141,7 +145,7 @@
                     </div>
 
                     <!-- Step 3: OTP Verification -->
-                    <div id="otpSection" class="card border border-warning mb-4" style="display: none;">
+                    <div id="otpSection" class="card border border-warning mb-4 health-section-hidden">
                         <div class="card-header bg-warning bg-opacity-10">
                             <h5 class="mb-0 text-warning">
                                 <i class="fas fa-shield-alt me-2"></i>
@@ -165,7 +169,7 @@
                                 </div>
                             </div>
                             
-                            <div id="otpVerifyStep" style="display: none;">
+                            <div id="otpVerifyStep" class="health-section-hidden">
                                 <p class="mb-3">
                                     <i class="fas fa-envelope text-success me-2"></i>
                                     A 6-digit OTP has been sent to: <strong id="emailHint"></strong>
@@ -199,7 +203,7 @@
                                 </div>
                             </div>
                             
-                            <div id="otpVerifiedStep" style="display: none;">
+                            <div id="otpVerifiedStep" class="health-section-hidden">
                                 <div class="alert alert-success mb-0">
                                     <i class="fas fa-check-circle me-2"></i>
                                     Email verified successfully! You can now proceed with your health service request.
@@ -265,7 +269,7 @@
                                 </div>
 
                                 <!-- Date & Time Selection (Conditional) -->
-                                <div id="scheduledAppointmentSection" class="row g-4 mt-4" style="display: none;">
+                                <div id="scheduledAppointmentSection" class="row g-4 mt-4 scheduled-appointment-section">
                                     <div class="col-md-6">
                                         <label for="preferred_date" class="form-label">
                                             <i class="fas fa-calendar-alt text-primary me-2"></i>
@@ -576,11 +580,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Show/hide appointment fields based on appointment type
     appointmentTypeSelect.addEventListener('change', function() {
         if (this.value === 'scheduled') {
-            scheduledAppointmentSection.style.display = 'flex';
+            scheduledAppointmentSection.classList.add('show');
             document.getElementById('preferred_date').setAttribute('required', '');
             document.getElementById('preferred_time').setAttribute('required', '');
         } else {
-            scheduledAppointmentSection.style.display = 'none';
+            scheduledAppointmentSection.classList.remove('show');
             document.getElementById('preferred_date').removeAttribute('required');
             document.getElementById('preferred_time').removeAttribute('required');
         }
@@ -622,8 +626,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('residentGender').textContent = data.resident.gender;
                 }
                 
-                residentInfo.style.display = 'block';
-                otpSection.style.display = 'block';
+                residentInfo.classList.remove('health-section-hidden');
+                otpSection.classList.remove('health-section-hidden');
                 residentVerified = true;
                 
                 // Change button text
@@ -715,7 +719,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 barangay_id: barangayId,
                 otp_code: otpCode
             })
-        })
+        )
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -900,8 +904,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const successAlert = document.getElementById('successAlert');
         const successMessage = document.getElementById('successMessage');
         successMessage.textContent = message;
-        successAlert.style.display = 'block';
         successAlert.classList.add('show');
+        successAlert.style.display = 'block';
         
         // Hide error if visible
         hideError();
@@ -914,8 +918,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const errorAlert = document.getElementById('errorAlert');
         const errorMessage = document.getElementById('errorMessage');
         errorMessage.textContent = message;
-        errorAlert.style.display = 'block';
         errorAlert.classList.add('show');
+        errorAlert.style.display = 'block';
         
         // Hide success if visible
         const successAlert = document.getElementById('successAlert');
@@ -933,16 +937,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function resetForm() {
-        residentInfo.style.display = 'none';
-        otpSection.style.display = 'none';
-        scheduledAppointmentSection.style.display = 'none';
+        residentInfo.classList.add('health-section-hidden');
+        otpSection.classList.add('health-section-hidden');
+        scheduledAppointmentSection.classList.remove('show');
         residentVerified = false;
         otpVerified = false;
         
         // Reset OTP section
         document.getElementById('otpRequestStep').style.display = 'block';
-        document.getElementById('otpVerifyStep').style.display = 'none';
-        document.getElementById('otpVerifiedStep').style.display = 'none';
+        document.getElementById('otpVerifyStep').classList.add('health-section-hidden');
+        document.getElementById('otpVerifiedStep').classList.add('health-section-hidden');
         otpCodeInput.value = '';
         
         if (otpTimer) {
@@ -1001,137 +1005,4 @@ document.addEventListener('DOMContentLoaded', function() {
     addBlurEffects();
 });
 </script>
-@endpush
-
-@push('styles')
-<style>
-.card {
-    transition: all 0.3s ease;
-    border-radius: 0.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.card:hover {
-    transform: translateY(-2px);
-}
-
-.card-header {
-    border-radius: 0.5rem 0.5rem 0 0 !important;
-    padding: 1rem 1.5rem;
-}
-
-.form-control,
-.form-select {
-    padding: 0.75rem 1rem;
-}
-
-.form-control:focus,
-.form-select:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-}
-
-.btn-primary {
-    background: linear-gradient(45deg, #0d6efd, #0a58ca);
-    border: none;
-}
-
-.btn-primary:hover {
-    background: linear-gradient(45deg, #0a58ca, #084298);
-    transform: translateY(-1px);
-}
-
-#otp_code {
-    font-size: 1.5rem;
-    letter-spacing: 0.5rem;
-    font-weight: bold;
-}
-
-#otp_code:focus {
-    border-color: #198754;
-    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
-}
-
-.card-header.bg-warning {
-    border-bottom: 2px solid #ffc107;
-}
-
-.btn-warning:hover {
-    background-color: #e0a800;
-    border-color: #d39e00;
-}
-
-#otpTimer {
-    font-weight: 600;
-}
-
-/* Blur effect styles */
-.blurred-section {
-    position: relative;
-    transition: filter 0.3s ease;
-}
-
-.blurred-section.blurred {
-    filter: blur(3px);
-    pointer-events: none;
-    user-select: none;
-}
-
-.blurred-section .blur-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(255, 255, 255, 0.9);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-    border-radius: 0.5rem;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.blurred-section.blurred .blur-overlay {
-    opacity: 1;
-}
-
-.overlay-message {
-    text-align: center;
-    color: #6c757d;
-}
-
-.overlay-message i {
-    color: #ffc107;
-}
-
-.overlay-message h5 {
-    color: #495057;
-    font-weight: 600;
-}
-
-.overlay-message p {
-    color: #6c757d;
-    margin: 0;
-}
-
-.border-start {
-    transition: all 0.3s ease;
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-    background-color: rgba(255, 255, 255, 0.7);
-    border-radius: 0.25rem;
-}
-
-.form-floating > .form-control,
-.form-floating > .form-select {
-    height: calc(3.5rem + 2px);
-    padding: 1rem 0.75rem;
-}
-
-.form-floating > label {
-    padding: 1rem 0.75rem;
-}
-</style>
 @endpush

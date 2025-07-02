@@ -181,10 +181,7 @@
 
 /* Make sure cards are visible properly in dark mode */
 @media (prefers-color-scheme: dark) {
-  .metric-card {
-    background-color: #ffffff !important;
-  }
-  
+  /* Removed forced white background to allow custom backgrounds */
   .metric-counter {
     color: #2d3748 !important;
   }

@@ -1,5 +1,9 @@
 @extends('layouts.admin.master')
 
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/admin-common.css') }}">
+@endpush
+
 @section('content')
 <div class="row">
     <div class="col-md-12 mb-4">
@@ -9,7 +13,7 @@
 
 <div class="row">
     <div class="col-md-12">
-        <div class="card shadow-lg border-0" style="box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.15) !important;">
+        <div class="card shadow-lg border-0 admin-card-shadow">
             <div class="card-header">
                 <strong class="card-title">Manage Document Requests</strong>
             </div>
@@ -154,6 +158,32 @@
     </div>
 </div>
 
+<!-- Approve Modal -->
+<div class="modal fade" id="approveModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Approve Document Request</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to approve this document request?</p>
+                <p class="text-info">
+                    <i class="fe fe-info"></i> This will generate the document and notify the resident via email.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" id="confirmApprove">
+                    <i class="fe fe-check-circle fe-16 mr-2 text-white"></i> Approve Request
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Reject Modal -->
 <div class="modal fade" id="rejectModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
@@ -182,7 +212,7 @@
 
 <!-- Document Preview Modal -->
 <div class="modal fade" id="documentPreviewModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-xl" role="document" style="max-width: 95vw;">
+    <div class="modal-dialog modal-xl admin-modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Document Preview</h5>
@@ -195,8 +225,8 @@
                     </button>
                 </div>
             </div>
-            <div class="modal-body p-0" style="height: 80vh; overflow: auto;">
-                <iframe id="documentFrame" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+            <div class="modal-body admin-modal-body-iframe">
+                <iframe id="documentFrame" src="" class="admin-iframe-full"></iframe>
             </div>
         </div>
     </div>
@@ -285,28 +315,31 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.approve-request').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.preventDefault();
-            const requestId = this.getAttribute('data-id');
-            
-            if (confirm('Are you sure you want to approve this document request?')) {
-                fetch(`/admin/documents/${requestId}/approve`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    } else {
-                        alert('Error approving request');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error approving request');
-                });
+            currentRequestId = this.getAttribute('data-id');
+            $('#approveModal').modal('show');
+        });
+    });
+
+    // Confirm Approve
+    document.getElementById('confirmApprove').addEventListener('click', function() {
+        fetch(`/admin/documents/${currentRequestId}/approve`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                $('#approveModal').modal('hide');
+                location.reload();
+            } else {
+                alert('Error approving request');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error approving request');
         });
     });
 

@@ -3,294 +3,419 @@
 @section('title', 'Security Dashboard')
 
 @section('content')
-<div class="row align-items-center mb-4">
-    <div class="col">
-        <h2 class="h5 page-title">Security Page</h2>
-        <p class="text-muted">Monitor login activities, account security, and suspicious events</p>
-    </div>
-    <div class="col-auto">
-        <a href="{{ route('admin.security.activities') }}" class="btn btn-primary">
-            <i class="fe fe-activity fe-16 mr-2"></i>
-            View All Activities
-        </a>
-    </div>
-</div>
-
-<!-- Security metrics -->
-<div class="row">
-    <!-- Total Logins Card -->
-    <div class="col-md-3">
-        <div class="card shadow mb-4">
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <span class="h2 mb-0">{{ $loginStats['month'] ?? 0 }}</span>
-                        <p class="text-muted mb-0">Total Logins</p>
-                        <p class="small text-muted mb-0">Last 30 days</p>
-                    </div>
-                    <div class="col-auto">
-                        <span class="fe fe-log-in fe-24 text-primary"></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Today's Logins Card -->
-    <div class="col-md-3">
-        <div class="card shadow mb-4">
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <span class="h2 mb-0">{{ $loginStats['today'] ?? 0 }}</span>
-                        <p class="text-muted mb-0">Today's Logins</p>
-                        <p class="small text-muted mb-0">Last 24 hours</p>
-                    </div>
-                    <div class="col-auto">
-                        <span class="fe fe-calendar fe-24 text-success"></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Failed Login Attempts Card -->
-    <div class="col-md-3">
-        <div class="card shadow mb-4">
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <span class="h2 mb-0">{{ $failedLoginStats['week'] ?? 0 }}</span>
-                        <p class="text-muted mb-0">Failed Attempts</p>
-                        <p class="small text-muted mb-0">Last 7 days</p>
-                    </div>
-                    <div class="col-auto">
-                        <span class="fe fe-alert-circle fe-24 text-warning"></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- 2FA Status Card -->
-    <div class="col-md-3">
-        <div class="card shadow mb-4">
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col">
-                        @if(isset($twoFactorStats))
-                            @php
-                                $percentage = $twoFactorStats['total_users'] > 0
-                                    ? round(($twoFactorStats['enabled'] / $twoFactorStats['total_users']) * 100)
-                                    : 0;
-                            @endphp
-                            <span class="h2 mb-0">{{ $percentage }}%</span>
-                        @else
-                            <span class="h2 mb-0">0%</span>
-                        @endif
-                        <p class="text-muted mb-0">2FA Adoption</p>
-                        <p class="small text-muted mb-0">Accounts with 2FA enabled</p>
-                    </div>
-                    <div class="col-auto">
-                        <span class="fe fe-shield fe-24 text-primary"></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Login Activity Chart -->
-<div class="row">
-    <div class="col-md-8">
-        <div class="card shadow mb-4">
-            <div class="card-header">
-                <strong>Login Activity (Last 14 Days)</strong>
-            </div>
-            <div class="card-body">
-                <div class="chart-holder">
-                    <canvas id="loginActivityChart" height="300"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Suspicious Activity List -->
-    <div class="col-md-4">
-        <div class="card shadow mb-4">
-            <div class="card-header">
-                <strong>Suspicious Activities</strong>
-            </div>
-            <div class="card-body">
-                @if(isset($suspiciousActivities) && count($suspiciousActivities) > 0)
-                    <div class="list-group list-group-flush my-n3">
-                        @foreach($suspiciousActivities as $activity)
-                            <div class="list-group-item">
-                                <div class="row align-items-center">
-                                    <div class="col-auto">
-                                        <span class="fe fe-alert-triangle fe-24 text-warning"></span>
-                                    </div>
-                                    <div class="col">
-                                        <small><strong>{{ $activity->user->name }}</strong></small>
-                                        <div class="my-0 text-muted small">{{ ucfirst($activity->activity_type) }} from new location</div>
-                                        <small class="badge badge-pill badge-light text-muted">
-                                            {{ $activity->created_at->diffForHumans() }}
-                                        </small>
-                                    </div>
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <!-- Security Overview Cards -->
+            <div class="row mb-4">
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="card border-left-success shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                        Successful Logins Today</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $metrics['successful_logins_today'] }}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-check-circle fa-2x text-gray-300"></i>
                                 </div>
                             </div>
-                        @endforeach
+                        </div>
                     </div>
-                @else
-                    <div class="alert alert-success mb-0">
-                        <i class="fe fe-check-circle mr-1"></i> No suspicious activities detected
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="card border-left-danger shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                        Failed Logins Today</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $metrics['failed_logins_today'] }}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                @endif
-                
-                <div class="text-center mt-3">
-                    <a href="{{ route('admin.security.activities', ['suspicious' => 1]) }}" class="btn btn-sm btn-secondary">View All</a>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="card border-left-warning shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                        Locked Accounts</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $metrics['locked_accounts'] }}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-lock fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="card border-left-info shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                        Active Sessions</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $metrics['active_sessions'] }}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-users fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            <!-- Additional Security Metrics -->
+            <div class="row mb-4">
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="card shadow h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="mr-3">
+                                    <i class="fas fa-shield-alt fa-2x text-primary"></i>
+                                </div>
+                                <div>
+                                    <div class="text-xs font-weight-bold text-uppercase mb-1">2FA Enabled</div>
+                                    <div class="h5 mb-0 font-weight-bold">{{ $metrics['accounts_with_2fa'] }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="card shadow h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="mr-3">
+                                    <i class="fas fa-key fa-2x text-warning"></i>
+                                </div>
+                                <div>
+                                    <div class="text-xs font-weight-bold text-uppercase mb-1">Password Changes Required</div>
+                                    <div class="h5 mb-0 font-weight-bold">{{ $metrics['accounts_requiring_password_change'] }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="card shadow h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="mr-3">
+                                    <i class="fas fa-clock fa-2x text-danger"></i>
+                                </div>
+                                <div>
+                                    <div class="text-xs font-weight-bold text-uppercase mb-1">Expired Passwords</div>
+                                    <div class="h5 mb-0 font-weight-bold">{{ $metrics['expired_passwords'] }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="card shadow h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="mr-3">
+                                    <i class="fas fa-bug fa-2x text-danger"></i>
+                                </div>
+                                <div>
+                                    <div class="text-xs font-weight-bold text-uppercase mb-1">Suspicious Activities Today</div>
+                                    <div class="h5 mb-0 font-weight-bold">{{ $metrics['suspicious_activities_today'] }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Recent Security Events -->
+                <div class="col-lg-8 mb-4">
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Recent Security Events</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Time</th>
+                                            <th>User</th>
+                                            <th>Event</th>
+                                            <th>IP Address</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($recentEvents as $event)
+                                        <tr>
+                                            <td>{{ \Carbon\Carbon::parse($event['created_at'])->diffForHumans() }}</td>
+                                            <td>
+                                                <small>{{ $event['user'] }}<br>
+                                                <span class="text-muted">{{ $event['email'] }}</span></small>
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-{{ $event['type'] === 'login_success' ? 'success' : ($event['type'] === 'login_failed' ? 'danger' : 'warning') }}">
+                                                    {{ ucfirst(str_replace('_', ' ', $event['type'])) }}
+                                                </span>
+                                            </td>
+                                            <td><small>{{ $event['ip_address'] }}</small></td>
+                                            <td>
+                                                @if($event['is_suspicious'])
+                                                    <i class="fas fa-exclamation-triangle text-warning" title="Suspicious activity"></i>
+                                                @else
+                                                    <i class="fas fa-check-circle text-success" title="Normal activity"></i>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        @empty
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted">No recent security events</td>
+                                        </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Locked Accounts -->
+                <div class="col-lg-4 mb-4">
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-danger">Locked Accounts</h6>
+                        </div>
+                        <div class="card-body">
+                            @forelse($lockedAccounts as $account)
+                            <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
+                                <div>
+                                    <strong>{{ $account['name'] }}</strong><br>
+                                    <small class="text-muted">{{ $account['email'] }}</small><br>
+                                    <small class="text-danger">{{ $account['failed_attempts'] }} failed attempts</small>
+                                </div>
+                                <div class="text-right">
+                                    <small class="text-muted">Unlocks {{ $account['unlock_time'] }}</small><br>
+                                    <button class="btn btn-sm btn-outline-success" onclick="unlockAccount({{ $account['id'] }})">
+                                        <i class="fas fa-unlock"></i> Unlock
+                                    </button>
+                                </div>
+                            </div>
+                            @empty
+                            <p class="text-muted">No accounts are currently locked</p>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Suspicious Activities -->
+            @if(count($suspiciousActivities) > 0)
+            <div class="row">
+                <div class="col-12">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-warning">Suspicious Activities</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Time</th>
+                                            <th>User</th>
+                                            <th>Activity</th>
+                                            <th>IP Address</th>
+                                            <th>Details</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($suspiciousActivities as $activity)
+                                        <tr>
+                                            <td>{{ \Carbon\Carbon::parse($activity['created_at'])->format('M j, Y H:i') }}</td>
+                                            <td>
+                                                {{ $activity['user'] }}<br>
+                                                <small class="text-muted">{{ $activity['email'] }}</small>
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-warning">
+                                                    {{ ucfirst(str_replace('_', ' ', $activity['type'])) }}
+                                                </span>
+                                            </td>
+                                            <td>{{ $activity['ip_address'] }}</td>
+                                            <td>
+                                                @if(isset($activity['details']['reasons']))
+                                                    <small>{{ implode(', ', $activity['details']['reasons']) }}</small>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($activity['email'] !== 'N/A')
+                                                <div class="btn-group btn-group-sm">
+                                                    <button class="btn btn-outline-warning btn-sm" onclick="forcePasswordChange('{{ $activity['email'] }}')">
+                                                        <i class="fas fa-key"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-danger btn-sm" onclick="disableAccount('{{ $activity['email'] }}')">
+                                                        <i class="fas fa-ban"></i>
+                                                    </button>
+                                                </div>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
         </div>
     </div>
 </div>
 
-<!-- Recent User Activities -->
-<div class="row">
-    <div class="col-md-12">
-        <div class="card shadow mb-4">
-            <div class="card-header">
-                <strong>Recent User Activities</strong>
+<!-- Modals for Account Actions -->
+<div class="modal fade" id="disableAccountModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Disable User Account</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
             </div>
-            <div class="card-body">
-                @if(isset($recentActivities) && count($recentActivities) > 0)
-                    <table class="table table-borderless table-hover">
-                        <thead>
-                            <tr>
-                                <th>User</th>
-                                <th>Activity</th>
-                                <th>Device</th>
-                                <th>IP Address</th>
-                                <th>Time</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($recentActivities as $activity)
-                                <tr>
-                                    <td>{{ $activity->user->name }}</td>
-                                    <td>{{ ucfirst(str_replace('_', ' ', $activity->activity_type)) }}</td>
-                                    <td>
-                                        @if($activity->device_type == 'mobile')
-                                            <i class="fe fe-smartphone mr-1"></i>
-                                        @elseif($activity->device_type == 'tablet')
-                                            <i class="fe fe-tablet mr-1"></i>
-                                        @else
-                                            <i class="fe fe-monitor mr-1"></i>
-                                        @endif
-                                        {{ ucfirst($activity->device_type) }}
-                                    </td>
-                                    <td>{{ $activity->ip_address }}</td>
-                                    <td>{{ $activity->created_at->format('M d, Y g:i A') }}</td>
-                                    <td>
-                                        @if($activity->is_suspicious)
-                                            <span class="badge badge-pill badge-warning">Suspicious</span>
-                                        @else
-                                            <span class="badge badge-pill badge-success">Normal</span>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                @else
-                    <div class="alert alert-info mb-0">
-                        <i class="fe fe-info mr-1"></i> No recent activities to display
+            <div class="modal-body">
+                <form id="disableAccountForm">
+                    <div class="form-group">
+                        <label>Reason for disabling account:</label>
+                        <textarea class="form-control" name="reason" rows="3" required placeholder="Enter reason for account suspension..."></textarea>
                     </div>
-                @endif
+                    <input type="hidden" name="user_email" id="disableUserEmail">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" onclick="submitDisableAccount()">Disable Account</button>
             </div>
         </div>
     </div>
 </div>
 @endsection
 
-@push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+@section('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Set up login activity chart
-    var ctx = document.getElementById('loginActivityChart');
+function unlockAccount(userId) {
+    if (!confirm('Are you sure you want to unlock this account?')) return;
     
-    // Check if we have chart data
-    @if(isset($loginChartData) && isset($failedChartData))
-        var loginChartData = {!! $loginChartData !!};
-        var failedChartData = {!! $failedChartData !!};
-        
-        var labels = loginChartData.map(function(item) { return item.date; });
-        var successData = loginChartData.map(function(item) { return item.count; });
-        var failedData = failedChartData.map(function(item) { return item.count; });
-        
-        var myChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Successful Logins',
-                    data: successData,
-                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
-                    borderColor: 'rgba(52, 152, 219, 1)',
-                    borderWidth: 2,
-                    pointBackgroundColor: 'rgba(52, 152, 219, 1)',
-                    tension: 0.4
-                }, {
-                    label: 'Failed Attempts',
-                    data: failedData,
-                    backgroundColor: 'rgba(231, 76, 60, 0.1)',
-                    borderColor: 'rgba(231, 76, 60, 1)',
-                    borderWidth: 2,
-                    pointBackgroundColor: 'rgba(231, 76, 60, 1)',
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: true,
-                            stepSize: 1
-                        }
-                    }]
-                }
-            }
-        });
-    @else
-        // Display empty chart with message if no data
-        var myChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['No Data Available'],
-                datasets: [{
-                    data: [0],
-                    backgroundColor: 'rgba(200, 200, 200, 0.2)',
-                    borderColor: 'rgba(200, 200, 200, 1)'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                legend: { display: false },
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: true
-                        }
-                    }]
-                }
-            }
-        });
-    @endif
-});
+    fetch(`/admin/security/users/${userId}/unlock`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while unlocking the account');
+    });
+}
+
+function forcePasswordChange(userEmail) {
+    if (!confirm('Force this user to change their password on next login?')) return;
+    
+    // Find user ID by email (you'd need to pass this in the view or make an API call)
+    // For now, we'll use a simplified approach
+    fetch('/admin/security/users/force-password-change', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({email: userEmail})
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('User will be required to change password on next login');
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred');
+    });
+}
+
+function disableAccount(userEmail) {
+    document.getElementById('disableUserEmail').value = userEmail;
+    $('#disableAccountModal').modal('show');
+}
+
+function submitDisableAccount() {
+    const form = document.getElementById('disableAccountForm');
+    const formData = new FormData(form);
+    const userEmail = formData.get('user_email');
+    const reason = formData.get('reason');
+    
+    if (!reason.trim()) {
+        alert('Please provide a reason for disabling the account');
+        return;
+    }
+    
+    // Similar to above, this would need proper user ID resolution
+    fetch('/admin/security/users/disable', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({email: userEmail, reason: reason})
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            $('#disableAccountModal').modal('hide');
+            location.reload();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while disabling the account');
+    });
+}
+
+// Auto-refresh every 30 seconds
+setInterval(() => {
+    location.reload();
+}, 30000);
 </script>
-@endpush
+@endsection
