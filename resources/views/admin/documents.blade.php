@@ -145,9 +145,33 @@
                     </div>
                 </div>
                 <div class="row mt-3">
-                    <div class="col-12">
+                    <div class="col-12 mb-3">
                         <h6>Purpose</h6>
                         <p id="modal-purpose" class="border p-3 rounded bg-light"></p>
+                    </div>
+                    <div class="col-12">
+                        <h6 class="mb-2 text-center">Payment Receipt</h6>
+                        <div class="d-flex flex-column align-items-center justify-content-center mb-2">
+                            <div id="modal-receipt-container" class="mb-1">
+                                <span class="text-muted">No receipt uploaded.</span>
+                            </div>
+                            <small class="text-muted" id="receipt-note" style="font-size:0.82rem;line-height:1.2;background:#f8f9fa;padding:2px 8px;border-radius:6px;display:inline-block;margin-top:2px;">Click the receipt image</small>
+                        </div>
+                        <!-- Enlarged Receipt Modal -->
+                        <div class="modal fade" id="enlargeReceiptModal" tabindex="-1" role="dialog" aria-hidden="true">
+                            <div class="modal-dialog modal-md modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header justify-content-end align-items-center">
+                                        <button type="button" class="btn p-0 border-0 bg-transparent" id="closeEnlargeReceipt" aria-label="Close" style="font-size:1.3rem;">
+                                            <i class="fe fe-x" style="font-size:1.4rem;"></i>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body text-center p-2" id="enlargeReceiptBody" style="min-height:40px;">
+                                        <!-- Content inserted by JS -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -254,7 +278,67 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('modal-barangay-id').textContent = data.barangay_id;
                     document.getElementById('modal-resident-address').textContent = data.resident ? data.resident.address : 'N/A';
                     document.getElementById('modal-purpose').textContent = data.purpose;
-                    
+                    // Show receipt if available
+                    const receiptContainer = document.getElementById('modal-receipt-container');
+                    if (data.receipt_path) {
+                        const ext = data.receipt_path.split('.').pop().toLowerCase();
+                        let html = '';
+                        if (["jpg","jpeg","png","gif","bmp","webp"].includes(ext)) {
+                            html = `<img src="/storage/${data.receipt_path}" alt="Receipt" id="receiptThumb" style="max-width:220px;max-height:220px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);margin-bottom:8px;cursor:pointer;">`;
+                        } else if (ext === 'pdf') {
+                            html = `<button class="btn btn-outline-primary" id="viewPdfReceipt"><i class="fe fe-file-text mr-2"></i>View PDF Receipt</button>`;
+                        } else {
+                            html = `<a href="/storage/${data.receipt_path}" target="_blank">Download Receipt</a>`;
+                        }
+                        receiptContainer.innerHTML = html;
+                        // Image enlarge handler
+                        if (["jpg","jpeg","png","gif","bmp","webp"].includes(ext)) {
+                            receiptContainer.innerHTML = `<img src='/storage/${data.receipt_path}' alt='Receipt' id='receiptThumb' style='max-width:140px;max-height:220px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-bottom:8px;cursor:pointer;'>`;
+                            const thumb = document.getElementById('receiptThumb');
+                            if (thumb) {
+                                thumb.addEventListener('click', function() {
+                                    document.getElementById('enlargeReceiptBody').innerHTML = `<img src='/storage/${data.receipt_path}' alt='Receipt' style='max-width:100%;max-height:80vh;border-radius:8px;box-shadow:0 2px 16px rgba(0,0,0,0.12);'>`;
+                                    $('#enlargeReceiptModal').modal('show');
+                                    // Add close (X) button handler
+                                    setTimeout(function() {
+                                        const closeBtn = document.getElementById('closeEnlargeReceipt');
+                                        if (closeBtn) {
+                                            closeBtn.onclick = function() {
+                                                $('#enlargeReceiptModal').modal('hide');
+                                                setTimeout(function() {
+                                                    $('#viewDetailsModal').modal('show');
+                                                }, 300);
+                                            };
+                                        }
+                                    }, 100);
+                                });
+                            }
+                        }
+                        // PDF view handler
+                        if (ext === 'pdf') {
+                            const btn = document.getElementById('viewPdfReceipt');
+                            if (btn) {
+                                btn.addEventListener('click', function() {
+                                    document.getElementById('enlargeReceiptBody').innerHTML = `<iframe src='/storage/${data.receipt_path}#toolbar=1&navpanes=0&scrollbar=1' style='width:100%;height:80vh;border:none;'></iframe>`;
+                                    $('#enlargeReceiptModal').modal('show');
+                                    // Add close (X) button handler
+                                    setTimeout(function() {
+                                        const closeBtn = document.getElementById('closeEnlargeReceipt');
+                                        if (closeBtn) {
+                                            closeBtn.onclick = function() {
+                                                $('#enlargeReceiptModal').modal('hide');
+                                                setTimeout(function() {
+                                                    $('#viewDetailsModal').modal('show');
+                                                }, 300);
+                                            };
+                                        }
+                                    }, 100);
+                                });
+                            }
+                        }
+                    } else {
+                        receiptContainer.innerHTML = '<span class="text-muted">No receipt uploaded.</span>';
+                    }
                     $('#viewDetailsModal').modal('show');
                 })
                 .catch(error => {

@@ -174,7 +174,7 @@ class User extends Authenticatable
      */
     public function needsPasswordChange(): bool
     {
-        return $this->force_password_change;
+        return (bool) $this->force_password_change;
     }
 
     /**

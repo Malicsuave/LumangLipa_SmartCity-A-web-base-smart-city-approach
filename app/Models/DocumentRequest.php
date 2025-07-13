@@ -19,6 +19,7 @@ class DocumentRequest extends Model
         'approved_at',
         'approved_by',
         'rejection_reason',
+        'receipt_path',
     ];
 
     protected $casts = [

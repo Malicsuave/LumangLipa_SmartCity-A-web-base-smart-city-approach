@@ -56,14 +56,7 @@
                                 Enter your registered Barangay ID to verify your information
                             </div>
                         </div>                        <!-- Resident Information Display -->
-                        <div id="residentInfo" class="card border-success mb-4 blurred-section" style="display: none;">
-                            <div class="blur-overlay">
-                                <div class="overlay-message">
-                                    <i class="fas fa-lock fa-2x mb-3"></i>
-                                    <h5>Verify Email to View</h5>
-                                    <p>Complete email verification to see your information</p>
-                                </div>
-                            </div>
+                        <div id="residentInfo" class="card border-success mb-4" style="display: none;">
                             <div class="card-header bg-light">
                                 <h6 class="mb-0 text-success">
                                     <i class="fas fa-user-check me-2"></i>
@@ -217,7 +210,8 @@
                         </div>
 
                         <!-- Submit Button -->
-                        <div class="d-grid gap-2">                            <button type="submit" 
+                        <div id="submitButtonSection" class="d-grid gap-2" style="display: none;">
+                            <button type="submit" 
                                     class="btn btn-primary btn-lg" 
                                     id="submitBtn" 
                                     disabled>
@@ -395,6 +389,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Remove blur effects
                 removeBlurEffects();
                 
+                // Show submit button section
+                document.getElementById('submitButtonSection').style.display = 'block';
+                
                 checkFormValidity();
                 
                 // Stop timer
@@ -568,6 +565,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function resetForm() {
         residentInfo.style.display = 'none';
         otpSection.style.display = 'none';
+        document.getElementById('submitButtonSection').style.display = 'none';
         residentVerified = false;
         otpVerified = false;
         

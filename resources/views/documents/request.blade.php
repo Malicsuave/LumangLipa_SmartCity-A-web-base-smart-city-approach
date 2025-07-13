@@ -195,6 +195,30 @@
                                 </div>
                             </div>
 
+                            <!-- GCash Payment Instructions -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-money-bill-wave text-success me-2"></i>
+                                    Payment Instructions
+                                </label>
+                                <div class="alert alert-info">
+                                    Please pay <strong>₱50</strong> via GCash to <strong>0912345678 (LumangLipaGcash)</strong>.<br>
+                                    <strong>Upload a screenshot or photo of your payment receipt below to proceed.</strong>
+                                </div>
+                            </div>
+
+                            <!-- Receipt Upload -->
+                            <div class="mb-4">
+                                <label for="receipt" class="form-label fw-bold">
+                                    <i class="fas fa-receipt text-primary me-2"></i>
+                                    Upload GCash Payment Receipt <span class="text-danger">*</span>
+                                </label>
+                                <input type="file" class="form-control" id="receipt" name="receipt" accept="image/*,.pdf" required disabled>
+                                <div class="form-text">
+                                    Accepted formats: JPG, PNG, PDF. Max size: 5MB.
+                                </div>
+                            </div>
+
                             <!-- Submit Button -->
                             <div class="d-grid">
                                 <button type="submit" 
@@ -592,15 +616,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Form validation
     function checkFormValidity() {
+        const receiptInput = document.getElementById('receipt');
         const isValid = residentVerified && 
                        otpVerified &&
                        documentTypeSelect.value && 
-                       purposeTextarea.value.trim();
+                       purposeTextarea.value.trim() &&
+                       receiptInput.files.length > 0;
         submitBtn.disabled = !isValid;
     }
 
     documentTypeSelect.addEventListener('change', checkFormValidity);
     purposeTextarea.addEventListener('input', checkFormValidity);
+    document.getElementById('receipt').addEventListener('change', checkFormValidity);
 
     // Form submission
     form.addEventListener('submit', function(e) {
@@ -616,22 +643,27 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
+        const receiptInput = document.getElementById('receipt');
+        if (!receiptInput.files.length) {
+            showError('Please upload your GCash payment receipt.');
+            return;
+        }
+
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
 
-        const formData = {
-            barangay_id: barangayIdInput.value,
-            document_type: documentTypeSelect.value,
-            purpose: purposeTextarea.value
-        };
+        const formData = new FormData();
+        formData.append('barangay_id', barangayIdInput.value);
+        formData.append('document_type', documentTypeSelect.value);
+        formData.append('purpose', purposeTextarea.value);
+        formData.append('receipt', receiptInput.files[0]);
 
         fetch('{{ route("documents.store") }}', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             },
-            body: JSON.stringify(formData)
+            body: formData
         })
         .then(response => response.json())
         .then(data => {

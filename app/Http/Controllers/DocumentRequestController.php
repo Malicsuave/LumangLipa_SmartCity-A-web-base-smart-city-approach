@@ -37,6 +37,7 @@ class DocumentRequestController extends Controller
             'barangay_id' => 'required|string|exists:residents,barangay_id',
             'document_type' => 'required|string|in:Barangay Clearance,Certificate of Residency,Certificate of Indigency,Certificate of Low Income,Business Permit',
             'purpose' => 'required|string|max:500',
+            'receipt' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ]);
 
         if ($validator->fails()) {
@@ -63,12 +64,19 @@ class DocumentRequestController extends Controller
             ], 422);
         }
 
+        // Handle file upload
+        $receiptPath = null;
+        if ($request->hasFile('receipt')) {
+            $receiptPath = $request->file('receipt')->store('receipts', 'public');
+        }
+
         // Create document request
         $documentRequest = DocumentRequest::create([
             'barangay_id' => $request->barangay_id,
             'document_type' => $request->document_type,
             'purpose' => $request->purpose,
             'status' => 'pending',
+            'receipt_path' => $receiptPath,
         ]);
 
         return response()->json([
