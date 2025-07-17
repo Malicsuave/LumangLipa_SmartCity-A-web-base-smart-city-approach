@@ -111,7 +111,7 @@ class HealthServiceController extends Controller
             'other' => 'Other Health Service'
         ];
 
-        return view('public/forms/health-request', compact('serviceTypes'));
+        return view('public.forms.health-request', compact('serviceTypes'));
     }
 
     public function store(Request $request)

@@ -162,7 +162,7 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link text-white px-4 py-2 rounded-pill modern-nav-link {{ str_contains(Route::currentRouteName(), 'public.pre-registration') ? 'active' : '' }}" 
-                           href="{{ route('public.pre-registration.create') }}"
+                           href="{{ route('public.pre-registration.step1') }}"
                            style="font-weight: 500; letter-spacing: 0.5px; font-size: 14px; transition: all 0.3s ease;">
                            REGISTER
                         </a>
