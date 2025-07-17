@@ -252,12 +252,22 @@ class ComplaintController extends Controller
                 'success' => false,
                 'message' => 'No resident found with this Barangay ID'
             ], 404);
-        }        return response()->json([
+        }
+
+        $age = $resident->birthdate ? Carbon::parse($resident->birthdate)->age : null;
+        if ($age !== null && $age < 18) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You must be 18 years old or above to file a complaint online. Minors are not allowed to file complaints through this system. Please go to the barangay office with your guardian to file a complaint.'
+            ], 403);
+        }
+
+        return response()->json([
             'success' => true,
             'resident' => [
                 'name' => trim("{$resident->first_name} {$resident->middle_name} {$resident->last_name}"),
                 'address' => $resident->address,
-                'age' => $resident->birthdate ? Carbon::parse($resident->birthdate)->age : 'N/A',
+                'age' => $age ?? 'N/A',
                 'contact_number' => $resident->contact_number,
             ]
         ]);
