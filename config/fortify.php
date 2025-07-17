@@ -72,21 +72,7 @@ return [
     |
     */
 
-    'home' => function () {
-        if (session()->has('url.intended')) {
-            $intended = session('url.intended');
-            session()->forget('url.intended');
-            return $intended;
-        }
-        
-        // Check if user has admin roles and redirect accordingly
-        $user = auth()->user();
-        if ($user && $user->role && in_array($user->role->name, ['Barangay Captain', 'Barangay Secretary'])) {
-            return '/admin/dashboard';
-        }
-        
-        return '/dashboard';
-    },
+    'home' => '/dashboard',
 
     /*
     |--------------------------------------------------------------------------

@@ -43,4 +43,8 @@ return [
         'smtp_password' => env('MAIL_PASSWORD'),
         'smtp_encryption' => env('MAIL_ENCRYPTION', 'tls'),
     ],
+
+    'huggingface' => [
+        'api_key' => env('HUGGINGFACE_API_KEY'),
+    ],
 ];
