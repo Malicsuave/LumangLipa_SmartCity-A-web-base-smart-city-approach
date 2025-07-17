@@ -295,12 +295,13 @@
             <div class="col-md-4">
                 <div class="card shadow-sm border-0">
                     <div class="card-body">
-                        <i class="fe fe-user-plus fe-48 text-primary mb-4"></i>
-                        <h4>Resident Pre-Registration</h4>
-                        <p>Register as a new resident online and get your digital barangay ID after approval.</p>
-                        <a href="{{ route('public.pre-registration.create') }}" class="btn btn-primary mt-2">Register Now</a>
-                        <div class="mt-2">
-                            <small><a href="{{ route('public.pre-registration.check-status') }}" class="text-muted">Check Registration Status</a></small>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                <span class="fw-bold">27</span>
+                            </div>
+                            <div class="ms-3">
+                                <small class="text-muted">December</small>
+                            </div>
                         </div>
                         <h5 class="card-title">Community Health Program</h5>
                         <p class="card-text text-muted">Free medical check-up and vaccination program for all residents. Schedule your appointment today.</p>
