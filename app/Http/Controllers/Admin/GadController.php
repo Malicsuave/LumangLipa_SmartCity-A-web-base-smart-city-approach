@@ -23,34 +23,106 @@ class GadController extends Controller
     {
         $query = Gad::with('resident');
         
-        // Apply filters if provided
+        // Search functionality
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->whereHas('resident', function ($residentQuery) use ($search) {
+                    $residentQuery->where('first_name', 'like', "%{$search}%")
+                        ->orWhere('middle_name', 'like', "%{$search}%")
+                        ->orWhere('last_name', 'like', "%{$search}%")
+                        ->orWhere('barangay_id', 'like', "%{$search}%");
+                })->orWhere('gender_identity', 'like', "%{$search}%")
+                  ->orWhereJsonContains('programs_enrolled', $search);
+            });
+        }
+        
+        // Program filter
         if ($request->has('program') && !empty($request->program)) {
             $query->whereJsonContains('programs_enrolled', $request->program);
         }
-        
+        // Status filter
         if ($request->has('status') && !empty($request->status)) {
             $query->where('program_status', $request->status);
         }
-        
+        // Gender Identity filter
+        if ($request->has('gender_identity') && !empty($request->gender_identity)) {
+            $query->where('gender_identity', $request->gender_identity);
+        }
+        // Civil Status filter (from resident)
+        if ($request->has('civil_status') && !empty($request->civil_status)) {
+            $query->whereHas('resident', function($q) use ($request) {
+                $q->where('civil_status', $request->civil_status);
+            });
+        }
+        // Age Group filter (from resident birthdate)
+        if ($request->has('age_group') && !empty($request->age_group)) {
+            $now = now();
+            switch ($request->age_group) {
+                case 'children':
+                    $query->whereHas('resident', function($q) use ($now) {
+                        $q->whereDate('birthdate', '>=', $now->copy()->subYears(18));
+                    });
+                    break;
+                case 'adults':
+                    $query->whereHas('resident', function($q) use ($now) {
+                        $q->whereDate('birthdate', '<', $now->copy()->subYears(18))
+                          ->whereDate('birthdate', '>', $now->copy()->subYears(60));
+                    });
+                    break;
+                case 'seniors':
+                    $query->whereHas('resident', function($q) use ($now) {
+                        $q->whereDate('birthdate', '<=', $now->copy()->subYears(60));
+                    });
+                    break;
+            }
+        }
+        // Date filter (created_at)
+        if ($request->has('date_from') && !empty($request->date_from)) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        if ($request->has('date_to') && !empty($request->date_to)) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+        // Special categories
         if ($request->has('is_pregnant') && $request->is_pregnant == '1') {
             $query->where('is_pregnant', true);
         }
-        
         if ($request->has('is_solo_parent') && $request->is_solo_parent == '1') {
             $query->where('is_solo_parent', true);
         }
-        
         if ($request->has('is_vaw_case') && $request->is_vaw_case == '1') {
             $query->where('is_vaw_case', true);
         }
-        
-        // Fetch GAD records with pagination
-        $gadRecords = $query->orderBy('created_at', 'desc')->paginate(15);
-        
-        // Get program types for filter dropdown
+        // Sorting functionality
+        $sort = $request->get('sort', 'created_at');
+        $direction = $request->get('direction', 'desc');
+        if (!in_array($direction, ['asc', 'desc'])) {
+            $direction = 'desc';
+        }
+        switch ($sort) {
+            case 'resident_name':
+                $query->join('residents', 'gads.resident_id', '=', 'residents.id')
+                      ->orderBy('residents.last_name', $direction)
+                      ->orderBy('residents.first_name', $direction)
+                      ->select('gads.*');
+                break;
+            case 'gender_identity':
+                $query->orderBy('gender_identity', $direction);
+                break;
+            case 'program_status':
+                $query->orderBy('program_status', $direction);
+                break;
+            case 'created_at':
+                $query->orderBy('created_at', $direction);
+                break;
+            default:
+                $query->orderBy('created_at', 'desc');
+                break;
+        }
+        $gadRecords = $query->paginate(15);
+        $gadRecords->appends($request->query());
         $programTypes = Gad::getProgramTypes();
-        
-        // Get statistics for dashboard
         $stats = [
             'total' => Gad::count(),
             'pregnant' => Gad::where('is_pregnant', true)->count(),
@@ -63,12 +135,11 @@ class GadController extends Controller
                 ->pluck('count', 'gender_identity')
                 ->toArray()
         ];
-        
         return view('admin.gad.index', [
             'gadRecords' => $gadRecords,
             'programTypes' => $programTypes,
             'stats' => $stats,
-            'filters' => $request->only(['program', 'status', 'is_pregnant', 'is_solo_parent', 'is_vaw_case'])
+            'filters' => $request->only(['program', 'status', 'gender_identity', 'civil_status', 'age_group', 'date_from', 'date_to', 'is_pregnant', 'is_solo_parent', 'is_vaw_case'])
         ]);
     }
 
@@ -738,38 +809,83 @@ class GadController extends Controller
     public function archived(Request $request)
     {
         $query = Gad::onlyTrashed()->with('resident');
-        
-        // Apply filters if provided
+        // Search functionality
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->whereHas('resident', function ($residentQuery) use ($search) {
+                    $residentQuery->where('first_name', 'like', "%{$search}%")
+                        ->orWhere('middle_name', 'like', "%{$search}%")
+                        ->orWhere('last_name', 'like', "%{$search}%")
+                        ->orWhere('barangay_id', 'like', "%{$search}%");
+                })->orWhere('gender_identity', 'like', "%{$search}%")
+                  ->orWhereJsonContains('programs_enrolled', $search);
+            });
+        }
+        // Program filter
         if ($request->has('program') && !empty($request->program)) {
             $query->whereJsonContains('programs_enrolled', $request->program);
         }
-        
+        // Status filter
         if ($request->has('status') && !empty($request->status)) {
             $query->where('program_status', $request->status);
         }
-        
+        // Gender Identity filter
+        if ($request->has('gender_identity') && !empty($request->gender_identity)) {
+            $query->where('gender_identity', $request->gender_identity);
+        }
+        // Civil Status filter (from resident)
+        if ($request->has('civil_status') && !empty($request->civil_status)) {
+            $query->whereHas('resident', function($q) use ($request) {
+                $q->where('civil_status', $request->civil_status);
+            });
+        }
+        // Age Group filter (from resident birthdate)
+        if ($request->has('age_group') && !empty($request->age_group)) {
+            $now = now();
+            switch ($request->age_group) {
+                case 'children':
+                    $query->whereHas('resident', function($q) use ($now) {
+                        $q->whereDate('birthdate', '>=', $now->copy()->subYears(18));
+                    });
+                    break;
+                case 'adults':
+                    $query->whereHas('resident', function($q) use ($now) {
+                        $q->whereDate('birthdate', '<', $now->copy()->subYears(18))
+                          ->whereDate('birthdate', '>', $now->copy()->subYears(60));
+                    });
+                    break;
+                case 'seniors':
+                    $query->whereHas('resident', function($q) use ($now) {
+                        $q->whereDate('birthdate', '<=', $now->copy()->subYears(60));
+                    });
+                    break;
+            }
+        }
+        // Date filter (deleted_at)
+        if ($request->has('date_from') && !empty($request->date_from)) {
+            $query->whereDate('deleted_at', '>=', $request->date_from);
+        }
+        if ($request->has('date_to') && !empty($request->date_to)) {
+            $query->whereDate('deleted_at', '<=', $request->date_to);
+        }
+        // Special categories
         if ($request->has('is_pregnant') && $request->is_pregnant == '1') {
             $query->where('is_pregnant', true);
         }
-        
         if ($request->has('is_solo_parent') && $request->is_solo_parent == '1') {
             $query->where('is_solo_parent', true);
         }
-        
         if ($request->has('is_vaw_case') && $request->is_vaw_case == '1') {
             $query->where('is_vaw_case', true);
         }
-        
-        // Fetch archived GAD records with pagination
         $archivedGadRecords = $query->orderBy('deleted_at', 'desc')->paginate(15);
-        
-        // Get program types for filter dropdown
+        $archivedGadRecords->appends($request->query());
         $programTypes = Gad::getProgramTypes();
-        
         return view('admin.gad.archived', [
             'archivedGadRecords' => $archivedGadRecords,
             'programTypes' => $programTypes,
-            'filters' => $request->only(['program', 'status', 'is_pregnant', 'is_solo_parent', 'is_vaw_case'])
+            'filters' => $request->only(['program', 'status', 'gender_identity', 'civil_status', 'age_group', 'date_from', 'date_to', 'is_pregnant', 'is_solo_parent', 'is_vaw_case'])
         ]);
     }
 

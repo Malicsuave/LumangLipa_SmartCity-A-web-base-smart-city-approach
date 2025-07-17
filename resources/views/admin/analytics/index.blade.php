@@ -174,7 +174,7 @@
                             @foreach($recentComplaints as $complaint)
                             <div class="d-flex align-items-center mb-2">
                                 <div class="flex-grow-1">
-                                    <div class="font-weight-bold">{{ $complaint->complaint_type }}</div>
+                                    <div class="font-weight-bold">{{ $complaint->formatted_complaint_type }}</div>
                                     <small class="text-muted">{{ $complaint->created_at->format('M d, Y') }}</small>
                                 </div>
                                 <span class="badge badge-{{ $complaint->status == 'resolved' ? 'success' : ($complaint->status == 'pending' ? 'warning' : 'info') }}">

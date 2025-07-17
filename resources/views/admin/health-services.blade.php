@@ -2,715 +2,573 @@
 
 @section('title', 'Health Services Management')
 
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/admin-common.css') }}">
+<style>
+.filter-btn-hover {
+    transition: transform 0.2s ease-in-out;
+}
+.filter-btn-hover:hover {
+    transform: scale(1.1);
+    background-color: transparent !important;
+    border-color: #6c757d !important;
+    color: #6c757d !important;
+}
+.filter-btn-hover:focus {
+    background-color: transparent !important;
+    border-color: #6c757d !important;
+    color: #6c757d !important;
+    box-shadow: none !important;
+}
+
+/* Match action icon button hover/focus to other tables */
+.btn-icon {
+    border-radius: 50%;
+    padding: 0.375rem;
+    transition: background 0.15s, color 0.15s;
+    background: transparent;
+    border: none;
+}
+.btn-icon:focus, .btn-icon:active {
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+.btn-icon:hover {
+    background: #f0f1f3 !important;
+    color: #4a90e2 !important;
+}
+.btn-icon i {
+    transition: color 0.15s;
+}
+.btn-icon:hover i {
+    color: #4a90e2 !important;
+}
+.table-responsive {
+    overflow: visible !important;
+}
+.custom-dropdown-menu[style*="bottom: 100%"] {
+    margin-bottom: 8px !important;
+}
+.table-responsive,
+.card-body,
+.collapse,
+#filterSection {
+    overflow: visible !important;
+}
+.dropdown-menu {
+    z-index: 9999 !important;
+}
+.section-title {
+    font-weight: 700;
+    color: #22223b;
+    font-size: 1.08rem;
+    margin-bottom: 12px;
+    margin-top: 8px;
+    letter-spacing: 0.01em;
+}
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+.info-label {
+    color: #6366f1;
+    font-weight: 600;
+    min-width: 120px;
+    flex: 0 0 45%;
+    font-size: 1rem;
+}
+.info-value {
+    color: #22223b;
+    font-weight: 400;
+    flex: 1;
+    text-align: right;
+    font-size: 1rem;
+    word-break: break-word;
+}
+.purpose-box {
+    background: #f3f4f6;
+    border-radius: 8px;
+    padding: 14px 16px;
+    color: #374151;
+    font-size: 1rem;
+    margin-top: 4px;
+    border: 1px solid #e5e7eb;
+}
+</style>
+@endpush
+
 @section('content')
 <div class="row">
-    <div class="col-md-12 mb-4 d-flex justify-content-between align-items-center">
-        <h1 class="h3 mb-0 text-gray-800">Health Services Management</h1>
-        <div class="page-metrics small text-muted">
-            <span id="pageLoadMetric"></span>
-        </div>
-    </div>
-</div>
-
-<!-- Health Service Statistics -->
-<div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card mb-4 shadow health-metric-card metric-card metric-card-1 h-100 border-left-warning">
-            <div class="card-body">
-                <div class="row align-items-center no-gutters">
-                    <div class="col-3 text-center">
-                        <span class="circle circle-sm bg-warning metric-icon">
-                            <i class="fe fe-clock text-white"></i>
-                        </span>
-                    </div>
-                    <div class="col-9">
-                        <p class="small text-muted mb-0">Pending</p>
-                        <div class="d-flex align-items-baseline">
-                            <span class="h3 metric-counter mb-0 me-1">{{ $healthRequests->where('status', 'pending')->count() }}</span>
-                            <span class="small text-muted">Awaiting review</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card mb-4 shadow health-metric-card metric-card metric-card-2 h-100 border-left-success">
-            <div class="card-body">
-                <div class="row align-items-center no-gutters">
-                    <div class="col-3 text-center">
-                        <span class="circle circle-sm bg-success metric-icon">
-                            <i class="fe fe-check text-white"></i>
-                        </span>
-                    </div>
-                    <div class="col-9">
-                        <p class="small text-muted mb-0">Approved</p>
-                        <div class="d-flex align-items-baseline">
-                            <span class="h3 metric-counter mb-0 me-1">{{ $healthRequests->where('status', 'approved')->count() }}</span>
-                            <span class="small text-muted">Ready to serve</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card mb-4 shadow health-metric-card metric-card metric-card-3 h-100 border-left-info">
-            <div class="card-body">
-                <div class="row align-items-center no-gutters">
-                    <div class="col-3 text-center">
-                        <span class="circle circle-sm bg-info metric-icon">
-                            <i class="fe fe-calendar text-white"></i>
-                        </span>
-                    </div>
-                    <div class="col-9">
-                        <p class="small text-muted mb-0">Scheduled</p>
-                        <div class="d-flex align-items-baseline">
-                            <span class="h3 metric-counter mb-0 me-1">{{ $healthRequests->where('status', 'scheduled')->count() }}</span>
-                            <span class="small text-muted">Appointments</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card mb-4 shadow health-metric-card metric-card metric-card-4 h-100 border-left-danger">
-            <div class="card-body">
-                <div class="row align-items-center no-gutters">
-                    <div class="col-3 text-center">
-                        <span class="circle circle-sm bg-danger metric-icon">
-                            <i class="fe fe-x text-white"></i>
-                        </span>
-                    </div>
-                    <div class="col-9">
-                        <p class="small text-muted mb-0">Rejected</p>
-                        <div class="d-flex align-items-baseline">
-                            <span class="h3 metric-counter mb-0 me-1">{{ $healthRequests->where('status', 'rejected')->count() }}</span>
-                            <span class="small text-muted">Denied requests</span>
-                        </div>
-                    </div>
-                </div>
+    <div class="col-md-12 mb-4">
+                <div class="row align-items-center">
+            <div class="col">
+                <h1 class="h3 mb-0 text-gray-800">Health Services Management</h1>
+                <p class="text-muted mb-0">Review and manage health service requests</p>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Health Service Requests Table -->
 <div class="row">
     <div class="col-md-12">
-        <div class="card shadow">
+        <div class="card shadow-lg border-0 admin-card-shadow">
             <div class="card-header">
-                <strong class="card-title">Health Service Requests Management</strong>
+                <strong class="card-title">Health Service Requests</strong>
             </div>
             <div class="card-body">
-                <div id="healthRequestsContainer">
-                            @if($healthRequests->count() > 0)
-                                <div class="table-responsive">
-                                    <table class="table table-hover" id="healthRequestsTable">
-                                        <thead class="thead-dark">
-                                            <tr>
-                                                <th>Resident</th>
-                                                <th>Service</th>
-                                                <th>Status</th>
-                                                <th>Date Requested</th>
-                                                <th class="text-center">Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($healthRequests as $request)
-                                            <tr>
-                                                <td>{{ $request->resident_name }}</td>
-                                                <td>{{ ucwords(str_replace('_', ' ', $request->service_type)) }}</td>
-                                                <td>
-                                                    @php
-                                                        $statusClass = match($request->status) {
-                                                            'pending' => 'badge-warning',
-                                                            'approved' => 'badge-success',
-                                                            'scheduled' => 'badge-info',
-                                                            'completed' => 'badge-primary',
-                                                            'rejected' => 'badge-danger',
-                                                            default => 'badge-secondary'
-                                                        };
-                                                    @endphp
-                                                    <span class="badge {{ $statusClass }} text-capitalize">{{ $request->status }}</span>
-                                                </td>
-                                                <td>{{ $request->requested_at->format('M d, Y') }}</td>
-                                                <td class="text-center">
-                                                    <div class="dropdown">
-                                                        <button class="btn btn-sm dropdown-toggle more-vertical" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                            <span class="text-muted sr-only">Action</span>
-                                                        </button>
-                                                        <div class="dropdown-menu dropdown-menu-right">
-                                                            <a class="dropdown-item view-request" href="#" data-id="{{ $request->id }}">
-                                                                <i class="fe fe-eye fe-16 mr-2 text-primary"></i>View Details
-                                                            </a>
-                                                            
-                                                            @if($request->status === 'pending')
-                                                                <a class="dropdown-item approve-request" href="#" data-id="{{ $request->id }}">
-                                                                    <i class="fe fe-check-circle fe-16 mr-2 text-success"></i>Approve
-                                                                </a>
-                                                                <div class="dropdown-divider"></div>
-                                                                <a class="dropdown-item reject-request text-danger" href="#" data-id="{{ $request->id }}">
-                                                                    <i class="fe fe-x-circle fe-16 mr-2"></i>Reject
-                                                                </a>
-                                                            @endif
-                                                            
-                                                            @if($request->status === 'approved')
-                                                                <a class="dropdown-item schedule-meeting" href="#" 
-                                                                   data-id="{{ $request->id }}" 
-                                                                   data-resident="{{ $request->resident_name }}"
-                                                                   data-service="{{ ucwords(str_replace('_', ' ', $request->service_type)) }}">
-                                                                    <i class="fe fe-calendar fe-16 mr-2 text-info"></i>Schedule Meeting
-                                                                </a>
-                                                                <a class="dropdown-item complete-request" href="#" data-id="{{ $request->id }}">
-                                                                    <i class="fe fe-check-circle fe-16 mr-2 text-success"></i>Mark Complete
-                                                                </a>
-                                                            @endif
-                                                            
-                                                            @if($request->status === 'scheduled')
-                                                                <a class="dropdown-item complete-request" href="#" data-id="{{ $request->id }}">
-                                                                    <i class="fe fe-check-circle fe-16 mr-2 text-success"></i>Mark Complete
-                                                                </a>
-                                                                <a class="dropdown-item view-meeting" href="#" data-id="{{ $request->id }}">
-                                                                    <i class="fe fe-calendar fe-16 mr-2 text-info"></i>View Meeting Details
-                                                                </a>
-                                                            @endif
-                                                            
-                                                            @if($request->status === 'completed')
-                                                                <a class="dropdown-item view-history" href="#" data-id="{{ $request->id }}">
-                                                                    <i class="fe fe-clock fe-16 mr-2 text-secondary"></i>View History
-                                                                </a>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
+                <!-- Search and Filter Form -->
+                <form method="GET" action="{{ route('admin.health-services.index') }}" id="filterForm">
+                <div class="row mb-4">
+                    <div class="col-md-8">
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="search" 
+                                       placeholder="Search by resident name, barangay ID, or service type..." 
+                                       value="{{ request('search') }}">
+                                <div class="input-group-append">
+                                    <button class="btn btn-primary border-0" type="submit" style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                                        <i class="fe fe-search fe-16"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary border-0 filter-btn-hover" data-toggle="collapse" data-target="#filterSection" aria-expanded="false" title="Filter Options" style="border-left: 1px solid #dee2e6;">
+                                        <i class="fe fe-filter fe-16"></i>
+                                    </button>
                                 </div>
-                                
-                                <!-- Pagination -->
-                                <div class="d-flex justify-content-between align-items-center mt-4">
-                                    <div class="text-muted small">
-                                        Showing {{ $healthRequests->firstItem() ?? 0 }} to {{ $healthRequests->lastItem() ?? 0 }} of {{ $healthRequests->total() }} health service requests
-                                    </div>
-                                    {{ $healthRequests->links() }}
-                                </div>
-                            @else
-                            <div class="text-center py-5">
-                                <i class="fe fe-heart fe-48 text-muted mb-3"></i>
-                                <h5 class="text-muted">No health service requests found</h5>
-                                <p class="text-muted">Health service requests will appear here once residents submit them.</p>
                             </div>
+                        </div>
+                        <div class="col-md-4">
+                            @if(request()->hasAny(['search', 'status', 'service_type', 'date_from', 'date_to']))
+                                <a href="{{ route('admin.health-services.index') }}" class="btn btn-outline-secondary">
+                                    <i class="fe fe-x fe-16 mr-1"></i>Clear All Filters
+                                </a>
                             @endif
+                    </div>
+                    </div>
+
+                    <!-- Collapsible Filter Section -->
+                    <div class="collapse {{ request()->hasAny(['status', 'service_type', 'date_from', 'date_to']) ? 'show' : '' }}" id="filterSection">
+                        <div class="card border-left-primary mb-4">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0 text-primary">
+                                    <i class="fe fe-filter fe-16 mr-2"></i>Filter Options
+                                    <small class="text-muted ml-2">Filter health service requests by various criteria</small>
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3 mb-3">
+                                        <label class="form-label">Status</label>
+                                        <select name="status" class="form-control form-control-sm">
+                                            <option value="">All Status</option>
+                                            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                                            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
+                                            <option value="scheduled" {{ request('status') == 'scheduled' ? 'selected' : '' }}>Scheduled</option>
+                                            <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
+                                            <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label class="form-label">Service Type</label>
+                                        <select name="service_type" class="form-control form-control-sm">
+                                            <option value="">All Services</option>
+                                            <option value="medical_consultation" {{ request('service_type') == 'medical_consultation' ? 'selected' : '' }}>Medical Consultation</option>
+                                            <option value="health_certificate" {{ request('service_type') == 'health_certificate' ? 'selected' : '' }}>Health Certificate</option>
+                                            <option value="immunization" {{ request('service_type') == 'immunization' ? 'selected' : '' }}>Immunization</option>
+                                            <option value="prenatal_care" {{ request('service_type') == 'prenatal_care' ? 'selected' : '' }}>Prenatal Care</option>
+                                            <option value="family_planning" {{ request('service_type') == 'family_planning' ? 'selected' : '' }}>Family Planning</option>
+                                            <option value="nutrition_counseling" {{ request('service_type') == 'nutrition_counseling' ? 'selected' : '' }}>Nutrition Counseling</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label class="form-label">Date From</label>
+                                        <input type="date" name="date_from" class="form-control form-control-sm" value="{{ request('date_from') }}">
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label class="form-label">Date To</label>
+                                        <input type="date" name="date_to" class="form-control form-control-sm" value="{{ request('date_to') }}">
+                                    </div>
+                                </div>
+                                <!-- Filter Actions -->
+                                <div class="row mt-4">
+                                    <div class="col-md-12 d-flex justify-content-end">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fe fe-filter fe-16 mr-1"></i>Apply Filters
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <!-- Active Filters Display -->
+                @if(request()->hasAny(['search', 'status', 'service_type', 'date_from', 'date_to']))
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted">Active filters:</small>
+                                <span class="badge badge-info ml-2">{{ $healthRequests->total() }} results found</span>
+                            </div>
+                            <small class="text-muted">Click on any filter badge to remove it</small>
+                        </div>
+                        <div class="mt-2">
+                            @if(request('search'))
+                                <a href="{{ request()->fullUrlWithQuery(['search' => null]) }}" class="badge badge-dark mr-1 text-decoration-none">
+                                    Search: {{ request('search') }} <i class="fe fe-x"></i>
+                                </a>
+                            @endif
+                            @if(request('status'))
+                                <a href="{{ request()->fullUrlWithQuery(['status' => null]) }}" class="badge badge-primary mr-1 text-decoration-none">
+                                    Status: {{ ucfirst(request('status')) }} <i class="fe fe-x"></i>
+                                </a>
+                            @endif
+                            @if(request('service_type'))
+                                <a href="{{ request()->fullUrlWithQuery(['service_type' => null]) }}" class="badge badge-success mr-1 text-decoration-none">
+                                    Service: {{ ucwords(str_replace('_', ' ', request('service_type'))) }} <i class="fe fe-x"></i>
+                                </a>
+                            @endif
+                            @if(request('date_from'))
+                                <a href="{{ request()->fullUrlWithQuery(['date_from' => null]) }}" class="badge badge-info mr-1 text-decoration-none">
+                                    Date From: {{ request('date_from') }} <i class="fe fe-x"></i>
+                                </a>
+                            @endif
+                            @if(request('date_to'))
+                                <a href="{{ request()->fullUrlWithQuery(['date_to' => null]) }}" class="badge badge-info mr-1 text-decoration-none">
+                                    Date To: {{ request('date_to') }} <i class="fe fe-x"></i>
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                @endif
+                    @if($healthRequests->count() > 0)
+                        <div class="table-responsive">
+                        <table class="table table-borderless table-striped table-hover">
+                            <thead>
+                                    <tr>
+                                        <th>Resident</th>
+                                        <th>Service</th>
+                                        <th>Status</th>
+                                        <th>Date Requested</th>
+                                        <th class="text-center">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($healthRequests as $request)
+                                        @php
+                                            $isLastTwo = $loop->remaining < 2;
+                                            $dropdownItems = [];
+                                            $dropdownItems[] = [
+                                                'label' => 'View Details',
+                                                'icon' => 'fe fe-eye fe-16 text-primary',
+                                                'class' => '',
+                                                'attrs' => "onclick=\"viewRequest({$request->id})\" @click=\"open = false\" href='#'",
+                                            ];
+                                            if ($request->status === 'pending') {
+                                                $dropdownItems[] = [
+                                                    'label' => 'Approve',
+                                                    'icon' => 'fe fe-check fe-16 text-success',
+                                                    'class' => '',
+                                                    'attrs' => "onclick=\"approveRequest({$request->id})\" @click=\"open = false\" href='#'",
+                                                ];
+                                                $dropdownItems[] = [
+                                                    'label' => 'Reject',
+                                                    'icon' => 'fe fe-x fe-16 text-warning',
+                                                    'class' => '',
+                                                    'attrs' => "onclick=\"rejectRequest({$request->id})\" @click=\"open = false\" href='#'",
+                                                ];
+                                            }
+                                            if ($request->status === 'approved') {
+                                                $dropdownItems[] = [
+                                                    'label' => 'Schedule Meeting',
+                                                    'icon' => 'fe fe-calendar fe-16 text-info',
+                                                    'class' => '',
+                                                    'attrs' => "onclick=\"scheduleMeeting({$request->id})\" @click=\"open = false\" href='#'",
+                                                ];
+                                            }
+                                            if ($request->status === 'scheduled') {
+                                                $dropdownItems[] = [
+                                                    'label' => 'Mark Complete',
+                                                    'icon' => 'fe fe-check-circle fe-16 text-success',
+                                                    'class' => '',
+                                                    'attrs' => "onclick=\"markComplete({$request->id})\" @click=\"open = false\" href='#'",
+                                                ];
+                                            }
+                                            $dropdownItems[] = ['divider' => true];
+                                            $dropdownItems[] = [
+                                                'label' => 'Delete',
+                                                'icon' => 'fe fe-trash-2 fe-16 text-danger',
+                                                'class' => '',
+                                                'attrs' => "onclick=\"deleteRequest({$request->id})\" @click=\"open = false\" href='#'",
+                                            ];
+                                        @endphp
+                                        <tr>
+                                            <td>{{ $request->resident_name }}</td>
+                                            <td>{{ ucwords(str_replace('_', ' ', $request->service_type)) }}</td>
+                                            <td>
+                                                @php
+                                                    $statusClass = match($request->status) {
+                                                        'pending' => 'badge-warning',
+                                                        'approved' => 'badge-success',
+                                                        'scheduled' => 'badge-info',
+                                                        'completed' => 'badge-primary',
+                                                        'rejected' => 'badge-danger',
+                                                        default => 'badge-secondary'
+                                                    };
+                                                @endphp
+                                                <span class="badge {{ $statusClass }} text-capitalize">{{ $request->status }}</span>
+                                            </td>
+                                            <td>{{ $request->requested_at->format('M d, Y') }}</td>
+                                            <td class="text-center table-actions-col">
+                                                @include('components.custom-dropdown', ['items' => $dropdownItems, 'dropup' => $isLastTwo])
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <div class="text-muted small">
+                                Showing {{ $healthRequests->firstItem() ?? 0 }} to {{ $healthRequests->lastItem() ?? 0 }} of {{ $healthRequests->total() }} health service requests
+                            </div>
+                            <nav aria-label="Table Paging" class="mb-0">
+                                <ul class="pagination justify-content-end mb-0">
+                                    @if($healthRequests->onFirstPage())
+                                        <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1" aria-disabled="true"><i class="fe fe-arrow-left"></i> Previous</a></li>
+                                    @else
+                                        <li class="page-item"><a class="page-link" href="{{ $healthRequests->previousPageUrl() }}"><i class="fe fe-arrow-left"></i> Previous</a></li>
+                                    @endif
+                                    @for($i = 1; $i <= $healthRequests->lastPage(); $i++)
+                                        <li class="page-item {{ $i == $healthRequests->currentPage() ? 'active' : '' }}">
+                                            <a class="page-link" href="{{ $healthRequests->url($i) }}">{{ $i }}</a>
+                                        </li>
+                                    @endfor
+                                    @if($healthRequests->hasMorePages())
+                                        <li class="page-item"><a class="page-link" href="{{ $healthRequests->nextPageUrl() }}">Next <i class="fe fe-arrow-right"></i></a></li>
+                                    @else
+                                        <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1" aria-disabled="true">Next <i class="fe fe-arrow-right"></i></a></li>
+                                    @endif
+                                </ul>
+                            </nav>
+                        </div>
+                    @else
+                <div class="text-center py-5" id="healthNoResults">
+                    <div class="d-flex justify-content-center mb-3">
+                        <span style="display:inline-block;width:120px;height:120px;border-radius:50%;background:#f3f4f6;border:4px solid #e5e7eb;display:flex;align-items:center;justify-content:center;">
+                            <svg width="56" height="56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="28" cy="28" r="28" fill="#e5e7eb"/>
+                                <ellipse cx="28" cy="24" rx="10" ry="12" fill="#f3f4f6"/>
+                                <circle cx="23" cy="22" r="2" fill="#bdbdbd"/>
+                                <circle cx="33" cy="22" r="2" fill="#bdbdbd"/>
+                                <rect x="26" y="28" width="4" height="2" rx="1" fill="#bdbdbd"/>
+                            </svg>
+                        </span>
+                    </div>
+                    <h4>No health service requests found</h4>
+                    <p class="text-muted">
+                        @if(request()->hasAny(['search', 'status', 'service_type', 'date_from', 'date_to']))
+                            No health service requests match your search criteria. <a href="{{ route('admin.health-services.index') }}">Clear all filters</a>
+                        @else
+                            No health service requests have been submitted yet.
+                        @endif
+                    </p>
+                </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- View Details Modal -->
+<div class="modal fade" id="viewDetailsModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Health Service Request Details</h5>
+        <button type="button" class="close" data-dismiss="modal">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <div class="section-title">Request Information</div>
+            <div class="info-row"><span class="info-label">Request ID:</span> <span class="info-value" id="modal-request-id"></span></div>
+            <div class="info-row"><span class="info-label">Service Type:</span> <span class="info-value" id="modal-service-type"></span></div>
+            <div class="info-row"><span class="info-label">Status:</span> <span class="info-value" id="modal-status"></span></div>
+            <div class="info-row"><span class="info-label">Date Requested:</span> <span class="info-value" id="modal-requested-date"></span></div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="section-title">Resident Information</div>
+            <div class="info-row"><span class="info-label">Name:</span> <span class="info-value" id="modal-resident-name"></span></div>
+            <div class="info-row"><span class="info-label">Barangay ID:</span> <span class="info-value" id="modal-barangay-id"></span></div>
+            <div class="info-row"><span class="info-label">Address:</span> <span class="info-value" id="modal-resident-address"></span></div>
+          </div>
+        </div>
+        <div class="row mt-2">
+          <div class="col-12">
+            <div class="section-title">Purpose</div>
+            <div id="modal-purpose" class="purpose-box"></div>
+          </div>
+        </div>
+        <div class="info-row" id="admin-notes-row" style="display:none;">
+            <span class="info-label">Admin Notes:</span>
+            <span class="info-value" id="modal-admin-notes"></span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Mark Complete Modal -->
+<div class="modal fade" id="markCompleteModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Mark Request as Complete</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to mark this health service request as <strong>complete</strong>?</p>
+                <p class="text-info">
+                    <i class="fe fe-info"></i> This action cannot be undone and will update the request status to <strong>Completed</strong>.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" id="confirmMarkComplete">Mark as Complete</button>
             </div>
         </div>
     </div>
 </div>
 @endsection
 
-<!-- View Request Modal -->
-<div class="modal fade" id="viewModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Health Service Request Details</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div id="requestDetails">
-                    <!-- Details will be loaded here -->
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Reject Request Modal -->
-<div class="modal fade" id="rejectModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Reject Health Service Request</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <form id="rejectForm">
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="rejection_reason">Rejection Reason</label>
-                        <textarea class="form-control" id="rejection_reason" name="rejection_reason" rows="4" required placeholder="Please provide a reason for rejecting this request..."></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-danger">Reject Request</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Schedule Meeting Modal -->
-<div class="modal fade" id="scheduleMeetingModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Schedule Health Service Meeting</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <form id="scheduleMeetingForm">
-                <div class="modal-body">
-                    <div class="alert alert-info">
-                        <div id="meetingResidentInfo">
-                            <!-- Resident info will be populated here -->
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="meeting_title">Meeting Title</label>
-                                <input type="text" class="form-control" id="meeting_title" name="meeting_title" required>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="meeting_date">Meeting Date</label>
-                                <input type="date" class="form-control" id="meeting_date" name="meeting_date" required>
-                                <small class="form-text text-muted">Select the meeting date</small>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="meeting_time">Meeting Time</label>
-                                <input type="time" class="form-control" id="meeting_time" name="meeting_time" required>
-                                <small class="form-text text-muted">Select time between 8:00 AM - 5:00 PM only</small>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label>Selected Date & Time</label>
-                                <div class="form-control-plaintext" id="selectedDateTime">
-                                    <span class="text-muted">Please select date and time above</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="meeting_location">Meeting Location</label>
-                        <input type="text" class="form-control" id="meeting_location" name="meeting_location" value="Barangay Health Center" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="meeting_notes">Meeting Notes</label>
-                        <textarea class="form-control" id="meeting_notes" name="meeting_notes" rows="3" placeholder="Additional notes for the meeting..."></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-info">Schedule Meeting</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-@push('styles')
-<style>
-/* Performance optimized styles */
-.health-metric-card {
-    transition: transform 0.2s ease;
-}
-
-.health-metric-card:hover {
-    transform: translateY(-5px);
-}
-
-.border-left-primary {
-    border-left: 4px solid var(--primary) !important;
-}
-
-.border-left-success {
-    border-left: 4px solid var(--success) !important;
-}
-
-.border-left-warning {
-    border-left: 4px solid var(--warning) !important;
-}
-
-.border-left-info {
-    border-left: 4px solid var(--info) !important;
-}
-
-.border-left-danger {
-    border-left: 4px solid var(--danger) !important;
-}
-
-.circle {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Optimize icon rendering */
-.fe {
-    will-change: transform;
-}
-
-/* Add critical CSS inline for faster rendering */
-.table {
-    table-layout: fixed;
-    width: 100%;
-}
-
-/* Optimize repaint operations */
-.card {
-    backface-visibility: hidden;
-    will-change: transform;
-}
-</style>
-@endpush
-
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Display page load metrics
-    if (window.performanceMetrics && window.performanceMetrics.totalLoadTime) {
-        document.getElementById('pageLoadMetric').textContent = 
-            'Page Load: ' + (parseInt(window.performanceMetrics.totalLoadTime) / 1000).toFixed(2) + 's';
+function clearAllFilters() {
+    document.getElementById('filterForm').reset();
+    window.location.href = "{{ route('admin.health-services.index') }}";
+}
+function getStatusBadge(status) {
+    switch (status) {
+        case 'pending':
+            return '<span class="badge badge-warning">Pending</span>';
+        case 'approved':
+            return '<span class="badge badge-success">Approved</span>';
+        case 'scheduled':
+            return '<span class="badge badge-info">Scheduled</span>';
+        case 'completed':
+            return '<span class="badge badge-primary">Completed</span>';
+        case 'rejected':
+            return '<span class="badge badge-danger">Rejected</span>';
+        default:
+            return '<span class="badge badge-secondary">' + status + '</span>';
     }
-    
-    // Load metrics with animation
-    animateCounters();
-});
-
-// Animate metric counters
-function animateCounters() {
-    document.querySelectorAll('.metric-counter').forEach(counter => {
-        const target = parseInt(counter.textContent);
-        const duration = 1000;
-        const step = target / duration * 10;
-        let current = 0;
-        
-        const animate = () => {
-            current += step;
-            if (current < target) {
-                counter.textContent = Math.floor(current);
-                setTimeout(animate, 10);
-            } else {
-                counter.textContent = target;
-            }
-        };
-        
-        setTimeout(() => {
-            animate();
-        }, 200); // Slight delay before animation starts
+}
+function viewRequest(id) {
+    // Close any open dropdowns
+    document.querySelectorAll('.table-dropdown-menu.show').forEach(function(menu) {
+        menu.classList.remove('show');
     });
+    fetch(`/admin/health-services/${id}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('modal-request-id').textContent = data.id;
+            // Format service type: replace underscores with spaces and capitalize each word
+            document.getElementById('modal-service-type').textContent = data.service_type
+                ? data.service_type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+                : '';
+            document.getElementById('modal-status').innerHTML = getStatusBadge(data.status);
+            document.getElementById('modal-requested-date').textContent = new Date(data.requested_at).toLocaleDateString();
+            document.getElementById('modal-resident-name').textContent = data.resident ? 
+                `${data.resident.first_name} ${data.resident.middle_name || ''} ${data.resident.last_name}`.trim() : 'Unknown';
+            document.getElementById('modal-barangay-id').textContent = data.barangay_id;
+            document.getElementById('modal-resident-address').textContent = data.resident ? data.resident.address : 'N/A';
+            document.getElementById('modal-purpose').textContent = data.purpose;
+            if (data.admin_notes) {
+                document.getElementById('admin-notes-row').style.display = '';
+                document.getElementById('modal-admin-notes').textContent = data.admin_notes;
+            } else {
+                document.getElementById('admin-notes-row').style.display = 'none';
+            }
+            $('#viewDetailsModal').modal('show');
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error loading request details');
+        });
+}
+function approveRequest(id) {
+    // Implement approve modal logic here
+    alert('Approve request ' + id);
+}
+function rejectRequest(id) {
+    // Implement reject modal logic here
+    alert('Reject request ' + id);
+}
+function scheduleMeeting(id) {
+    // Implement schedule meeting modal logic here
+    alert('Schedule meeting for request ' + id);
+}
+let currentMarkCompleteId = null;
+function markComplete(id) {
+    // Close any open dropdowns
+    document.querySelectorAll('.table-dropdown-menu.show').forEach(function(menu) {
+        menu.classList.remove('show');
+    });
+    currentMarkCompleteId = id;
+    $('#markCompleteModal').modal('show');
+}
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmBtn = document.getElementById('confirmMarkComplete');
+    if (confirmBtn) {
+        confirmBtn.onclick = function() {
+            if (!currentMarkCompleteId) return;
+            fetch(`/admin/health-services/${currentMarkCompleteId}/complete`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    $('#markCompleteModal').modal('hide');
+                    alert('Request marked as complete!');
+                    location.reload();
+                } else {
+                    alert('Error: ' + (data.message || 'Could not mark as complete.'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error marking request as complete.');
+            });
+        };
+    }
+});
+function deleteRequest(id) {
+    // Implement delete modal logic here
+    alert('Delete request ' + id);
 }
 
-$(document).ready(function() {
-    let currentRequestId = null;
-
-    // View Request
-    $('.view-request').on('click', function(e) {
-        e.preventDefault();
-        const requestId = $(this).data('id');
-        
-        fetch(`/admin/health-services/${requestId}`)
-            .then(response => response.json())
-            .then(data => {
-                const details = `
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h6><i class="fe fe-user"></i> Resident Information</h6>
-                            <table class="table table-sm">
-                                <tr><td><strong>Name:</strong></td><td>${data.resident_name}</td></tr>
-                                <tr><td><strong>Barangay ID:</strong></td><td>${data.barangay_id}</td></tr>
-                            </table>
-                        </div>
-                        <div class="col-md-6">
-                            <h6><i class="fe fe-clipboard"></i> Request Information</h6>                            <table class="table table-sm">
-                                <tr><td><strong>Service Type:</strong></td><td class="text-capitalize">${data.service_type.replace(/_/g, ' ')}</td></tr>
-                                <tr><td><strong>Status:</strong></td><td><span class="badge badge-${data.status === 'completed' ? 'primary' : data.status === 'approved' ? 'success' : data.status === 'scheduled' ? 'info' : data.status === 'rejected' ? 'danger' : 'warning'}">${data.status.toUpperCase()}</span></td></tr>
-                            </table>
-                        </div>
-                    </div>                    <hr>
-                    <h6><i class="fe fe-file-text"></i> Purpose</h6>
-                    <p class="mb-3">${data.purpose}</p>
-                    <hr>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <p><strong><i class="fe fe-clock"></i> Requested:</strong><br>${new Date(data.requested_at).toLocaleString()}</p>
-                        </div>
-                        <div class="col-md-6">
-                            ${data.approved_at ? `<p><strong><i class="fe fe-check"></i> Approved:</strong><br>${new Date(data.approved_at).toLocaleString()}</p>` : ''}
-                            ${data.scheduled_at ? `<p><strong><i class="fe fe-calendar"></i> Scheduled:</strong><br>${new Date(data.scheduled_at).toLocaleString()}</p>` : ''}
-                        </div>
-                    </div>
-                    ${data.rejection_reason ? `<div class="alert alert-danger"><strong>Rejection Reason:</strong> ${data.rejection_reason}</div>` : ''}
-                `;
-                $('#requestDetails').html(details);
-                $('#viewModal').modal('show');
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error loading request details');
-            });
-    });
-
-    // Approve Request
-    $('.approve-request').on('click', function(e) {
-        e.preventDefault();
-        const requestId = $(this).data('id');
-        
-        if (confirm('Are you sure you want to approve this health service request?')) {
-            fetch(`/admin/health-services/${requestId}/approve`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                } else {
-                    alert('Error approving request');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error approving request');
-            });
-        }
-    });
-
-    // Complete Request
-    $('.complete-request').on('click', function(e) {
-        e.preventDefault();
-        const requestId = $(this).data('id');
-        
-        if (confirm('Are you sure you want to mark this health service request as completed?')) {
-            fetch(`/admin/health-services/${requestId}/complete`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                } else {
-                    alert('Error completing request');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error completing request');
-            });
-        }
-    });
-
-    // Reject Request
-    $('.reject-request').on('click', function(e) {
-        e.preventDefault();
-        currentRequestId = $(this).data('id');
-        $('#rejectModal').modal('show');
-    });
-
-    // Schedule Meeting
-    $('.schedule-meeting').on('click', function(e) {
-        e.preventDefault();
-        currentRequestId = $(this).data('id');
-        const residentName = $(this).data('resident');
-        const serviceType = $(this).data('service');
-        
-        // Pre-fill the meeting title
-        $('#meeting_title').val(`${serviceType} - ${residentName}`);
-        
-        // Set minimum date to current date
-        const now = new Date();
-        const minDate = now.toISOString().split('T')[0];
-        $('#meeting_date').attr('min', minDate);
-        
-        // Update resident info
-        $('#meetingResidentInfo').html(`
-            <strong><i class="fe fe-user"></i> Name:</strong> ${residentName}<br>
-            <strong><i class="fe fe-heart"></i> Service:</strong> ${serviceType}
-        `);
-        
-        // Reset the selected datetime display
-        updateSelectedDateTime();
-        
-        $('#scheduleMeetingModal').modal('show');
-    });
-    
-    // Update selected date/time display when inputs change
-    $('#meeting_date, #meeting_time').on('change', function() {
-        updateSelectedDateTime();
-    });
-    
-    // Function to update the selected date/time display
-    function updateSelectedDateTime() {
-        const dateValue = $('#meeting_date').val();
-        const timeValue = $('#meeting_time').val();
-        
-        if (dateValue && timeValue) {
-            // Create a proper date object to format it nicely
-            const selectedDate = new Date(dateValue + 'T' + timeValue);
-            const options = { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true
-            };
-            const formattedDateTime = selectedDate.toLocaleDateString('en-US', options);
-            
-            $('#selectedDateTime').html(`
-                <div class="alert alert-light mb-0">
-                    <i class="fe fe-clock text-primary"></i>
-                    <strong>Scheduled for:</strong> ${formattedDateTime}
-                </div>
-            `);
-        } else {
-            $('#selectedDateTime').html('<span class="text-muted">Please select date and time above</span>');
-        }
-    }
-    
-    // Handle reject form submission
-    $('#rejectForm').on('submit', function(e) {
-        e.preventDefault();
-        
-        const rejectionReason = $('#rejection_reason').val();
-        
-        fetch(`/admin/health-services/${currentRequestId}/reject`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({ rejection_reason: rejectionReason })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                $('#rejectModal').modal('hide');
-                location.reload();
-            } else {
-                alert('Error rejecting request');
+// Auto-scroll to table or no results after filtering/searching
+(function() {
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.location.search.length > 0) {
+            var table = document.querySelector('.table-responsive');
+            var noResults = document.getElementById('healthNoResults');
+            if (table) {
+                table.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else if (noResults) {
+                noResults.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error rejecting request');
-        });
-    });
-
-    // Handle schedule meeting form submission
-    $('#scheduleMeetingForm').on('submit', function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
-        const requestData = Object.fromEntries(formData.entries());
-        
-        // Combine date and time into a single datetime field
-        const meetingDate = requestData.meeting_date;
-        const meetingTime = requestData.meeting_time;
-        
-        if (meetingDate && meetingTime) {
-            // Create datetime string in format YYYY-MM-DD HH:MM:SS
-            requestData.meeting_date = meetingDate + ' ' + meetingTime + ':00';
         }
-        
-        // Remove the separate time field since we combined it
-        delete requestData.meeting_time;
-        
-        requestData.health_service_request_id = currentRequestId;
-        
-        // Format the date and time for confirmation message
-        const selectedDate = new Date(meetingDate + 'T' + meetingTime);
-        const options = { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-        };
-        const formattedDateTime = selectedDate.toLocaleDateString('en-US', options);
-        
-        // Show confirmation dialog
-        const confirmMessage = `Are you sure you want to schedule this meeting?\n\n` +
-                              `Title: ${requestData.meeting_title}\n` +
-                              `Date & Time: ${formattedDateTime}\n` +
-                              `Location: ${requestData.meeting_location}\n` +
-                              `${requestData.meeting_notes ? 'Notes: ' + requestData.meeting_notes : ''}`;
-        
-        if (!confirm(confirmMessage)) {
-            return; // User cancelled, don't proceed
-        }
-        
-        fetch('/admin/health-meetings', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify(requestData)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                $('#scheduleMeetingModal').modal('hide');
-                alert('Meeting scheduled successfully!');
-                // Reset form
-                document.getElementById('scheduleMeetingForm').reset();
-                location.reload();
-            } else {
-                let errorMessage = 'Please check the following errors:\n';
-                if (data.errors) {
-                    Object.values(data.errors).forEach(errors => {
-                        errors.forEach(error => {
-                            errorMessage += '• ' + error + '\n';
-                        });
-                    });
-                } else {
-                    errorMessage = data.message || 'An error occurred while scheduling the meeting.';
-                }
-                alert(errorMessage);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred while scheduling the meeting.');
-        });
     });
-});
+})();
 </script>
 @endpush

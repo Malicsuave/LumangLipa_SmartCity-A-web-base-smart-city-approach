@@ -26,42 +26,44 @@ class AnalyticsController extends Controller
      */
     public function index()
     {
-        // Before: 60+ lines of complex database queries
-        // After: Clean service calls with comprehensive data
-        
+        // Get dashboard data from services
         $dashboardData = [
-            // Core analytics from dedicated service
             'overview' => $this->analyticsService->getDashboardMetrics(),
-            
-            // Detailed service data
             'population' => $this->residentService->getDashboardData(),
             'documents' => $this->documentService->getDashboardData(),
             'complaints' => $this->complaintService->getDashboardData(),
             'health_services' => $this->healthServiceService->getDashboardData(),
-            
-            // Trend analysis
-            'trends' => [
-                'monthly_registrations' => $this->analyticsService->getMonthlyTrends(),
-                'document_trends' => $this->documentService->getMonthlyTrends(),
-                'complaint_trends' => $this->complaintService->getMonthlyTrends(),
-                'health_trends' => $this->healthServiceService->getMonthlyTrends(),
-            ],
-            
-            // Performance metrics
-            'performance' => [
-                'document_processing' => $this->documentService->getProcessingMetrics(),
-                'complaint_resolution' => $this->complaintService->getPerformanceMetrics(),
-                'health_service_performance' => $this->healthServiceService->getPerformanceMetrics(),
-            ],
-            
-            // Attention items
-            'attention_items' => [
-                'complaints_needing_attention' => $this->complaintService->getComplaintsNeedingAttention(),
-                'health_services_needing_attention' => $this->healthServiceService->getServicesNeedingAttention(),
-            ],
         ];
 
-        return view('admin.analytics.index', compact('dashboardData'));
+        // Extract specific variables that the view expects based on actual service data structure
+        $totalResidents = $dashboardData['population']['statistics']['total'] ?? 0;
+        $newResidentsThisMonth = $dashboardData['population']['statistics']['this_month'] ?? 0;
+        $pendingPreRegistrations = $dashboardData['population']['statistics']['pending'] ?? 0;
+        $totalDocumentRequests = $dashboardData['documents']['statistics']['total'] ?? 0;
+
+        // Get chart data from the correct sources
+        $genderDistribution = $dashboardData['population']['gender_distribution'] ?? [];
+        $ageGroups = $dashboardData['population']['age_distribution'] ?? [];
+        $monthlyRegistrations = $this->analyticsService->getMonthlyTrends();
+
+        // Get recent data for activity sections
+        $recentResidents = $dashboardData['population']['recent_registrations'] ?? collect();
+        $recentDocuments = $dashboardData['documents']['recent_requests'] ?? collect();
+        $recentComplaints = $dashboardData['complaints']['recent_complaints'] ?? collect();
+
+        return view('admin.analytics.index', compact(
+            'totalResidents',
+            'newResidentsThisMonth',
+            'pendingPreRegistrations',
+            'totalDocumentRequests',
+            'genderDistribution',
+            'ageGroups',
+            'monthlyRegistrations',
+            'recentResidents',
+            'recentDocuments',
+            'recentComplaints',
+            'dashboardData'
+        ));
     }
 
     /**

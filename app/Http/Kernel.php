@@ -71,6 +71,7 @@ class Kernel extends HttpKernel
         'security' => \App\Http\Middleware\ValidateRequestSecurity::class,
         'account.lockout' => \App\Http\Middleware\AccountLockoutMiddleware::class,
         'session.security' => \App\Http\Middleware\SessionSecurityMiddleware::class,
+        'repository.security' => \App\Http\Middleware\RepositorySecurityMiddleware::class,
         'enforce.password.change' => \App\Http\Middleware\EnforcePasswordChange::class,
     ];
 }

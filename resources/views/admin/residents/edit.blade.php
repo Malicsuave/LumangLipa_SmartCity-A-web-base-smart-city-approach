@@ -1,453 +1,499 @@
 @extends('layouts.admin.master')
 
+@section('breadcrumbs')
+<li class="breadcrumb-item"><a href="{{ route('admin.residents.index') }}">Residents</a></li>
+<li class="breadcrumb-item active" aria-current="page">Edit Resident</li>
+@endsection
+
+@section('page-title', 'Edit Resident')
+@section('page-subtitle', 'Update information for ' . $resident->full_name)
+
 @section('title', 'Edit Resident')
 
 @section('content')
-<div class="container-fluid">
-    <div class="row justify-content-center">
-        <div class="col-12">
-            <div class="row align-items-center mb-4">
-                <div class="col">
-                    <h2 class="h3 page-title">View & Update Resident</h2>
-                </div>
-                <div class="col-auto">
-                    <a href="{{ route('admin.residents.index') }}" class="btn btn-primary mr-2">
-                        <i class="fe fe-arrow-left mr-2"></i> Back to List
-                    </a>
-                    <button class="btn btn-danger" data-toggle="modal" data-target="#deleteModal" type="button">
-                        <i class="fe fe-trash mr-2 text-white"></i> Delete
-                    </button>
-                </div>
-            </div>
-
-            <!-- Success message if available -->
-            @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show">
-                {{ session('success') }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            @endif
-
-            <form action="{{ route('admin.residents.update', $resident) }}" method="POST" id="residentUpdateForm">
-                @csrf
-                @method('PUT')
-                
-                <!-- Resident Information Card -->
-                <div class="card shadow mb-4">
-                    <div class="card-header">
-                        <h6 class="card-title mb-0">Resident Information</h6>
-                        <small class="form-text text-muted mt-1">Fields marked with <span class="text-danger">*</span> are required</small>
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <!-- Page Header Card -->
+        <div class="card shadow mb-4">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="mb-0"><i class="fe fe-edit-3 fe-16 mr-2 text-primary"></i>View & Update Resident</h4>
+                        <p class="text-muted mb-0">{{ $resident->full_name }} - {{ $resident->barangay_id }}</p>
                     </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-2 mb-4 text-center">
-                                <div class="avatar avatar-xl mb-3">
-                                    @if($resident->photo)
-                                        <img src="{{ $resident->photo_url }}" alt="{{ $resident->full_name }}" class="avatar-img rounded-circle">
-                                    @else
-                                        <div class="avatar-letter rounded-circle bg-primary">{{ substr($resident->first_name, 0, 1) }}</div>
-                                    @endif
-                                </div>
-                                <div class="mt-1">
-                                    <p class="small text-muted mb-1">Barangay ID</p>
-                                    <h5 class="mb-0">{{ $resident->barangay_id }}</h5>
-                                </div>
-                            </div>
-                            <div class="col-md-10">
-                                <div class="row">
-                                    <div class="col-md-3 mb-3">
-                                        <label for="type_of_resident">Type of Resident <span class="text-danger">*</span></label>
-                                        <select class="form-control @error('type_of_resident') is-invalid @enderror" id="type_of_resident" name="type_of_resident">
-                                            <option value="Non-Migrant" {{ $resident->type_of_resident == 'Non-Migrant' ? 'selected' : '' }}>Non-Migrant</option>
-                                            <option value="Migrant" {{ $resident->type_of_resident == 'Migrant' ? 'selected' : '' }}>Migrant</option>
-                                            <option value="Transient" {{ $resident->type_of_resident == 'Transient' ? 'selected' : '' }}>Transient</option>
-                                        </select>
-                                        @error('type_of_resident')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-3 mb-3">
-                                        <label for="first_name">First Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @error('first_name') is-invalid @enderror" id="first_name" name="first_name" value="{{ old('first_name', $resident->first_name) }}" required>
-                                        @error('first_name')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-3 mb-3">
-                                        <label for="middle_name">Middle Name</label>
-                                        <input type="text" class="form-control @error('middle_name') is-invalid @enderror" id="middle_name" name="middle_name" value="{{ old('middle_name', $resident->middle_name) }}">
-                                        @error('middle_name')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-3 mb-3">
-                                        <label for="last_name">Last Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @error('last_name') is-invalid @enderror" id="last_name" name="last_name" value="{{ old('last_name', $resident->last_name) }}" required>
-                                        @error('last_name')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-3 mb-3">
-                                        <label for="suffix">Suffix</label>
-                                        <input type="text" class="form-control @error('suffix') is-invalid @enderror" id="suffix" name="suffix" value="{{ old('suffix', $resident->suffix) }}">
-                                        @error('suffix')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-3 mb-3">
-                                        <label for="birthdate">Birthdate <span class="text-danger">*</span></label>
-                                        <input type="date" class="form-control @error('birthdate') is-invalid @enderror" id="birthdate" name="birthdate" value="{{ old('birthdate', $resident->birthdate ? $resident->birthdate->format('Y-m-d') : '') }}" required>
-                                        @error('birthdate')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-3 mb-3">
-                                        <label for="birthplace">Birthplace <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @error('birthplace') is-invalid @enderror" id="birthplace" name="birthplace" value="{{ old('birthplace', $resident->birthplace) }}" required>
-                                        @error('birthplace')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-3 mb-3">
-                                        <label for="sex">Gender <span class="text-danger">*</span></label>
-                                        <select class="form-control @error('sex') is-invalid @enderror" id="sex" name="sex">
-                                            <option value="Male" {{ $resident->sex == 'Male' ? 'selected' : '' }}>Male</option>
-                                            <option value="Female" {{ $resident->sex == 'Female' ? 'selected' : '' }}>Female</option>
-                                        </select>
-                                        @error('sex')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="civil_status">Civil Status <span class="text-danger">*</span></label>
-                                        <select class="form-control @error('civil_status') is-invalid @enderror" id="civil_status" name="civil_status">
-                                            <option value="Single" {{ $resident->civil_status == 'Single' ? 'selected' : '' }}>Single</option>
-                                            <option value="Married" {{ $resident->civil_status == 'Married' ? 'selected' : '' }}>Married</option>
-                                            <option value="Widowed" {{ $resident->civil_status == 'Widowed' ? 'selected' : '' }}>Widowed</option>
-                                            <option value="Separated" {{ $resident->civil_status == 'Separated' ? 'selected' : '' }}>Separated</option>
-                                            <option value="Divorced" {{ $resident->civil_status == 'Divorced' ? 'selected' : '' }}>Divorced</option>
-                                        </select>
-                                        @error('civil_status')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="address">Address <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @error('address') is-invalid @enderror" id="address" name="address" value="{{ old('address', $resident->address) }}" required>
-                                        @error('address')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="contact_number">Contact Number <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @error('contact_number') is-invalid @enderror" id="contact_number" name="contact_number" 
-                                            value="{{ old('contact_number', $resident->contact_number) }}" required
-                                            pattern="[0-9]{11}" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                                            title="Please enter exactly 11 digits">
-                                        @error('contact_number')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="email_address">Email Address <span class="text-danger">*</span></label>
-                                        <input type="email" class="form-control @error('email_address') is-invalid @enderror" id="email_address" name="email_address" value="{{ old('email_address', $resident->email_address) }}" required>
-                                        @error('email_address')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Additional Information Card -->
-                <div class="card shadow mb-4">
-                    <div class="card-header">
-                        <h6 class="card-title mb-0">Additional Information</h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-3 mb-3">
-                                <label for="citizenship_type">Citizenship Type <span class="text-danger">*</span></label>
-                                <select class="form-control @error('citizenship_type') is-invalid @enderror" id="citizenship_type" name="citizenship_type">
-                                    <option value="FILIPINO" {{ $resident->citizenship_type == 'FILIPINO' ? 'selected' : '' }}>Filipino</option>
-                                    <option value="Dual Citizen" {{ $resident->citizenship_type == 'Dual Citizen' ? 'selected' : '' }}>Dual Citizen</option>
-                                    <option value="Foreigner" {{ $resident->citizenship_type == 'Foreigner' ? 'selected' : '' }}>Foreigner</option>
-                                </select>
-                                @error('citizenship_type')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <label for="citizenship_country">Country</label>
-                                <input type="text" class="form-control @error('citizenship_country') is-invalid @enderror" id="citizenship_country" name="citizenship_country" value="{{ old('citizenship_country', $resident->citizenship_country) }}">
-                                @error('citizenship_country')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <label for="religion">Religion</label>
-                                <input type="text" class="form-control @error('religion') is-invalid @enderror" id="religion" name="religion" value="{{ old('religion', $resident->religion) }}">
-                                @error('religion')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <label for="philsys_id">PhilSys ID</label>
-                                <input type="text" class="form-control @error('philsys_id') is-invalid @enderror" id="philsys_id" name="philsys_id" value="{{ old('philsys_id', $resident->philsys_id) }}">
-                                @error('philsys_id')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <label for="profession_occupation">Occupation/Profession</label>
-                                <input type="text" class="form-control @error('profession_occupation') is-invalid @enderror" id="profession_occupation" name="profession_occupation" value="{{ old('profession_occupation', $resident->profession_occupation) }}">
-                                @error('profession_occupation')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <label for="monthly_income">Monthly Income</label>
-                                <input type="number" step="0.01" class="form-control @error('monthly_income') is-invalid @enderror" id="monthly_income" name="monthly_income" value="{{ old('monthly_income', $resident->monthly_income) }}">
-                                @error('monthly_income')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <label for="educational_attainment">Highest Educational Attainment</label>
-                                <select class="form-control @error('educational_attainment') is-invalid @enderror" id="educational_attainment" name="educational_attainment">
-                                    <option value="">-- Select Attainment --</option>
-                                    <option value="Elementary" {{ $resident->educational_attainment == 'Elementary' ? 'selected' : '' }}>Elementary</option>
-                                    <option value="Highschool" {{ $resident->educational_attainment == 'Highschool' ? 'selected' : '' }}>Highschool</option>
-                                    <option value="College" {{ $resident->educational_attainment == 'College' ? 'selected' : '' }}>College</option>
-                                    <option value="Post Graduate" {{ $resident->educational_attainment == 'Post Graduate' ? 'selected' : '' }}>Post Graduate</option>
-                                    <option value="Vocational" {{ $resident->educational_attainment == 'Vocational' ? 'selected' : '' }}>Vocational</option>
-                                    <option value="not applicable" {{ $resident->educational_attainment == 'not applicable' ? 'selected' : '' }}>Not Applicable</option>
-                                </select>
-                                @error('educational_attainment')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <label for="education_status">Education Status</label>
-                                <select class="form-control @error('education_status') is-invalid @enderror" id="education_status" name="education_status">
-                                    <option value="">-- Select Status --</option>
-                                    <option value="Graduate" {{ $resident->education_status == 'Graduate' ? 'selected' : '' }}>Graduate</option>
-                                    <option value="Undergraduate" {{ $resident->education_status == 'Undergraduate' ? 'selected' : '' }}>Undergraduate</option>
-                                    <option value="not applicable" {{ $resident->education_status == 'not applicable' ? 'selected' : '' }}>Not Applicable</option>
-                                </select>
-                                @error('education_status')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Household Information Card (Collapsible) -->
-                <div class="card shadow mb-4">
-                    <div class="card-header d-flex justify-content-between align-items-center" style="cursor: pointer;" data-toggle="collapse" data-target="#householdSection" aria-expanded="false">
-                        <h6 class="card-title mb-0">Household Information</h6>
-                        <button type="button" class="btn btn-sm btn-link p-0">
-                            <i class="fe fe-chevron-down household-toggle-icon"></i>
+                    <div>
+                        <a href="{{ route('admin.residents.index') }}" class="btn btn-outline-secondary mr-2">
+                            <i class="fe fe-arrow-left fe-16 mr-2"></i>Back to List
+                        </a>
+                        <button class="btn btn-danger" data-toggle="modal" data-target="#deleteModal" type="button">
+                            <i class="fe fe-trash fe-16 mr-2"></i>Delete
                         </button>
                     </div>
-                    <div class="collapse" id="householdSection">
-                        <div class="card-body">
-                            <!-- Primary and Secondary Person Information -->
-                            <div class="row mb-4">
-                                <!-- Primary Person Information -->
-                                <div class="col-md-6 mb-4">
-                                    <div class="card border">
-                                        <div class="card-header bg-light">
-                                            <h6 class="text-primary mb-0">Primary Person</h6>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-md-12 mb-3">
-                                                    <label for="primary_name">Full Name</label>
-                                                    <input type="text" class="form-control @error('household.primary_name') is-invalid @enderror" id="primary_name" name="household[primary_name]" 
-                                                        value="{{ old('household.primary_name', $resident->household->primary_name ?? '') }}">
-                                                    @error('household.primary_name')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="primary_birthday">Birthday</label>
-                                                    <input type="date" class="form-control @error('household.primary_birthday') is-invalid @enderror" id="primary_birthday" name="household[primary_birthday]"
-                                                        value="{{ old('household.primary_birthday', $resident->household && $resident->household->primary_birthday ? $resident->household->primary_birthday->format('Y-m-d') : '') }}">
-                                                    @error('household.primary_birthday')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="primary_gender">Gender</label>
-                                                    <select class="form-control @error('household.primary_gender') is-invalid @enderror" id="primary_gender" name="household[primary_gender]">
-                                                        <option value="">-- Select Gender --</option>
-                                                        <option value="Male" {{ $resident->household && $resident->household->primary_gender == 'Male' ? 'selected' : '' }}>Male</option>
-                                                        <option value="Female" {{ $resident->household && $resident->household->primary_gender == 'Female' ? 'selected' : '' }}>Female</option>
-                                                    </select>
-                                                    @error('household.primary_gender')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="primary_phone">Contact Number</label>
-                                                    <input type="text" class="form-control @error('household.primary_phone') is-invalid @enderror" id="primary_phone" name="household[primary_phone]"
-                                                        value="{{ old('household.primary_phone', $resident->household->primary_phone ?? '') }}"
-                                                        pattern="[0-9]{11}" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                                                    @error('household.primary_phone')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="primary_work">Occupation</label>
-                                                    <input type="text" class="form-control @error('household.primary_work') is-invalid @enderror" id="primary_work" name="household[primary_work]"
-                                                        value="{{ old('household.primary_work', $resident->household->primary_work ?? '') }}">
-                                                    @error('household.primary_work')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="primary_allergies">Allergies</label>
-                                                    <input type="text" class="form-control @error('household.primary_allergies') is-invalid @enderror" id="primary_allergies" name="household[primary_allergies]"
-                                                        value="{{ old('household.primary_allergies', $resident->household->primary_allergies ?? '') }}">
-                                                    @error('household.primary_allergies')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="primary_medical_condition">Medical Conditions</label>
-                                                    <input type="text" class="form-control @error('household.primary_medical_condition') is-invalid @enderror" id="primary_medical_condition" name="household[primary_medical_condition]"
-                                                        value="{{ old('household.primary_medical_condition', $resident->household->primary_medical_condition ?? '') }}">
-                                                    @error('household.primary_medical_condition')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                </div>
+            </div>
+        </div>
 
-                                <!-- Secondary Person Information -->
-                                <div class="col-md-6 mb-4">
-                                    <div class="card border">
-                                        <div class="card-header bg-light">
-                                            <h6 class="text-primary mb-0">Secondary Person</h6>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-md-12 mb-3">
-                                                    <label for="secondary_name">Full Name</label>
-                                                    <input type="text" class="form-control @error('household.secondary_name') is-invalid @enderror" id="secondary_name" name="household[secondary_name]"
-                                                        value="{{ old('household.secondary_name', $resident->household->secondary_name ?? '') }}">
-                                                    @error('household.secondary_name')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="secondary_birthday">Birthday</label>
-                                                    <input type="date" class="form-control @error('household.secondary_birthday') is-invalid @enderror" id="secondary_birthday" name="household[secondary_birthday]"
-                                                        value="{{ old('household.secondary_birthday', $resident->household && $resident->household->secondary_birthday ? $resident->household->secondary_birthday->format('Y-m-d') : '') }}">
-                                                    @error('household.secondary_birthday')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="secondary_gender">Gender</label>
-                                                    <select class="form-control @error('household.secondary_gender') is-invalid @enderror" id="secondary_gender" name="household[secondary_gender]">
-                                                        <option value="">-- Select Gender --</option>
-                                                        <option value="Male" {{ $resident->household && $resident->household->secondary_gender == 'Male' ? 'selected' : '' }}>Male</option>
-                                                        <option value="Female" {{ $resident->household && $resident->household->secondary_gender == 'Female' ? 'selected' : '' }}>Female</option>
-                                                    </select>
-                                                    @error('household.secondary_gender')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="secondary_phone">Contact Number</label>
-                                                    <input type="text" class="form-control @error('household.secondary_phone') is-invalid @enderror" id="secondary_phone" name="household[secondary_phone]"
-                                                        value="{{ old('household.secondary_phone', $resident->household->secondary_phone ?? '') }}"
-                                                        pattern="[0-9]{11}" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                                                    @error('household.secondary_phone')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="secondary_work">Occupation</label>
-                                                    <input type="text" class="form-control @error('household.secondary_work') is-invalid @enderror" id="secondary_work" name="household[secondary_work]"
-                                                        value="{{ old('household.secondary_work', $resident->household->secondary_work ?? '') }}">
-                                                    @error('household.secondary_work')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="secondary_allergies">Allergies</label>
-                                                    <input type="text" class="form-control @error('household.secondary_allergies') is-invalid @enderror" id="secondary_allergies" name="household[secondary_allergies]"
-                                                        value="{{ old('household.secondary_allergies', $resident->household->secondary_allergies ?? '') }}">
-                                                    @error('household.secondary_allergies')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="secondary_medical_condition">Medical Conditions</label>
-                                                    <input type="text" class="form-control @error('household.secondary_medical_condition') is-invalid @enderror" id="secondary_medical_condition" name="household[secondary_medical_condition]"
-                                                        value="{{ old('household.secondary_medical_condition', $resident->household->secondary_medical_condition ?? '') }}">
-                                                    @error('household.secondary_medical_condition')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
+        <!-- Success/Error Messages -->
+        @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fe fe-check-circle fe-16 mr-2"></i>{{ session('success') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        @endif
+
+        @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fe fe-alert-circle fe-16 mr-2"></i>{{ session('error') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        @endif
+
+        @if($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fe fe-alert-circle fe-16 mr-2"></i>
+            <strong>Please fix the following errors:</strong>
+            <ul class="mb-0 mt-2">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        @endif
+
+        <form action="{{ route('admin.residents.update', $resident) }}" method="POST" id="residentUpdateForm">
+            @csrf
+            @method('PUT')
+            
+            <!-- Resident Information Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-light">
+                    <h6 class="card-title mb-0"><i class="fe fe-user fe-16 mr-2"></i>Resident Information</h6>
+                    <small class="form-text text-muted mt-1">Fields marked with <span class="text-danger">*</span> are required</small>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-2 mb-4 text-center">
+                            <div class="avatar avatar-xl mb-3">
+                                @if($resident->photo)
+                                    <img src="{{ $resident->photo_url }}" alt="{{ $resident->full_name }}" class="avatar-img rounded-circle">
+                                @else
+                                    <div class="avatar-letter rounded-circle bg-primary">{{ substr($resident->first_name, 0, 1) }}</div>
+                                @endif
+                            </div>
+                            <div class="mt-1">
+                                <p class="small text-muted mb-1">Barangay ID</p>
+                                <h5 class="mb-0">{{ $resident->barangay_id }}</h5>
+                            </div>
+                        </div>
+                        <div class="col-md-10">
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label for="type_of_resident">Type of Resident <span class="text-danger">*</span></label>
+                                    <select class="form-control @error('type_of_resident') is-invalid @enderror" id="type_of_resident" name="type_of_resident">
+                                        <option value="Non-Migrant" {{ $resident->type_of_resident == 'Non-Migrant' ? 'selected' : '' }}>Non-Migrant</option>
+                                        <option value="Migrant" {{ $resident->type_of_resident == 'Migrant' ? 'selected' : '' }}>Migrant</option>
+                                        <option value="Transient" {{ $resident->type_of_resident == 'Transient' ? 'selected' : '' }}>Transient</option>
+                                    </select>
+                                    @error('type_of_resident')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="first_name">First Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('first_name') is-invalid @enderror" id="first_name" name="first_name" value="{{ old('first_name', $resident->first_name) }}" required>
+                                    @error('first_name')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="middle_name">Middle Name</label>
+                                    <input type="text" class="form-control @error('middle_name') is-invalid @enderror" id="middle_name" name="middle_name" value="{{ old('middle_name', $resident->middle_name) }}">
+                                    @error('middle_name')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="last_name">Last Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('last_name') is-invalid @enderror" id="last_name" name="last_name" value="{{ old('last_name', $resident->last_name) }}" required>
+                                    @error('last_name')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="suffix">Suffix</label>
+                                    <input type="text" class="form-control @error('suffix') is-invalid @enderror" id="suffix" name="suffix" value="{{ old('suffix', $resident->suffix) }}">
+                                    @error('suffix')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="birthdate">Birthdate <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control @error('birthdate') is-invalid @enderror" id="birthdate" name="birthdate" value="{{ old('birthdate', $resident->birthdate ? $resident->birthdate->format('Y-m-d') : '') }}" required>
+                                    @error('birthdate')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="birthplace">Birthplace <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('birthplace') is-invalid @enderror" id="birthplace" name="birthplace" value="{{ old('birthplace', $resident->birthplace) }}" required>
+                                    @error('birthplace')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="sex">Gender <span class="text-danger">*</span></label>
+                                    <select class="form-control @error('sex') is-invalid @enderror" id="sex" name="sex">
+                                        <option value="">-- Select Gender --</option>
+                                        <option value="Male" {{ $resident->sex == 'Male' ? 'selected' : '' }}>Male</option>
+                                        <option value="Female" {{ $resident->sex == 'Female' ? 'selected' : '' }}>Female</option>
+                                        <option value="Non-binary" {{ $resident->sex == 'Non-binary' ? 'selected' : '' }}>Non-binary</option>
+                                        <option value="Transgender" {{ $resident->sex == 'Transgender' ? 'selected' : '' }}>Transgender</option>
+                                        <option value="Other" {{ $resident->sex == 'Other' ? 'selected' : '' }}>Other</option>
+                                    </select>
+                                    @error('sex')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="civil_status">Civil Status <span class="text-danger">*</span></label>
+                                    <select class="form-control @error('civil_status') is-invalid @enderror" id="civil_status" name="civil_status">
+                                        <option value="Single" {{ $resident->civil_status == 'Single' ? 'selected' : '' }}>Single</option>
+                                        <option value="Married" {{ $resident->civil_status == 'Married' ? 'selected' : '' }}>Married</option>
+                                        <option value="Widowed" {{ $resident->civil_status == 'Widowed' ? 'selected' : '' }}>Widowed</option>
+                                        <option value="Separated" {{ $resident->civil_status == 'Separated' ? 'selected' : '' }}>Separated</option>
+                                        <option value="Divorced" {{ $resident->civil_status == 'Divorced' ? 'selected' : '' }}>Divorced</option>
+                                    </select>
+                                    @error('civil_status')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="address">Address <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('address') is-invalid @enderror" id="address" name="address" value="{{ old('address', $resident->address) }}" required>
+                                    @error('address')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="contact_number">Contact Number <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('contact_number') is-invalid @enderror" id="contact_number" name="contact_number" 
+                                        value="{{ old('contact_number', $resident->contact_number) }}" required
+                                        pattern="[0-9]{11}" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                        title="Please enter exactly 11 digits">
+                                    @error('contact_number')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="email_address">Email Address <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control @error('email_address') is-invalid @enderror" id="email_address" name="email_address" value="{{ old('email_address', $resident->email_address) }}" required>
+                                    @error('email_address')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Additional Information Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-light">
+                    <h6 class="card-title mb-0"><i class="fe fe-info fe-16 mr-2"></i>Additional Information</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <label for="citizenship_type">Citizenship Type <span class="text-danger">*</span></label>
+                            <select class="form-control @error('citizenship_type') is-invalid @enderror" id="citizenship_type" name="citizenship_type">
+                                <option value="FILIPINO" {{ $resident->citizenship_type == 'FILIPINO' ? 'selected' : '' }}>Filipino</option>
+                                <option value="Dual Citizen" {{ $resident->citizenship_type == 'Dual Citizen' ? 'selected' : '' }}>Dual Citizen</option>
+                                <option value="Foreigner" {{ $resident->citizenship_type == 'Foreigner' ? 'selected' : '' }}>Foreigner</option>
+                            </select>
+                            @error('citizenship_type')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="citizenship_country">Country</label>
+                            <input type="text" class="form-control @error('citizenship_country') is-invalid @enderror" id="citizenship_country" name="citizenship_country" value="{{ old('citizenship_country', $resident->citizenship_country) }}">
+                            @error('citizenship_country')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="religion">Religion</label>
+                            <input type="text" class="form-control @error('religion') is-invalid @enderror" id="religion" name="religion" value="{{ old('religion', $resident->religion) }}">
+                            @error('religion')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="philsys_id">PhilSys ID</label>
+                            <input type="text" class="form-control @error('philsys_id') is-invalid @enderror" id="philsys_id" name="philsys_id" value="{{ old('philsys_id', $resident->philsys_id) }}">
+                            @error('philsys_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="profession_occupation">Occupation/Profession</label>
+                            <input type="text" class="form-control @error('profession_occupation') is-invalid @enderror" id="profession_occupation" name="profession_occupation" value="{{ old('profession_occupation', $resident->profession_occupation) }}">
+                            @error('profession_occupation')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="monthly_income">Monthly Income</label>
+                            <input type="number" step="0.01" class="form-control @error('monthly_income') is-invalid @enderror" id="monthly_income" name="monthly_income" value="{{ old('monthly_income', $resident->monthly_income) }}">
+                            @error('monthly_income')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="educational_attainment">Highest Educational Attainment</label>
+                            <select class="form-control @error('educational_attainment') is-invalid @enderror" id="educational_attainment" name="educational_attainment">
+                                <option value="">-- Select Attainment --</option>
+                                <option value="Elementary" {{ $resident->educational_attainment == 'Elementary' ? 'selected' : '' }}>Elementary</option>
+                                <option value="Highschool" {{ $resident->educational_attainment == 'Highschool' ? 'selected' : '' }}>Highschool</option>
+                                <option value="College" {{ $resident->educational_attainment == 'College' ? 'selected' : '' }}>College</option>
+                                <option value="Post Graduate" {{ $resident->educational_attainment == 'Post Graduate' ? 'selected' : '' }}>Post Graduate</option>
+                                <option value="Vocational" {{ $resident->educational_attainment == 'Vocational' ? 'selected' : '' }}>Vocational</option>
+                                <option value="not applicable" {{ $resident->educational_attainment == 'not applicable' ? 'selected' : '' }}>Not Applicable</option>
+                            </select>
+                            @error('educational_attainment')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="education_status">Education Status</label>
+                            <select class="form-control @error('education_status') is-invalid @enderror" id="education_status" name="education_status">
+                                <option value="">-- Select Status --</option>
+                                <option value="Graduate" {{ $resident->education_status == 'Graduate' ? 'selected' : '' }}>Graduate</option>
+                                <option value="Undergraduate" {{ $resident->education_status == 'Undergraduate' ? 'selected' : '' }}>Undergraduate</option>
+                                <option value="not applicable" {{ $resident->education_status == 'not applicable' ? 'selected' : '' }}>Not Applicable</option>
+                            </select>
+                            @error('education_status')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Household Information Card (Collapsible) -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center" style="cursor: pointer;" data-toggle="collapse" data-target="#householdSection" aria-expanded="false">
+                    <h6 class="card-title mb-0"><i class="fe fe-home fe-16 mr-2"></i>Household Information</h6>
+                    <button type="button" class="btn btn-sm btn-link p-0">
+                        <i class="fe fe-chevron-down household-toggle-icon"></i>
+                    </button>
+                </div>
+                <div class="collapse" id="householdSection">
+                    <div class="card-body">
+                        <!-- Primary and Secondary Person Information -->
+                        <div class="row mb-4">
+                            <!-- Primary Person Information -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card border">
+                                    <div class="card-header bg-light">
+                                        <h6 class="text-primary mb-0">Primary Person</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-12 mb-3">
+                                                <label for="primary_name">Full Name</label>
+                                                <input type="text" class="form-control @error('household.primary_name') is-invalid @enderror" id="primary_name" name="household[primary_name]" 
+                                                    value="{{ old('household.primary_name', $resident->household->primary_name ?? '') }}" required>
+                                                @error('household.primary_name')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="primary_birthday">Birthday</label>
+                                                <input type="date" class="form-control @error('household.primary_birthday') is-invalid @enderror" id="primary_birthday" name="household[primary_birthday]"
+                                                    value="{{ old('household.primary_birthday', $resident->household && $resident->household->primary_birthday ? $resident->household->primary_birthday->format('Y-m-d') : '') }}">
+                                                @error('household.primary_birthday')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="primary_gender">Gender</label>
+                                                <select class="form-control @error('household.primary_gender') is-invalid @enderror" id="primary_gender" name="household[primary_gender]">
+                                                    <option value="">-- Select Gender --</option>
+                                                    <option value="Male" {{ $resident->household && $resident->household->primary_gender == 'Male' ? 'selected' : '' }}>Male</option>
+                                                    <option value="Female" {{ $resident->household && $resident->household->primary_gender == 'Female' ? 'selected' : '' }}>Female</option>
+                                                    <option value="Non-binary" {{ $resident->household && $resident->household->primary_gender == 'Non-binary' ? 'selected' : '' }}>Non-binary</option>
+                                                    <option value="Transgender" {{ $resident->household && $resident->household->primary_gender == 'Transgender' ? 'selected' : '' }}>Transgender</option>
+                                                    <option value="Other" {{ $resident->household && $resident->household->primary_gender == 'Other' ? 'selected' : '' }}>Other</option>
+                                                </select>
+                                                @error('household.primary_gender')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="primary_phone">Contact Number</label>
+                                                <input type="text" class="form-control @error('household.primary_phone') is-invalid @enderror" id="primary_phone" name="household[primary_phone]"
+                                                    value="{{ old('household.primary_phone', $resident->household->primary_phone ?? '') }}"
+                                                    pattern="[0-9]{11}" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                                @error('household.primary_phone')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="primary_work">Occupation</label>
+                                                <input type="text" class="form-control @error('household.primary_work') is-invalid @enderror" id="primary_work" name="household[primary_work]"
+                                                    value="{{ old('household.primary_work', $resident->household->primary_work ?? '') }}">
+                                                @error('household.primary_work')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="primary_allergies">Allergies</label>
+                                                <input type="text" class="form-control @error('household.primary_allergies') is-invalid @enderror" id="primary_allergies" name="household[primary_allergies]"
+                                                    value="{{ old('household.primary_allergies', $resident->household->primary_allergies ?? '') }}">
+                                                @error('household.primary_allergies')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="primary_medical_condition">Medical Conditions</label>
+                                                <input type="text" class="form-control @error('household.primary_medical_condition') is-invalid @enderror" id="primary_medical_condition" name="household[primary_medical_condition]"
+                                                    value="{{ old('household.primary_medical_condition', $resident->household->primary_medical_condition ?? '') }}">
+                                                @error('household.primary_medical_condition')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Emergency Contact Information -->
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="card border">
-                                        <div class="card-header bg-light">
-                                            <h6 class="text-primary mb-0">Emergency Contact</h6>
+                            <!-- Secondary Person Information -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card border">
+                                    <div class="card-header bg-light">
+                                        <h6 class="text-primary mb-0">Secondary Person</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-12 mb-3">
+                                                <label for="secondary_name">Full Name</label>
+                                                <input type="text" class="form-control @error('household.secondary_name') is-invalid @enderror" id="secondary_name" name="household[secondary_name]"
+                                                    value="{{ old('household.secondary_name', $resident->household->secondary_name ?? '') }}">
+                                                @error('household.secondary_name')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="secondary_birthday">Birthday</label>
+                                                <input type="date" class="form-control @error('household.secondary_birthday') is-invalid @enderror" id="secondary_birthday" name="household[secondary_birthday]"
+                                                    value="{{ old('household.secondary_birthday', $resident->household && $resident->household->secondary_birthday ? $resident->household->secondary_birthday->format('Y-m-d') : '') }}">
+                                                @error('household.secondary_birthday')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="secondary_gender">Gender</label>
+                                                <select class="form-control @error('household.secondary_gender') is-invalid @enderror" id="secondary_gender" name="household[secondary_gender]">
+                                                    <option value="">-- Select Gender --</option>
+                                                    <option value="Male" {{ $resident->household && $resident->household->secondary_gender == 'Male' ? 'selected' : '' }}>Male</option>
+                                                    <option value="Female" {{ $resident->household && $resident->household->secondary_gender == 'Female' ? 'selected' : '' }}>Female</option>
+                                                    <option value="Non-binary" {{ $resident->household && $resident->household->secondary_gender == 'Non-binary' ? 'selected' : '' }}>Non-binary</option>
+                                                    <option value="Transgender" {{ $resident->household && $resident->household->secondary_gender == 'Transgender' ? 'selected' : '' }}>Transgender</option>
+                                                    <option value="Other" {{ $resident->household && $resident->household->secondary_gender == 'Other' ? 'selected' : '' }}>Other</option>
+                                                </select>
+                                                @error('household.secondary_gender')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="secondary_phone">Contact Number</label>
+                                                <input type="text" class="form-control @error('household.secondary_phone') is-invalid @enderror" id="secondary_phone" name="household[secondary_phone]"
+                                                    value="{{ old('household.secondary_phone', $resident->household->secondary_phone ?? '') }}"
+                                                    pattern="[0-9]{11}" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                                @error('household.secondary_phone')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="secondary_work">Occupation</label>
+                                                <input type="text" class="form-control @error('household.secondary_work') is-invalid @enderror" id="secondary_work" name="household[secondary_work]"
+                                                    value="{{ old('household.secondary_work', $resident->household->secondary_work ?? '') }}">
+                                                @error('household.secondary_work')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="secondary_allergies">Allergies</label>
+                                                <input type="text" class="form-control @error('household.secondary_allergies') is-invalid @enderror" id="secondary_allergies" name="household[secondary_allergies]"
+                                                    value="{{ old('household.secondary_allergies', $resident->household->secondary_allergies ?? '') }}">
+                                                @error('household.secondary_allergies')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="secondary_medical_condition">Medical Conditions</label>
+                                                <input type="text" class="form-control @error('household.secondary_medical_condition') is-invalid @enderror" id="secondary_medical_condition" name="household[secondary_medical_condition]"
+                                                    value="{{ old('household.secondary_medical_condition', $resident->household->secondary_medical_condition ?? '') }}">
+                                                @error('household.secondary_medical_condition')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
                                         </div>
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-md-4 mb-3">
-                                                    <label for="emergency_contact_name">Full Name</label>
-                                                    <input type="text" class="form-control @error('household.emergency_contact_name') is-invalid @enderror" id="emergency_contact_name" name="household[emergency_contact_name]"
-                                                        value="{{ old('household.emergency_contact_name', $resident->household->emergency_contact_name ?? '') }}">
-                                                    @error('household.emergency_contact_name')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                                <div class="col-md-3 mb-3">
-                                                    <label for="emergency_relationship">Relationship</label>
-                                                    <input type="text" class="form-control @error('household.emergency_relationship') is-invalid @enderror" id="emergency_relationship" name="household[emergency_relationship]"
-                                                        value="{{ old('household.emergency_relationship', $resident->household->emergency_relationship ?? '') }}">
-                                                    @error('household.emergency_relationship')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                                <div class="col-md-3 mb-3">
-                                                    <label for="emergency_work">Occupation</label>
-                                                    <input type="text" class="form-control @error('household.emergency_work') is-invalid @enderror" id="emergency_work" name="household[emergency_work]"
-                                                        value="{{ old('household.emergency_work', $resident->household->emergency_work ?? '') }}">
-                                                    @error('household.emergency_work')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                                <div class="col-md-2 mb-3">
-                                                    <label for="emergency_phone">Contact Number</label>
-                                                    <input type="text" class="form-control @error('household.emergency_phone') is-invalid @enderror" id="emergency_phone" name="household[emergency_phone]"
-                                                        value="{{ old('household.emergency_phone', $resident->household->emergency_phone ?? '') }}"
-                                                        pattern="[0-9]{11}" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                                                    @error('household.emergency_phone')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Emergency Contact Information -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="card border">
+                                    <div class="card-header bg-light">
+                                        <h6 class="text-primary mb-0">Emergency Contact</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-4 mb-3">
+                                                <label for="emergency_contact_name">Full Name</label>
+                                                <input type="text" class="form-control @error('household.emergency_contact_name') is-invalid @enderror" id="emergency_contact_name" name="household[emergency_contact_name]"
+                                                    value="{{ old('household.emergency_contact_name', $resident->household->emergency_contact_name ?? '') }}">
+                                                @error('household.emergency_contact_name')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                            <div class="col-md-3 mb-3">
+                                                <label for="emergency_relationship">Relationship</label>
+                                                <input type="text" class="form-control @error('household.emergency_relationship') is-invalid @enderror" id="emergency_relationship" name="household[emergency_relationship]"
+                                                    value="{{ old('household.emergency_relationship', $resident->household->emergency_relationship ?? '') }}">
+                                                @error('household.emergency_relationship')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                            <div class="col-md-3 mb-3">
+                                                <label for="emergency_work">Occupation</label>
+                                                <input type="text" class="form-control @error('household.emergency_work') is-invalid @enderror" id="emergency_work" name="household[emergency_work]"
+                                                    value="{{ old('household.emergency_work', $resident->household->emergency_work ?? '') }}">
+                                                @error('household.emergency_work')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                            <div class="col-md-2 mb-3">
+                                                <label for="emergency_phone">Contact Number</label>
+                                                <input type="text" class="form-control @error('household.emergency_phone') is-invalid @enderror" id="emergency_phone" name="household[emergency_phone]"
+                                                    value="{{ old('household.emergency_phone', $resident->household->emergency_phone ?? '') }}"
+                                                    pattern="[0-9]{11}" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                                @error('household.emergency_phone')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
                                             </div>
                                         </div>
                                     </div>
@@ -456,127 +502,143 @@
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Family Members Card (Also Collapsible) -->
-                <div class="card shadow mb-4">
-                    <div class="card-header d-flex justify-content-between align-items-center" style="cursor: pointer;" data-toggle="collapse" data-target="#familyMembersSection" aria-expanded="false">
-                        <h6 class="card-title mb-0">Family Members</h6>
-                        <div>
-                            <button type="button" class="btn btn-sm btn-primary mr-2" id="addFamilyMemberBtn" style="display:none;">
+            <!-- Family Members Card (Also Collapsible) -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center" style="cursor: pointer;" data-toggle="collapse" data-target="#familyMembersSection" aria-expanded="false">
+                    <h6 class="card-title mb-0"><i class="fe fe-users fe-16 mr-2"></i>Family Members</h6>
+                    <div>
+                        <button type="button" class="btn btn-sm btn-primary mr-2" id="addFamilyMemberBtn" style="display:none;">
+                            <i class="fe fe-plus mr-1"></i> Add Family Member
+                        </button>
+                        <i class="fe fe-chevron-down family-toggle-icon"></i>
+                    </div>
+                </div>
+                <div class="collapse" id="familyMembersSection">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-sm btn-primary" id="addFamilyMemberBtnInside">
                                 <i class="fe fe-plus mr-1"></i> Add Family Member
                             </button>
-                            <i class="fe fe-chevron-down family-toggle-icon"></i>
                         </div>
-                    </div>
-                    <div class="collapse" id="familyMembersSection">
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <button type="button" class="btn btn-sm btn-primary" id="addFamilyMemberBtnInside">
-                                    <i class="fe fe-plus mr-1"></i> Add Family Member
-                                </button>
-                            </div>
-                            
-                            <div class="table-responsive">
-                                <table class="table table-striped" id="familyMembersTable">
-                                    <thead>
-                                        <tr>
-                                            <th>Name</th>
-                                            <th>Relationship</th>
-                                            <th>Related To</th>
-                                            <th>Gender</th>
-                                            <th>Birthday</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="familyMembersList">
-                                        @if(isset($resident->familyMembers) && $resident->familyMembers->count() > 0)
-                                            @foreach($resident->familyMembers as $index => $member)
-                                                <tr class="family-member-row">
-                                                    <td>
-                                                        <input type="hidden" name="family_members[{{ $index }}][id]" value="{{ $member->id }}">
-                                                        <input type="text" class="form-control" name="family_members[{{ $index }}][name]" 
-                                                            value="{{ $member->name }}" required>
-                                                    </td>
-                                                    <td>
-                                                        <input type="text" class="form-control" name="family_members[{{ $index }}][relationship]" 
-                                                            value="{{ $member->relationship }}" required>
-                                                    </td>
-                                                    <td>
-                                                        <input type="text" class="form-control" name="family_members[{{ $index }}][related_to]" 
-                                                            value="{{ $member->related_to }}">
-                                                    </td>
-                                                    <td>
-                                                        <select class="form-control" name="family_members[{{ $index }}][gender]" required>
-                                                            <option value="">Select</option>
-                                                            <option value="Male" {{ $member->gender == 'Male' ? 'selected' : '' }}>Male</option>
-                                                            <option value="Female" {{ $member->gender == 'Female' ? 'selected' : '' }}>Female</option>
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <input type="date" class="form-control" name="family_members[{{ $index }}][birthday]" 
-                                                            value="{{ $member->birthday ? $member->birthday->format('Y-m-d') : '' }}">
-                                                    </td>
-                                                    <td>
-                                                        <button type="button" class="btn btn-sm btn-danger remove-family-member">
-                                                            <i class="fe fe-trash"></i>
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                                <tr class="family-member-row-details">
-                                                    <td colspan="6">
-                                                        <div class="row">
-                                                            <div class="col-md-4 mb-2">
-                                                                <label>Occupation</label>
-                                                                <input type="text" class="form-control" name="family_members[{{ $index }}][work]" 
-                                                                    value="{{ $member->work }}">
-                                                            </div>
-                                                            <div class="col-md-3 mb-2">
-                                                                <label>Contact Number</label>
-                                                                <input type="text" class="form-control" name="family_members[{{ $index }}][contact_number]" 
-                                                                    value="{{ $member->contact_number }}"
-                                                                    pattern="[0-9]{11}" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                                                                <div class="invalid-feedback">Phone number must be exactly 11 digits</div>
-                                                            </div>
-                                                            <div class="col-md-2 mb-2">
-                                                                <label>Allergies</label>
-                                                                <input type="text" class="form-control" name="family_members[{{ $index }}][allergies]" 
-                                                                    value="{{ $member->allergies }}">
-                                                            </div>
-                                                            <div class="col-md-3 mb-2">
-                                                                <label>Medical Conditions</label>
-                                                                <input type="text" class="form-control" name="family_members[{{ $index }}][medical_condition]" 
-                                                                    value="{{ $member->medical_condition }}">
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        @else
-                                            <tr id="noFamilyMembersRow">
-                                                <td colspan="6" class="text-center">No family members added yet</td>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover" id="familyMembersTable">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Relationship</th>
+                                        <th>Related To</th>
+                                        <th>Gender</th>
+                                        <th>Birthday</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="familyMembersList">
+                                    @if(isset($resident->familyMembers) && $resident->familyMembers->count() > 0)
+                                        @foreach($resident->familyMembers as $index => $member)
+                                            <tr class="family-member-row">
+                                                <td>
+                                                    <input type="hidden" name="family_members[{{ $index }}][id]" value="{{ $member->id }}">
+                                                    <input type="text" class="form-control name-field" name="family_members[{{ $index }}][name]" value="{{ $member->name }}" required>
+                                                </td>
+                                                <td>
+                                                    <select class="form-control" name="family_members[{{ $index }}][relationship]" required>
+                                                        <option value="">Select</option>
+                                                        <option value="Spouse" {{ $member->relationship == 'Spouse' ? 'selected' : '' }}>Spouse</option>
+                                                        <option value="Child" {{ $member->relationship == 'Child' ? 'selected' : '' }}>Child</option>
+                                                        <option value="Parent" {{ $member->relationship == 'Parent' ? 'selected' : '' }}>Parent</option>
+                                                        <option value="Sibling" {{ $member->relationship == 'Sibling' ? 'selected' : '' }}>Sibling</option>
+                                                        <option value="Grandparent" {{ $member->relationship == 'Grandparent' ? 'selected' : '' }}>Grandparent</option>
+                                                        <option value="Grandchild" {{ $member->relationship == 'Grandchild' ? 'selected' : '' }}>Grandchild</option>
+                                                        <option value="In-Law" {{ $member->relationship == 'In-Law' ? 'selected' : '' }}>In-Law</option>
+                                                        <option value="Other" {{ $member->relationship == 'Other' ? 'selected' : '' }}>Other Relative</option>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <select class="form-control" name="family_members[{{ $index }}][related_to]">
+                                                        <option value="">-- Select --</option>
+                                                        <option value="primary" {{ $member->related_to == 'primary' ? 'selected' : '' }}>Primary</option>
+                                                        <option value="secondary" {{ $member->related_to == 'secondary' ? 'selected' : '' }}>Secondary</option>
+                                                        <option value="both" {{ $member->related_to == 'both' ? 'selected' : '' }}>Both</option>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <select class="form-control @error('family_members.'.$index.'.gender') is-invalid @enderror" name="family_members[{{ $index }}][gender]">
+                                                        <option value="">-- Select Gender --</option>
+                                                        <option value="Male" {{ $member->gender == 'Male' ? 'selected' : '' }}>Male</option>
+                                                        <option value="Female" {{ $member->gender == 'Female' ? 'selected' : '' }}>Female</option>
+                                                        <option value="Non-binary" {{ $member->gender == 'Non-binary' ? 'selected' : '' }}>Non-binary</option>
+                                                        <option value="Transgender" {{ $member->gender == 'Transgender' ? 'selected' : '' }}>Transgender</option>
+                                                        <option value="Other" {{ $member->gender == 'Other' ? 'selected' : '' }}>Other</option>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <input type="date" class="form-control birth-date-field" name="family_members[{{ $index }}][birthday]" 
+                                                        value="{{ $member->birthday ? $member->birthday->format('Y-m-d') : '' }}">
+                                                </td>
+                                                <td>
+                                                    <button type="button" class="btn btn-sm btn-danger remove-family-member">
+                                                        <i class="fe fe-trash"></i>
+                                                    </button>
+                                                </td>
                                             </tr>
-                                        @endif
-                                    </tbody>
-                                </table>
-                            </div>
+                                            <tr class="family-member-row-details">
+                                                <td colspan="6">
+                                                    <div class="row">
+                                                        <div class="col-md-4 mb-2">
+                                                            <label>Occupation</label>
+                                                            <input type="text" class="form-control" name="family_members[{{ $index }}][work]" 
+                                                                value="{{ $member->work }}">
+                                                        </div>
+                                                        <div class="col-md-3 mb-2">
+                                                            <label>Contact Number (optional)</label>
+                                                            <input type="text" class="form-control phone-field" name="family_members[{{ $index }}][contact_number]" 
+                                                                value="{{ $member->contact_number }}"
+                                                                pattern="[0-9]{11}" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                                            <div class="invalid-feedback">Phone number must be exactly 11 digits</div>
+                                                        </div>
+                                                        <div class="col-md-2 mb-2">
+                                                            <label>Allergies</label>
+                                                            <input type="text" class="form-control" name="family_members[{{ $index }}][allergies]" 
+                                                                value="{{ $member->allergies }}">
+                                                        </div>
+                                                        <div class="col-md-3 mb-2">
+                                                            <label>Medical Conditions</label>
+                                                            <input type="text" class="form-control" name="family_members[{{ $index }}][medical_condition]" 
+                                                                value="{{ $member->medical_condition }}">
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @else
+                                        <tr id="noFamilyMembersRow">
+                                            <td colspan="6" class="text-center">No family members added yet</td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
-                
-                <div class="row mt-4">
-                    <div class="col-12">
-                        <div class="card shadow">
-                            <div class="card-body">
-                                <div class="text-right">
-                                    <a href="{{ route('admin.residents.index') }}" class="btn btn-secondary mr-2">Cancel</a>
-                                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                                </div>
-                            </div>
-                        </div>
+            </div>
+            
+            <!-- Action Buttons Card -->
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-end">
+                        <a href="{{ route('admin.residents.index') }}" class="btn btn-outline-secondary mr-2">
+                            <i class="fe fe-x fe-16 mr-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fe fe-save fe-16 mr-2"></i>Save Changes
+                        </button>
                     </div>
                 </div>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -807,43 +869,6 @@
                 }
             }
             $field.removeClass('is-invalid');
-            return true;
-        }
-        
-        // Cross-field validation
-        function validateRelatedFields() {
-            let isValid = true;
-            
-            // Validate that if secondary person exists, required fields are filled
-            const secondaryName = $('#secondary_name').val();
-            if (secondaryName && secondaryName.trim() !== '') {
-                // Secondary person info provided, ensure other fields are filled
-                const secondaryGender = $('#secondary_gender').val();
-                if (!secondaryGender) {
-                    $('#secondary_gender').addClass('is-invalid');
-                    $('#secondary_gender').next('.invalid-feedback').text('Gender is required when secondary person is specified');
-                    isValid = false;
-                }
-            }
-            
-            return isValid;
-        }
-        
-        // Comprehensive form validation
-        function validateAllFields() {
-            let isValid = true;
-            
-            // Validate personal info fields
-            isValid = validateNameField($('#first_name')) && isValid;
-            isValid = validateNameField($('#last_name')) && isValid;
-            
-            if ($('#middle_name').val()) {
-                isValid = validateNameField($('#middle_name')) && isValid;
-            }
-            
-            isValid = validateEmailField($('#email_address')) && isValid;
-            isValid = validatePhoneField($('#contact_number')) && isValid;
-            isValid = validateBirthdayField($('#birthdate')) && isValid;
             isValid = validateAddressField($('#address')) && isValid;
             
             if ($('#monthly_income').val()) {
@@ -990,10 +1015,25 @@
                         <input type="text" class="form-control name-field" name="family_members[${familyMemberIndex}][name]" required>
                     </td>
                     <td>
-                        <input type="text" class="form-control" name="family_members[${familyMemberIndex}][relationship]" required>
+                        <select class="form-control" name="family_members[${familyMemberIndex}][relationship]" required>
+                            <option value="">Select</option>
+                            <option value="Spouse">Spouse</option>
+                            <option value="Child">Child</option>
+                            <option value="Parent">Parent</option>
+                            <option value="Sibling">Sibling</option>
+                            <option value="Grandparent">Grandparent</option>
+                            <option value="Grandchild">Grandchild</option>
+                            <option value="In-Law">In-Law</option>
+                            <option value="Other">Other Relative</option>
+                        </select>
                     </td>
                     <td>
-                        <input type="text" class="form-control" name="family_members[${familyMemberIndex}][related_to]">
+                        <select class="form-control" name="family_members[${familyMemberIndex}][related_to]">
+                            <option value="">-- Select --</option>
+                            <option value="primary">Primary</option>
+                            <option value="secondary">Secondary</option>
+                            <option value="both">Both</option>
+                        </select>
                     </td>
                     <td>
                         <select class="form-control" name="family_members[${familyMemberIndex}][gender]" required>
@@ -1019,7 +1059,7 @@
                                 <input type="text" class="form-control" name="family_members[${familyMemberIndex}][work]">
                             </div>
                             <div class="col-md-3 mb-2">
-                                <label>Contact Number</label>
+                                <label>Contact Number (optional)</label>
                                 <input type="text" class="form-control phone-field" name="family_members[${familyMemberIndex}][contact_number]">
                             </div>
                             <div class="col-md-2 mb-2">

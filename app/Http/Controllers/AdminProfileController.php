@@ -7,6 +7,8 @@ use App\Http\Requests\ProfilePhotoUpdateRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 class AdminProfileController extends Controller
 {
@@ -64,5 +66,34 @@ class AdminProfileController extends Controller
             'profile_photo_url' => $user->profile_photo_url,
             'has_profile_photo_trait' => in_array('Laravel\Jetstream\HasProfilePhoto', class_uses_recursive($user)),
         ]);
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => ['required', 'string'],
+            'new_password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $user = auth()->user();
+
+        // Check current password
+        if (!Hash::check($request->current_password, $user->password)) {
+            throw ValidationException::withMessages([
+                'current_password' => ['The current password is incorrect.'],
+            ]);
+        }
+
+        // Prevent using the same password
+        if (Hash::check($request->new_password, $user->password)) {
+            throw ValidationException::withMessages([
+                'new_password' => ['The new password must be different from the current password.'],
+            ]);
+        }
+
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+
+        return back()->with('status', 'Password changed successfully!');
     }
 }

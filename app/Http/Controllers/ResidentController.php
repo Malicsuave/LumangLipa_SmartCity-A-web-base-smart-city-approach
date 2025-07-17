@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class ResidentController extends Controller
 {
@@ -53,14 +54,14 @@ class ResidentController extends Controller
         if ($request->has('age_group') && !empty($request->age_group)) {
             $now = Carbon::now();
             switch ($request->age_group) {
-                case 'children':
-                    $query->whereDate('birthdate', '>=', $now->copy()->subYears(18));
+                case '0-17':
+                    $query->whereDate('birthdate', '>', $now->copy()->subYears(18));
                     break;
-                case 'adults':
-                    $query->whereDate('birthdate', '<', $now->copy()->subYears(18))
+                case '18-59':
+                    $query->whereDate('birthdate', '<=', $now->copy()->subYears(18))
                           ->whereDate('birthdate', '>', $now->copy()->subYears(60));
                     break;
-                case 'seniors':
+                case '60+':
                     $query->whereDate('birthdate', '<=', $now->copy()->subYears(60));
                     break;
             }
@@ -104,8 +105,22 @@ class ResidentController extends Controller
             }
         }
 
-        // Sort by name by default
-        $query->orderBy('last_name')->orderBy('first_name');
+        // Sorting functionality
+        $sortField = $request->get('sort', 'last_name');
+        $sortDirection = $request->get('direction', 'asc');
+        
+        // Define allowed sort fields for security
+        $allowedSortFields = [
+            'barangay_id', 'first_name', 'last_name', 'sex', 'civil_status', 
+            'contact_number', 'type_of_resident', 'birthdate', 'created_at'
+        ];
+        
+        if (in_array($sortField, $allowedSortFields)) {
+            $query->orderBy($sortField, $sortDirection);
+        } else {
+            // Default sorting
+            $query->orderBy('last_name')->orderBy('first_name');
+        }
 
         $residents = $query->paginate(10);
 
@@ -149,7 +164,7 @@ class ResidentController extends Controller
             'suffix' => 'nullable|string|max:10',
             'birthplace' => 'required|string|max:255',
             'birthdate' => 'required|date|before_or_equal:today',
-            'sex' => 'required|in:Male,Female',
+            'sex' => 'required|in:Male,Female,Non-binary,Transgender,Other',
             'civil_status' => 'required|in:Single,Married,Widowed,Separated,Divorced',
         ], [
             'type_of_resident.required' => 'Please select the type of resident.',
@@ -260,7 +275,7 @@ class ResidentController extends Controller
         $validated = $request->validate([
             'primary_name' => 'required|string|max:255',
             'primary_birthday' => 'required|date|before_or_equal:today',
-            'primary_gender' => 'required|in:Male,Female',
+            'primary_gender' => 'required|in:Male,Female,Non-binary,Transgender,Other',
             'primary_phone' => 'required|numeric|digits:11',
             'primary_work' => 'nullable|string|max:100',
             'primary_allergies' => 'nullable|string|max:255',
@@ -268,7 +283,7 @@ class ResidentController extends Controller
             
             'secondary_name' => 'nullable|string|max:255',
             'secondary_birthday' => 'nullable|date|before_or_equal:today',
-            'secondary_gender' => 'nullable|in:Male,Female',
+            'secondary_gender' => 'nullable|in:Male,Female,Non-binary,Transgender,Other',
             'secondary_phone' => 'nullable|numeric|digits:11',
             'secondary_work' => 'nullable|string|max:100',
             'secondary_allergies' => 'nullable|string|max:255',
@@ -335,7 +350,7 @@ class ResidentController extends Controller
         $validated = $request->validate([
             'family_members.*.name' => 'nullable|string|max:255',
             'family_members.*.birthday' => 'nullable|date|before_or_equal:today',
-            'family_members.*.gender' => 'nullable|in:Male,Female',
+            'family_members.*.gender' => 'nullable|in:Male,Female,Non-binary,Transgender,Other',
             'family_members.*.relationship' => 'nullable|string|max:100',
             'family_members.*.related_to' => 'nullable|in:primary,secondary,both',
             'family_members.*.phone' => 'nullable|numeric|digits:11',
@@ -657,7 +672,7 @@ class ResidentController extends Controller
                     }
                 }
             ],
-            'sex' => 'required|in:Male,Female',
+            'sex' => 'required|in:Male,Female,Non-binary,Transgender,Other',
             'civil_status' => 'required|string',
             
             // Address validation with minimum length
@@ -705,7 +720,7 @@ class ResidentController extends Controller
                     }
                 }
             ],
-            'household.primary_gender' => 'nullable|string|in:Male,Female',
+            'household.primary_gender' => 'nullable|string|in:Male,Female,Non-binary,Transgender,Other',
             'household.primary_phone' => ['nullable', 'string', 'regex:/^\d{11}$/'],
             'household.primary_work' => 'nullable|string|max:100',
             'household.primary_allergies' => 'nullable|string|max:255',
@@ -726,7 +741,7 @@ class ResidentController extends Controller
                     }
                 }
             ],
-            'household.secondary_gender' => 'nullable|string|in:Male,Female',
+            'household.secondary_gender' => 'nullable|string|in:Male,Female,Non-binary,Transgender,Other',
             'household.secondary_phone' => ['nullable', 'string', 'regex:/^\d{11}$/'],
             'household.secondary_work' => 'nullable|string|max:100',
             'household.secondary_allergies' => 'nullable|string|max:255',
@@ -743,7 +758,7 @@ class ResidentController extends Controller
             'family_members.*.name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s\.\-\']+$/'],
             'family_members.*.relationship' => 'nullable|string|max:100',
             'family_members.*.related_to' => 'nullable|string|max:100',
-            'family_members.*.gender' => 'nullable|string|in:Male,Female',
+            'family_members.*.gender' => 'nullable|string|in:Male,Female,Non-binary,Transgender,Other',
             'family_members.*.birthday' => [
                 'nullable', 
                 'date', 
@@ -792,7 +807,7 @@ class ResidentController extends Controller
             $resident->update($residentData);
 
             // Handle household information
-            \Log::info('Handling household data', [
+            Log::info('Handling household data', [
                 'has_household_data' => $request->has('household') ? 'Yes' : 'No',
                 'household_data' => $request->input('household')
             ]);
@@ -810,10 +825,10 @@ class ResidentController extends Controller
                 
                 // Create or update the household record
                 if ($resident->household) {
-                    \Log::info('Updating existing household', ['household_id' => $resident->household->id]);
+                    Log::info('Updating existing household', ['household_id' => $resident->household->id]);
                     $resident->household->update($householdData);
                 } else {
-                    \Log::info('Creating new household');
+                    Log::info('Creating new household');
                     $household = new Household($householdData);
                     $household->resident_id = $resident->id;
                     $household->address = $resident->address;
@@ -832,19 +847,13 @@ class ResidentController extends Controller
                         continue;
                     }
                     
-                    // Map contact_number to phone if needed
-                    if (isset($memberData['contact_number'])) {
-                        $memberData['phone'] = $memberData['contact_number'];
-                        unset($memberData['contact_number']);
-                    }
-                    
                     // Update existing family member
                     if (isset($memberData['id'])) {
                         $member = FamilyMember::find($memberData['id']);
                         if ($member && $member->resident_id == $resident->id) {
                             $member->update($memberData);
                             $existingIds[] = $member->id;
-                            \Log::info('Updated family member', [
+                            Log::info('Updated family member', [
                                 'id' => $member->id,
                                 'data' => $memberData
                             ]);
@@ -857,7 +866,7 @@ class ResidentController extends Controller
                         $member->household_id = $resident->household ? $resident->household->id : null;
                         $member->save();
                         $existingIds[] = $member->id;
-                        \Log::info('Created new family member', [
+                        Log::info('Created new family member', [
                             'id' => $member->id,
                             'data' => $memberData
                         ]);
@@ -871,7 +880,7 @@ class ResidentController extends Controller
             // Commit the transaction
             DB::commit();
             
-            \Log::info('Resident update completed successfully', [
+            Log::info('Resident update completed successfully', [
                 'resident_id' => $resident->id
             ]);
             
@@ -881,7 +890,7 @@ class ResidentController extends Controller
             // Roll back the transaction in case of error
             DB::rollBack();
             
-            \Log::error('Error updating resident', [
+            Log::error('Error updating resident', [
                 'resident_id' => $resident->id,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
@@ -928,12 +937,40 @@ class ResidentController extends Controller
             });
         }
 
-        // Sort by deletion date (most recently archived first)
+        // Filter by gender
+        if ($request->has('gender') && !empty($request->gender)) {
+            $query->where('sex', $request->gender);
+        }
+        // Filter by civil status
+        if ($request->has('civil_status') && !empty($request->civil_status)) {
+            $query->where('civil_status', $request->civil_status);
+        }
+        // Filter by age group
+        if ($request->has('age_group') && !empty($request->age_group)) {
+            $now = Carbon::now();
+            switch ($request->age_group) {
+                case '0-17':
+                    $query->whereDate('birthdate', '>', $now->copy()->subYears(18));
+                    break;
+                case '18-59':
+                    $query->whereDate('birthdate', '<=', $now->copy()->subYears(18))
+                          ->whereDate('birthdate', '>', $now->copy()->subYears(60));
+                    break;
+                case '60+':
+                    $query->whereDate('birthdate', '<=', $now->copy()->subYears(60));
+                    break;
+            }
+        }
+        // Date filter (deleted_at)
+        if ($request->has('date_from') && !empty($request->date_from)) {
+            $query->whereDate('deleted_at', '>=', $request->date_from);
+        }
+        if ($request->has('date_to') && !empty($request->date_to)) {
+            $query->whereDate('deleted_at', '<=', $request->date_to);
+        }
         $query->orderBy('deleted_at', 'desc');
-
         $archivedResidents = $query->paginate(10);
         $archivedResidents->appends($request->query());
-
         return view('admin.residents.archived', compact('archivedResidents'));
     }
 

@@ -160,7 +160,7 @@
                                             <div class="form-group">
                                                 <label for="id_number" class="form-label">Issue ID / Reference Number</label>
                                                 <div class="input-group">
-                                                    <input type="text" class="form-control @error('id_number') is-invalid @enderror" id="id_number" name="id_number" value="{{ old('id_number', $resident->id_number) }}" placeholder="e.g. {{ $suggestedIssueId }}" pattern="^\d{4}-\d{3,}$">
+                                                    <input type="text" class="form-control @error('id_number') is-invalid @enderror" id="id_number" name="id_number" value="{{ old('id_number', $resident->id_number) }}" placeholder="e.g. {{ $suggestedIssueId }}" pattern="^BR-\d{4}-\d{3,}$">
                                                     <div class="input-group-append">
                                                         <button type="button" class="btn btn-outline-info" id="generateIssueId" title="Generate Issue ID">
                                                             <i class="fe fe-refresh-cw"></i>
@@ -168,7 +168,7 @@
                                                     </div>
                                                 </div>
                                                 <small class="form-text text-muted">
-                                                    A unique reference number for this ID issuance (format: YYYY-NNN).
+                                                    A unique reference number for this ID issuance (format: BR-YYYY-NNN).
                                                 </small>
                                                 @error('id_number')
                                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -189,12 +189,64 @@
 
                                     <div class="mb-3">
                                         <h6>ID Actions</h6>
+                                        @php
+                                            $dropdownItems = [];
+                                            if ($resident->photo && $resident->signature) {
+                                                if ($resident->id_status != 'issued') {
+                                                    $dropdownItems[] = [
+                                                        'label' => 'Issue Resident ID',
+                                                        'icon' => 'fe fe-credit-card fe-16 text-success',
+                                                        'class' => '',
+                                                        'attrs' => '',
+                                                        'href' => '#',
+                                                        'form' => route('admin.residents.id.issue', $resident),
+                                                        'method' => 'POST',
+                                                        'csrf' => true,
+                                                    ];
+                                                } else {
+                                                    $dropdownItems[] = [
+                                                        'label' => 'Preview ID',
+                                                        'icon' => 'fe fe-eye fe-16 text-secondary',
+                                                        'class' => '',
+                                                        'attrs' => '',
+                                                        'href' => route('admin.residents.id.preview', $resident),
+                                                    ];
+                                                    $dropdownItems[] = [
+                                                        'label' => 'Download ID',
+                                                        'icon' => 'fe fe-download fe-16 text-primary',
+                                                        'class' => '',
+                                                        'attrs' => '',
+                                                        'href' => route('admin.residents.id.download', $resident),
+                                                    ];
+                                                    $dropdownItems[] = [
+                                                        'label' => 'Mark for Renewal',
+                                                        'icon' => 'fe fe-refresh-cw fe-16 text-info',
+                                                        'class' => '',
+                                                        'attrs' => '',
+                                                        'href' => '#',
+                                                        'form' => route('admin.residents.id.mark-renewal', $resident),
+                                                        'method' => 'POST',
+                                                        'csrf' => true,
+                                                    ];
+                                                    $dropdownItems[] = [
+                                                        'label' => 'Revoke ID',
+                                                        'icon' => 'fe fe-x-circle fe-16 text-danger',
+                                                        'class' => '',
+                                                        'attrs' => '',
+                                                        'href' => '#',
+                                                        'form' => route('admin.residents.id.revoke', $resident),
+                                                        'method' => 'POST',
+                                                        'csrf' => true,
+                                                    ];
+                                                }
+                                            }
+                                        @endphp
+                                        @if($resident->photo && $resident->signature)
                                         <div class="d-flex flex-wrap">
-                                            @if($resident->photo && $resident->signature)
                                                 @if($resident->id_status != 'issued')
-                                                    <form action="{{ route('admin.residents.id.issue', $resident) }}" method="POST" style="display: inline;" class="mr-2 mb-2">
+                                                    <form id="issueIdForm" action="{{ route('admin.residents.id.issue', $resident) }}" method="POST" style="display: inline;" class="mr-2 mb-2">
                                                         @csrf
-                                                        <button type="submit" class="btn btn-outline-success">
+                                                        <button type="button" class="btn btn-primary" id="showIssueModal">
                                                             <i class="fe fe-credit-card fe-16 mr-2"></i>Issue Resident ID
                                                         </button>
                                                     </form>
@@ -218,6 +270,7 @@
                                                         </button>
                                                     </form>
                                                 @endif
+                                            </div>
                                             @else
                                                 <div class="alert alert-warning">
                                                     <div class="d-flex align-items-center">
@@ -229,7 +282,6 @@
                                                     </div>
                                                 </div>
                                             @endif
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -323,7 +375,7 @@
                                 <div class="card-body">
                                     @if($idHistory && $idHistory->count() > 0)
                                         <div class="table-responsive">
-                                            <table class="table table-striped table-sm">
+                                            <table class="table table-striped table-hover table-sm">
                                                 <thead>
                                                     <tr>
                                                         <th>Date</th>
@@ -391,9 +443,32 @@
         </div>
     </div>
 </div>
+
+<!-- Issue Resident ID Confirmation Modal -->
+<div class="modal fade" id="issueConfirmModal" tabindex="-1" role="dialog" aria-labelledby="issueConfirmModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="issueConfirmModalLabel">Confirm ID Issuance</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to issue this Resident ID?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="confirmIssueBtn">
+          <i class="fe fe-credit-card fe-16 mr-2"></i>Issue Resident ID
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 @endsection
 
-@section('scripts')
+@push('scripts')
 <script>
     $(document).ready(function() {
         // Preview uploaded image before submission
@@ -422,20 +497,31 @@
 
         // Generate Issue ID button click handler
         $('#generateIssueId').click(function() {
-            // Use the suggested ID from the controller
-            $('#id_number').val('{{ $suggestedIssueId }}').trigger('focus');
+            // Fetch a new random ID from the backend
+            $.ajax({
+                url: '{{ route('admin.residents.id.generate', $resident) }}',
+                method: 'GET',
+                success: function(data) {
+                    if (data && data.issue_id) {
+                        $('#id_number').val(data.issue_id).trigger('focus');
+                    }
+                },
+                error: function() {
+                    alert('Failed to generate a new Issue ID. Please try again.');
+                }
+            });
         });
         
         // Validate issue ID format
         $('#id_number').on('input', function() {
             const input = $(this);
             const value = input.val();
-            const pattern = /^\d{4}-\d{3,}$/;
+            const pattern = /^BR-\d{4}-\d{3,}$/;
             
             if (value && !pattern.test(value)) {
                 input.addClass('is-invalid');
                 if (!input.next('.invalid-feedback').length) {
-                    input.after('<div class="invalid-feedback">Format should be YYYY-NNN (e.g., 2025-001)</div>');
+                    input.after('<div class="invalid-feedback">Format should be BR-YYYY-NNN (e.g., BR-2025-001)</div>');
                 }
             } else {
                 input.removeClass('is-invalid');
@@ -443,5 +529,14 @@
             }
         });
     });
+
+$(function() {
+    $('#showIssueModal').on('click', function(e) {
+        $('#issueConfirmModal').modal('show');
+    });
+    $('#confirmIssueBtn').on('click', function() {
+        $('#issueIdForm').submit();
+    });
+});
 </script>
-@endsection
+@endpush

@@ -6,6 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
+use App\Rules\NoMaliciousContent;
 
 class GadRequest extends FormRequest
 {
@@ -73,35 +74,48 @@ class GadRequest extends FormRequest
             'resident_id' => 'required|exists:residents,id',
             
             // Basic information
-            'gender_identity' => 'required|string|in:Male,Female,Non-binary,Transgender,Other',
+            'gender_identity' => [
+                'required',
+                'string',
+                'in:Male,Female,Non-binary,Transgender,Other',
+                new NoMaliciousContent()
+            ],
             'gender_details' => [
                 'nullable',
                 'string',
                 'max:100',
                 'regex:/^[a-zA-Z0-9\s\.\-\']+$/', // Updated to allow numbers for IDs
                 Rule::requiredIf(fn() => $this->gender_identity === 'Other'),
+                new NoMaliciousContent()
             ],
             'email' => [
                 'nullable', 
                 'email:rfc,dns',
-                'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/'
+                'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
+                new NoMaliciousContent()
             ],
             'phone_number' => [
                 'nullable',
                 'string',
-                'regex:/^(\+\d{1,3}[- ]?)?\d{10,15}$/'
+                'regex:/^(\+\d{1,3}[- ]?)?\d{10,15}$/',
+                new NoMaliciousContent()
             ],
             'address' => [
                 'nullable',
                 'string',
                 'min:5',
                 'max:255',
-                'regex:/^[a-zA-Z0-9\s\.,#\-\'\/]+$/'
+                'regex:/^[a-zA-Z0-9\s\.,#\-\'\/]+$/',
+                new NoMaliciousContent()
             ],
             
             // Program information
             'programs_enrolled' => 'nullable|array',
-            'programs_enrolled.*' => 'string|max:100',
+            'programs_enrolled.*' => [
+                'string',
+                'max:100',
+                new NoMaliciousContent()
+            ],
             'enrollment_date' => [
                 'nullable',
                 'date',
@@ -113,7 +127,12 @@ class GadRequest extends FormRequest
                 'date',
                 'after_or_equal:enrollment_date',
             ],
-            'program_status' => 'nullable|string|in:Active,Completed,On Hold,Discontinued',
+            'program_status' => [
+                'nullable',
+                'string',
+                'in:Active,Completed,On Hold,Discontinued',
+                new NoMaliciousContent()
+            ],
             
             // Health-related information
             'is_pregnant' => 'boolean',
@@ -131,6 +150,7 @@ class GadRequest extends FormRequest
                 'string',
                 'regex:/^[0-9]{12}$/',
                 Rule::requiredIf(fn() => $this->has_philhealth == true),
+                new NoMaliciousContent()
             ],
             
             // Solo parent information
@@ -141,6 +161,7 @@ class GadRequest extends FormRequest
                 'max:50',
                 'regex:/^[a-zA-Z0-9\-]+$/',
                 Rule::requiredIf(fn() => $this->is_solo_parent == true),
+                new NoMaliciousContent()
             ],
             'solo_parent_id_issued' => [
                 'nullable',
@@ -154,7 +175,12 @@ class GadRequest extends FormRequest
                 'after:solo_parent_id_issued',
                 Rule::requiredIf(fn() => $this->is_solo_parent == true),
             ],
-            'solo_parent_details' => 'nullable|string|max:500',
+            'solo_parent_details' => [
+                'nullable',
+                'string',
+                'max:500',
+                new NoMaliciousContent()
+            ],
             
             // VAW case information
             'is_vaw_case' => 'boolean',
@@ -170,12 +196,14 @@ class GadRequest extends FormRequest
                 'max:50',
                 'regex:/^[a-zA-Z0-9\-\/]+$/',
                 Rule::requiredIf(fn() => $this->is_vaw_case == true),
+                new NoMaliciousContent()
             ],
             'vaw_case_status' => [
                 'nullable',
                 'string',
                 'in:Pending,Ongoing,Resolved,Closed',
                 Rule::requiredIf(fn() => $this->is_vaw_case == true),
+                new NoMaliciousContent()
             ],
             'vaw_case_details' => [
                 'nullable',
@@ -183,8 +211,14 @@ class GadRequest extends FormRequest
                 'max:1000',
                 'min:10',
                 Rule::requiredIf(fn() => $this->is_vaw_case == true),
+                new NoMaliciousContent()
             ],
-            'notes' => 'nullable|string|max:500',
+            'notes' => [
+                'nullable',
+                'string',
+                'max:500',
+                new NoMaliciousContent()
+            ],
         ];
         
         return $rules;

@@ -8,7 +8,7 @@ interface ComplaintRepositoryInterface
     public function getStatistics(): array;
     public function getByStatus(string $status);
     public function getByCategory(string $category);
-    public function getRecentComplaints(int $limit = 10): array;
+    public function getRecentComplaints(int $limit = 10);
     public function getResolutionTimeMetrics(): array;
     public function create(array $data);
     public function update(int $id, array $data);

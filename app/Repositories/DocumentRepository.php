@@ -11,7 +11,7 @@ class DocumentRepository implements DocumentRepositoryInterface
 {
     public function getFiltered(array $filters, int $perPage = 20)
     {
-        $query = DocumentRequest::with(['user', 'resident']);
+        $query = DocumentRequest::with(['approver', 'resident']);
 
         if (!empty($filters['status'])) {
             $query->where('status', $filters['status']);
@@ -49,6 +49,7 @@ class DocumentRepository implements DocumentRepositoryInterface
             'total' => DocumentRequest::count(),
             'pending' => DocumentRequest::where('status', 'pending')->count(),
             'approved' => DocumentRequest::where('status', 'approved')->count(),
+            'claimed' => DocumentRequest::where('status', 'claimed')->count(),
             'ready' => DocumentRequest::where('status', 'ready')->count(),
             'completed' => DocumentRequest::where('status', 'completed')->count(),
             'rejected' => DocumentRequest::where('status', 'rejected')->count(),
@@ -61,7 +62,7 @@ class DocumentRepository implements DocumentRepositoryInterface
     public function getByStatus(string $status)
     {
         return DocumentRequest::where('status', $status)
-                             ->with(['user', 'resident'])
+                             ->with(['approver', 'resident'])
                              ->orderBy('created_at', 'desc')
                              ->get();
     }
@@ -69,18 +70,17 @@ class DocumentRepository implements DocumentRepositoryInterface
     public function getByType(string $type)
     {
         return DocumentRequest::where('document_type', $type)
-                             ->with(['user', 'resident'])
+                             ->with(['approver', 'resident'])
                              ->orderBy('created_at', 'desc')
                              ->get();
     }
 
-    public function getRecentRequests(int $limit = 10): array
+    public function getRecentRequests(int $limit = 10)
     {
-        return DocumentRequest::with(['user', 'resident'])
+        return DocumentRequest::with(['approver', 'resident'])
                              ->orderBy('created_at', 'desc')
                              ->limit($limit)
-                             ->get()
-                             ->toArray();
+                             ->get();
     }
 
     public function getProcessingTime(): array
@@ -119,6 +119,9 @@ class DocumentRepository implements DocumentRepositoryInterface
         switch ($status) {
             case 'approved':
                 $updateData['approved_at'] = now();
+                break;
+            case 'claimed':
+                $updateData['claimed_at'] = now();
                 break;
             case 'ready':
                 $updateData['ready_at'] = now();

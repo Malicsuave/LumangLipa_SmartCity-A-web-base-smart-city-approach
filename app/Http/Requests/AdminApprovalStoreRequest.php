@@ -13,7 +13,7 @@ class AdminApprovalStoreRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->role && $this->user()->role->name === 'Barangay Captain';
+        return $this->user()->role && in_array($this->user()->role->name, ['Barangay Captain', 'Barangay Secretary']);
     }
 
     /**

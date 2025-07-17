@@ -13,6 +13,7 @@ use Illuminate\Validation\Rule;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class PreRegistrationController extends Controller
 {
@@ -37,7 +38,7 @@ class PreRegistrationController extends Controller
             'suffix' => ['nullable', 'string', 'max:10', 'regex:/^[a-zA-Z\s\.]+$/'],
             'birthplace' => 'required|string|max:255',
             'birthdate' => 'required|date|before_or_equal:today',
-            'sex' => 'required|in:Male,Female',
+            'sex' => 'required|in:Male,Female,Non-binary,Transgender,Other',
             'civil_status' => 'required|in:Single,Married,Divorced,Widowed,Separated',
         ], [
             'first_name.regex' => 'First name can only contain letters, spaces, dots, hyphens, and apostrophes.',
@@ -96,7 +97,7 @@ class PreRegistrationController extends Controller
     }
 
     /**
-     * Show Step 3: Additional Information & Population Sectors
+     * Show Step 3: Household Information
      */
     public function createStep3()
     {
@@ -104,50 +105,99 @@ class PreRegistrationController extends Controller
             return redirect()->route('public.pre-registration.step2')
                 ->with('error', 'Please complete step 2 first');
         }
-
-        $populationSectors = [
-            'Labor Force',
-            'Overseas Filipino Worker',
-            'Solo Parent',
-            'Person with Disability',
-            'Indigenous People',
-            'Employed',
-            'Self-employed (including businessman/women)',
-            'Unemployed',
-            'Student',
-            'Out of school children (6-14 years old)',
-            'Out of School Youth (15-24 years old)',
-            'Not applicable'
-        ];
-
-        return view('public.pre-registration.step3', compact('populationSectors'));
+        return view('public.pre-registration.step3');
     }
 
     /**
-     * Store Step 3: Additional Information & Population Sectors
+     * Store Step 3: Household Information
      */
     public function storeStep3(Request $request)
     {
         $validated = $request->validate([
-            'philsys_id' => 'nullable|string|max:50',
-            'population_sectors' => 'nullable|array',
-            'population_sectors.*' => 'string',
-            'mother_first_name' => ['nullable', 'string', 'max:100', 'regex:/^[a-zA-Z\s\.\-\']+$/'],
-            'mother_middle_name' => ['nullable', 'string', 'max:100', 'regex:/^[a-zA-Z\s\.\-\']+$/'],
-            'mother_last_name' => ['nullable', 'string', 'max:100', 'regex:/^[a-zA-Z\s\.\-\']+$/'],
+            'primary_name' => 'required|string|max:255',
+            'primary_birthday' => 'required|date|before_or_equal:today',
+            'primary_gender' => 'required|in:Male,Female,Non-binary,Transgender,Other',
+            'primary_phone' => 'required|numeric|digits:11',
+            'primary_work' => 'nullable|string|max:100',
+            'primary_allergies' => 'nullable|string|max:255',
+            'primary_medical_condition' => 'nullable|string|max:255',
+            'secondary_name' => 'nullable|string|max:255',
+            'secondary_birthday' => 'nullable|date|before_or_equal:today',
+            'secondary_gender' => 'nullable|in:Male,Female,Non-binary,Transgender,Other',
+            'secondary_phone' => 'nullable|numeric|digits:11',
+            'secondary_work' => 'nullable|string|max:100',
+            'secondary_allergies' => 'nullable|string|max:255',
+            'secondary_medical_condition' => 'nullable|string|max:255',
+            'emergency_contact_name' => 'nullable|string|max:255',
+            'emergency_relationship' => 'nullable|string|max:100',
+            'emergency_work' => 'nullable|string|max:100',
+            'emergency_phone' => 'nullable|numeric|digits:11',
+        ], [
+            'primary_name.required' => "The primary person's name is required.",
+            'primary_birthday.required' => "The primary person's birthday is required.",
+            'primary_birthday.date' => 'The birthday must be a valid date format.',
+            'primary_birthday.before_or_equal' => 'The birthday cannot be in the future.',
+            'primary_gender.required' => "Please select the primary person's gender.",
+            'primary_gender.in' => 'Please select a valid gender.',
+            'primary_phone.required' => 'The primary phone number is required.',
+            'primary_phone.numeric' => 'The phone number must contain only numbers.',
+            'primary_phone.digits' => 'The primary phone number must be exactly 11 digits.',
+            'secondary_phone.numeric' => 'The phone number must contain only numbers.',
+            'secondary_phone.digits' => 'The secondary phone number must be exactly 11 digits.',
+            'emergency_phone.numeric' => 'The emergency contact phone number must contain only numbers.',
+            'emergency_phone.digits' => 'The emergency contact phone number must be exactly 11 digits.',
+            'secondary_birthday.date' => 'The birthday must be a valid date format.',
+            'secondary_birthday.before_or_equal' => 'The birthday cannot be in the future.',
+            'secondary_gender.in' => 'Please select a valid gender.',
         ]);
-
         Session::put('pre_registration.step3', $validated);
-
-        // Check if registrant is a senior citizen (60 years or older)
         $birthdate = Session::get('pre_registration.step1.birthdate');
-        $age = Carbon::parse($birthdate)->age;
-
+        $age = \Carbon\Carbon::parse($birthdate)->age;
         if ($age >= 60) {
             return redirect()->route('public.pre-registration.step4-senior');
         } else {
             return redirect()->route('public.pre-registration.step4');
         }
+    }
+
+    /**
+     * Show Step 4: Family Members
+     */
+    public function createStep4()
+    {
+        if (!Session::has('pre_registration.step3')) {
+            return redirect()->route('public.pre-registration.step3')
+                ->with('error', 'Please complete step 3 first');
+        }
+        return view('public.pre-registration.step4');
+    }
+
+    /**
+     * Store Step 4: Family Members
+     */
+    public function storeStep4(Request $request)
+    {
+        $validated = $request->validate([
+            'family_members.*.name' => 'nullable|string|max:255',
+            'family_members.*.birthday' => 'nullable|date|before_or_equal:today',
+            'family_members.*.gender' => 'nullable|in:Male,Female,Non-binary,Transgender,Other',
+            'family_members.*.relationship' => 'nullable|string|max:100',
+            'family_members.*.related_to' => 'nullable|in:primary,secondary,both',
+            'family_members.*.phone' => 'nullable|numeric|digits:11',
+            'family_members.*.work' => 'nullable|string|max:100',
+            'family_members.*.allergies' => 'nullable|string|max:255',
+            'family_members.*.medical_condition' => 'nullable|string|max:255',
+        ], [
+            'family_members.*.name.max' => 'The family member name must not exceed 255 characters.',
+            'family_members.*.phone.numeric' => 'The family member phone number must contain only numbers.',
+            'family_members.*.phone.digits' => 'The family member phone number must be exactly 11 digits.',
+            'family_members.*.related_to.in' => 'The family member relation must be either primary, secondary, or both.',
+            'family_members.*.birthday.date' => 'The birthday must be a valid date format.',
+            'family_members.*.birthday.before_or_equal' => 'The birthday cannot be in the future.',
+            'family_members.*.gender.in' => 'Please select a valid gender for the family member.',
+        ]);
+        Session::put('pre_registration.step4', $validated);
+        return redirect()->route('public.pre-registration.step5');
     }
 
     /**
@@ -193,47 +243,47 @@ class PreRegistrationController extends Controller
     }
 
     /**
-     * Show Step 4: Photo & Signature Upload
+     * Show Step 5: Photo & Signature Upload
      */
-    public function createStep4()
+    public function createStep5()
     {
-        if (!Session::has('pre_registration.step3')) {
-            return redirect()->route('public.pre-registration.step3')
-                ->with('error', 'Please complete step 3 first');
+        if (!Session::has('pre_registration.step4')) {
+            return redirect()->route('public.pre-registration.step4')
+                ->with('error', 'Please complete step 4 first');
         }
 
         // Check if person is senior citizen
         $birthdate = Session::get('pre_registration.step1.birthdate');
-        $age = Carbon::parse($birthdate)->age;
+        $age = \Carbon\Carbon::parse($birthdate)->age;
         $isSenior = $age >= 60;
         
         // Get previously uploaded photo/signature data if available
         $photoData = null;
         $signatureData = null;
         
-        if (Session::has('pre_registration.step4')) {
-            $step4Data = Session::get('pre_registration.step4');
+        if (Session::has('pre_registration.step5')) {
+            $step5Data = Session::get('pre_registration.step5');
             
-            if (isset($step4Data['photo'])) {
-                $photoData = 'data:' . $step4Data['photo']['mime'] . ';base64,' . $step4Data['photo']['data'];
+            if (isset($step5Data['photo'])) {
+                $photoData = 'data:' . $step5Data['photo']['mime'] . ';base64,' . $step5Data['photo']['data'];
             }
             
-            if (isset($step4Data['signature'])) {
-                $signatureData = 'data:' . $step4Data['signature']['mime'] . ';base64,' . $step4Data['signature']['data'];
+            if (isset($step5Data['signature'])) {
+                $signatureData = 'data:' . $step5Data['signature']['mime'] . ';base64,' . $step5Data['signature']['data'];
             }
         }
 
-        return view('public.pre-registration.step4', compact('isSenior', 'photoData', 'signatureData'));
+        return view('public.pre-registration.step5', compact('isSenior', 'photoData', 'signatureData'));
     }
 
     /**
-     * Store Step 4: Photo & Signature Upload
+     * Store Step 5: Photo & Signature Upload
      */
-    public function storeStep4(Request $request)
+    public function storeStep5(Request $request)
     {
         try {
             // Check if we already have photos in session
-            $hasExistingPhoto = Session::has('pre_registration.step4.photo');
+            $hasExistingPhoto = Session::has('pre_registration.step5.photo');
             
             // Validate with conditional required for photo
             $rules = [
@@ -258,7 +308,7 @@ class PreRegistrationController extends Controller
             $validated = $request->validate($rules, $messages);
 
             // Get existing files data or initialize empty array
-            $files = Session::get('pre_registration.step4', []);
+            $files = Session::get('pre_registration.step5', []);
             
             // Handle photo upload if provided
             if ($request->hasFile('photo')) {
@@ -282,12 +332,12 @@ class PreRegistrationController extends Controller
 
             $files['terms_accepted'] = $validated['terms_accepted'];
             
-            Session::put('pre_registration.step4', $files);
+            Session::put('pre_registration.step5', $files);
             return redirect()->route('public.pre-registration.review');
             
         } catch (\Exception $e) {
             // Log the error for debugging
-            \Log::error('Pre-registration step 4 error: ' . $e->getMessage());
+            Log::error('Pre-registration step 5 error: ' . $e->getMessage());
             
             // Return with a more specific error message
             return redirect()->back()
@@ -347,14 +397,14 @@ class PreRegistrationController extends Controller
         try {
             // Handle photo upload
             $photoFilename = null;
-            $photoFile = Session::get('pre_registration.step4.photo');
+            $photoFile = Session::get('pre_registration.step5.photo');
             if ($photoFile) {
                 $photoFilename = $this->processPhoto($photoFile);
             }
 
             // Handle optional signature upload
             $signatureFilename = null;
-            $signatureFile = Session::get('pre_registration.step4.signature');
+            $signatureFile = Session::get('pre_registration.step5.signature');
             if ($signatureFile) {
                 $signatureFilename = $this->processSignature($signatureFile);
             }
@@ -439,13 +489,13 @@ class PreRegistrationController extends Controller
 
         } catch (\Exception $e) {
             // Log detailed error information
-            \Log::error('Pre-registration submission error: ' . $e->getMessage());
-            \Log::error('Error details: ' . $e->getTraceAsString());
+            Log::error('Pre-registration submission error: ' . $e->getMessage());
+            Log::error('Error details: ' . $e->getTraceAsString());
             
             // If it's a PDO exception, log the SQL error code
             if ($e instanceof \PDOException) {
-                \Log::error('SQL Error Code: ' . $e->getCode());
-                \Log::error('SQL Error Info: ' . json_encode($e->errorInfo ?? []));
+                Log::error('SQL Error Code: ' . $e->getCode());
+                Log::error('SQL Error Info: ' . json_encode($e->errorInfo ?? []));
             }
             
             // Check if it's a database error
@@ -486,7 +536,7 @@ class PreRegistrationController extends Controller
     public function success()
     {
         if (!session()->has('success')) {
-            return redirect()->route('public.pre-registration.create');
+            return redirect()->route('public.pre-registration.step1');
         }
 
         return view('public.pre-registration.success');

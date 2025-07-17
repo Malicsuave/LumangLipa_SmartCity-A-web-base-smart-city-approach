@@ -154,22 +154,46 @@ class SecurityAuditCommand extends Command
         if (File::exists($rulePath)) {
             $this->line('✅ NoMaliciousContent rule found');
             
-            // Test the rule with sample data
-            $rule = new NoMaliciousContent();
+            // Test the rule with sample data using proper validation testing
             $testCases = [
-                'normal text' => true,
-                '<script>alert("xss")</script>' => false,
-                'SELECT * FROM users' => false,
-                'javascript:void(0)' => false,
+                'normal text' => true,           // Should PASS (safe content)
+                '<script>alert("xss")</script>' => false,   // Should FAIL (malicious)
+                'SELECT * FROM users' => false,             // Should FAIL (SQL injection)
+                'javascript:void(0)' => false,              // Should FAIL (JavaScript protocol)
             ];
             
             if ($this->option('detailed')) {
-                foreach ($testCases as $input => $expected) {
-                    $passes = $rule->validate('test', $input, function() {});
-                    $status = ($passes === $expected) ? '✅' : '❌';
-                    $this->line("   {$status} Test: '{$input}' -> " . ($passes ? 'PASS' : 'FAIL'));
+                foreach ($testCases as $input => $shouldPass) {
+                    $failed = false;
+                    
+                    // Create the rule instance
+                    $rule = new NoMaliciousContent();
+                    
+                    // Test the rule by capturing if $fail is called
+                    $rule->validate('test', $input, function($message) use (&$failed) {
+                        $failed = true;
+                    });
+                    
+                    // Determine if the test passed
+                    $testPassed = ($shouldPass && !$failed) || (!$shouldPass && $failed);
+                    $status = $testPassed ? '✅' : '❌';
+                    $result = $failed ? 'BLOCKED' : 'ALLOWED';
+                    
+                    $this->line("   {$status} Test: '{$input}' -> {$result} " . ($testPassed ? '(CORRECT)' : '(WRONG)'));
                 }
             }
+            
+            // Run a quick validation test to ensure rule is working
+            $testFailed = false;
+            $rule = new NoMaliciousContent();
+            $rule->validate('test', '<script>alert("test")</script>', function() use (&$testFailed) {
+                $testFailed = true;
+            });
+            
+            if (!$testFailed) {
+                $issues[] = 'NoMaliciousContent rule is not blocking malicious content';
+            }
+            
         } else {
             $issues[] = 'NoMaliciousContent validation rule not found';
         }

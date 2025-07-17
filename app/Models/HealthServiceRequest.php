@@ -5,10 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class HealthServiceRequest extends Model
 {
-    use HasFactory;    protected $fillable = [
+    use HasFactory, LogsActivity;
+
+    protected $fillable = [
         'barangay_id',
         'service_type',
         'purpose',
@@ -28,6 +32,15 @@ class HealthServiceRequest extends Model
         'scheduled_at' => 'datetime',
         'completed_at' => 'datetime',
     ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('health_service_request')
+            ->logAll()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }
 
     public function resident()
     {

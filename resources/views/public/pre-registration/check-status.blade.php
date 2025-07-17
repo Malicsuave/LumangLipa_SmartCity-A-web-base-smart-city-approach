@@ -40,7 +40,7 @@
             
             <div class="text-center mt-4">
                 <p class="text-muted">Don't have a registration yet?</p>
-                <a href="{{ route('public.pre-registration.create') }}" class="btn btn-outline-primary">
+                <a href="{{ route('public.pre-registration.step1') }}" class="btn btn-outline-primary">
                     <i class="fe fe-user-plus"></i> Register Now
                 </a>
             </div>

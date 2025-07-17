@@ -18,4 +18,5 @@ interface ResidentRepositoryInterface
     public function getByAgeGroup(string $ageGroup);
     public function getByCivilStatus(string $civilStatus);
     public function getByResidentType(string $type);
+    public function getRecentResidents(int $limit = 10);
 }

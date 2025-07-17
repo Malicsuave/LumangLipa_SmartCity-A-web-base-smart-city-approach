@@ -161,6 +161,13 @@ class ResidentRepository implements ResidentRepositoryInterface
         return Resident::where('type_of_resident', $type)->get();
     }
 
+    public function getRecentResidents(int $limit = 10)
+    {
+        return Resident::orderBy('created_at', 'desc')
+                      ->limit($limit)
+                      ->get();
+    }
+
     /**
      * Apply age group filter to query
      */

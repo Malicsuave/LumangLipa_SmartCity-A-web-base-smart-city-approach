@@ -8,7 +8,7 @@ interface DocumentRepositoryInterface
     public function getStatistics(): array;
     public function getByStatus(string $status);
     public function getByType(string $type);
-    public function getRecentRequests(int $limit = 10): array;
+    public function getRecentRequests(int $limit = 10);
     public function getProcessingTime(): array;
     public function create(array $data);
     public function update(int $id, array $data);

@@ -419,3 +419,15 @@ setInterval(() => {
 }, 30000);
 </script>
 @endsection
+
+<style>
+.table-responsive,
+.card-body,
+.collapse,
+#filterSection {
+    overflow: visible !important;
+}
+.dropdown-menu {
+    z-index: 9999 !important;
+}
+</style>

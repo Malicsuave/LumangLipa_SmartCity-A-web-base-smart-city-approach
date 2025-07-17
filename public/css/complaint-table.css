@@ -1,99 +1,123 @@
-/* Enhanced Complaint Table Styling */
+/* Complaint Table Styling - Reverted to match screenshot */
 
-/* Table styling */
-.dark .table-borderless.table-striped tbody tr:nth-of-type(odd) {
-    background-color: rgba(75, 85, 99, 0.15) !important;
+.table {
+  background: #fff !important;
+  color: #232a36 !important;
+  border-collapse: separate !important;
+  border-spacing: 0;
+  width: 100% !important;
+  box-shadow: 0 2px 8px rgba(44,62,80,0.04);
 }
 
-.dark .table-borderless.table-striped tbody tr:hover {
-    background-color: rgba(75, 85, 99, 0.3) !important;
+.table thead th {
+  background: #19233c !important; /* navy blue */
+  color: #fff !important;
+  font-weight: 700 !important;
+  border: none !important;
+  font-size: 1.05em !important;
+  letter-spacing: 0.02em !important;
+  padding-top: 14px !important;
+  padding-bottom: 14px !important;
 }
 
-.dark .table-borderless.table-striped thead th {
-    border-bottom: 2px solid #4B5563 !important;
-    background-color: #1E293B !important;
-    color: #F9FAFB !important;
-    font-weight: 600;
-    padding: 12px 15px;
+.table th, .table td {
+  border: none !important;
+  border-bottom: 1.5px solid #e5e7eb !important;
+  background: #fff !important;
+  color: #232a36 !important;
+  font-size: 1em !important;
+  vertical-align: middle !important;
+  padding: 12px 16px !important;
 }
 
-.dark .table-borderless.table-striped td {
-    padding: 12px 15px;
-    vertical-align: middle;
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: #f6f8fa !important;
 }
 
-/* Status badges with improved colors and contrast */
-.dark .badge {
-    padding: 6px 10px;
-    font-weight: 600;
-    font-size: 0.75rem;
-    border-radius: 4px;
+.table-striped tbody tr:nth-of-type(even) {
+  background-color: #fff !important;
 }
 
-.dark .badge-danger {
-    background-color: #F87171 !important;
-    color: #7F1D1D !important;
+.table-hover tbody tr:hover {
+  background-color: #eaf3fb !important;
+  color: #174bb1 !important;
 }
 
-.dark .badge-warning {
-    background-color: #FBBF24 !important;
-    color: #78350F !important;
+/* Table row hover effect */
+.table tbody tr:hover {
+  background-color: #f3f4f6 !important;
+  color: #232a36 !important;
 }
 
-.dark .badge-success {
-    background-color: #34D399 !important;
-    color: #065F46 !important;
+/* Modern pill-style badge for table status */
+.badge,
+.badge-danger,
+.badge-warning,
+.badge-success,
+.badge-info,
+.badge-primary {
+  display: inline-block;
+  padding: 4px 14px;
+  font-size: 0.98em;
+  font-weight: 600;
+  border-radius: 16px;
+  background: #f3f4f6;
+  color: #232a36 !important;
+  border: none;
+  letter-spacing: 0.01em;
 }
 
-/* Button styling improvements */
-.dark .btn-sm {
-    padding: 0.25rem 0.75rem;
-    font-size: 0.75rem;
-    border-radius: 0.2rem;
-    font-weight: 600;
+.badge-success {
+  background: #d1fae5 !important; /* light green */
+  color: #065f46 !important;
 }
 
-.dark .btn-primary {
-    background-color: #2c3e50!important;
-    border-color: #2c3e50 !important;
+.badge-warning {
+  background: #fef3c7 !important; /* light yellow */
+  color: #92400e !important;
 }
 
-.dark .btn-warning {
-    background-color: #F59E0B !important;
-    border-color: #F59E0B !important;
-    color: #fff !important;
+.badge-danger {
+  background: #fee2e2 !important; /* light red */
+  color: #b91c1c !important;
 }
 
-.dark .btn-success {
-    background-color: #10B981 !important;
-    border-color: #10B981 !important;
+.badge-info {
+  background: #e0f2fe !important; /* light blue */
+  color: #0369a1 !important;
 }
 
-/* Light mode styles */
-body:not(.dark) .badge-danger {
-    background-color: #FEE2E2 !important;
-    color: #B91C1C !important;
+.badge-primary {
+  background: #e0e7ff !important; /* light indigo */
+  color: #3730a3 !important;
 }
 
-body:not(.dark) .badge-warning {
-    background-color: #FEF3C7 !important;
-    color: #92400E !important;
+/* Fix for action icon dropdown menu border-radius */
+.dropdown-menu {
+  border-radius: 8px !important;
 }
 
-body:not(.dark) .badge-success {
-    background-color: #D1FAE5 !important;
-    color: #065F46 !important;
+/* Remove blue outline/focus ring from dropdown menu and button */
+.dropdown-menu:focus,
+.dropdown-menu:active,
+.dropdown-menu:focus-visible,
+.custom-dropdown-btn:focus,
+.custom-dropdown-btn:active,
+.custom-dropdown-btn:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
 }
 
-/* Table header in light mode */
-body:not(.dark) .table-borderless.table-striped thead th {
-    background-color: #F3F4F6 !important;
-    color: #1F2937 !important;
-    border-bottom: 2px solid #E5E7EB !important;
+/* Make all tables horizontally scrollable on overflow */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
-/* Striped rows in light mode */
-body:not(.dark) .table-borderless.table-striped tbody tr:nth-of-type(odd) {
-    background-color: rgba(249, 250, 251, 0.8) !important;
+/* Ensure table stays within its container */
+.table, table.data-table, #document-requests-table {
+  min-width: 600px;
+  width: 100%;
 }
-

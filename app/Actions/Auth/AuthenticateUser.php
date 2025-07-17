@@ -81,7 +81,7 @@ class AuthenticateUser
         $user->last_login_ip = $request->ip();
         $user->save();
 
-        // Log successful login
+        // Log successful login (UserActivity)
         UserActivity::create([
             'user_id' => $user->id,
             'activity_type' => 'login_success',
@@ -94,6 +94,18 @@ class AuthenticateUser
                 'session_id' => $request->session()->getId(),
             ],
         ]);
+
+        // Log successful login (Spatie Activity Log)
+        activity()
+            ->causedBy($user)
+            ->withProperties([
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'device_type' => $this->detectDeviceType($request->userAgent()),
+                'login_method' => 'password',
+                'session_id' => $request->session()->getId(),
+            ])
+            ->log('login_success');
 
         return $user;
     }

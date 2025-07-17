@@ -1,125 +1,69 @@
-/* Admin Pages Common Styles */
-
-/* Card shadows */
-.admin-card-shadow {
-    box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.15) !important;
+/* Universal table overflow fix: ensures all tables are scrollable and cells wrap properly */
+.table th, .table td {
+  white-space: normal !important;
+  text-overflow: ellipsis;
+}
+.table th {
+  white-space: normal !important;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.table td {
+  word-break: break-word !important;
+}
+.badge-dark, a.badge-dark, a.badge-dark:hover, a.badge-dark:focus {
+  background-color: #343a40 !important;
+  color: #fff !important;
+  border: none !important;
+  box-shadow: none !important;
+  text-decoration: none !important;
+  transition: none !important;
 }
 
-/* Inline forms */
-.admin-inline-form {
-    display: inline;
+.card,
+.card-body {
+  overflow: visible !important;
 }
 
-/* Modal styles */
-.admin-modal-xl {
-    max-width: 95vw;
+.dropdown {
+  position: relative !important;
 }
 
-.admin-modal-body-iframe {
-    height: 80vh;
-    overflow: auto;
-    padding: 0;
+.table .dropdown-menu {
+  position: absolute !important;
+  z-index: 1050 !important;
+  display: block;
 }
 
-.admin-iframe-full {
+html, body {
+  height: 100%;
+  overflow-x: hidden !important;
+}
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.main-content {
+  flex: 1 0 auto;
+}
+footer {
+  flex-shrink: 0;
+  width: 100%;
+  /* Remove any margin-top or padding-bottom that causes extra space */
+}
+
+/* Make all .table-responsive horizontally scrollable except on excluded pages */
+.table-responsive {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    display: block;
     width: 100%;
-    height: 100%;
-    border: none;
 }
-
-/* Dashboard card styles */
-.admin-dashboard-card {
-    border-radius: 10px;
+.table-responsive table {
+    min-width: 500px;
 }
-
-/* Button spacing */
-.admin-btn-spacing {
-    margin-right: 10px;
-}
-
-/* Metric cards for dashboard */
-.metric-card {
-    transition: transform 0.2s ease-in-out;
-    border: none;
-}
-
-.metric-card:hover {
-    transform: translateY(-2px);
-}
-
-.metric-card-1 {
-    border-left: 4px solid #007bff;
-}
-
-.metric-card-2 {
-    border-left: 4px solid #ffc107;
-}
-
-.metric-card-3 {
-    border-left: 4px solid #28a745;
-}
-
-.metric-card-4 {
-    border-left: 4px solid #dc3545;
-}
-
-.metric-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-}
-
-.metric-counter {
-    font-weight: 700;
-    color: #495057;
-}
-
-/* Health metric cards specific styling */
-.health-metric-card {
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-    border: 1px solid #e9ecef;
-    border-radius: 15px;
-}
-
-.health-metric-card .card-body {
-    padding: 1.5rem;
-}
-
-/* Statistics card animations */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.metric-card {
-    animation: fadeInUp 0.6s ease-out;
-}
-
-.metric-card:nth-child(1) { animation-delay: 0.1s; }
-.metric-card:nth-child(2) { animation-delay: 0.2s; }
-.metric-card:nth-child(3) { animation-delay: 0.3s; }
-.metric-card:nth-child(4) { animation-delay: 0.4s; }
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .admin-modal-xl {
-        max-width: 100%;
-    }
-    
-    .admin-modal-body-iframe {
-        height: 70vh;
-    }
-    
-    .metric-card {
-        margin-bottom: 1rem;
-    }
+.exclude-scroll .table-responsive {
+    overflow-x: visible !important;
+    display: table;
 }

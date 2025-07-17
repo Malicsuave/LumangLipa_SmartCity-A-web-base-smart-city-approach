@@ -54,7 +54,9 @@ class SessionSecurityMiddleware
         $lastActivity = $request->session()->get('last_activity');
         
         if ($lastActivity && Carbon::createFromTimestamp($lastActivity)->addMinutes(self::SESSION_TIMEOUT)->isPast()) {
-            Auth::logout();
+            if (Auth::guard('web')->check()) {
+                Auth::guard('web')->logout();
+            }
             $request->session()->invalidate();
             $request->session()->regenerateToken();
             

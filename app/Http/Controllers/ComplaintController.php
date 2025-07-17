@@ -30,17 +30,69 @@ class ComplaintController extends Controller
         // Get recent complaints for display
         $recentComplaints = Complaint::with('resident')
             ->orderBy('filed_at', 'desc')
-            ->limit(5)
-            ->get();
+            ->paginate(5);
 
         return view('admin.complaints', compact('totalComplaints', 'pendingComplaints', 'resolvedComplaints', 'recentComplaints'));
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $complaints = Complaint::with(['resident', 'approver'])
-            ->orderBy('filed_at', 'desc')
-            ->paginate(10);
+        $query = Complaint::with(['resident', 'approver']);
+        
+        // Search functionality
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('subject', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('barangay_id', 'like', "%{$search}%")
+                    ->orWhereHas('resident', function ($residentQuery) use ($search) {
+                        $residentQuery->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('middle_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%");
+                    });
+            });
+        }
+        
+        // Status filter
+        if ($request->has('status') && !empty($request->status)) {
+            $query->where('status', $request->status);
+        }
+        
+        // Type filter
+        if ($request->has('type') && !empty($request->type)) {
+            $query->where('complaint_type', $request->type);
+        }
+        
+        // Date range filters
+        if ($request->has('date_from') && !empty($request->date_from)) {
+            $query->whereDate('filed_at', '>=', $request->date_from);
+        }
+        
+        if ($request->has('date_to') && !empty($request->date_to)) {
+            $query->whereDate('filed_at', '<=', $request->date_to);
+        }
+        
+        // Sorting functionality
+        $sortField = $request->get('sort', 'filed_at');
+        $sortDirection = $request->get('direction', 'desc');
+        
+        // Define allowed sort fields for security
+        $allowedSortFields = [
+            'id', 'subject', 'complaint_type', 'status', 'filed_at', 'barangay_id'
+        ];
+        
+        if (in_array($sortField, $allowedSortFields)) {
+            $query->orderBy($sortField, $sortDirection);
+        } else {
+            // Default sorting
+            $query->orderBy('filed_at', 'desc');
+        }
+
+        $complaints = $query->paginate(10);
+        
+        // Append query parameters to pagination links
+        $complaints->appends($request->query());
 
         return view('admin.complaint-management', compact('complaints'));
     }
@@ -62,7 +114,7 @@ class ComplaintController extends Controller
             'other' => 'Other Complaint'
         ];
 
-        return view('complaints.file', compact('complaintTypes'));
+        return view('public/forms/complaint-request', compact('complaintTypes'));
     }    public function store(Request $request)
     {        $validator = Validator::make($request->all(), [
             'barangay_id' => 'required|string|exists:residents,barangay_id',

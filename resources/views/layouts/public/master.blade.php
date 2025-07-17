@@ -101,7 +101,7 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ str_contains(Route::currentRouteName(), 'public.pre-registration') ? 'active' : '' }}" 
-                           href="{{ route('public.pre-registration.create') }}">Pre-Registration</a>
+                           href="{{ route('public.pre-registration.step1') }}">Pre-Registration</a>
                     </li>
                     @auth
                         <li class="nav-item">

@@ -11,7 +11,8 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,600" />
 
     <!-- Styles -->
-   
+
+    
     <link href="{{ asset('css/auth.css') }}" rel="stylesheet">
 
    
@@ -83,7 +84,7 @@
                 
                 <!-- Google Sign In Button -->
                 <div class="mt-2 mb-4">
-                    <a href="{{ route('auth.google') }}" class="w-full inline-flex justify-center py-2.5 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <a href="{{ route('auth.google') }}" id="google-signin-btn" class="w-full inline-flex justify-center py-2.5 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                         <svg class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"/>
                         </svg>
@@ -108,6 +109,32 @@
             </form>
         </x-authentication-card>
     </x-guest-layout>
+
+    <script>
+        // Clear Google cookies when Google sign-in button is clicked
+        document.getElementById('google-signin-btn').addEventListener('click', function(e) {
+            // Clear Google-related cookies
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i];
+                const eqPos = cookie.indexOf('=');
+                const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+                if (name.includes('google') || name.includes('accounts.google')) {
+                    document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';
+                    document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=.google.com';
+                    document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=.accounts.google.com';
+                }
+            }
+            
+            // Clear localStorage and sessionStorage for Google domains
+            try {
+                localStorage.clear();
+                sessionStorage.clear();
+            } catch (e) {
+                // Ignore errors if storage is not available
+            }
+        });
+    </script>
 </body>
 
 </html>

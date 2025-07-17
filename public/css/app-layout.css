@@ -1,0 +1,103 @@
+/* App Layout Styles */
+
+/* Body and main container styling */
+body, .min-h-screen {
+    background-color: #0062ff !important;
+    color: white;
+}
+
+/* Light mode adjustments */
+@media (prefers-color-scheme: light) {
+    body, .min-h-screen {
+        background-color: #F1F5F9 !important;
+        color: #1E293B;
+    }
+}
+
+/* Dark theme overrides */
+.dark body, 
+.dark .min-h-screen {
+    background-color: #1a202c !important;
+    color: #e2e8f0;
+}
+
+/* Light theme overrides */
+.light body,
+.light .min-h-screen {
+    background-color: #F1F5F9 !important;
+    color: #1E293B;
+}
+
+/* Component specific styling */
+.app-container {
+    min-height: 100vh;
+    transition: all 0.3s ease;
+}
+
+/* Form styling for app layout */
+.app-form {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark mode form styling */
+.dark .app-form {
+    background: rgba(45, 55, 72, 0.95);
+    color: #e2e8f0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .app-form {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+}
+
+/* Authentication forms */
+.auth-form {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+/* Error and success messages */
+.app-alert {
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.app-alert-error {
+    background-color: rgba(220, 53, 69, 0.1);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+    color: #dc3545;
+}
+
+.app-alert-success {
+    background-color: rgba(40, 167, 69, 0.1);
+    border: 1px solid rgba(40, 167, 69, 0.3);
+    color: #28a745;
+}
+
+/* Links and buttons */
+.app-link {
+    color: #007bff;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.app-link:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+.dark .app-link {
+    color: #4dabf7;
+}
+
+.dark .app-link:hover {
+    color: #74c0fc;
+}

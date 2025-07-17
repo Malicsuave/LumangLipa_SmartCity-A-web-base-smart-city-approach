@@ -118,7 +118,7 @@
                     <form action="{{ route('admin.residents.id.bulk-issue') }}" method="POST" id="bulkIssueForm">
                         @csrf
                         <div class="table-responsive">
-                            <table class="table table-borderless table-striped" id="bulkIssueTable">
+                            <table class="table table-striped table-hover" id="bulkIssueTable">
                                 <thead>
                                     <tr>
                                         <th width="50"><input type="checkbox" id="selectAll"></th>
@@ -130,6 +130,11 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    @if($readyForIssuance->isEmpty())
+                                        <tr>
+                                            <td colspan="6" class="text-center text-muted">No residents ready for ID issuance.</td>
+                                        </tr>
+                                    @endif
                                     @foreach($readyForIssuance as $resident)
                                         <tr>
                                             <td>
@@ -172,11 +177,11 @@
                                             </td>
                                             <td>
                                                 @if($resident->id_status === 'issued')
-                                                    <span class="badge badge-soft-success">Issued</span>
+                                                    <span class="badge badge-success">Issued</span>
                                                 @elseif($resident->photo && $resident->signature)
-                                                    <span class="badge badge-soft-primary">Ready</span>
+                                                    <span class="badge badge-primary">Ready</span>
                                                 @else
-                                                    <span class="badge badge-soft-warning">Incomplete</span>
+                                                    <span class="badge badge-warning">Incomplete</span>
                                                 @endif
                                             </td>
                                         </tr>
@@ -185,7 +190,7 @@
                             </table>
                         </div>
                         <div class="mt-3">
-                            <button type="submit" class="btn" style="background-color: #2c3e50; color: white;" id="bulkIssueBtn">
+                            <button type="submit" class="btn btn-primary" id="bulkIssueBtn">
                                 <i class="fe fe-credit-card mr-2"></i>Issue IDs for Selected Residents
                             </button>
                         </div>
@@ -284,3 +289,15 @@
     });
 </script>
 @endsection
+
+<style>
+.table-responsive,
+.card-body,
+.collapse,
+#filterSection {
+    overflow: visible !important;
+}
+.dropdown-menu {
+    z-index: 9999 !important;
+}
+</style>

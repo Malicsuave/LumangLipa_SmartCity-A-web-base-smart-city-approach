@@ -394,5 +394,17 @@
         content: " *";
         color: #dc3545;
     }
+    .table-responsive,
+    .card-body,
+    .collapse,
+    #filterSection {
+        overflow: visible !important;
+    }
+    .dropdown-menu {
+        z-index: 9999 !important;
+    }
+    .table-responsive {
+        padding-bottom: 120px;
+    }
 </style>
 @endsection

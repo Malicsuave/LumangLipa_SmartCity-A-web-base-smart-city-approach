@@ -27,14 +27,72 @@ class PreRegistrationController extends Controller
             $query->where('status', $request->status);
         }
 
+        // Filter by resident type
+        if ($request->has('type_of_resident') && !empty($request->type_of_resident)) {
+            $query->where('type_of_resident', $request->type_of_resident);
+        }
+        // Filter by gender
+        if ($request->has('gender') && !empty($request->gender)) {
+            $query->where('sex', $request->gender);
+        }
+        // Filter by civil status
+        if ($request->has('civil_status') && !empty($request->civil_status)) {
+            $query->where('civil_status', $request->civil_status);
+        }
+        // Filter by education
+        if ($request->has('education') && !empty($request->education)) {
+            $query->where('educational_attainment', $request->education);
+        }
+        // Filter by age group
+        if ($request->has('age_group') && !empty($request->age_group)) {
+            $now = Carbon::now();
+            switch ($request->age_group) {
+                case '0-17':
+                    $query->whereDate('birthdate', '>=', $now->copy()->subYears(17));
+                    break;
+                case '18-59':
+                    $query->whereDate('birthdate', '<', $now->copy()->subYears(17))
+                          ->whereDate('birthdate', '>', $now->copy()->subYears(60));
+                    break;
+                case '60+':
+                    $query->whereDate('birthdate', '<=', $now->copy()->subYears(60));
+                    break;
+            }
+        }
+        // Filter by date range
+        if ($request->has('date_from') && !empty($request->date_from)) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        if ($request->has('date_to') && !empty($request->date_to)) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
         // Search functionality
         if ($request->has('search') && !empty($request->search)) {
             $search = $request->search;
             $query->search($search);
         }
 
-        // Order by creation date (newest first)
-        $query->orderBy('created_at', 'desc');
+        // Sorting functionality
+        $sortField = $request->get('sort', 'created_at');
+        $sortDirection = $request->get('direction', 'desc');
+        
+        // Define allowed sort fields for security
+        $allowedSortFields = [
+            'id', 'first_name', 'last_name', 'email_address', 'contact_number', 
+            'birthdate', 'type_of_resident', 'status', 'created_at'
+        ];
+        
+        // Handle special case for age sorting
+        if ($sortField === 'age') {
+            // Sort by birthdate in reverse order (older birthdate = higher age)
+            $query->orderBy('birthdate', $sortDirection === 'asc' ? 'desc' : 'asc');
+        } elseif (in_array($sortField, $allowedSortFields)) {
+            $query->orderBy($sortField, $sortDirection);
+        } else {
+            // Default sorting
+            $query->orderBy('created_at', 'desc');
+        }
 
         $preRegistrations = $query->paginate(20);
         $preRegistrations->appends($request->query());

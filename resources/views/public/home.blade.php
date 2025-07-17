@@ -79,7 +79,7 @@
                         <i class="fe fe-user-plus fe-48 text-primary mb-4"></i>
                         <h4>Resident Pre-Registration</h4>
                         <p>Register as a new resident online and get your digital barangay ID after approval.</p>
-                        <a href="{{ route('public.pre-registration.create') }}" class="btn btn-primary mt-2">Register Now</a>
+                        <a href="{{ route('public.pre-registration.step1') }}" class="btn btn-primary mt-2">Register Now</a>
                         <div class="mt-2">
                             <small><a href="{{ route('public.pre-registration.check-status') }}" class="text-muted">Check Registration Status</a></small>
                         </div>

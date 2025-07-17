@@ -34,8 +34,8 @@ class AccountLockoutMiddleware
         if ($request->routeIs('login') && $request->isMethod('POST')) {
             $email = $request->input('email');
             
-            if ($this->isAccountLocked($email)) {
-                $lockoutEnd = $this->getLockoutEnd($email);
+            if (self::isAccountLocked($email)) {
+                $lockoutEnd = self::getLockoutEnd($email);
                 $minutesRemaining = Carbon::now()->diffInMinutes($lockoutEnd);
                 
                 return redirect()->back()
@@ -52,7 +52,7 @@ class AccountLockoutMiddleware
     /**
      * Check if account is currently locked
      */
-    public function isAccountLocked(string $email): bool
+    public static function isAccountLocked(string $email): bool
     {
         $lockoutEnd = Cache::get("lockout.{$email}");
         
@@ -73,7 +73,7 @@ class AccountLockoutMiddleware
     /**
      * Get lockout end time
      */
-    public function getLockoutEnd(string $email): ?Carbon
+    public static function getLockoutEnd(string $email): ?Carbon
     {
         return Cache::get("lockout.{$email}");
     }

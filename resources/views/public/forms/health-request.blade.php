@@ -719,7 +719,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 barangay_id: barangayId,
                 otp_code: otpCode
             })
-        )
+        
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -760,7 +760,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .finally(() => {
             verifyOtpBtn.disabled = false;
             verifyOtpBtn.innerHTML = '<i class="fas fa-check me-2"></i>Verify OTP';
-        });
+        })
     });
 
     // Resend OTP
@@ -1004,5 +1004,5 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize blur effects on page load
     addBlurEffects();
 });
-</script>
+
 @endpush
