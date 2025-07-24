@@ -49,11 +49,37 @@
     <!-- Navigation Styles -->
     <style>
         .navbar-brand .logo-img {
-            max-width: 60px;
-            max-height: 60px;
-            object-fit: contain;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.3);
+            max-width: 50px !important;
+            max-height: 50px !important;
+            /* width: 50px !important;
+            height: 50px !important; */
+            object-fit: contain !important;
+            background: transparent !important;
+            border: none !important;
+            border-radius: 8px !important;
+            padding: 4px !important;
+            box-shadow: none !important;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            position: relative !important;
+            z-index: 999 !important;
+        }
+        
+        /* Fallback text for logo */
+        .logo-fallback {
+            width: 45px !important;
+            height: 45px !important;
+            background: linear-gradient(135deg, #4A90E2, #357ABD) !important;
+            color: white !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-radius: 8px !important;
+            font-weight: bold !important;
+            font-size: 10px !important;
+            text-align: center !important;
+            border: 2px solid white !important;
         }
         
         .nav-link.active {
@@ -75,17 +101,76 @@
                 margin: 4px 0 !important;
             }
         }
+        
+        /* Chat widget positioning and visibility fixes */
+        .chat-widget,
+        .chat-container,
+        .chat-popup,
+        [class*="chat-widget"],
+        [id*="chat-widget"] {
+            position: fixed !important;
+            bottom: 30px !important;
+            right: 20px !important;
+            z-index: 99999 !important;
+            max-width: 400px !important;
+            width: auto !important;
+            height: auto !important;
+            overflow: visible !important;
+        }
+        
+        /* Chat buttons container */
+        .chat-buttons,
+        .chat-choices,
+        [class*="chat-button"],
+        [class*="chat-choice"] {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            gap: 10px !important;
+            padding: 15px !important;
+            margin: 0 !important;
+            overflow: visible !important;
+            z-index: 99999 !important;
+            justify-content: center !important;
+        }
+        
+        /* Individual chat buttons */
+        .chat-widget button,
+        .chat-container button,
+        [class*="chat"] button {
+            min-height: 40px !important;
+            padding: 10px 16px !important;
+            border-radius: 20px !important;
+            white-space: nowrap !important;
+            z-index: 99999 !important;
+            position: relative !important;
+            display: inline-block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+        }
+        
+        /* Chat widget shadow and background */
+        .chat-widget,
+        [class*="chat-widget"] {
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
+            border-radius: 12px !important;
+            background: white !important;
+        }
     </style>
 </head>
 <body>
     <!-- Top Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background: linear-gradient(135deg, #1a1a1a 0%, #333333 50%, #1a1a1a 100%); padding: 8px 0; box-shadow: 0 4px 20px rgba(0,0,0,0.3); backdrop-filter: blur(10px); transition: all 0.3s ease;">
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background: linear-gradient(135deg, #1a1a1a 0%, #333333 50%, #1a1a1a 100%); padding: 4px 0; box-shadow: 0 4px 20px rgba(0,0,0,0.3); backdrop-filter: blur(10px); transition: all 0.3s ease;">
         <div class="container">
             <a href="{{ route('public.home') }}" class="navbar-brand d-flex align-items-center me-auto pe-4 text-decoration-none" style="margin-right: auto;">
-                <img src="{{ asset('/images/logo.png') }}" alt="Barangay Lumanglipa Logo" class="me-3 logo-img" style="width: 60px; height: 60px; border-radius: 12px; box-shadow: 0 4px 12px rgba(255,255,255,0.2); transition: transform 0.3s ease; object-fit: contain; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3);" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" onerror="console.error('Logo failed to load'); this.style.display='none'; this.nextElementSibling.style.paddingLeft='0';">
-                <div style="padding-left: 10px;">
-                    <div class="text-white fw-bold" style="font-size: 22px; letter-spacing: 0.8px; line-height: 1.2;">BARANGAY LUMANGLIPA</div>
-                    <div class="text-white-50" style="font-size: 14px; margin-top: 2px; letter-spacing: 0.5px;">MATAAS NA KAHOY, BATANGAS</div>
+                <img src="/images/logo.png" 
+                     alt="Barangay Lumanglipa Logo" 
+                     class="me-2 logo-img" 
+                     style="display: block !important; visibility: visible !important; opacity: 1 !important;">
+                <div style="padding-left: 8px;">
+                    <div class="text-white fw-bold" style="font-size: 18px; letter-spacing: 0.8px; line-height: 1.1;">BARANGAY LUMANGLIPA</div>
+                    <div class="text-white-50" style="font-size: 12px; margin-top: 1px; letter-spacing: 0.5px;">MATAAS NA KAHOY, BATANGAS</div>
                 </div>
             </a>
             
@@ -192,7 +277,7 @@
     </nav>
 
     <!-- Spacer for fixed navbar -->
-    <div style="height: 90px;"></div>
+    <div style="height: 65px;"></div>
 
     <!-- Main Content -->
     <main>
