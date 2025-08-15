@@ -26,6 +26,9 @@ Route::get('/about', [PublicController::class, 'about'])->name('public.about');
 Route::get('/services', [PublicController::class, 'services'])->name('public.services');
 Route::get('/contact', [PublicController::class, 'contact'])->name('public.contact');
 
+// Chatbot API routes
+Route::post('/chatbot', [App\Http\Controllers\ChatbotController::class, 'chat'])->name('chatbot.chat');
+
 // Test routes
 Route::get('/test-admin-response', function() {
     return view('test-admin-response');

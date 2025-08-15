@@ -190,55 +190,58 @@
         padding: 100px 0;
         background-color: #f8f9fa;
     }
-    
-    /* Chatbot Styles - Matching Website Design */
+
+    /* Floating Chatbot Styles */
     .chatbot-container {
         position: fixed;
         bottom: 20px;
         right: 20px;
-        z-index: 1000;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        z-index: 9999;
+        font-family: 'Nunito', sans-serif;
     }
-    
-    .chatbot-button {
+
+    .chatbot-toggle {
         width: 60px;
         height: 60px;
+        background: linear-gradient(135deg, #3F9EDD, #2A7BC4);
         border-radius: 50%;
-        background: linear-gradient(135deg, #3F9EDD 0%, #2A7BC4 100%);
-        color: white;
         border: none;
-        cursor: pointer;
+        color: white;
         font-size: 24px;
+        cursor: pointer;
+        box-shadow: 0 4px 20px rgba(63, 158, 221, 0.4);
+        transition: all 0.3s ease;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 8px 25px rgba(63, 158, 221, 0.3);
-        transition: all 0.3s ease;
         position: relative;
-        overflow: hidden;
     }
-    
-    .chatbot-button::before {
-        content: '';
+
+    .chatbot-toggle:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 25px rgba(63, 158, 221, 0.6);
+    }
+
+    .chatbot-pulse {
         position: absolute;
-        top: 0;
-        left: 0;
         width: 100%;
         height: 100%;
-        background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
         border-radius: 50%;
+        background: rgba(63, 158, 221, 0.3);
+        animation: pulse 2s infinite;
     }
-    
-    .chatbot-button:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 12px 35px rgba(63, 158, 221, 0.4);
-        background: linear-gradient(135deg, #2A7BC4 0%, #1E5A9A 100%);
+
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
+        100% {
+            transform: scale(1.4);
+            opacity: 0;
+        }
     }
-    
-    .chatbot-button:active {
-        transform: translateY(-1px);
-    }
-    
+
     .chatbot-window {
         position: absolute;
         bottom: 80px;
@@ -246,494 +249,251 @@
         width: 350px;
         height: 500px;
         background: white;
-        border-radius: 20px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
         display: none;
         flex-direction: column;
         overflow: hidden;
-        border: 1px solid rgba(63, 158, 221, 0.1);
+        transform: translateY(20px);
+        opacity: 0;
+        transition: all 0.3s ease;
     }
-    
+
+    .chatbot-window.active {
+        display: flex;
+        transform: translateY(0);
+        opacity: 1;
+    }
+
     .chatbot-header {
-        background: linear-gradient(135deg, #3F9EDD 0%, #2A7BC4 100%);
+        background: linear-gradient(135deg, #3F9EDD, #2A7BC4);
         color: white;
-        padding: 20px;
+        padding: 15px 20px;
         display: flex;
+        align-items: center;
         justify-content: space-between;
-        align-items: center;
     }
-    
-    .header-left {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    
-    .robot-icon {
-        font-size: 20px;
-        animation: float 3s ease-in-out infinite;
-    }
-    
-    @keyframes float {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-5px); }
-    }
-    
-    .chatbot-header h5 {
+
+    .chatbot-header h4 {
         margin: 0;
         font-size: 16px;
         font-weight: 600;
     }
-    
-    .header-right {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    
-    .language-toggle {
-        background: rgba(255, 255, 255, 0.2);
-        color: white;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        padding: 5px 10px;
-        border-radius: 15px;
-        font-size: 12px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-    
-    .language-toggle:hover {
-        background: rgba(255, 255, 255, 0.3);
-        border-color: rgba(255, 255, 255, 0.5);
-    }
-    
+
     .chatbot-close {
         background: none;
         border: none;
         color: white;
-        font-size: 24px;
+        font-size: 18px;
         cursor: pointer;
-        padding: 0;
-        width: 30px;
-        height: 30px;
+        width: 25px;
+        height: 25px;
         display: flex;
         align-items: center;
         justify-content: center;
         border-radius: 50%;
-        transition: all 0.3s ease;
+        transition: background 0.3s ease;
     }
-    
+
     .chatbot-close:hover {
         background: rgba(255, 255, 255, 0.2);
-        transform: rotate(90deg);
     }
-    
+
     .chatbot-messages {
         flex: 1;
         padding: 20px;
         overflow-y: auto;
-        background: #f8f9fa;
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        max-height: calc(100% - 140px);
-        min-height: 300px;
+        max-height: 350px;
     }
-    
-    .chatbot-messages::-webkit-scrollbar {
-        width: 6px;
-    }
-    
-    .chatbot-messages::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 10px;
-    }
-    
-    .chatbot-messages::-webkit-scrollbar-thumb {
-        background: #3F9EDD;
-        border-radius: 10px;
-    }
-    
+
     .message {
         margin-bottom: 15px;
+        display: flex;
+        align-items: flex-start;
+    }
+
+    .message.user {
+        flex-direction: row-reverse;
+    }
+
+    .message.bot .message-content {
+        background: #f1f3f5;
+        color: #333;
+        border-radius: 18px 18px 18px 5px;
+    }
+
+    .message.user .message-content {
+        background: linear-gradient(135deg, #3F9EDD, #2A7BC4);
+        color: white;
+        border-radius: 18px 18px 5px 18px;
+    }
+
+    .message-content {
+        max-width: 80%;
         padding: 12px 16px;
-        border-radius: 18px;
-        max-width: 75%;
-        word-wrap: break-word;
         font-size: 14px;
         line-height: 1.4;
-        animation: fadeIn 0.3s ease;
-        position: relative;
+        word-wrap: break-word;
     }
-    
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .message.user {
-        background: linear-gradient(135deg, #3F9EDD 0%, #2A7BC4 100%);
-        color: white;
-        margin-left: auto;
-        border-radius: 18px;
-        border-bottom-right-radius: 4px;
-        box-shadow: 0 1px 2px rgba(63, 158, 221, 0.3);
-        align-self: flex-end;
-        margin-right: 0;
-        max-width: 75%;
-    }
-    
-    .message.bot {
-        background: #f1f3f4;
-        color: #333;
-        border: 1px solid #e8eaed;
-        border-radius: 18px;
-        border-bottom-left-radius: 4px;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-        align-self: flex-start;
-        margin-right: auto;
-        margin-left: 0;
-        max-width: 75%;
-    }
-    
-    .message.admin {
-        background: #f1f3f4;
-        color: #333;
-        border: 1px solid #e8eaed;
-        border-radius: 18px;
-        border-bottom-left-radius: 4px;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-        align-self: flex-start;
-        margin-right: auto;
-        margin-left: 0;
-        max-width: 75%;
-    }
-    
-    .message-timestamp {
-        font-size: 11px;
-        opacity: 0.6;
-        margin-top: 4px;
-        color: #5f6368;
-    }
-    
-    .message.user .message-timestamp {
-        text-align: right;
-        color: rgba(255, 255, 255, 0.8);
-    }
-    
-    .message.bot .message-timestamp {
-        text-align: left;
-        color: #5f6368;
-    }
-    
-    .message.admin .message-timestamp {
-        text-align: left;
-        color: #5f6368;
-    }
-    
-    .typing-indicator {
-        display: none;
-        padding: 12px 16px;
-        background: white;
-        border-radius: 18px;
-        border-bottom-left-radius: 5px;
-        margin-bottom: 15px;
-        max-width: 85%;
-        border: 1px solid #e9ecef;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    }
-    
-    .typing-indicator span {
-        display: inline-block;
-        width: 8px;
-        height: 8px;
+
+    .message-avatar {
+        width: 32px;
+        height: 32px;
         border-radius: 50%;
-        background: #3F9EDD;
-        margin: 0 2px;
-        animation: typing 1.4s infinite;
+        margin: 0 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        flex-shrink: 0;
     }
-    
-    .typing-indicator span:nth-child(1) { animation-delay: 0s; }
-    .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
-    .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
-    
-    @keyframes typing {
-        0%, 60%, 100% { transform: scale(0.8); opacity: 0.5; }
-        30% { transform: scale(1); opacity: 1; }
+
+    .message.bot .message-avatar {
+        background: linear-gradient(135deg, #3F9EDD, #2A7BC4);
+        color: white;
     }
-    
+
+    .message.user .message-avatar {
+        background: #e9ecef;
+        color: #495057;
+    }
+
     .chatbot-input-area {
         padding: 15px 20px;
-        background: white;
         border-top: 1px solid #e9ecef;
         display: flex;
-        align-items: end;
         gap: 10px;
     }
-    
+
     .chatbot-input {
         flex: 1;
-        border: 1px solid #e9ecef;
+        border: 1px solid #ddd;
         border-radius: 20px;
         padding: 10px 15px;
         font-size: 14px;
-        resize: none;
         outline: none;
-        transition: all 0.3s ease;
-        background: #f8f9fa;
-        min-height: 20px;
-        max-height: 80px;
+        transition: border-color 0.3s ease;
     }
-    
+
     .chatbot-input:focus {
         border-color: #3F9EDD;
-        background: white;
-        box-shadow: 0 0 0 3px rgba(63, 158, 221, 0.1);
     }
-    
+
     .chatbot-send {
+        background: linear-gradient(135deg, #3F9EDD, #2A7BC4);
+        border: none;
+        border-radius: 50%;
         width: 40px;
         height: 40px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #3F9EDD 0%, #2A7BC4 100%);
         color: white;
-        border: none;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 16px;
-        transition: all 0.3s ease;
-        flex-shrink: 0;
+        transition: transform 0.3s ease;
     }
-    
+
     .chatbot-send:hover {
         transform: scale(1.1);
-        box-shadow: 0 4px 15px rgba(63, 158, 221, 0.3);
     }
-    
-    .chatbot-send:active {
-        transform: scale(0.95);
-    }
-    
+
     .chatbot-send:disabled {
-        opacity: 0.5;
+        opacity: 0.6;
         cursor: not-allowed;
         transform: none;
     }
-    
-    /* Suggestion Box Styles */
-    .suggestion-box {
-        background: white;
-        border: 1px solid #e9ecef;
-        border-radius: 12px;
-        padding: 15px;
-        margin-bottom: 15px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        animation: fadeIn 0.3s ease;
-    }
-    
-    .suggestion-title {
-        font-size: 14px;
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 12px;
-        text-align: center;
-    }
-    
-    .suggestion-buttons {
-        display: flex;
-        flex-direction: row;
-        gap: 10px;
-        justify-content: center;
-        margin-top: 8px;
-    }
 
-    .suggestion-btn {
-        background: #fff;
-        color: #3F9EDD;
-        border: 1px solid #3F9EDD;
-        padding: 10px 18px;
-        border-radius: 20px;
-        font-size: 15px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-        text-align: center;
+    .typing-indicator {
         display: flex;
         align-items: center;
-        gap: 6px;
-        box-shadow: 0 1px 4px rgba(63, 158, 221, 0.06);
+        padding: 10px 16px;
+        background: #f1f3f5;
+        border-radius: 18px 18px 18px 5px;
+        margin-left: 40px;
     }
 
-    .suggestion-btn:hover {
+    .typing-dots {
+        display: flex;
+        gap: 4px;
+    }
+
+    .typing-dot {
+        width: 8px;
+        height: 8px;
+        background: #999;
+        border-radius: 50%;
+        animation: typing 1.4s infinite ease-in-out;
+    }
+
+    .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+    .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+    @keyframes typing {
+        0%, 80%, 100% {
+            transform: scale(0);
+            opacity: 0.5;
+        }
+        40% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    .quick-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .quick-action-btn {
+        background: transparent;
+        border: 1px solid #3F9EDD;
+        color: #3F9EDD;
+        padding: 6px 12px;
+        border-radius: 15px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        user-select: none;
+        outline: none;
+        display: inline-block;
+        text-decoration: none;
+        font-family: inherit;
+        font-weight: 500;
+        line-height: 1.2;
+        white-space: nowrap;
+        min-height: 32px;
+        vertical-align: middle;
+    }
+
+    .quick-action-btn:hover {
         background: #3F9EDD;
-        color: #fff;
-        box-shadow: 0 2px 8px rgba(63, 158, 221, 0.15);
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(63, 158, 221, 0.3);
     }
 
-    .suggestion-btn i {
-        margin-right: 6px;
-        font-size: 16px;
+    .quick-action-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 1px 4px rgba(63, 158, 221, 0.3);
     }
-    
-    /* Mobile responsive */
+
+    .quick-action-btn:focus {
+        outline: 2px solid #3F9EDD;
+        outline-offset: 2px;
+    }
+
     @media (max-width: 768px) {
         .chatbot-window {
             width: 320px;
             height: 450px;
-            bottom: 70px;
-            right: 10px;
-        }
-        
-        .chatbot-button {
-            width: 50px;
-            height: 50px;
-            font-size: 20px;
         }
         
         .chatbot-container {
             bottom: 15px;
             right: 15px;
         }
-    }
-    
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-        .hero-section {
-            padding-top: 100px; /* Adjust for mobile */
-        }
-        
-        .hero-title {
-            font-size: 2.5rem;
-        }
-        
-        .hero-subtitle {
-            font-size: 1.2rem;
-        }
-        
-        .hero-buttons {
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .services-grid {
-            grid-template-columns: 1fr;
-            gap: 20px;
-        }
-    }
-    
-    @media (max-width: 992px) {
-        .services-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-    
-    /* Satisfaction Check Styles */
-    .satisfaction-check,
-    .escalation-prompt {
-        padding: 15px 20px;
-        background: #f8f9fa;
-        border-top: 1px solid #dee2e6;
-        margin-top: 10px;
-        border-radius: 12px;
-        box-shadow: 0 1px 4px rgba(63, 158, 221, 0.06);
-    }
-
-    .satisfaction-message,
-    .escalation-message {
-        text-align: center;
-    }
-
-    .satisfaction-message p,
-    .escalation-message p {
-        margin-bottom: 12px;
-        font-size: 15px;
-        color: #333;
-        font-weight: 500;
-    }
-
-    .satisfaction-buttons,
-    .escalation-buttons {
-        display: flex;
-        gap: 10px;
-        justify-content: center;
-        margin-top: 8px;
-    }
-
-    .btn-yes,
-    .btn-no,
-    .btn-escalate,
-    .btn-continue {
-        padding: 8px 18px;
-        border: none;
-        border-radius: 18px;
-        cursor: pointer;
-        font-size: 15px;
-        font-weight: 500;
-        background: #fff;
-        color: #333;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-        transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    .btn-yes {
-        border: 1px solid #28a745;
-        color: #28a745;
-    }
-    .btn-yes:hover {
-        background: #28a745;
-        color: #fff;
-    }
-
-    .btn-no {
-        border: 1px solid #dc3545;
-        color: #dc3545;
-    }
-    .btn-no:hover {
-        background: #dc3545;
-        color: #fff;
-    }
-
-    .btn-escalate {
-        border: 1px solid #007bff;
-        color: #007bff;
-    }
-    .btn-escalate:hover {
-        background: #007bff;
-        color: #fff;
-    }
-
-    .btn-continue {
-        border: 1px solid #6c757d;
-        color: #6c757d;
-    }
-    .btn-continue:hover {
-        background: #6c757d;
-        color: #fff;
-    }
-    
-    .escalation-notice {
-        background: #fff3cd;
-        color: #856404;
-        padding: 12px 16px;
-        border-radius: 8px;
-        margin: 10px 0;
-        font-size: 13px;
-        text-align: center;
-        border: 1px solid #ffeaa7;
-        animation: fadeIn 0.3s ease;
-    }
-    
-    .escalated-mode .chatbot-header {
-        background: linear-gradient(135deg, #3F9EDD 0%, #2A7BC4 100%);
-    }
-    
-    .escalated-mode {
-        border-left: 4px solid #ffc107;
     }
 </style>
 @endpush
@@ -892,1192 +652,827 @@
     </div>
 </section>
 
-<!-- AI Chatbot -->
+<!-- Floating Chatbot -->
 <div class="chatbot-container">
-    <button class="chatbot-button" id="chatbotToggle">
-        🤖
-    </button>
-    
     <div class="chatbot-window" id="chatbotWindow">
         <div class="chatbot-header">
-            <div class="header-left">
-                <span class="robot-icon">🤖</span>
-                <h5 id="chatbotTitle">AI Assistant</h5>
-            </div>
-            <div class="header-right">
-                <button class="language-toggle" id="languageToggle">EN</button>
-                <button class="chatbot-close" id="chatbotClose">&times;</button>
-            </div>
+            <h4><i class="fas fa-robot me-2"></i>Barangay Assistant</h4>
+            <button class="chatbot-close" id="chatbotClose">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
-        
         <div class="chatbot-messages" id="chatbotMessages">
-            <div class="message bot" id="welcomeMessage">
-                Hello! I'm your AI Assistant. I can help you with:
-                <br>• How to request documents
-                <br>• How to file complaints  
-                <br>• How to register on the website
-                <br>• How to get Barangay ID
-                <br>• Office hours and contact info
-                <br><br>How can I assist you today?
-            </div>
-        </div>
-        
-        <div class="typing-indicator" id="typingIndicator">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
-        
-        <!-- Satisfaction Check -->
-        <div class="satisfaction-check" id="satisfactionCheck" style="display: none;">
-            <div class="satisfaction-message">
-                <p id="satisfactionText">Was this response helpful?</p>
-                <div class="satisfaction-buttons">
-                    <button class="btn-yes" onclick="handleSatisfaction(true)">👍 Yes</button>
-                    <button class="btn-no" onclick="handleSatisfaction(false)">👎 No</button>
+            <div class="message bot">
+                <div class="message-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="message-content">
+                    Hello! I'm your Barangay Lumanglipa assistant. I can help you with information about our services, document requests, health programs, and other barangay concerns. How can I assist you today?
+                    <div class="quick-actions">
+                        <button class="quick-action-btn" onclick="sendQuickMessage('Document request')">Document Request</button>
+                        <button class="quick-action-btn" onclick="sendQuickMessage('Health services')">Health Services</button>
+                        <button class="quick-action-btn" onclick="sendQuickMessage('Contact information')">Contact Info</button>
+                        <button class="quick-action-btn" onclick="sendQuickMessage('Office hours')">Office Hours</button>
+                        <button class="quick-action-btn" onclick="sendQuickMessage('File Complaint')">File Complaint</button>
+                    </div>
                 </div>
             </div>
         </div>
-        
-        <!-- Escalation Prompt -->
-        <div class="escalation-prompt" id="escalationPrompt" style="display: none;">
-            <div class="escalation-message">
-                <p id="escalationText">I understand that wasn't helpful. Would you like to chat directly with an admin?</p>
-                <div class="escalation-buttons">
-                    <button class="btn-escalate" onclick="escalateToAdmin()">💬 Chat with Admin</button>
-                    <button class="btn-continue" onclick="continueChatbot()">🤖 Continue with Bot</button>
-                </div>
-            </div>
-        </div>
-        
         <div class="chatbot-input-area">
-            <textarea 
-                class="chatbot-input" 
-                id="chatbotInput" 
-                placeholder="Type your message here..."
-                rows="1"
-            ></textarea>
+            <input type="text" class="chatbot-input" id="chatbotInput" placeholder="Type your message..." maxlength="500">
             <button class="chatbot-send" id="chatbotSend">
                 <i class="fas fa-paper-plane"></i>
             </button>
         </div>
     </div>
+    <button class="chatbot-toggle" id="chatbotToggle">
+        <div class="chatbot-pulse"></div>
+        <i class="fas fa-comments"></i>
+    </button>
 </div>
 
+@push('scripts')
 <script>
-// Global function for handling document options
-function handleDocumentOption(option) {
-    // Remove suggestion box after selection
-    const suggestionBoxes = document.querySelectorAll('.suggestion-box');
-    suggestionBoxes.forEach(box => box.remove());
-    
-    // Get current language from the global variable
-    const currentLang = window.chatbotLanguage || 'en';
-    
-    // Add user's choice as a message
-    const userChoice = currentLang === 'en' ? 
-        (option === 'online' ? 'Online Request' : 'Walk-in Request') :
-        (option === 'online' ? 'Online Request' : 'Walk-in Request');
-    
-    window.addChatMessage(userChoice, 'user');
-    
-    // Show typing indicator
-    window.showChatTyping();
-    
-    // Simulate delay for better UX
-    setTimeout(() => {
-        window.hideChatTyping();
-        
-        if (option === 'online') {
-            window.showOnlineInstructions();
-        } else {
-            window.showWalkInInstructions();
-        }
-    }, 1000);
-}
+class BarangayChatbot {
+    constructor() {
+        this.isOpen = false;
+        this.isTyping = false;
+        this.init();
+        this.knowledgeBase = this.initKnowledgeBase();
+    }
 
-// Global function for handling complaint options
-function handleComplaintOption(option) {
-    // Remove suggestion box after selection
-    const suggestionBoxes = document.querySelectorAll('.suggestion-box');
-    suggestionBoxes.forEach(box => box.remove());
-    
-    // Get current language from the global variable
-    const currentLang = window.chatbotLanguage || 'en';
-    
-    // Add user's choice as a message
-    const userChoice = currentLang === 'en' ? 
-        (option === 'online' ? 'Online Complaint' : 'Walk-in Complaint') :
-        (option === 'online' ? 'Online Complaint' : 'Walk-in Complaint');
-    
-    window.addChatMessage(userChoice, 'user');
-    
-    // Show typing indicator
-    window.showChatTyping();
-    
-    // Simulate delay for better UX
-    setTimeout(() => {
-        window.hideChatTyping();
-        
-        if (option === 'online') {
-            window.showOnlineComplaintInstructions();
-        } else {
-            window.showWalkInComplaintInstructions();
-        }
-    }, 1000);
-}
+    init() {
+        this.toggle = document.getElementById('chatbotToggle');
+        this.window = document.getElementById('chatbotWindow');
+        this.close = document.getElementById('chatbotClose');
+        this.input = document.getElementById('chatbotInput');
+        this.send = document.getElementById('chatbotSend');
+        this.messages = document.getElementById('chatbotMessages');
 
-// Global function for handling Barangay ID options
-function handleBarangayIdOption(option) {
-    // Remove suggestion box after selection
-    const suggestionBoxes = document.querySelectorAll('.suggestion-box');
-    suggestionBoxes.forEach(box => box.remove());
-    
-    // Get current language from the global variable
-    const currentLang = window.chatbotLanguage || 'en';
-    
-    // Add user's choice as a message
-    const userChoice = currentLang === 'en' ? 
-        (option === 'online' ? 'Online Pre-Registration' : 'Walk-in Application') :
-        (option === 'online' ? 'Online Pre-Registration' : 'Walk-in Application');
-    
-    window.addChatMessage(userChoice, 'user');
-    
-    // Show typing indicator
-    window.showChatTyping();
-    
-    // Simulate delay for better UX
-    setTimeout(() => {
-        window.hideChatTyping();
-        
-        if (option === 'online') {
-            window.showOnlineBarangayIdInstructions();
-        } else {
-            window.showWalkInBarangayIdInstructions();
-        }
-    }, 1000);
-}
+        this.bindEvents();
+    }
 
-document.addEventListener('DOMContentLoaded', function() {
-    const chatbotToggle = document.getElementById('chatbotToggle');
-    const chatbotWindow = document.getElementById('chatbotWindow');
-    const chatbotClose = document.getElementById('chatbotClose');
-    const chatbotInput = document.getElementById('chatbotInput');
-    const chatbotSend = document.getElementById('chatbotSend');
-    const chatbotMessages = document.getElementById('chatbotMessages');
-    const typingIndicator = document.getElementById('typingIndicator');
-    const languageToggle = document.getElementById('languageToggle');
-    const chatbotTitle = document.getElementById('chatbotTitle');
-    const welcomeMessage = document.getElementById('welcomeMessage');
-    const satisfactionCheck = document.getElementById('satisfactionCheck');
-    const escalationPrompt = document.getElementById('escalationPrompt');
-    
-    let currentLanguage = 'en';
-    let isOpen = false;
-    let currentMode = 'bot'; // 'bot' or 'admin'
-    let lastBotResponse = null;
-    let conversationHistory = [];
-    
-    // Make language available globally
-    window.chatbotLanguage = currentLanguage;
-    
-    const translations = {
-        en: {
-            title: 'AI Assistant',
-            welcome: 'Hello! I\'m your AI Assistant. I can help you with:<br>• How to request documents<br>• How to file complaints<br>• How to register on the website<br>• How to get Barangay ID<br>• Office hours and contact info<br><br>How can I assist you today?',
-            placeholder: 'Type your message here...',
-            langButton: 'EN',
-            satisfactionQuestion: 'Was this response helpful?',
-            escalationQuestion: 'I understand that wasn\'t helpful. Would you like to chat directly with an admin?',
-            adminConnected: '📞 You are now connected to live admin support',
-            adminTitle: 'Live Admin Support'
-        },
-        tl: {
-            title: 'AI Assistant',
-            welcome: 'Kumusta! Ako ang inyong AI Assistant. Makakatulong ako sa inyo sa:<br>• Paano mag-request ng mga dokumento<br>• Paano mag-file ng complaint<br>• Paano mag-register sa website<br>• Paano makakuha ng Barangay ID<br>• Oras ng opisina at contact info<br><br>Paano kita makakatulong ngayon?',
-            placeholder: 'I-type ang inyong mensahe dito...',
-            langButton: 'TL',
-            satisfactionQuestion: 'Nakatulong ba ang sagot na ito?',
-            escalationQuestion: 'Naintindihan ko na hindi nakatulong ang sagot. Gusto ninyo bang makausap directly ang admin?',
-            adminConnected: '📞 Kayo ay nakakonekta na sa live admin support',
-            adminTitle: 'Live Admin Support'
-        }
-    };
-    
-    // Toggle chatbot window
-    chatbotToggle.addEventListener('click', function() {
-        if (isOpen) {
-            closeChatbot();
-        } else {
-            openChatbot();
-        }
-    });
-    
-    chatbotClose.addEventListener('click', closeChatbot);
-    
-    // Language toggle
-    languageToggle.addEventListener('click', function() {
-        currentLanguage = currentLanguage === 'en' ? 'tl' : 'en';
-        updateLanguage();
-    });
-    
-    function updateLanguage() {
-        const lang = translations[currentLanguage];
-        chatbotTitle.textContent = lang.title;
-        welcomeMessage.innerHTML = lang.welcome;
-        chatbotInput.placeholder = lang.placeholder;
-        languageToggle.textContent = lang.langButton;
-        
-        // Update global variable
-        window.chatbotLanguage = currentLanguage;
-    }
-    
-    function openChatbot() {
-        chatbotWindow.style.display = 'flex';
-        isOpen = true;
-        chatbotInput.focus();
-    }
-    
-    function closeChatbot() {
-        // If we were in admin mode, stop polling and close session
-        if (currentMode === 'admin' && currentChatSessionId) {
-            stopPolling();
-            // Close the session on the server
-            fetch(`/api/live-chat/close/${currentChatSessionId}`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                }
-            });
-            currentChatSessionId = null;
-            lastMessageId = 0;
-        }
-        
-        chatbotWindow.style.display = 'none';
-        isOpen = false;
-    }
-    
-    // Send message
-    chatbotSend.addEventListener('click', sendMessage);
-    chatbotInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage();
-        }
-    });
-    
-    // Auto-resize textarea
-    chatbotInput.addEventListener('input', function() {
-        this.style.height = 'auto';
-        this.style.height = Math.min(this.scrollHeight, 80) + 'px';
-    });
-    
-    async function sendMessage() {
-        const message = chatbotInput.value.trim();
-        if (!message) return;
-        
-        // Add user message
-        addMessage(message, 'user');
-        chatbotInput.value = '';
-        chatbotInput.style.height = 'auto';
-        
-        // Hide satisfaction check if visible
-        hideSatisfactionCheck();
-        hideEscalationPrompt();
-        
-        // Show typing indicator
-        showTyping();
-        
-        // Disable send button
-        chatbotSend.disabled = true;
-        
-        try {
-            if (currentMode === 'admin') {
-                // Admin mode - send to admin chat endpoint
-                await handleAdminChat(message);
-                chatbotSend.disabled = false;
-                return;
+    bindEvents() {
+        this.toggle.addEventListener('click', () => this.toggleChat());
+        this.close.addEventListener('click', () => this.closeChat());
+        this.send.addEventListener('click', () => this.sendMessage());
+        this.input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                this.sendMessage();
             }
-            
-            // Check if user is asking about document requests
-            if (isDocumentRequest(message)) {
-                hideTyping();
-                showDocumentRequestOptions();
-                showSatisfactionCheckDelayed();
-                chatbotSend.disabled = false;
-                return;
-            }
-            
-            // Check if user is asking about complaint filing
-            if (isComplaintRequest(message)) {
-                hideTyping();
-                showComplaintRequestOptions();
-                showSatisfactionCheckDelayed();
-                chatbotSend.disabled = false;
-                return;
-            }
-            
-            // Check if user is asking about Barangay ID
-            if (isBarangayIdRequest(message)) {
-                hideTyping();
-                showBarangayIdOptions();
-                showSatisfactionCheckDelayed();
-                chatbotSend.disabled = false;
-                return;
-            }
-            
-            // Check if user is asking about location
-            if (isLocationRequest(message)) {
-                hideTyping();
-                showLocationInfo();
-                showSatisfactionCheckDelayed();
-                chatbotSend.disabled = false;
-                return;
-            }
-            
-            // Check if user is asking about office hours
-            if (isOfficeHoursRequest(message)) {
-                hideTyping();
-                showOfficeHoursInfo();
-                showSatisfactionCheckDelayed();
-                chatbotSend.disabled = false;
-                return;
-            }
-            
-            // Check if user is asking about contact details
-            if (isContactRequest(message)) {
-                hideTyping();
-                showContactInfo();
-                showSatisfactionCheckDelayed();
-                chatbotSend.disabled = false;
-                return;
-            }
-
-            const response = await fetch('/api/chatbot/chat', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({
-                    message: message,
-                    language: currentLanguage
-                })
-            });
-            
-            const data = await response.json();
-            
-            // Hide typing indicator
-            hideTyping();
-            
-            if (data.success) {
-                lastBotResponse = data.response;
-                addMessage(data.response, 'bot');
-                conversationHistory.push({ role: 'user', content: message });
-                conversationHistory.push({ role: 'bot', content: data.response });
-                
-                // Show satisfaction check after bot response
-                showSatisfactionCheckDelayed();
-            } else {
-                const errorMsg = currentLanguage === 'en' 
-                    ? 'Sorry, I encountered an error. Please try again.'
-                    : 'Pasensya na, may problema ako. Subukan ulit.';
-                addMessage(errorMsg, 'bot');
-            }
-        } catch (error) {
-            console.error('Chat error:', error);
-            hideTyping();
-            const errorMsg = currentLanguage === 'en' 
-                ? 'Sorry, I\'m having trouble connecting. Please try again later.'
-                : 'Pasensya na, may problema sa koneksyon. Subukan mo ulit mamaya.';
-            addMessage(errorMsg, 'bot');
-        } finally {
-            chatbotSend.disabled = false;
-        }
-    }    function isDocumentRequest(message) {
-        const englishKeywords = ['document', 'request', 'certificate', 'clearance', 'residency', 'indigency', 'how to request'];
-        const tagalogKeywords = ['dokumento', 'humingi', 'sertipiko', 'clearance', 'residensya', 'indigency', 'paano mag-request', 'paano humiling'];
-        
-        const lowerMessage = message.toLowerCase();
-        const allKeywords = [...englishKeywords, ...tagalogKeywords];
-        
-        return allKeywords.some(keyword => lowerMessage.includes(keyword));
-    }
-    
-    function isComplaintRequest(message) {
-        const englishKeywords = ['complaint', 'file complaint', 'complain', 'report', 'how to file', 'how to complain'];
-        const tagalogKeywords = ['reklamo', 'mag-reklamo', 'magfile ng reklamo', 'paano mag-file', 'paano mag-complain', 'paano mag-reklamo', 'sumbong'];
-        
-        const lowerMessage = message.toLowerCase();
-        const allKeywords = [...englishKeywords, ...tagalogKeywords];
-        
-        return allKeywords.some(keyword => lowerMessage.includes(keyword));
-    }
-    
-    function isBarangayIdRequest(message) {
-        const englishKeywords = ['barangay id', 'get barangay id', 'how to get barangay id', 'barangay identification', 'resident id', 'how to get id'];
-        const tagalogKeywords = ['barangay id', 'paano makakuha ng barangay id', 'paano kumuha ng barangay id', 'id ng barangay', 'resident id'];
-        
-        const lowerMessage = message.toLowerCase();
-        const allKeywords = [...englishKeywords, ...tagalogKeywords];
-        
-        return allKeywords.some(keyword => lowerMessage.includes(keyword));
-    }
-    
-    function isLocationRequest(message) {
-        const englishKeywords = ['location', 'where is', 'address', 'barangay hall location', 'where can i find', 'saan ang'];
-        const tagalogKeywords = ['saan', 'address', 'lokasyon', 'nasaan', 'saan pwede', 'kung saan'];
-        
-        const lowerMessage = message.toLowerCase();
-        const allKeywords = [...englishKeywords, ...tagalogKeywords];
-        
-        return allKeywords.some(keyword => lowerMessage.includes(keyword));
-    }
-    
-    function isOfficeHoursRequest(message) {
-        const englishKeywords = ['office hours', 'what time', 'operating hours', 'open', 'close', 'schedule', 'anong oras'];
-        const tagalogKeywords = ['oras', 'anong oras', 'bukas', 'sarado', 'schedule', 'kailan bukas'];
-        
-        const lowerMessage = message.toLowerCase();
-        const allKeywords = [...englishKeywords, ...tagalogKeywords];
-        
-        return allKeywords.some(keyword => lowerMessage.includes(keyword));
-    }
-    
-    function isContactRequest(message) {
-        const englishKeywords = ['contact', 'phone number', 'call', 'telephone', 'number', 'contact details'];
-        const tagalogKeywords = ['contact', 'numero', 'telepono', 'tawagan', 'contact number'];
-        
-        const lowerMessage = message.toLowerCase();
-        const allKeywords = [...englishKeywords, ...tagalogKeywords];
-        
-        return allKeywords.some(keyword => lowerMessage.includes(keyword));
-    }
-    
-    function showDocumentRequestOptions() {
-        const optionsHtml = currentLanguage === 'en' ? `
-            <div class="suggestion-box">
-                <div class="suggestion-title">How would you like to request documents?</div>
-                <div class="suggestion-buttons">
-                    <button class="suggestion-btn" onclick="handleDocumentOption('online')">
-                        <i class="fas fa-laptop"></i>
-                        Online Request
-                    </button>
-                    <button class="suggestion-btn" onclick="handleDocumentOption('walkin')">
-                        <i class="fas fa-walking"></i>
-                        Walk-in Request
-                    </button>
-                </div>
-            </div>
-        ` : `
-            <div class="suggestion-box">
-                <div class="suggestion-title">Paano ninyo gustong mag-request ng mga dokumento?</div>
-                <div class="suggestion-buttons">
-                    <button class="suggestion-btn" onclick="handleDocumentOption('online')">
-                        <i class="fas fa-laptop"></i>
-                        Online Request
-                    </button>
-                    <button class="suggestion-btn" onclick="handleDocumentOption('walkin')">
-                        <i class="fas fa-walking"></i>
-                        Walk-in Request
-                    </button>
-                </div>
-            </div>
-        `;
-        
-        addMessage(optionsHtml, 'bot');
-    }
-    
-    function showComplaintRequestOptions() {
-        const optionsHtml = currentLanguage === 'en' ? `
-            <div class="suggestion-box">
-                <div class="suggestion-title">How would you like to file a complaint?</div>
-                <div class="suggestion-buttons">
-                    <button class="suggestion-btn" onclick="handleComplaintOption('online')">
-                        <i class="fas fa-laptop"></i>
-                        Online Complaint
-                    </button>
-                    <button class="suggestion-btn" onclick="handleComplaintOption('walkin')">
-                        <i class="fas fa-walking"></i>
-                        Walk-in Complaint
-                    </button>
-                </div>
-            </div>
-        ` : `
-            <div class="suggestion-box">
-                <div class="suggestion-title">Paano ninyo gustong mag-file ng reklamo?</div>
-                <div class="suggestion-buttons">
-                    <button class="suggestion-btn" onclick="handleComplaintOption('online')">
-                        <i class="fas fa-laptop"></i>
-                        Online Complaint
-                    </button>
-                    <button class="suggestion-btn" onclick="handleComplaintOption('walkin')">
-                        <i class="fas fa-walking"></i>
-                        Walk-in Complaint
-                    </button>
-                </div>
-            </div>
-        `;
-        
-        addMessage(optionsHtml, 'bot');
-    }
-    
-    function showBarangayIdOptions() {
-        const optionsHtml = currentLanguage === 'en' ? `
-            <div class="suggestion-box">
-                <div class="suggestion-title">How would you like to get your Barangay ID?</div>
-                <div class="suggestion-buttons">
-                    <button class="suggestion-btn" onclick="handleBarangayIdOption('online')">
-                        <i class="fas fa-laptop"></i>
-                        Online Pre-Registration
-                    </button>
-                    <button class="suggestion-btn" onclick="handleBarangayIdOption('walkin')">
-                        <i class="fas fa-walking"></i>
-                        Walk-in Application
-                    </button>
-                </div>
-            </div>
-        ` : `
-            <div class="suggestion-box">
-                <div class="suggestion-title">Paano ninyo gustong makuha ang inyong Barangay ID?</div>
-                <div class="suggestion-buttons">
-                    <button class="suggestion-btn" onclick="handleBarangayIdOption('online')">
-                        <i class="fas fa-laptop"></i>
-                        Online Pre-Registration
-                    </button>
-                    <button class="suggestion-btn" onclick="handleBarangayIdOption('walkin')">
-                        <i class="fas fa-walking"></i>
-                        Walk-in Application
-                    </button>
-                </div>
-            </div>
-        `;
-        
-        addMessage(optionsHtml, 'bot');
-    }
-    
-    function showLocationInfo() {
-        const locationInfo = currentLanguage === 'en' ? `
-            <strong>📍 Barangay Hall Location:</strong><br><br>
-            <strong>Address:</strong><br>
-            Barangay Lumanglipa Hall<br>
-            Mataas na Kahoy, Batangas<br><br>
-            <strong>Landmarks:</strong><br>
-            • Near the main road<br>
-            • Across from the elementary school<br>
-            • Next to the health center<br><br>
-            <em>You can also ask for directions from locals in the area.</em>
-        ` : `
-            <strong>📍 Lokasyon ng Barangay Hall:</strong><br><br>
-            <strong>Address:</strong><br>
-            Barangay Lumanglipa Hall<br>
-            Mataas na Kahoy, Batangas<br><br>
-            <strong>Mga Landmark:</strong><br>
-            • Malapit sa main road<br>
-            • Tapat ng elementary school<br>
-            • Katabi ng health center<br><br>
-            <em>Pwede rin kayong magtanong sa mga tao sa lugar para sa directions.</em>
-        `;
-        
-        addMessage(locationInfo, 'bot');
-    }
-    
-    function showOfficeHoursInfo() {
-        const hoursInfo = currentLanguage === 'en' ? `
-            <strong>🕒 Barangay Office Hours:</strong><br><br>
-            <strong>Regular Days:</strong><br>
-            Monday - Friday<br>
-            8:00 AM - 5:00 PM<br><br>
-            <strong>Lunch Break:</strong><br>
-            12:00 PM - 1:00 PM<br><br>
-            <strong>Weekends:</strong><br>
-            Saturday & Sunday - CLOSED<br><br>
-            <strong>Holidays:</strong><br>
-            Closed on national and local holidays<br><br>
-            <em>For emergency concerns, you may contact our hotline.</em>
-        ` : `
-            <strong>🕒 Oras ng Barangay Office:</strong><br><br>
-            <strong>Regular na Araw:</strong><br>
-            Lunes - Biyernes<br>
-            8:00 AM - 5:00 PM<br><br>
-            <strong>Lunch Break:</strong><br>
-            12:00 PM - 1:00 PM<br><br>
-            <strong>Weekends:</strong><br>
-            Sabado & Linggo - SARADO<br><br>
-            <strong>Mga Holiday:</strong><br>
-            Sarado sa national at local holidays<br><br>
-            <em>Para sa emergency, pwede kayong tumawag sa aming hotline.</em>
-        `;
-        
-        addMessage(hoursInfo, 'bot');
-    }
-    
-    function showContactInfo() {
-        const contactInfo = currentLanguage === 'en' ? `
-            <strong>📞 Barangay Contact Information:</strong><br><br>
-            <strong>Mobile Number:</strong><br>
-            0917-123-4567<br><br>
-            <strong>Landline:</strong><br>
-            (043) 456-7890<br><br>
-            <strong>Email Address:</strong><br>
-            barangay.lumanglipa@gmail.com<br><br>
-            <strong>Facebook Page:</strong><br>
-            @BarangayLumanglipa<br><br>
-            <strong>Emergency Hotline:</strong><br>
-            0918-987-6543<br><br>
-            <em>Available 24/7 for emergency concerns only.</em>
-        ` : `
-            <strong>📞 Contact Information ng Barangay:</strong><br><br>
-            <strong>Mobile Number:</strong><br>
-            0917-123-4567<br><br>
-            <strong>Landline:</strong><br>
-            (043) 456-7890<br><br>
-            <strong>Email Address:</strong><br>
-            barangay.lumanglipa@gmail.com<br><br>
-            <strong>Facebook Page:</strong><br>
-            @BarangayLumanglipa<br><br>
-            <strong>Emergency Hotline:</strong><br>
-            0918-987-6543<br><br>
-            <em>Available 24/7 para sa emergency concerns lang.</em>
-        `;
-        
-        addMessage(contactInfo, 'bot');
-    }
-    
-    function formatTime(date) {
-        return date.toLocaleTimeString('en-US', {
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true
         });
     }
 
-    function addMessage(text, sender) {
+    toggleChat() {
+        if (this.isOpen) {
+            this.closeChat();
+        } else {
+            this.openChat();
+        }
+    }
+
+    openChat() {
+        this.window.classList.add('active');
+        this.isOpen = true;
+        this.input.focus();
+        
+        // Hide pulse animation when opened
+        const pulse = this.toggle.querySelector('.chatbot-pulse');
+        if (pulse) pulse.style.display = 'none';
+    }
+
+    closeChat() {
+        this.window.classList.remove('active');
+        this.isOpen = false;
+        
+        // Show pulse animation when closed
+        const pulse = this.toggle.querySelector('.chatbot-pulse');
+        if (pulse) pulse.style.display = 'block';
+    }
+
+    sendMessage() {
+        const message = this.input.value.trim();
+        if (!message || this.isTyping) return;
+
+        this.addMessage(message, 'user');
+        this.input.value = '';
+        this.send.disabled = true;
+        
+        this.showTyping();
+        setTimeout(() => {
+            this.hideTyping();
+            this.processMessage(message);
+            this.send.disabled = false;
+        }, 1500 + Math.random() * 1000);
+    }
+
+    addMessage(content, sender) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${sender}`;
         
+        const avatar = document.createElement('div');
+        avatar.className = 'message-avatar';
+        avatar.innerHTML = sender === 'bot' ? '<i class="fas fa-robot"></i>' : '<i class="fas fa-user"></i>';
+        
         const messageContent = document.createElement('div');
-        messageContent.innerHTML = text;
+        messageContent.className = 'message-content';
+        messageContent.innerHTML = content;
         
-        const timestamp = document.createElement('div');
-        timestamp.className = 'message-timestamp';
-        timestamp.textContent = formatTime(new Date());
-        
+        messageDiv.appendChild(avatar);
         messageDiv.appendChild(messageContent);
-        messageDiv.appendChild(timestamp);
         
-        chatbotMessages.appendChild(messageDiv);
-        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        this.messages.appendChild(messageDiv);
+        
+        // Add event listeners to any buttons in the message
+        this.attachButtonListeners(messageDiv);
+        
+        this.scrollToBottom();
     }
-    
-    function showTyping() {
-        typingIndicator.style.display = 'flex';
-        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
-    }
-    
-    function hideTyping() {
-        typingIndicator.style.display = 'none';
-    }
-    
-    // Make functions available globally
-    window.addChatMessage = addMessage;
-    window.showChatTyping = showTyping;
-    window.hideChatTyping = hideTyping;
-    
-    window.showOnlineInstructions = function() {
-        const instructions = window.chatbotLanguage === 'en' ? `
-            <strong>📱 Online Document Request Instructions:</strong><br><br>
-            <strong>Step 1:</strong> Go to the navigation menu and click <strong>"eServices"</strong> then <strong>"Document Request"</strong><br><br>
-            <strong>📝 Important Note:</strong> You need a <strong>Barangay ID/Resident ID</strong> to proceed.<br>
-            • If you don't have one, visit the barangay office first to get your ID<br>
-            • OR you can <strong>pre-register</strong> by clicking <strong>"Register"</strong> in the navigation menu<br><br>
-            <strong>Step 2:</strong> Enter your <strong>Barangay ID number</strong><br><br>
-            <strong>Step 3:</strong> An <strong>OTP will be sent to your email</strong> - enter this code to verify and start your document request<br><br>
-            <strong>Step 4:</strong> Choose the <strong>document type</strong> you need and fill out the form<br><br>
-            <strong>Step 5:</strong> <strong>Upload payment receipt</strong> (₱50.00) to approve your request<br><br>
-            <strong>Step 6:</strong> Wait for processing and approval<br><br>
-            <em>💰 Fee: ₱50.00 per document | Processing time: 1-3 business days</em>
-        ` : `
-            <strong>📱 Mga Hakbang sa Online Document Request:</strong><br><br>
-            <strong>Hakbang 1:</strong> Pumunta sa navigation menu at pindutin ang <strong>"eServices"</strong> tapos <strong>"Document Request"</strong><br><br>
-            <strong>📝 Mahalagang Paalala:</strong> Kailangan ninyo ng <strong>Barangay ID/Resident ID</strong> para magpatuloy.<br>
-            • Kung wala pa kayo, puntahan muna ang barangay office para makakuha ng ID<br>
-            • O pwede kayong <strong>mag-pre-register</strong> sa pamamagitan ng pagpindot sa <strong>"Register"</strong> sa navigation menu<br><br>
-            <strong>Hakbang 2:</strong> Ilagay ang inyong <strong>Barangay ID number</strong><br><br>
-            <strong>Hakbang 3:</strong> Magpapadala ng <strong>OTP sa inyong email</strong> - ilagay ang code na ito para ma-verify at masimulan ang document request<br><br>
-            <strong>Hakbang 4:</strong> Piliin ang <strong>uri ng dokumento</strong> na kailangan ninyo at punan ang form<br><br>
-            <strong>Hakbang 5:</strong> <strong>Mag-upload ng payment receipt</strong> (₱50.00) para ma-approve ang inyong request<br><br>
-            <strong>Hakbang 6:</strong> Maghintay ng processing at approval<br><br>
-            <em>💰 Bayad: ₱50.00 bawat dokumento | Processing time: 1-3 araw ng trabaho</em>
-        `;
-        
-        addMessage(instructions, 'bot');
-    };
-    
-    window.showWalkInInstructions = function() {
-        const instructions = window.chatbotLanguage === 'en' ? `
-            <strong>🚶 Walk-in Document Request Instructions:</strong><br><br>
-            <strong>What to bring:</strong><br>
-            • Valid ID (original and photocopy)<br>
-            • Proof of residency (if needed)<br>
-            • Other requirements depending on document type<br><br>
-            <strong>Process:</strong><br>
-            <strong>Step 1:</strong> Go to Barangay Hall<br>
-            <strong>Step 2:</strong> Get application form from the secretary<br>
-            <strong>Step 3:</strong> Fill out the form completely<br>
-            <strong>Step 4:</strong> Submit form with requirements<br>
-            <strong>Step 5:</strong> Pay fees if applicable<br>
-            <strong>Step 6:</strong> Wait for processing or return on scheduled date<br><br>
-            <strong>📍 Location:</strong><br>
-            Barangay Lumanglipa Hall<br><br>
-            <strong>🕒 Office Hours:</strong><br>
-            Monday-Friday, 8:00 AM - 5:00 PM<br><br>
-            <strong>📞 Contact:</strong><br>
-            0917-123-4567<br><br>
-            <em>Processing time: Same day to 2 business days</em>
-        ` : `
-            <strong>🚶 Mga Hakbang sa Walk-in Document Request:</strong><br><br>
-            <strong>Dalhin ninyo:</strong><br>
-            • Valid ID (original at photocopy)<br>
-            • Proof of residency (kung kailangan)<br>
-            • Ibang requirements depende sa uri ng dokumento<br><br>
-            <strong>Proseso:</strong><br>
-            <strong>Hakbang 1:</strong> Pumunta sa Barangay Hall<br>
-            <strong>Hakbang 2:</strong> Kumuha ng application form sa secretary<br>
-            <strong>Hakbang 3:</strong> Punan ang form nang kumpleto<br>
-            <strong>Hakbang 4:</strong> I-submit ang form kasama ang requirements<br>
-            <strong>Hakbang 5:</strong> Magbayad ng fees kung meron<br>
-            <strong>Hakbang 6:</strong> Maghintay ng processing o bumalik sa nakatakdang araw<br><br>
-            <strong>📍 Location:</strong><br>
-            Barangay Lumanglipa Hall<br><br>
-            <strong>🕒 Office Hours:</strong><br>
-            Lunes-Biyernes, 8:00 AM - 5:00 PM<br><br>
-            <strong>📞 Contact:</strong><br>
-            0917-123-4567<br><br>
-            <em>Processing time: Same day hanggang 2 araw ng trabaho</em>
-        `;
-        
-        addMessage(instructions, 'bot');
-    };
-    
-    window.showOnlineComplaintInstructions = function() {
-        const instructions = window.chatbotLanguage === 'en' ? `
-            <strong>💻 Online Complaint Filing Instructions:</strong><br><br>
-            <strong>Step 1:</strong> Go to the navigation menu and click <strong>"eServices"</strong> then <strong>"File Complaint"</strong><br><br>
-            <strong>📝 Important Note:</strong> You need to be <strong>registered</strong> to file an online complaint.<br>
-            • If you're not registered, click <strong>"Register"</strong> in the navigation menu first<br><br>
-            <strong>Step 2:</strong> <strong>Login</strong> to your account<br><br>
-            <strong>Step 3:</strong> Select the <strong>type of complaint</strong> you want to file<br><br>
-            <strong>Step 4:</strong> Fill out the complaint form with detailed information:<br>
-            • Description of the issue<br>
-            • Date and time of incident<br>
-            • Location where it occurred<br>
-            • Any witnesses (if applicable)<br><br>
-            <strong>Step 5:</strong> Upload supporting documents or evidence (if any)<br><br>
-            <strong>Step 6:</strong> Submit your complaint<br><br>
-            <strong>Step 7:</strong> You will receive a complaint reference number for tracking<br><br>
-            <em>📝 Processing time: 1-3 business days | You will be notified via email for updates</em>
-        ` : `
-            <strong>💻 Mga Hakbang sa Online Complaint Filing:</strong><br><br>
-            <strong>Hakbang 1:</strong> Pumunta sa navigation menu at pindutin ang <strong>"eServices"</strong> tapos <strong>"File Complaint"</strong><br><br>
-            <strong>📝 Mahalagang Paalala:</strong> Kailangan kayong <strong>naka-register</strong> para mag-file ng online complaint.<br>
-            • Kung hindi pa kayo registered, pindutin muna ang <strong>"Register"</strong> sa navigation menu<br><br>
-            <strong>Hakbang 2:</strong> <strong>Mag-login</strong> sa inyong account<br><br>
-            <strong>Hakbang 3:</strong> Piliin ang <strong>uri ng reklamo</strong> na gusto ninyong i-file<br><br>
-            <strong>Hakbang 4:</strong> Punan ang complaint form nang detalyado:<br>
-            • Paglalarawan ng problema<br>
-            • Petsa at oras ng pangyayari<br>
-            • Lugar kung saan nangyari<br>
-            • Mga saksi (kung meron)<br><br>
-            <strong>Hakbang 5:</strong> Mag-upload ng mga supporting documents o ebidensya (kung meron)<br><br>
-            <strong>Hakbang 6:</strong> I-submit ang inyong reklamo<br><br>
-            <strong>Hakbang 7:</strong> Makakakuha kayo ng complaint reference number para sa tracking<br><br>
-            <em>📝 Processing time: 1-3 araw ng trabaho | Makakakuha kayo ng notification sa email</em>
-        `;
-        
-        addMessage(instructions, 'bot');
-    };
-    
-    window.showWalkInComplaintInstructions = function() {
-        const instructions = window.chatbotLanguage === 'en' ? `
-            <strong>🚶 Walk-in Complaint Filing Instructions:</strong><br><br>
-            <strong>What to bring:</strong><br>
-            • Valid ID (original and photocopy)<br>
-            • Supporting documents or evidence (if any)<br>
-            • Written statement of the complaint<br><br>
-            <strong>Process:</strong><br>
-            <strong>Step 1:</strong> Go to Barangay Hall<br>
-            <strong>Step 2:</strong> Approach the secretary or duty officer<br>
-            <strong>Step 3:</strong> Request for a complaint form<br>
-            <strong>Step 4:</strong> Fill out the complaint form completely with:<br>
-            • Your personal information<br>
-            • Detailed description of the complaint<br>
-            • Date, time, and location of incident<br>
-            • Names of witnesses (if any)<br><br>
-            <strong>Step 5:</strong> Submit the form with supporting documents<br>
-            <strong>Step 6:</strong> Receive a complaint reference number<br>
-            <strong>Step 7:</strong> Wait for the barangay officials to schedule hearing<br><br>
-            <strong>📍 Location:</strong><br>
-            Barangay Lumanglipa Hall<br><br>
-            <strong>🕒 Office Hours:</strong><br>
-            Monday-Friday, 8:00 AM - 5:00 PM<br><br>
-            <strong>📞 Contact:</strong><br>
-            0917-123-4567<br><br>
-            <em>Processing time: 1-3 business days | You will be contacted for hearing</em>
-        ` : `
-            <strong>🚶 Mga Hakbang sa Walk-in Complaint Filing:</strong><br><br>
-            <strong>Dalhin ninyo:</strong><br>
-            • Valid ID (original at photocopy)<br>
-            • Supporting documents o ebidensya (kung meron)<br>
-            • Nakasulat na statement ng reklamo<br><br>
-            <strong>Proseso:</strong><br>
-            <strong>Hakbang 1:</strong> Pumunta sa Barangay Hall<br>
-            <strong>Hakbang 2:</strong> Lapitan ang secretary o duty officer<br>
-            <strong>Hakbang 3:</strong> Humingi ng complaint form<br>
-            <strong>Hakbang 4:</strong> Punan ang complaint form nang kumpleto:<br>
-            • Inyong personal information<br>
-            • Detalyadong paglalarawan ng reklamo<br>
-            • Petsa, oras, at lugar ng pangyayari<br>
-            • Mga pangalan ng saksi (kung meron)<br><br>
-            <strong>Hakbang 5:</strong> I-submit ang form kasama ang supporting documents<br>
-            <strong>Hakbang 6:</strong> Makakakuha ng complaint reference number<br>
-            <strong>Hakbang 7:</strong> Maghintay na i-schedule ng barangay officials ang hearing<br><br>
-            <strong>📍 Location:</strong><br>
-            Barangay Lumanglipa Hall<br><br>
-            <strong>🕒 Office Hours:</strong><br>
-            Lunes-Biyernes, 8:00 AM - 5:00 PM<br><br>
-            <strong>📞 Contact:</strong><br>
-            0917-123-4567<br><br>
-            <em>Processing time: 1-3 araw ng trabaho | Makakakuha kayo ng tawag para sa hearing</em>
-        `;
-        
-        addMessage(instructions, 'bot');
-    };
-    
-    window.showOnlineBarangayIdInstructions = function() {
-        const instructions = window.chatbotLanguage === 'en' ? `
-            <strong>💻 Online Barangay ID Pre-Registration Instructions:</strong><br><br>
-            <strong>Step 1:</strong> Go to the navigation menu and click <strong>"Register"</strong><br><br>
-            <strong>Step 2:</strong> Fill out the registration form with your complete information.<br><br>
-            <strong>Step 3:</strong> Submit your registration form<br><br>
-            <strong>Step 4:</strong> Wait for admin approval<br><br>
-            <strong>Step 5:</strong> You will receive an email notification when your registration is approved<br><br>
-            <strong>Step 6:</strong> Your Barangay ID will be ready for release upon approval<br><br>
-            <strong>✅ Benefits of Barangay ID:</strong><br>
-            • Verifies your residency in the barangay<br>
-            • Allows access to online services and document requests<br>
-            • Required for most barangay transactions<br><br>
-            <em>📧 Processing time: 1-3 business days | Email notification upon approval</em>
-        ` : `
-            <strong>💻 Mga Hakbang sa Online Barangay ID Pre-Registration:</strong><br><br>
-            <strong>Hakbang 1:</strong> Pumunta sa navigation menu at pindutin ang <strong>"Register"</strong><br><br>
-            <strong>Hakbang 2:</strong> Punan ang registration form ng kumpleto:<br><br>
-            <strong>Hakbang 3:</strong> I-submit ang registration form<br><br>
-            <strong>Hakbang 4:</strong> Maghintay ng admin approval<br><br>
-            <strong>Hakbang 5:</strong> Makatanggap ng email notification kapag na-approve na ang registration<br><br>
-            <strong>Hakbang 6:</strong> Handa na ang inyong Barangay ID para sa release<br><br>
-            <strong>✅ Mga Benepisyo ng Barangay ID:</strong><br>
-            • Nagpapatunay na residente kayo ng barangay<br>
-            • Nagbibigay ng access sa online services at document requests<br>
-            • Kailangan sa karamihan ng barangay transactions<br><br>
-            <em>📧 Processing time: 1-3 araw ng trabaho | Email notification kapag approved na</em>
-        `;
-        
-        addMessage(instructions, 'bot');
-    };
-    
-    window.showWalkInBarangayIdInstructions = function() {
-        const instructions = window.chatbotLanguage === 'en' ? `
-            <strong>🚶 Walk-in Barangay ID Application Instructions:</strong><br><br>
-            <strong>What to bring:</strong><br>
-            • Valid government-issued ID (original and photocopy)<br>
-            • Proof of residency (utility bills, rental contract, etc.)<br>
-            • 2x2 ID pictures (2 pieces)<br>
-            • Cedula or Community Tax Certificate<br><br>
-            <strong>Process:</strong><br>
-            <strong>Step 1:</strong> Go to Barangay Hall<br>
-            <strong>Step 2:</strong> Approach the secretary or duty officer<br>
-            <strong>Step 3:</strong> Request for Barangay ID application form<br>
-            <strong>Step 4:</strong> Fill out the application form completely<br>
-            <strong>Step 5:</strong> Submit the form with all required documents<br>
-            <strong>Step 6:</strong> Pay the processing fee (if applicable)<br>
-            <strong>Step 7:</strong> Wait for processing or return on scheduled date<br><br>
-            <strong>✅ Benefits of Barangay ID:</strong><br>
-            • Verifies your residency in the barangay<br>
-            • Allows access to online services and document requests<br>
-            • Required for most barangay transactions<br><br>
-            <strong>📍 Location:</strong><br>
-            Barangay Lumanglipa Hall<br><br>
-            <strong>🕒 Office Hours:</strong><br>
-            Monday-Friday, 8:00 AM - 5:00 PM<br><br>
-            <strong>📞 Contact:</strong><br>
-            0917-123-4567<br><br>
-            <em>Processing time: 3-7 business days | Same day if all requirements are complete</em>
-        ` : `
-            <strong>🚶 Mga Hakbang sa Walk-in Barangay ID Application:</strong><br><br>
-            <strong>Dalhin ninyo:</strong><br>
-            • Valid government-issued ID (original at photocopy)<br>
-            • Proof of residency (utility bills, rental contract, atbp.)<br>
-            • 2x2 ID pictures (2 piraso)<br>
-            • Cedula o Community Tax Certificate<br><br>
-            <strong>Proseso:</strong><br>
-            <strong>Hakbang 1:</strong> Pumunta sa Barangay Hall<br>
-            <strong>Hakbang 2:</strong> Lapitan ang secretary o duty officer<br>
-            <strong>Hakbang 3:</strong> Humingi ng Barangay ID application form<br>
-            <strong>Hakbang 4:</strong> Punan ang application form nang kumpleto<br>
-            <strong>Hakbang 5:</strong> I-submit ang form kasama lahat ng required documents<br>
-            <strong>Hakbang 6:</strong> Magbayad ng processing fee (kung meron)<br>
-            <strong>Hakbang 7:</strong> Maghintay ng processing o bumalik sa nakatakdang araw<br><br>
-            <strong>✅ Mga Benepisyo ng Barangay ID:</strong><br>
-            • Nagpapatunay na residente kayo ng barangay<br>
-            • Nagbibigay ng access sa online services at document requests<br>
-            • Kailangan sa karamihan ng barangay transactions<br><br>
-            <strong>📍 Location:</strong><br>
-            Barangay Lumanglipa Hall<br><br>
-            <strong>🕒 Office Hours:</strong><br>
-            Lunes-Biyernes, 8:00 AM - 5:00 PM<br><br>
-            <strong>📞 Contact:</strong><br>
-            0917-123-4567<br><br>
-            <em>Processing time: 3-7 araw ng trabaho | Same day kung kumpleto ang requirements</em>
-        `;
-        
-        addMessage(instructions, 'bot');
-    };
-    
-    // Satisfaction checking functions
-    function showSatisfactionCheckDelayed() {
-        setTimeout(() => {
-            showSatisfactionCheck();
-        }, 1500);
-    }
-    
-    function showSatisfactionCheck() {
-        const satisfactionCheck = document.getElementById('satisfactionCheck');
-        const satisfactionText = document.getElementById('satisfactionText');
-        
-        satisfactionText.textContent = currentLanguage === 'en' 
-            ? 'Was this response helpful?' 
-            : 'Nakatulong ba ang sagot na ito?';
-            
-        satisfactionCheck.style.display = 'block';
-        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
-    }
-    
-    function hideSatisfactionCheck() {
-        const satisfactionCheck = document.getElementById('satisfactionCheck');
-        satisfactionCheck.style.display = 'none';
-    }
-    
-    function hideEscalationPrompt() {
-        const escalationPrompt = document.getElementById('escalationPrompt');
-        escalationPrompt.style.display = 'none';
-    }
-    
-    // Admin chat handling
-    let currentChatSessionId = null;
-    let lastMessageId = 0;
-    let isPolling = false;
-    
-    async function handleAdminChat(message) {
-        conversationHistory.push({ role: 'user', content: message });
-        
-        try {
-            // If no session exists, escalate to admin first
-            if (!currentChatSessionId) {
-                const escalateResponse = await fetch('/api/live-chat/escalate', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({
-                        user_message: message,
-                        conversation_history: conversationHistory,
-                        language: currentLanguage
-                    })
-                });
+
+    attachButtonListeners(messageElement) {
+        const buttons = messageElement.querySelectorAll('.quick-action-btn');
+        buttons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 
-                const escalateData = await escalateResponse.json();
+                const buttonText = button.textContent.trim();
                 
-                if (escalateData.success) {
-                    currentChatSessionId = escalateData.session_id;
-                    addMessage(escalateData.message, 'admin');
-                    startPollingForMessages();
-                } else {
-                    throw new Error('Failed to escalate to admin');
-                }
-            } else {
-                // Send message to existing session
-                const response = await fetch('/api/live-chat/send-message', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({
-                        session_id: currentChatSessionId,
-                        message: message
-                    })
-                });
+                // Add user message for the button clicked
+                this.addMessage(buttonText, 'user');
                 
-                const data = await response.json();
-                if (!data.success) {
-                    throw new Error('Failed to send message');
+                // Handle service choice buttons
+                const service = button.getAttribute('data-service');
+                const method = button.getAttribute('data-method');
+                const action = button.getAttribute('data-action');
+                
+                if (service && method) {
+                    this.showTyping();
+                    setTimeout(() => {
+                        this.hideTyping();
+                        const response = this.handleServiceChoice(service, method);
+                        this.addMessage(response, 'bot');
+                    }, 1000);
+                    return;
                 }
-            }
-            
-            hideTyping();
-            
-        } catch (error) {
-            hideTyping();
-            const errorMsg = currentLanguage === 'en'
-                ? 'Connection to admin failed. Please try again later.'
-                : 'Hindi makontak ang admin. Subukan mo ulit mamaya.';
-            addMessage(errorMsg, 'admin');
-        }
-    }
-    
-    function startPollingForMessages() {
-        if (isPolling || !currentChatSessionId) return;
-        
-        isPolling = true;
-        pollForNewMessages();
-    }
-    
-    async function pollForNewMessages() {
-        if (!currentChatSessionId) {
-            isPolling = false;
-            return;
-        }
-        
-        try {
-            const response = await fetch(`/api/live-chat/messages/${currentChatSessionId}?last_message_id=${lastMessageId}`, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json'
+
+                // Handle specific actions
+                if (action) {
+                    this.showTyping();
+                    setTimeout(() => {
+                        this.hideTyping();
+                        let response = '';
+                        switch(action) {
+                            case 'barangay-id':
+                                response = this.generateResponse('barangay id requirements');
+                                break;
+                            case 'what-is-barangay-id':
+                                response = this.getBarangayIdInfo();
+                                break;
+                            case 'get-barangay-id':
+                                response = this.getBarangayIdOptions();
+                                break;
+                            case 'document-types':
+                                response = this.getDocumentTypesInfo();
+                                break;
+                            case 'emergency':
+                                response = this.generateResponse('emergency');
+                                break;
+                            case 'complaint-types':
+                                response = this.generateResponse('complaint types');
+                                break;
+                            case 'requirements':
+                                response = this.getGeneralRequirements();
+                                break;
+                            default:
+                                response = this.generateResponse(action);
+                        }
+                        this.addMessage(response, 'bot');
+                    }, 1000);
+                    return;
                 }
-            });
-            
-            const data = await response.json();
-            
-            if (data.success && data.messages.length > 0) {
-                data.messages.forEach(message => {
-                    if (message.sender_type === 'admin' || message.sender_type === 'system') {
-                        addMessage(message.message, 'admin');
-                        conversationHistory.push({ role: 'admin', content: message.message });
+                
+                // Handle other button actions
+                const onclickAttr = button.getAttribute('onclick');
+                if (onclickAttr) {
+                    try {
+                        if (onclickAttr.includes('window.open')) {
+                            const urlMatch = onclickAttr.match(/window\.open\('([^']+)'/);
+                            if (urlMatch) {
+                                window.open(urlMatch[1], '_blank');
+                                this.addMessage('Opening the document request system for you! You can now proceed with your online application.', 'bot');
+                            }
+                        } else if (onclickAttr.includes('addMessage')) {
+                            const messageMatch = onclickAttr.match(/addMessage\('([^']+)',\s*'user'\)/);
+                            const processMatch = onclickAttr.match(/processMessage\('([^']+)'\)/);
+                            if (messageMatch && processMatch) {
+                                const processMsg = processMatch[1];
+                                this.showTyping();
+                                setTimeout(() => {
+                                    this.hideTyping();
+                                    this.processMessage(processMsg);
+                                }, 1000);
+                            }
+                        } else if (onclickAttr.includes('sendQuickMessage')) {
+                            const messageMatch = onclickAttr.match(/sendQuickMessage\('([^']+)'\)/);
+                            if (messageMatch) {
+                                const message = messageMatch[1];
+                                this.showTyping();
+                                setTimeout(() => {
+                                    this.hideTyping();
+                                    this.processMessage(message.toLowerCase());
+                                }, 1000);
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error executing button action:', error);
+                        this.addMessage('Sorry, there was an error processing your request. Please try again or contact our office directly.', 'bot');
                     }
-                    lastMessageId = Math.max(lastMessageId, message.id);
-                });
-            }
-        } catch (error) {
-            console.error('Polling error:', error);
-        }
-        
-        // Continue polling if still in admin mode
-        if (currentMode === 'admin' && isPolling) {
-            setTimeout(pollForNewMessages, 2000); // Poll every 2 seconds
-        } else {
-            isPolling = false;
-        }
-    }
-    
-    function stopPolling() {
-        isPolling = false;
-    }
-    
-    // Global functions for satisfaction handling
-    window.handleSatisfaction = function(satisfied) {
-        hideSatisfactionCheck();
-        
-        if (satisfied) {
-            const thankYouMsg = currentLanguage === 'en'
-                ? 'Great! I\'m glad I could help you. 😊 Is there anything else you need assistance with?'
-                : 'Salamat! Natuwa ako na nakatulong ako. 😊 May iba pa bang kailangan ninyo?';
-            addMessage(thankYouMsg, 'bot');
-        } else {
-            showEscalationPrompt();
-        }
-    };
-    
-    function showEscalationPrompt() {
-        const escalationPrompt = document.getElementById('escalationPrompt');
-        const escalationText = document.getElementById('escalationText');
-        
-        escalationText.textContent = currentLanguage === 'en'
-            ? 'I understand that wasn\'t helpful. Would you like to chat directly with an admin?'
-            : 'Naintindihan ko na hindi nakatulong ang sagot. Gusto ninyo bang makausap directly ang admin?';
-            
-        escalationPrompt.style.display = 'block';
-        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
-    }
-    
-    window.escalateToAdmin = function() {
-        hideEscalationPrompt();
-        currentMode = 'admin';
-        
-        // Reset chat session variables
-        currentChatSessionId = null;
-        lastMessageId = 0;
-        
-        // Add escalation notice
-        const escalationNotice = document.createElement('div');
-        escalationNotice.className = 'escalation-notice';
-        escalationNotice.innerHTML = currentLanguage === 'en'
-            ? '📞 Connecting you to live admin support...'
-            : '📞 Kumukonekta sa live admin support...';
-        chatbotMessages.appendChild(escalationNotice);
-        
-        // Change window appearance
-        chatbotWindow.classList.add('escalated-mode');
-        chatbotTitle.textContent = currentLanguage === 'en' 
-            ? 'Live Admin Support' 
-            : 'Live Admin Support';
-        
-        // Start typing indicator
-        showTyping();
-        
-        // Send initial message to start escalation
-        setTimeout(() => {
-            const initialMessage = currentLanguage === 'en' 
-                ? 'I need to speak with an admin regarding my previous questions.'
-                : 'Kailangan ko makausap ang admin tungkol sa mga tanong ko.';
-            handleAdminChat(initialMessage);
-        }, 1000);
-        
-        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
-    };
-    
-    window.continueChatbot = function() {
-        hideEscalationPrompt();
-        
-        // If we were in admin mode, stop polling and close session
-        if (currentMode === 'admin' && currentChatSessionId) {
-            stopPolling();
-            // Optionally close the session on the server
-            fetch(`/api/live-chat/close/${currentChatSessionId}`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 }
             });
-            currentChatSessionId = null;
-            lastMessageId = 0;
+        });
+    }
+
+    getGeneralRequirements() {
+        return `📋 **General Requirements for All Documents:**
+
+**Basic Requirements:**
+• Valid Barangay ID
+• Government-issued ID (Driver's License, Passport, etc.)
+• Cedula (Community Tax Certificate)
+• Proof of residency (Utility bill, lease contract)
+
+**For Specific Documents:**
+• **Indigency:** Income certification, Medical needs
+• **Business:** Business plan, Location clearance
+• **Good Moral:** Character references
+
+**Important Notes:**
+• All documents must be clear copies
+• Photos/scans should be readable
+• Bring originals for verification
+
+<div class="quick-actions" style="margin-top: 15px;">
+    <button class="quick-action-btn" onclick="window.open('${window.location.origin}/request-document', '_blank')">📋 Apply Now</button>
+</div>`;
+    }
+
+    getBarangayIdInfo() {
+        return `🆔 What is Barangay ID?
+
+        <br><br>    
+
+Barangay ID is your official identification as a resident of Barangay Lumanglipa.
+
+<br><br>
+
+Purpose:
+<br> <br>
+• Proof of residency in Lumanglipa Barangay
+<br>
+• Required for all barangay services and concerns
+<br>
+• Access to documents, health services, and complaints
+
+<div class="quick-actions" style="margin-top: 15px;">
+    <button class="quick-action-btn" data-action="get-barangay-id">📋 Get Barangay ID</button>
+</div>`;
+    }
+
+    getBarangayIdOptions() {
+        return `🆔 Get Barangay ID
+        <br>
+
+How would you like to get your Barangay ID?
+
+<div class="quick-actions" style="margin-top: 15px;">
+    <button class="quick-action-btn" data-service="barangay-id" data-method="online">📱 Online Application</button>
+    <button class="quick-action-btn" data-service="barangay-id" data-method="walkin">🚶 Walk-in Application</button>
+</div>`;
+    }
+
+    showTyping() {
+        this.isTyping = true;
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'typing-indicator';
+        typingDiv.id = 'typingIndicator';
+        typingDiv.innerHTML = `
+            <div class="typing-dots">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        `;
+        this.messages.appendChild(typingDiv);
+        this.scrollToBottom();
+    }
+
+    hideTyping() {
+        this.isTyping = false;
+        const typingIndicator = document.getElementById('typingIndicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
         }
+    }
+
+    processMessage(message) {
+        const response = this.generateResponse(message.toLowerCase());
+        this.addMessage(response, 'bot');
+    }
+
+    generateResponse(message) {
+        // Check for greetings
+        if (message.match(/^(hi|hello|hey|good morning|good afternoon|good evening)/i)) {
+            return "Hello! Welcome to Barangay Lumanglipa. I'm here to help you with information about our services. What would you like to know about?";
+        }
+
+        // Check knowledge base
+        for (const [keywords, response] of this.knowledgeBase) {
+            if (keywords.some(keyword => message.includes(keyword))) {
+                return response;
+            }
+        }
+
+        // Default response
+        return `I understand you're asking about "${message}". For specific inquiries about barangay services, you can:
         
-        currentMode = 'bot';
-        chatbotWindow.classList.remove('escalated-mode');
-        chatbotTitle.textContent = currentLanguage === 'en' 
-            ? 'Barangay Assistant' 
-            : 'Barangay Assistant';
+        📞 Call us at (043) 123-4567
+        📧 Email: info@lumanglipa.gov.ph
+        🏢 Visit our office: Mon-Fri, 8:00 AM - 5:00 PM
         
-        const continueMsg = currentLanguage === 'en'
-            ? 'No problem! Let me try to help you differently. 🤖<br><br>Could you please rephrase your question or tell me more specifically what you need help with?'
-            : 'Walang problema! Subukan ko kayong tulungan ng ibang paraan. 🤖<br><br>Pwede ninyo bang ulit sabihin ang tanong ninyo o mas specific na sabihin kung ano ang kailangan ninyo?';
-        addMessage(continueMsg, 'bot');
-    };
+        Is there anything else about our standard services I can help you with?`;
+    }
+
+    // Enhanced method to handle service choices
+    handleServiceChoice(service, method) {
+        if (method === 'online') {
+            return this.getOnlineGuide(service);
+        } else if (method === 'walkin') {
+            return this.getWalkInGuide(service);
+        }
+        return this.getServiceOptions(service);
+    }
+
+    getServiceOptions(service) {
+        const serviceKey = service.toLowerCase().replace(' services', '').replace(' filing', '').replace('document services', 'document').trim();
+        
+        return `How would you like to proceed with <strong>${service}</strong>?
+        
+        <div class="quick-actions" style="margin-top: 15px;">
+            <button class="quick-action-btn" data-service="${serviceKey}" data-method="online">📱 Online Service</button>
+            <button class="quick-action-btn" data-service="${serviceKey}" data-method="walkin">🚶 Walk-in Service</button>
+        </div>`;
+    }
+
+    getOnlineGuide(service) {
+        const guides = {
+            'document': `Online Document Request
+            <br><br>
+
+What you need:
+<br><br>
+
+• Barangay ID
+<br><br>
+
+1-3 Business Days for Processing
+<br><br>
+
+
+
+<div class="quick-actions" style="margin-top: 15px;">
+    <button class="quick-action-btn" onclick="window.open('${window.location.origin}/request-document', '_blank')">🚀 Request Document Now</button>
+    <button class="quick-action-btn" data-action="barangay-id">❓ Barangay ID</button>
+</div>`,
+
+            'barangay-id': `📱 Online Barangay ID Application
+            <br><br>
+
+What you need:
+<br><br>
+
+
+• Any ID
+<br>
+• Proof of Residency
+<br><br>
+
+Processing: 1-3 business days after admin approval
+<br><br>
+
+Click "Register Now" to submit your pre-application
+
+<div class="quick-actions" style="margin-top: 15px;">
+    <button class="quick-action-btn" onclick="window.open('/pre-registration', '_blank')">📝 Register Now</button>
+    <button class="quick-action-btn" data-action="what-is-barangay-id">❓ What is Barangay ID?</button>
+</div>`,
+
+            'health': `Online Health Services
+            <br><br>
+
+What you need:
+<br><br>
+
+• Barangay ID
+<br><br>
+
+Available Services: Medical consultation, Health certificates, BP monitoring
+<br><br>
+
+<div class="quick-actions" style="margin-top: 15px;">
+    <button class="quick-action-btn" onclick="window.open('${window.location.origin}/health/request', '_blank')">🩺 Request Health Service</button>
+    <button class="quick-action-btn" onclick="chatbot.addMessage('How to get Barangay ID?', 'user'); chatbot.processMessage('barangay id requirements')">🆔 Barangay ID</button>
+</div>`,
+
+            'complaint': `Online Complaint Filing
+            <br><br>
+
+What you need:
+<br><br>
+
+• Barangay ID
+<br><br>
+
+1-3 Business Days for Processing
+
+<br><br>
+
+<div class="quick-actions" style="margin-top: 15px;">
+    <button class="quick-action-btn" onclick="window.open('${window.location.origin}/complaints/file', '_blank')">📋 File Complaint Now</button>
+    <button class="quick-action-btn" onclick="chatbot.addMessage('How to get Barangay ID?', 'user'); chatbot.processMessage('barangay id requirements')">🆔 Barangay ID</button>
+</div>`
+        };
+
+        return guides[service] || this.getServiceOptions(service);
+    }
+
+    getWalkInGuide(service) {
+        const guides = {
+            'document': `🚶 Walk-in Document Request
+
+            <br>
+            <br>
+
+Location: Barangay Hall of Lumanglipa, located in Purok 1
+
+<br>
+<br>
+
+What to Bring:
+<br>
+• ✅ Barangay ID (or any valid ID if you don't have Barangay ID yet)
+
+<br>
+<br>
+Process:
+
+1. Go to Barangay Hall in Purok 1
+<br>
+2. Find the Secretary
+<br>
+3. Tell them what document you need
+<br>
+4. Fill up the form
+<br>
+5. Pay ₱50 for the document
+<br>
+6. Get your document same day
+<br>
+<br>
+
+Office Hours: Mon-Fri 8AM-5PM, Sat 8AM-12PM
+<br>
+Processing: Same day
+
+<div class="quick-actions" style="margin-top: 15px;">
+    <button class="quick-action-btn" onclick="chatbot.addMessage('office location', 'user'); chatbot.processMessage('contact location')">📍 Office Location</button>
+    <button class="quick-action-btn" onclick="chatbot.addMessage('How to get Barangay ID?', 'user'); chatbot.processMessage('barangay id requirements')">🆔 Barangay ID</button>
+</div>`,
+
+            'health': `🚶 Walk-in Health Services
+
+            <br>
+            <br>
+
+Location: Barangay Hall, Purok 1
+
+<br>
+<br>
+
+What to Bring:
+<br>
+• ✅ Barangay ID (or any valid ID if you don't have Barangay ID yet)
+
+<br>
+<br>
+Process:
+
+1. Go to Health Center in Purok 1
+<br>
+2. Tell the barangay health workers what service you need
+
+<br>
+<br>
+
+Office Hours: Mon-Fri 8AM-5PM, Sat 8AM-12PM
+
+<div class="quick-actions" style="margin-top: 15px;">
+    <button class="quick-action-btn" onclick="chatbot.addMessage('How to get Barangay ID?', 'user'); chatbot.processMessage('barangay id requirements')">🆔 Barangay ID</button>
+</div>`,
+
+            'complaint': `� Walk-in Complaint Filing
+
+            <br>
+            <br>
+
+Location: Barangay Hall of Lumanglipa, Purok 1
+
+<br>
+<br>
+
+What to Bring:
+<br>
+• ✅ Barangay ID (or any valid ID if you don't have Barangay ID yet)
+
+<br>
+<br>
+Process:
+
+1. Go to Barangay Hall in Purok 1
+<br>
+2. Find the secretary or Barangay Captain
+<br>
+3. Explain your complaint
+<br>
+4. Fill up the complaint form
+<br>
+5. Submit any evidence you have
+<br>
+<br>
+
+Office Hours: Mon-Fri 8AM-5PM, Sat 8AM-12PM
+<br>
+Response: 1-3 business days
+
+<div class="quick-actions" style="margin-top: 15px;">
+    <button class="quick-action-btn" onclick="chatbot.addMessage('How to get Barangay ID?', 'user'); chatbot.processMessage('barangay id requirements')">🆔 Barangay ID</button>
+</div>`,
+
+            'barangay-id': `🚶 Walk-in Barangay ID Application
+<br>
+<br>
+
+What to Bring:
+<br>
+
+• ✅ Any ID  
+<br>
+• ✅ Proof of Residency 
+
+<br>
+<br>
+
+Process:
+<br>
+<br>
+1. Go to secretary and ask for registration of barangay ID
+<br>
+2. Submit the ID and proof of residency
+<br>
+
+3. Wait for the processing of your barangay ID
+
+
+<br>
+<br>
+Office Hours: Mon-Fri 8AM-5PM, Sat 8AM-12PM
+
+<br>
+<br>
+
+
+
+<div class="quick-actions" style="margin-top: 15px;">
+    <button class="quick-action-btn" onclick="chatbot.addMessage('office location', 'user'); chatbot.processMessage('contact location')">📍 Office Location</button>
+    <button class="quick-action-btn" data-action="what-is-barangay-id">❓ What is Barangay ID?</button>
+</div>`
+        };
+
+        return guides[service] || this.getServiceOptions(service);
+    }
+
+    initKnowledgeBase() {
+        return new Map([
+            [['document', 'document request', 'clearance', 'certificate', 'residency', 'indigency', 'request'], 
+             this.getServiceOptions('Document Services')],
+            
+            [['health', 'health services', 'medical', 'clinic', 'medicine', 'doctor'],
+             this.getServiceOptions('Health Services')],
+            
+            [['complaint', 'file complaint', 'problem', 'issue', 'concern', 'report'],
+             this.getServiceOptions('Complaint Filing')],
+
+            [['barangay id', 'id card', 'resident id', 'identification'],
+             `
+
+What would you like to know about Barangay ID?
+
+<div class="quick-actions" style="margin-top: 15px;">
+    <button class="quick-action-btn" data-action="what-is-barangay-id">❓ What is Barangay ID?</button>
+    <button class="quick-action-btn" data-action="get-barangay-id">� Get Barangay ID</button>
+</div>`],
+
+            [['lost id', 'replace id', 'id replacement'],
+             `🔄 **Lost/Damaged Barangay ID Replacement:**
+             
+             **Requirements:**
+             • Affidavit of Loss (if lost)
+             • Valid government ID
+             • 2x2 ID picture (2 pieces)
+             • Police report (for lost ID)
+             • Replacement fee: ₱150
+             
+             **Processing Time:** 3-5 business days
+             **Temporary ID:** Available for urgent needs (₱20)
+             
+             <div class="quick-actions" style="margin-top: 15px;">
+                 <button class="quick-action-btn" onclick="chatbot.addMessage('temporary id', 'user'); chatbot.processMessage('temporary id')">⚡ Temporary ID Info</button>
+             </div>`],
+
+            [['emergency', 'urgent', '911', 'emergency contact'],
+             `🚨 **Emergency Contacts:**
+             
+             **Barangay Emergency Hotline:** (043) 123-4567
+             **Police:** 117 or (043) 456-7890
+             **Fire Department:** 116 or (043) 456-7891
+             **Medical Emergency:** 911 or (043) 456-7892
+             
+             **Barangay Emergency Response:**
+             • Available 24/7
+             • First aid response
+             • Disaster coordination
+             • Security concerns
+             
+             **For non-life threatening health issues:**
+             Walk-in to Barangay Health Center during office hours.`],
+
+            [['track complaint', 'complaint status', 'follow up'],
+             `📊 **Track Your Complaint:**
+             
+             **Online Tracking:**
+             • Use your tracking number at our complaint portal
+             • Receive SMS/email updates automatically
+             
+             **Walk-in Inquiry:**
+             • Bring your claim stub to the office
+             • Ask for status update at Complaints desk
+             
+             **Response Timeline:**
+             • Acknowledgment: Within 24 hours
+             • Initial action: 3-5 business days
+             • Resolution: 7-14 business days (depending on complexity)
+             
+             <div class="quick-actions" style="margin-top: 15px;">
+                 <button class="quick-action-btn" onclick="window.open('${window.location.origin}/complaints/track', '_blank')">🔍 Track Online</button>
+             </div>`],
+
+            [['mediation', 'conciliation', 'dispute resolution'],
+             `⚖️ **Barangay Mediation Services:**
+             
+             **Free Conciliation Services:**
+             • Neighbor disputes
+             • Property boundary issues
+             • Minor civil conflicts
+             • Family disputes
+             
+             **Process:**
+             1. File complaint
+             2. Summon both parties
+             3. Mediation session
+             4. Agreement drafting
+             5. Legal documentation
+             
+             **Benefits:**
+             • Free service
+             • Faster resolution
+             • Preserve relationships
+             • Avoid court proceedings
+             
+             **Schedule:** Every Tuesday and Thursday, 2:00 PM - 5:00 PM`],
+
+            [['complaint types', 'what complaints'],
+             `📋 **Types of Complaints We Handle:**
+             
+             **Public Order & Safety:**
+             • Noise disturbance
+             • Public nuisance
+             • Illegal activities
+             • Safety hazards
+             
+             **Property & Civil Issues:**
+             • Boundary disputes
+             • Right of way issues
+             • Property damage
+             • Rental disputes
+             
+             **Infrastructure:**
+             • Poor road conditions
+             • Drainage problems
+             • Street lighting
+             • Water supply issues
+             
+             **Environmental:**
+             • Improper waste disposal
+             • Water pollution
+             • Air quality concerns
+             
+             **Note:** Criminal cases should be reported directly to police.`],
+            
+            [['contact', 'phone', 'address', 'location', 'office'],
+             `📍 Office Location:
+             <br>
+             
+             Purok 1, Lumanglipa, Mataas na Kahoy, Batangas
+             <br>
+             <br>
+             
+             
+             Office Hours:
+             <br>
+            <br>
+             Monday-Friday: 8:00 AM - 5:00 PM
+             <br>
+             Saturday: 8:00 AM - 12:00 PM
+             <br>
+             Sunday: Closed`],
+            
+            [['schedule', 'hours', 'time', 'open', 'closed'],
+             `🕐 **Office Schedule:**
+             
+             **Regular Hours:**
+             • Monday-Friday: 8:00 AM - 5:00 PM
+             • Saturday: 8:00 AM - 12:00 PM
+             • Sunday: Closed
+             
+             **Lunch Break:** 12:00 PM - 1:00 PM
+             **Emergency Services:** 24/7 available`],
+            
+            [['officials', 'captain', 'councilor', 'barangay official'],
+             `👥 **Barangay Officials:**
+             
+             Our dedicated officials serve the community. You can learn more about them on our <a href="${window.location.origin}/about" target="_blank">About Page</a>.
+             
+             **How to reach officials:**
+             • Schedule appointment at the office
+             • Attend monthly barangay assembly
+             • Submit written concerns`],
+            
+            [['registration', 'register', 'new resident', 'move'],
+             `📋 **New Resident Registration:**
+             
+             Welcome to Barangay Lumanglipa! To register as a new resident:
+             
+             **Requirements:**
+             • Transfer Certificate/Clearance from previous barangay
+             • Valid ID
+             • Proof of address
+             
+             **Start here:** <a href="${window.location.origin}/pre-registration" target="_blank">Registration Form</a>`],
+            
+            [['thank', 'thanks', 'salamat'],
+             `You're welcome! Is there anything else you'd like to know about Barangay Lumanglipa services? I'm here to help! 😊`],
+            
+            [['bye', 'goodbye', 'see you'],
+             `Thank you for contacting Barangay Lumanglipa! Have a great day and feel free to reach out anytime you need assistance. 👋`]
+        ]);
+    }
+
+    scrollToBottom() {
+        this.messages.scrollTop = this.messages.scrollHeight;
+    }
+}
+
+// Quick message function for action buttons
+function sendQuickMessage(message) {
+    const chatbot = window.barangayChatbot;
+    if (chatbot) {
+        chatbot.addMessage(message, 'user');
+        chatbot.showTyping();
+        setTimeout(() => {
+            chatbot.hideTyping();
+            chatbot.processMessage(message.toLowerCase());
+        }, 1000);
+    }
+}
+
+// Initialize chatbot when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    window.barangayChatbot = new BarangayChatbot();
+    // Make chatbot globally accessible for button callbacks
+    window.chatbot = window.barangayChatbot;
 });
 </script>
+@endpush
+
 @endsection
