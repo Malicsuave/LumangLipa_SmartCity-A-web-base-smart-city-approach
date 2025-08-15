@@ -994,7 +994,33 @@ How would you like to get your Barangay ID?
             }
         }
 
-        // Default response
+        // Check if inquiry is related to barangay services
+        const barangayRelatedKeywords = [
+            'barangay', 'document', 'clearance', 'certificate', 'residency', 'indigency',
+            'health', 'medical', 'clinic', 'doctor', 'medicine', 'complaint', 'problem',
+            'issue', 'concern', 'report', 'captain', 'councilor', 'official', 'office',
+            'hours', 'schedule', 'contact', 'address', 'location', 'phone', 'email',
+            'registration', 'register', 'resident', 'id', 'identification', 'service',
+            'assistance', 'help', 'application', 'request', 'file', 'submit', 'process',
+            'emergency', 'urgent', 'mediation', 'conciliation', 'dispute', 'lumanglipa',
+            'mataas na kahoy', 'batangas', 'purok', 'secretary', 'requirements'
+        ];
+
+        const isBarangayRelated = barangayRelatedKeywords.some(keyword => 
+            message.toLowerCase().includes(keyword.toLowerCase())
+        );
+
+        if (!isBarangayRelated) {
+            return `Thank you for reaching out! 😊
+<br><br>
+Unfortunately, the inquiry you've made is outside the scope of our current services.
+<br><br>
+If there's anything else we can help you with or if you have questions related to our services offerings, feel free to ask!
+<br><br>
+We're here to assist you the best we can.`;
+        }
+
+        // Default response for barangay-related but unmatched queries
         return `I understand you're asking about "${message}". For specific inquiries about barangay services, you can:
         
         📞 Call us at (043) 123-4567
