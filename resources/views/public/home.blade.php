@@ -740,6 +740,15 @@ class BarangayChatbot {
         // Hide pulse animation when opened
         const pulse = this.toggle.querySelector('.chatbot-pulse');
         if (pulse) pulse.style.display = 'none';
+
+        // If strict mode and no AI key, show unavailable message once
+        const body = document.body;
+        const strict = body.getAttribute('data-chatbot-strict') === '1';
+        const hasKey = body.getAttribute('data-chatbot-has-key') === '1';
+        if (strict && !hasKey && !this._notifiedNoAI) {
+            this.addMessage('AI is unavailable right now. Please try again later or contact the barangay.', 'bot');
+            this._notifiedNoAI = true;
+        }
     }
 
     closeChat() {
@@ -755,16 +764,109 @@ class BarangayChatbot {
         const message = this.input.value.trim();
         if (!message || this.isTyping) return;
 
+        const body = document.body;
+        const strict = body.getAttribute('data-chatbot-strict') === '1';
+        const hasKey = body.getAttribute('data-chatbot-has-key') === '1';
+        if (strict && !hasKey) {
+            this.addMessage('AI is unavailable right now. Please try again later or contact the barangay.', 'bot');
+            return;
+        }
+
         this.addMessage(message, 'user');
         this.input.value = '';
         this.send.disabled = true;
         
         this.showTyping();
-        setTimeout(() => {
-            this.hideTyping();
-            this.processMessage(message);
-            this.send.disabled = false;
-        }, 1500 + Math.random() * 1000);
+        // Try real AI via backend first; on failure, fall back to local rule-based responses
+        this.askAI(message)
+            .then(aiText => {
+                this.hideTyping();
+                if (aiText) {
+                    this.addMessage(aiText, 'bot');
+                } else {
+                    this.processMessage(message);
+                }
+            })
+            .catch((err) => {
+                this.hideTyping();
+                
+                // Handle different error types with appropriate messages
+                if (err && err.message === 'strict_mode_active') {
+                    this.addMessage('AI is unavailable right now. Please try again later or contact the barangay.', 'bot');
+                } else if (err && err.message && err.message.includes('AI service')) {
+                    this.addMessage(err.message, 'bot');
+                } else if (err && err.message === 'I can only help with barangay-related questions.') {
+                    this.addMessage('I can only help with barangay-related questions. Please ask about documents, office hours, complaints, or other barangay services.', 'bot');
+                } else if (err && err.message && err.message.length > 10) {
+                    // If we have a meaningful error message from the server
+                    this.addMessage(err.message, 'bot');
+                } else {
+                    // Fallback to local processing for other errors
+                    this.processMessage(message);
+                }
+            })
+            .finally(() => {
+                this.send.disabled = false;
+            });
+    }
+
+    // Call backend Hugging Face proxy
+    async askAI(message) {
+        try {
+            const payload = {
+                message: message,
+                language: this.detectLanguage(message),
+                context: 'public'
+            };
+            
+            const res = await fetch('/api/chatbot/chat', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(payload)
+            });
+            
+            // Always try to parse JSON response
+            let data = null;
+            try {
+                data = await res.json();
+            } catch (parseError) {
+                console.error('Failed to parse response:', parseError);
+                throw new Error('Invalid response format');
+            }
+            
+            if (res.ok && data && data.success && data.response) {
+                return data.response;
+            }
+            
+            // Handle error responses with proper messages
+            if (data && data.strict) {
+                throw new Error('strict_mode_active');
+            }
+            
+            if (data && data.message) {
+                throw new Error(data.message);
+            }
+            
+            // Handle HTTP error status
+            if (!res.ok) {
+                const errorMsg = data?.error || `Server error (${res.status})`;
+                throw new Error(errorMsg);
+            }
+            
+            return '';
+        } catch (e) {
+            console.error('AI request failed:', e.message);
+            throw e;
+        }
+    }
+
+    detectLanguage(text) {
+        const t = (text || '').toLowerCase();
+        const filipinoHints = ['po', 'opo', 'barangay', 'dokumento', 'serbisyo', 'oras', 'reklamo', 'saan', 'nasaan'];
+        return filipinoHints.some(w => t.includes(w)) ? 'tl' : 'en';
     }
 
     addMessage(content, sender) {
@@ -796,6 +898,15 @@ class BarangayChatbot {
             button.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
+
+                // Block quick actions if strict mode and no AI key
+                const body = document.body;
+                const strict = body.getAttribute('data-chatbot-strict') === '1';
+                const hasKey = body.getAttribute('data-chatbot-has-key') === '1';
+                if (strict && !hasKey) {
+                    this.addMessage('AI is unavailable right now. Please try again later or contact the barangay.', 'bot');
+                    return;
+                }
                 
                 const buttonText = button.textContent.trim();
                 
