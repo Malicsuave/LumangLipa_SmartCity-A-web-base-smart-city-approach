@@ -60,6 +60,56 @@ class ChatbotController extends Controller
             ]);
         }
 
+        // Check for service option triggers BEFORE AI processing
+        $message = strtolower($userMessage);
+        
+        // For document-related queries, trigger frontend service options
+        if (strpos($message, 'document') !== false || strpos($message, 'dokumento') !== false || 
+            strpos($message, 'clearance') !== false || strpos($message, 'certificate') !== false ||
+            strpos($message, 'filing') !== false || strpos($message, 'services') !== false ||
+            strpos($message, 'service') !== false) {
+            return response()->json([
+                'success' => true, 
+                'response' => 'TRIGGER_SERVICE_OPTIONS:Document Services',
+                'trigger_frontend' => true
+            ]);
+        }
+        
+        // For health-related queries, trigger frontend health service options
+        if (strpos($message, 'health') !== false || strpos($message, 'medical') !== false || 
+            strpos($message, 'clinic') !== false || strpos($message, 'medicine') !== false ||
+            strpos($message, 'doctor') !== false || strpos($message, 'kalusugan') !== false ||
+            strpos($message, 'medisina') !== false || strpos($message, 'doktor') !== false) {
+            return response()->json([
+                'success' => true, 
+                'response' => 'TRIGGER_SERVICE_OPTIONS:Health Services',
+                'trigger_frontend' => true
+            ]);
+        }
+        
+        // For complaint-related queries, trigger frontend complaint service options
+        if (strpos($message, 'complaint') !== false || strpos($message, 'reklamo') !== false || 
+            strpos($message, 'problem') !== false || strpos($message, 'issue') !== false ||
+            strpos($message, 'concern') !== false || strpos($message, 'report') !== false ||
+            strpos($message, 'problema') !== false || strpos($message, 'hinaing') !== false ||
+            strpos($message, 'file complaint') !== false) {
+            return response()->json([
+                'success' => true, 
+                'response' => 'TRIGGER_SERVICE_OPTIONS:Complaint Filing',
+                'trigger_frontend' => true
+            ]);
+        }
+        
+        // For barangay id queries, trigger frontend barangay id options
+        if (strpos($message, 'barangay id') !== false || strpos($message, 'id card') !== false || 
+            strpos($message, 'resident id') !== false || strpos($message, 'identification') !== false) {
+            return response()->json([
+                'success' => true, 
+                'response' => 'TRIGGER_BARANGAY_ID_OPTIONS',
+                'trigger_frontend' => true
+            ]);
+        }
+
         // Try AI with retry logic
         return $this->tryAIWithRetry($userMessage, $language, $context, $apiKey, $isStrictMode);
     }
@@ -271,8 +321,10 @@ class ChatbotController extends Controller
         $message = strtolower($message);
         $barangayKeywords = [
             'document', 'clearance', 'certificate', 'residency', 'indigency', 'barangay',
-            'office', 'hours', 'contact', 'complaint', 'register', 'services',
-            'dokumento', 'serbisyo', 'opisina', 'oras', 'reklamo',
+            'office', 'hours', 'contact', 'complaint', 'register', 'services', 'service',
+            'health', 'medical', 'clinic', 'medicine', 'doctor', 'kalusugan', 'medisina', 'doktor',
+            'filing', 'file', 'id', 'identification', 'problem', 'issue', 'concern', 'report',
+            'dokumento', 'serbisyo', 'opisina', 'oras', 'reklamo', 'problema', 'hinaing',
             'lumanglipa', 'batangas', 'hall', 'address', 'location', 'saan', 'nasaan'
         ];
         
@@ -291,15 +343,6 @@ class ChatbotController extends Controller
         
         $fallbackResponses = [
             'en' => [
-                'document' => $context === 'admin' 
-                    ? 'For document requests, visit Barangay Hall at Purok 1, Lumanglipa, Mataasnakahoy, Batangas during office hours (8AM-5PM, Monday-Friday). Required: Valid ID and proof of residency.<br><br>💡 <strong>Admin Tip:</strong> If you need expedited processing or have special circumstances, you can request to speak with an admin for priority assistance.'
-                    : 'For document requests, visit Barangay Hall at Purok 1, Lumanglipa, Mataasnakahoy, Batangas during office hours (8AM-5PM, Monday-Friday). Required: Valid ID and proof of residency.',
-                'clearance' => $context === 'admin' 
-                    ? 'Barangay Clearance: ₱50.00 fee, 1-2 days processing. Requirements: Valid ID, proof of residency, application form. Office hours: 8AM-5PM, Mon-Fri.<br><br>💡 <strong>Admin Support Available:</strong> If you need this urgently or have questions about requirements, I can connect you with an admin for immediate assistance.'
-                    : 'Barangay Clearance: ₱50.00 fee, 1-2 days processing. Requirements: Valid ID, proof of residency, application form. Office hours: 8AM-5PM, Mon-Fri.',
-                'complaint' => $context === 'admin' 
-                    ? 'To file a complaint: Visit the Barangay Hall, call during office hours, or use our online portal if you have an account.<br><br>🔍 <strong>Admin Escalation:</strong> For serious complaints or if you need immediate attention, I can arrange for you to speak directly with an admin who can personally handle your case.'
-                    : 'To file a complaint: Visit the Barangay Hall, call during office hours, or use our online portal if you have an account.',
                 'register' => $context === 'admin' 
                     ? 'To register: Click "Register" on homepage, fill out the form with your details, verify email, and wait for approval.<br><br>⚡ <strong>Admin Fast Track:</strong> Having trouble with registration? An admin can help verify your application faster and resolve any issues you\'re experiencing.'
                     : 'To register: Click "Register" on homepage, fill out the form with your details, verify email, and wait for approval.',
@@ -314,9 +357,6 @@ class ChatbotController extends Controller
                     : 'I can help with Barangay Lumanglipa services: document requests, office hours, complaints, registration, and contact information. What do you need help with?'
             ],
             'tl' => [
-                'document' => 'Para sa mga dokumento, bisitahin ang Barangay Hall sa Purok 1, Lumanglipa, Mataasnakahoy, Batangas sa oras ng opisina (8AM-5PM, Lunes-Biyernes). Kailangan: Valid ID at proof of residency.',
-                'clearance' => 'Barangay Clearance: ₱50.00 bayad, 1-2 araw processing. Kailangan: Valid ID, proof of residency, application form. Oras ng opisina: 8AM-5PM, Lun-Biy.',
-                'complaint' => 'Para mag-file ng complaint: Bisitahin ang Barangay Hall, tumawag sa oras ng opisina, o gamitin ang online portal kung may account.',
                 'register' => 'Para mag-register: I-click ang "Register" sa homepage, punuin ang form, i-verify ang email, at maghintay ng approval.',
                 'contact' => 'Contact: Barangay Hall, Purok 1, Lumanglipa, Mataasnakahoy, Batangas. Oras ng opisina: 8AM-5PM (Lun-Biy), 8AM-12PM (Sab). Email: barangaylumanglipa@gmail.com',
                 'address' => 'Ang Barangay Lumanglipa ay matatagpuan sa Purok 1, Lumanglipa, Mataasnakahoy, Batangas. Bukas ang aming opisina 8AM-5PM (Lun-Biy) at 8AM-12PM (Sab).',
@@ -326,13 +366,7 @@ class ChatbotController extends Controller
 
         $responses = $fallbackResponses[$language];
         
-        if (strpos($message, 'document') !== false || strpos($message, 'dokumento') !== false) {
-            return response()->json(['success' => true, 'response' => $responses['document']]);
-        } elseif (strpos($message, 'clearance') !== false) {
-            return response()->json(['success' => true, 'response' => $responses['clearance']]);
-        } elseif (strpos($message, 'complaint') !== false || strpos($message, 'reklamo') !== false) {
-            return response()->json(['success' => true, 'response' => $responses['complaint']]);
-        } elseif (strpos($message, 'register') !== false) {
+        if (strpos($message, 'register') !== false) {
             return response()->json(['success' => true, 'response' => $responses['register']]);
         } elseif (strpos($message, 'contact') !== false || strpos($message, 'hours') !== false) {
             return response()->json(['success' => true, 'response' => $responses['contact']]);

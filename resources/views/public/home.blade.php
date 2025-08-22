@@ -782,7 +782,22 @@ class BarangayChatbot {
             .then(aiText => {
                 this.hideTyping();
                 if (aiText) {
-                    this.addMessage(aiText, 'bot');
+                    // Check if backend wants to trigger frontend service options
+                    if (aiText.startsWith('TRIGGER_SERVICE_OPTIONS:')) {
+                        const serviceType = aiText.replace('TRIGGER_SERVICE_OPTIONS:', '');
+                        this.addMessage(this.getServiceOptions(serviceType), 'bot');
+                    } else if (aiText === 'TRIGGER_BARANGAY_ID_OPTIONS') {
+                        // Show specific Barangay ID options
+                        const barangayIdResponse = `What would you like to know about Barangay ID?
+
+<div class="quick-actions" style="margin-top: 15px;">
+    <button class="quick-action-btn" data-action="what-is-barangay-id">❓ What is Barangay ID?</button>
+    <button class="quick-action-btn" data-action="get-barangay-id">📋 Get Barangay ID</button>
+</div>`;
+                        this.addMessage(barangayIdResponse, 'bot');
+                    } else {
+                        this.addMessage(aiText, 'bot');
+                    }
                 } else {
                     this.processMessage(message);
                 }
@@ -1401,13 +1416,13 @@ Office Hours: Mon-Fri 8AM-5PM, Sat 8AM-12PM
 
     initKnowledgeBase() {
         return new Map([
-            [['document', 'document request', 'clearance', 'certificate', 'residency', 'indigency', 'request'], 
+            [['document', 'document request', 'documents', 'clearance', 'certificate', 'residency', 'indigency', 'request', 'filing', 'services', 'service', 'dokumento', 'documento', 'sertipiko', 'clearanse', 'patunay', 'papeles', 'papel', 'barangay clearance', 'certificate of residency'], 
              this.getServiceOptions('Document Services')],
             
-            [['health', 'health services', 'medical', 'clinic', 'medicine', 'doctor'],
+            [['health', 'health services', 'medical', 'clinic', 'medicine', 'doctor', 'kalusugan', 'medisina', 'doktor'],
              this.getServiceOptions('Health Services')],
             
-            [['complaint', 'file complaint', 'problem', 'issue', 'concern', 'report'],
+            [['complaint', 'file complaint', 'problem', 'issue', 'concern', 'report', 'reklamo', 'problema', 'hinaing'],
              this.getServiceOptions('Complaint Filing')],
 
             [['barangay id', 'id card', 'resident id', 'identification'],
@@ -1417,7 +1432,7 @@ What would you like to know about Barangay ID?
 
 <div class="quick-actions" style="margin-top: 15px;">
     <button class="quick-action-btn" data-action="what-is-barangay-id">❓ What is Barangay ID?</button>
-    <button class="quick-action-btn" data-action="get-barangay-id">� Get Barangay ID</button>
+    <button class="quick-action-btn" data-action="get-barangay-id">📋 Get Barangay ID</button>
 </div>`],
 
             [['lost id', 'replace id', 'id replacement'],
