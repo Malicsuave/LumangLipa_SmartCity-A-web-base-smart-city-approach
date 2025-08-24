@@ -6,9 +6,12 @@
 <style>
     /* Hero Section (simplified clean look) */
     .hero-section {
-        background: #ffffff;
+        background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
         position: relative;
-        padding: 80px 0 40px 0;
+        padding: 80px 0 60px 0;
+        min-height: 85vh;
+        display: flex;
+        align-items: center;
     }
     
     /* Carousel Navigation Arrows */
@@ -149,6 +152,62 @@
         color: white;
     }
     
+    /* Scroll Indicator */
+    .scroll-indicator {
+        animation: bounce 2s infinite;
+    }
+    
+    /* New Hero Section Styles */
+    .service-icon-sm {
+        font-size: 1.2rem;
+        width: 30px;
+        text-align: center;
+    }
+    
+    .service-item {
+        transition: all 0.3s ease;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .service-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border-color: #3F9EDD;
+    }
+    
+    .floating-stat {
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    .floating-stat:nth-child(2) {
+        animation-delay: 1s;
+    }
+    
+    .floating-stat:nth-child(3) {
+        animation-delay: 2s;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    .scroll-arrow {
+        font-size: 1.2rem;
+    }
+    
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% {
+            transform: translateY(0);
+        }
+        40% {
+            transform: translateY(-10px);
+        }
+        60% {
+            transform: translateY(-5px);
+        }
+    }
+    
     .service-card h4 {
         font-size: 1.3rem;
         font-weight: 600;
@@ -185,32 +244,35 @@
         background-color: #f8f9fa;
     }
 
-    /* Officials Section */
-    .officials-section {
-        padding: 70px 0 90px 0;
-        background: #ffffff;
+    /* Officials Section (Requested Tree Structure) */
+    .officials-section { padding:70px 0 90px; background:#fff; }
+    .officials-tree-structure { max-width:980px; margin:40px auto 0; position:relative; }
+    .tree-level { display:flex; justify-content:center; gap:28px; flex-wrap:wrap; position:relative; }
+    .tree-card { background:#fff; border:2px solid #e2e8f0; border-radius:16px; min-width:170px; padding:14px 14px 16px; text-align:center; position:relative; box-shadow:0 5px 18px -6px rgba(0,0,0,.14); transition:.25s; }
+    .tree-card:hover { transform:translateY(-4px); box-shadow:0 12px 28px -6px rgba(0,0,0,.18); }
+    .tree-card.captain { border-color:#2A7BC4; box-shadow:0 8px 28px -6px rgba(42,123,196,.4); }
+    .tree-card.sk { border-style:dashed; }
+    .tree-initial { width:60px; height:60px; border-radius:14px; margin:0 auto 10px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1.05rem; color:#2A7BC4; background:linear-gradient(135deg,#eef6ff,#e2effd); letter-spacing:.5px; }
+    .tree-card.captain .tree-initial { width:70px; height:70px; font-size:1.25rem; }
+    .tree-name { font-size:.78rem; font-weight:700; color:#1e293b; line-height:1.25; }
+    .tree-role { font-size:.6rem; font-weight:600; color:#2563eb; letter-spacing:1px; margin-top:4px; text-transform:uppercase; }
+    .connector-vertical { position:relative; width:100%; height:48px; }
+    .connector-vertical:before { content:""; position:absolute; left:50%; top:0; transform:translateX(-50%); width:3px; height:100%; background:linear-gradient(#2A7BC4,#3F9EDD); border-radius:3px; }
+    .kagawad-wrapper { position:relative; padding:36px 32px 10px; }
+    .kagawad-wrapper:before { content:""; position:absolute; top:0; left:32px; right:32px; height:2px; background:linear-gradient(90deg,#2A7BC4,#3F9EDD); }
+    .kagawad-wrapper:after { content:""; position:absolute; top:0; left:50%; transform:translate(-50%,-48px); width:3px; height:48px; background:linear-gradient(#2A7BC4,#3F9EDD); border-radius:3px; }
+    .tree-level.staff { padding-top:32px; }
+    .staff-branch { position:relative; }
+    .staff-branch:before { content:""; position:absolute; top:-32px; left:50%; transform:translateX(-50%); width:3px; height:32px; background:linear-gradient(#2A7BC4,#3F9EDD); border-radius:3px; }
+    .staff-children { display:flex; gap:26px; justify-content:center; flex-wrap:wrap; margin-top:26px; position:relative; }
+    .staff-children:before { content:""; position:absolute; top:-20px; left:50%; transform:translateX(-50%); width:180px; max-width:60%; height:2px; background:linear-gradient(90deg,#2A7BC4,#3F9EDD); }
+    @media (max-width:820px){ .kagawad-wrapper { padding:32px 10px 6px; } .kagawad-wrapper:before { left:10px; right:10px; } }
+    @media (max-width:620px){
+        .kagawad-wrapper:after, .kagawad-wrapper:before, .staff-children:before { display:none; }
+        .kagawad-wrapper { padding-top:10px; }
+        .connector-vertical, .staff-branch:before { display:none; }
     }
-    .officials-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-        gap: 25px;
-        margin-top: 30px;
-    }
-    .official-card {
-        background: #ffffff;
-        border: 1px solid #e5e7eb;
-        border-radius: 14px;
-        padding: 18px 14px 22px;
-        text-align: center;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        transition: all .25s ease;
-    }
-    .official-card:hover { transform: translateY(-6px); box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
-    .official-avatar { width: 90px; height: 90px; border-radius: 50%; overflow: hidden; margin: 0 auto 12px; background: #f1f5f9; display:flex; align-items:center; justify-content:center; }
-    .official-avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .official-name { font-size: .95rem; font-weight: 600; color:#1f2937; margin-bottom: 4px; }
-    .official-role { font-size: .75rem; font-weight: 500; color:#2563eb; letter-spacing: .5px; text-transform: uppercase; }
-    .official-badge { position:absolute; top:8px; right:10px; font-size:11px; padding:4px 7px; border-radius:20px; background:#2A7BC4; color:#fff; font-weight:600; }
+    .officials-subnote { font-size:.65rem; letter-spacing:.5px; color:#94a3b8; margin-top:18px; text-align:center; }
     @media (max-width: 576px){
         .hero-title { font-size: 2.2rem; }
         .hero-section { padding: 60px 0 30px 0; }
@@ -527,98 +589,173 @@
 <!-- Hero Section -->
 <section class="hero-section">
     <div class="container">
-        <div class="row align-items-center g-4">
-            <div class="col-lg-7">
-                <div class="hero-content text-start" style="color:#1f2937;">
-                    <h1 class="hero-title" style="color:#2A7BC4;">Barangay Lumanglipa</h1>
-                    <p class="hero-subtitle" style="margin-bottom:.75rem; font-size:.85rem; letter-spacing:2px; text-transform:uppercase; color:#2A7BC4; font-weight:700;">Mataas na Kahoy, Batangas</p>
-                    <p class="hero-subtitle" style="font-size:1.05rem; line-height:1.55; color:#444;">Isang modernong portal para sa mga residente. Madali ang pagkuha ng barangay documents, health services, pag-file ng reklamo, at iba pang serbisyo ng pamahalaang barangay.</p>
-                    <ul style="list-style:none; padding:0; margin:18px 0 28px 0; display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:10px; font-size:.85rem; color:#444;">
-                        <li style="display:flex; gap:8px; align-items:flex-start;"><span style="color:#2A7BC4;">✔</span><span>Online document requests (Clearance, Residency, Indigency)</span></li>
-                        <li style="display:flex; gap:8px; align-items:flex-start;"><span style="color:#2A7BC4;">✔</span><span>Health & medical assistance coordination</span></li>
-                        <li style="display:flex; gap:8px; align-items:flex-start;"><span style="color:#2A7BC4;">✔</span><span>Complaint filing & status tracking</span></li>
-                        <li style="display:flex; gap:8px; align-items:flex-start;"><span style="color:#2A7BC4;">✔</span><span>Resident registration & Barangay ID</span></li>
-                    </ul>
-                    <div class="hero-buttons justify-content-start">
-                        <a href="{{ route('public.contact') }}" class="hero-btn btn-contact" style="border-radius:10px;">Contact Us</a>
-                        @auth
-                            <a href="{{ route('dashboard') }}" class="hero-btn btn-login" style="border-radius:10px;">Dashboard</a>
-                        @else
-                            <a href="{{ route('login') }}" class="hero-btn btn-login" style="border-radius:10px;">Login</a>
-                        @endauth
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <div class="hero-content text-start">
+                    <h1 class="hero-title mb-2" style="color:#1e293b; font-size: 2.8rem; font-weight: 800; line-height: 1.1;">
+                        Barangay Lumanglipa
+                    </h1>
+                    <p class="hero-location mb-3" style="color:#3F9EDD; font-size: 0.95rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;">
+                        📍 Mataas na Kahoy, Batangas
+                    </p>
+                    <p class="hero-description mb-4" style="font-size: 1.1rem; line-height: 1.6; color: #64748b; font-weight: 400;">
+                        Your digital gateway to efficient government services. Experience seamless online transactions and stay connected with your community.
+                    </p>
+                    
+                    <!-- Services Grid -->
+                    <div class="services-preview mb-4">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <div class="service-item p-3 bg-light rounded-3 h-100">
+                                    <div class="d-flex align-items-center">
+                                        <div class="service-icon-sm me-2">📄</div>
+                                        <div>
+                                            <div class="fw-bold text-dark" style="font-size: 0.85rem;">Document Requests</div>
+                                            <div class="text-muted" style="font-size: 0.7rem;">Clearance, Residency & More</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="service-item p-3 bg-light rounded-3 h-100">
+                                    <div class="d-flex align-items-center">
+                                        <div class="service-icon-sm me-2">🏥</div>
+                                        <div>
+                                            <div class="fw-bold text-dark" style="font-size: 0.85rem;">Health Services</div>
+                                            <div class="text-muted" style="font-size: 0.7rem;">Medical Assistance</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="service-item p-3 bg-light rounded-3 h-100">
+                                    <div class="d-flex align-items-center">
+                                        <div class="service-icon-sm me-2">📝</div>
+                                        <div>
+                                            <div class="fw-bold text-dark" style="font-size: 0.85rem;">File Complaints</div>
+                                            <div class="text-muted" style="font-size: 0.7rem;">24/7 Online System</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="service-item p-3 bg-light rounded-3 h-100">
+                                    <div class="d-flex align-items-center">
+                                        <div class="service-icon-sm me-2">🆔</div>
+                                        <div>
+                                            <div class="fw-bold text-dark" style="font-size: 0.85rem;">Resident Registration</div>
+                                            <div class="text-muted" style="font-size: 0.7rem;">Barangay ID & More</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-5">
-                <div style="position:relative; border:1px solid #e5e7eb; border-radius:18px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,.06); background:#f8fafc;">
-                    <img src="{{ asset('images/bglumanglipa.jpeg') }}" alt="Barangay Hall" style="width:100%; height:320px; object-fit:cover; filter:brightness(0.92);">
-                    <div style="position:absolute; bottom:0; left:0; right:0; padding:14px 18px; background:linear-gradient(to top, rgba(0,0,0,.55), rgba(0,0,0,0)); color:#fff;">
-                        <div style="font-size:.7rem; letter-spacing:1px; font-weight:600; text-transform:uppercase; opacity:.85;">Serbisyong Totoo</div>
-                        <div style="font-size:1.05rem; font-weight:600;">Accessible • Transparent • Community-Centered</div>
+            <div class="col-lg-6">
+                <div class="hero-image-container position-relative">
+                    <div class="main-image" style="border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.1);">
+                        <img src="{{ asset('images/bglumanglipa.jpeg') }}" alt="Barangay Hall" style="width:100%; height:350px; object-fit:cover;">
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    
+    
 </section>
 
-<!-- Recent Announcements Section -->
-<section class="py-5" style="background-color:#f8f9fa;">
+<!-- Recent Announcements Section (Redesigned) -->
+<section class="py-4" style="background:#f8fafc; border-top: 3px solid #e5e7eb;">
     <div class="container">
         <div class="d-flex flex-wrap justify-content-between align-items-end mb-4 gap-2">
             <div>
-                <h2 class="fw-bold mb-1" style="color:#2A7BC4;">Recent Announcements</h2>
-                <p class="text-muted mb-0">Mga pinakabagong balita at aktibidad (sample data)</p>
+                <h2 class="fw-bold mb-1" style="color:#2A7BC4; font-size: 2rem;">Recent Announcements</h2>
+                <p class="text-muted mb-0" style="font-size:.9rem;">Stay updated with the latest barangay news and events</p>
             </div>
-            <a href="{{ route('public.about') }}" class="btn btn-outline-primary btn-sm" style="border-radius:8px;">View All</a>
+            <a href="#" class="btn btn-outline-primary btn-sm" style="border-radius:8px;">View All</a>
         </div>
+        @php
+            $feature = [
+                'title' => 'Scheduled Power Interruption Advisory',
+                'excerpt' => 'Magkakaroon ng pansamantalang pagkawala ng kuryente sa ilang purok para sa line maintenance ng BATELEC II.',
+                'date' => 'Feb 18, 2025',
+                'category' => 'Advisory',
+                'cta' => 'Read Advisory',
+                'image' => 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=800&q=60'
+            ];
+            $announcements = [
+                [
+                    'title' => 'Free Medical & Dental Mission',
+                    'excerpt' => 'Libreng konsultasyon, basic dental care at BP monitoring. First come, first served.',
+                    'date' => 'Feb 22, 2025',
+                    'category' => 'Health',
+                    'image' => 'https://images.unsplash.com/photo-1580281658629-149f02f32b25?auto=format&fit=crop&w=800&q=60'
+                ],
+                [
+                    'title' => 'Linggo ng Kabataan Sports Clinic',
+                    'excerpt' => 'Open registration para sa basketball, volleyball at chess training sessions.',
+                    'date' => 'Feb 20, 2025',
+                    'category' => 'Youth',
+                    'image' => 'https://images.unsplash.com/photo-1521412644187-c49fa049e84d?auto=format&fit=crop&w=800&q=60'
+                ],
+                [
+                    'title' => 'Barangay Clean-Up & Waste Segregation Drive',
+                    'excerpt' => 'Dalhin ang sariling gloves at supot. Focus: drainage clearing & plastic recovery.',
+                    'date' => 'Feb 19, 2025',
+                    'category' => 'Environment',
+                    'image' => 'https://images.unsplash.com/photo-1503596476-1c12a8ba09a8?auto=format&fit=crop&w=800&q=60'
+                ],
+                [
+                    'title' => 'Monthly Barangay Assembly',
+                    'excerpt' => 'Pag-uusapan ang proposed livelihood projects at infra status reports.',
+                    'date' => 'Feb 25, 2025',
+                    'category' => 'Assembly',
+                    'image' => 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=60'
+                ],
+            ];
+        @endphp
         <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm overflow-hidden" style="border-radius:16px;">
+            <!-- Feature Card -->
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-sm h-100" style="border-radius:22px; overflow:hidden; background:#ffffff;">
                     <div style="position:relative;">
-                        <img src="https://images.unsplash.com/photo-1606206591510-092151f89a46?auto=format&fit=crop&w=800&q=60" alt="Health" style="width:100%; height:170px; object-fit:cover;">
-                        <span class="badge bg-success" style="position:absolute; top:12px; left:12px;">Health</span>
+                        <img src="{{ $feature['image'] }}" alt="Feature" style="width:100%; height:240px; object-fit:cover;">
+                        <span class="badge bg-danger" style="position:absolute; top:14px; left:14px;">{{ $feature['category'] }}</span>
+                        <span style="position:absolute; bottom:14px; left:14px; background:rgba(0,0,0,.55); color:#fff; padding:4px 12px; border-radius:20px; font-size:.7rem; letter-spacing:.5px;">FEATURED</span>
                     </div>
-                    <div class="card-body">
-                        <h6 class="fw-semibold mb-2" style="line-height:1.3;">Community Health Program & Free Vaccination Drive</h6>
-                        <p class="text-muted small mb-3">Libreng check-up at bakuna para sa lahat ng residente. Limited slots available.</p>
-                        <div class="d-flex align-items-center justify-content-between">
-                            <span class="text-muted small">Feb 12, 2025</span>
-                            <a href="#" class="text-primary small text-decoration-none">Details →</a>
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="fw-bold" style="line-height:1.25; color:#1e293b;">{{ $feature['title'] }}</h5>
+                        <p class="text-muted small flex-grow-1 mb-3" style="line-height:1.5;">{{ $feature['excerpt'] }}</p>
+                        <div class="d-flex align-items-center justify-content-between mt-auto pt-2">
+                            <span class="text-muted small"><i class="far fa-calendar-alt me-1"></i>{{ $feature['date'] }}</span>
+                            <a href="#" class="btn btn-sm btn-primary" style="border-radius:8px; font-weight:600; font-size:.65rem; letter-spacing:.5px;">{{ strtoupper($feature['cta']) }}</a>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm overflow-hidden" style="border-radius:16px;">
-                    <div style="position:relative;">
-                        <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=60" alt="Assembly" style="width:100%; height:170px; object-fit:cover;">
-                        <span class="badge bg-warning text-dark" style="position:absolute; top:12px; left:12px;">Assembly</span>
-                    </div>
-                    <div class="card-body">
-                        <h6 class="fw-semibold mb-2" style="line-height:1.3;">Monthly Barangay Assembly & Development Updates</h6>
-                        <p class="text-muted small mb-3">Inaanyayahan ang lahat na dumalo sa pagtalakay ng mga proyekto at concerns.</p>
-                        <div class="d-flex align-items-center justify-content-between">
-                            <span class="text-muted small">Feb 08, 2025</span>
-                            <a href="#" class="text-primary small text-decoration-none">Agenda →</a>
+            <!-- List / Grid of other announcements -->
+            <div class="col-lg-7">
+                <div class="row g-4">
+                    @foreach($announcements as $a)
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-sm h-100" style="border-radius:18px; overflow:hidden; background:#ffffff;">
+                                <div style="position:relative;">
+                                    <img src="{{ $a['image'] }}" alt="{{ $a['category'] }}" style="width:100%; height:140px; object-fit:cover;">
+                                    <span class="badge bg-secondary" style="position:absolute; top:10px; left:10px; background:#2A7BC4;">{{ $a['category'] }}</span>
+                                </div>
+                                <div class="card-body d-flex flex-column">
+                                    <h6 class="fw-semibold mb-2" style="line-height:1.25; color:#1e293b;">{{ $a['title'] }}</h6>
+                                    <p class="text-muted small flex-grow-1 mb-2" style="line-height:1.4;">{{ $a['excerpt'] }}</p>
+                                    <div class="d-flex align-items-center justify-content-between mt-auto pt-1">
+                                        <span class="text-muted small"><i class="far fa-clock me-1"></i>{{ $a['date'] }}</span>
+                                        <a href="#" class="text-primary small fw-semibold text-decoration-none" style="letter-spacing:.3px;">Details →</a>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm overflow-hidden" style="border-radius:16px;">
-                    <div style="position:relative;">
-                        <img src="https://images.unsplash.com/photo-1503596476-1c12a8ba09a8?auto=format&fit=crop&w=800&q=60" alt="Clean Up" style="width:100%; height:170px; object-fit:cover;">
-                        <span class="badge bg-info text-dark" style="position:absolute; top:12px; left:12px;">Environment</span>
-                    </div>
-                    <div class="card-body">
-                        <h6 class="fw-semibold mb-2" style="line-height:1.3;">Barangay Wide Clean-Up & Waste Segregation Drive</h6>
-                        <p class="text-muted small mb-3">Sama-sama tayong maglinis para sa mas maayos na kapaligiran.</p>
-                        <div class="d-flex align-items-center justify-content-between">
-                            <span class="text-muted small">Feb 03, 2025</span>
-                            <a href="#" class="text-primary small text-decoration-none">Join →</a>
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
             </div>
         </div>
@@ -628,68 +765,80 @@
 <!-- Officials Section -->
 <section class="officials-section">
     <div class="container">
-        <div class="d-flex flex-wrap justify-content-between align-items-end mb-4 gap-2">
+        <div class="d-flex flex-wrap justify-content-between align-items-end mb-3 gap-2">
             <div>
                 <h2 class="fw-bold mb-1" style="color:#2A7BC4;">Barangay Officials</h2>
-                <p class="text-muted mb-0">Dummy listing – sample profiles</p>
+                
             </div>
-            <a href="{{ route('public.about') }}" class="btn btn-outline-primary btn-sm" style="border-radius:8px;">Full List</a>
+            <a href="{{ route('public.about') }}" class="btn btn-outline-primary btn-sm" style="border-radius:8px;">Tingnan Pa</a>
         </div>
-        <div class="officials-grid">
-            @php
-                $officials = [
-                    ['name' => 'Juan Dela Cruz', 'role' => 'Barangay Captain'],
-                    ['name' => 'Maria Santos', 'role' => 'Kagawad'],
-                    ['name' => 'Pedro Ramirez', 'role' => 'Kagawad'],
-                    ['name' => 'Linda Mercado', 'role' => 'Kagawad'],
-                    ['name' => 'Josefa Villanueva', 'role' => 'Kagawad'],
-                    ['name' => 'Erwin Bautista', 'role' => 'Kagawad'],
-                    ['name' => 'Arnel Cruz', 'role' => 'Kagawad'],
-                    ['name' => 'Leah Garcia', 'role' => 'SK Chairperson'],
-                    ['name' => 'Romeo Flores', 'role' => 'Secretary'],
-                    ['name' => 'Cynthia Reyes', 'role' => 'Treasurer'],
-                ];
-            @endphp
-            @foreach($officials as $o)
-                <div class="official-card position-relative">
-                    @if($loop->first)
-                        <div class="official-badge">Lead</div>
-                    @endif
-                    <div class="official-avatar">
-                        <img src="https://ui-avatars.com/api/?name={{ urlencode($o['name']) }}&background=2A7BC4&color=fff&size=128" alt="{{ $o['name'] }}" loading="lazy">
+        @php
+            $captain = ['HON. NOVILITO M. MANALO' => 'Barangay Captain'];
+            $kagawad = [
+                'HON. ROLDAN A. ROSITA',
+                'HON. LEXTER D. MAQUINTO',
+                'HON. RICHARD C. CANOSA',
+                'HON. RODOLFO U. MANALO JR',
+                'HON. ROSENDO T. BABADILLA',
+                'HON. JAIME C. LAQUI',
+                'HON. RECHEL R. CIRUELAS',
+            ];
+            $sk = ['HON. JOHN MARCO C. ARRIOLA' => 'SK Chairman'];
+            $staff = ['APRIL JANE J. SISCAR' => 'Secretary', 'JOSEPHINE R. QUISTO' => 'Treasurer'];
+            $makeInitials = function($full){ $parts = preg_split('/\s+/', preg_replace('/[^A-Z\s]/','',$full)); return collect($parts)->filter()->map(fn($p)=> substr($p,0,1))->take(3)->implode(''); };
+        @endphp
+        <div class="officials-tree-structure">
+            <!-- Captain -->
+            <div class="tree-level">
+                @foreach($captain as $n=>$r)
+                    <div class="tree-card captain">
+                        <div class="tree-initial">{{ $makeInitials($n) }}</div>
+                        <div class="tree-name">{{ $n }}</div>
+                        <div class="tree-role">{{ strtoupper($r) }}</div>
                     </div>
-                    <div class="official-name">{{ $o['name'] }}</div>
-                    <div class="official-role">{{ $o['role'] }}</div>
+                @endforeach
+            </div>
+            <div class="connector-vertical"></div>
+            <!-- Kagawad Group (7) -->
+            <div class="kagawad-wrapper">
+                <div class="tree-level">
+                    @foreach($kagawad as $n)
+                        <div class="tree-card">
+                            <div class="tree-initial">{{ $makeInitials($n) }}</div>
+                            <div class="tree-name">{{ $n }}</div>
+                            <div class="tree-role">COUNCILOR</div>
+                        </div>
+                    @endforeach
                 </div>
-            @endforeach
+            </div>
+            <!-- SK Chairman Branch -->
+            <div class="connector-vertical"></div>
+            <div class="tree-level">
+                @foreach($sk as $n=>$r)
+                    <div class="tree-card sk staff-branch">
+                        <div class="tree-initial">{{ $makeInitials($n) }}</div>
+                        <div class="tree-name">{{ $n }}</div>
+                        <div class="tree-role">{{ strtoupper($r) }}</div>
+                        <!-- Staff children -->
+                        <div class="staff-children">
+                            @foreach($staff as $sn=>$sr)
+                                <div class="tree-card" style="min-width:150px;">
+                                    <div class="tree-initial" style="width:54px;height:54px;font-size:.9rem;">{{ $makeInitials($sn) }}</div>
+                                    <div class="tree-name">{{ $sn }}</div>
+                                    <div class="tree-role">{{ strtoupper($sr) }}</div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+            
         </div>
     </div>
 </section>
 
 
-<!-- Call to Action -->
-<section class="py-5">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-8 mx-auto">
-                <div class="card bg-primary text-white shadow">
-                    <div class="card-body text-center p-5">
-                        <h3 class="fw-bold">Join Our Community Portal</h3>
-                        <p class="mb-4">Register to access online eServices, submit requests, and stay connected with your barangay.</p>
-                        @auth
-                            <a href="{{ route('dashboard') }}" class="btn btn-light">Go to Dashboard</a>
-                        @else
-                            <div class="d-flex justify-content-center gap-3">
-                                <a href="{{ route('login') }}" class="btn btn-light">Login</a>
-                                <a href="{{ route('register') }}" class="btn btn-outline-light">Register Now</a>
-                            </div>
-                        @endauth
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+
 
 <!-- Floating Chatbot -->
 <div class="chatbot-container">

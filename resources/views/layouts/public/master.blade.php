@@ -48,58 +48,47 @@
     
     <!-- Navigation Styles -->
     <style>
-        .navbar-brand .logo-img {
-            max-width: 50px !important;
-            max-height: 50px !important;
-            /* width: 50px !important;
-            height: 50px !important; */
-            object-fit: contain !important;
-            background: transparent !important;
-            border: none !important;
-            border-radius: 8px !important;
-            padding: 4px !important;
-            box-shadow: none !important;
-            display: block !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-            position: relative !important;
-            z-index: 999 !important;
+        /* Navbar height reduction */
+        .navbar {
+            padding-top: 0.25rem !important;
+            padding-bottom: 0.25rem !important;
         }
         
-        /* Fallback text for logo */
-        .logo-fallback {
-            width: 45px !important;
-            height: 45px !important;
-            background: linear-gradient(135deg, #4A90E2, #357ABD) !important;
-            color: white !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            border-radius: 8px !important;
-            font-weight: bold !important;
-            font-size: 10px !important;
-            text-align: center !important;
-            border: 2px solid white !important;
+        .navbar-nav .nav-link {
+            padding-top: 0.25rem !important;
+            padding-bottom: 0.25rem !important;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+            margin-left: 0.25rem !important;
+            margin-right: 0.25rem !important;
         }
         
-        .nav-link.active {
-            background: linear-gradient(135deg, #4A90E2, #357ABD) !important;
-            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4) !important;
-        }
-        .nav-link:not(.active):hover {
-            background: rgba(255,255,255,0.15) !important;
+        /* Right-aligned navbar items */
+        .navbar-nav.ms-auto {
+            margin-left: auto !important;
         }
         
-        @media (max-width: 991px) {
-            .navbar-nav {
-                background: rgba(255,255,255,0.05) !important;
-                border-radius: 15px !important;
-                padding: 16px !important;
-                margin-top: 16px !important;
-            }
-            .nav-link {
-                margin: 4px 0 !important;
-            }
+        /* Add gap between main nav and auth nav */
+        .navbar-nav.ms-auto .nav-item:first-child .nav-link {
+            margin-left: 2rem !important;
+        }
+        
+        /* Custom dropdown arrow */
+        .dropdown-toggle::after {
+            display: none !important;
+        }
+        
+        .dropdown-toggle {
+            position: relative;
+        }
+        
+        .dropdown-toggle::before {
+            content: "▼";
+            font-size: 0.6rem;
+            margin-left: 0.4rem;
+            color: inherit;
+            float: right;
+            margin-top: 0.1rem;
         }
         
         /* Chat widget positioning and visibility fixes */
@@ -161,114 +150,53 @@
 </head>
 <body data-chatbot-strict="{{ config('services.huggingface.strict') ? '1' : '0' }}" data-chatbot-has-key="{{ config('services.huggingface.api_key') ? '1' : '0' }}">
     <!-- Top Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background: linear-gradient(135deg, #1a1a1a 0%, #333333 50%, #1a1a1a 100%); padding: 4px 0; box-shadow: 0 4px 20px rgba(0,0,0,0.3); backdrop-filter: blur(10px); transition: all 0.3s ease;">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
         <div class="container">
-            <a href="{{ route('public.home') }}" class="navbar-brand d-flex align-items-center me-auto pe-4 text-decoration-none" style="margin-right: auto;">
-                <img src="/images/logo.png" 
-                     alt="Barangay Lumanglipa Logo" 
-                     class="me-2 logo-img" 
-                     style="display: block !important; visibility: visible !important; opacity: 1 !important;">
-                <div style="padding-left: 8px;">
-                    <div class="text-white fw-bold" style="font-size: 18px; letter-spacing: 0.8px; line-height: 1.1;">BARANGAY LUMANGLIPA</div>
-                    <div class="text-white-50" style="font-size: 12px; margin-top: 1px; letter-spacing: 0.5px;">MATAAS NA KAHOY, BATANGAS</div>
-                </div>
-            </a>
-            
-            <button class="navbar-toggler border-0 shadow-sm" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"
-                    style="padding: 10px 14px; border-radius: 12px; background: rgba(255,255,255,0.1); transition: all 0.3s ease;"
-                    onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto align-items-center" style="gap: 6px; padding: 8px 16px; background: rgba(255,255,255,0.05); border-radius: 50px; margin-top: 8px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);">
+                <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link text-white px-4 py-2 rounded-pill modern-nav-link {{ Route::currentRouteName() == 'public.home' ? 'active' : '' }}" 
-                           href="{{ route('public.home') }}"
-                           style="font-weight: 500; letter-spacing: 0.5px; font-size: 14px; transition: all 0.3s ease; position: relative;">
-                           HOME
+                        <a class="nav-link" href="{{ route('public.home') }}">
+                            <img src="{{ asset('images/logo.png') }}" alt="Logo" width="60" height="60">
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white px-4 py-2 rounded-pill modern-nav-link {{ Route::currentRouteName() == 'public.about' ? 'active' : '' }}" 
-                           href="{{ route('public.about') }}"
-                           style="font-weight: 500; letter-spacing: 0.5px; font-size: 14px; transition: all 0.3s ease;">
-                           ABOUT
-                        </a>
+                        <a class="nav-link {{ Route::currentRouteName() == 'public.home' ? 'active text-primary fw-bold' : '' }}" href="{{ route('public.home') }}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Route::currentRouteName() == 'public.about' ? 'active text-primary fw-bold' : '' }}" href="{{ route('public.about') }}">About</a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle text-white px-4 py-2 rounded-pill modern-nav-link {{ in_array(Route::currentRouteName(), ['public.services', 'documents.request', 'complaints.create', 'health.request']) ? 'active' : '' }}" 
-                           href="#" id="navbarDropdownServices" role="button" 
-                           data-bs-toggle="dropdown" aria-expanded="false"
-                           style="font-weight: 500; letter-spacing: 0.5px; font-size: 14px; transition: all 0.3s ease;">
-                           E-SERVICES
+                        <a class="nav-link dropdown-toggle {{ in_array(Route::currentRouteName(), ['public.services', 'documents.request', 'complaints.create', 'health.request']) ? 'active text-primary fw-bold' : '' }}" 
+                           href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                           Services
                         </a>
-                        <ul class="dropdown-menu border-0 shadow-lg" aria-labelledby="navbarDropdownServices" 
-                            style="border-radius: 16px; margin-top: 12px; background: rgba(255,255,255,0.98); min-width: 260px; backdrop-filter: blur(20px); box-shadow: 0 8px 32px rgba(0,0,0,0.15);">
-                            <li>
-                                <a class="dropdown-item d-flex align-items-center py-3 px-4 {{ Route::currentRouteName() == 'health.request' ? 'active' : '' }}" 
-                                   href="{{ route('health.request') }}"
-                                   style="border-radius: 12px; margin: 6px 10px; transition: all 0.3s ease; font-weight: 500;"
-                                   onmouseover="this.style.background='linear-gradient(135deg, #f8f9fa, #e9ecef)'; this.style.transform='translateX(8px)'"
-                                   onmouseout="this.style.background='transparent'; this.style.transform='translateX(0)'">
-                                    <i class="fas fa-heartbeat me-3" style="color: #4A90E2; width: 24px; font-size: 16px;"></i>
-                                    <span style="color: #2c3e50;">Health Services</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item d-flex align-items-center py-3 px-4 {{ Route::currentRouteName() == 'documents.request' ? 'active' : '' }}" 
-                                   href="{{ route('documents.request') }}"
-                                   style="border-radius: 12px; margin: 6px 10px; transition: all 0.3s ease; font-weight: 500;"
-                                   onmouseover="this.style.background='linear-gradient(135deg, #f8f9fa, #e9ecef)'; this.style.transform='translateX(8px)'"
-                                   onmouseout="this.style.background='transparent'; this.style.transform='translateX(0)'">
-                                    <i class="fas fa-file-alt me-3" style="color: #4A90E2; width: 24px; font-size: 16px;"></i>
-                                    <span style="color: #2c3e50;">Document Request</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item d-flex align-items-center py-3 px-4 {{ Route::currentRouteName() == 'complaints.create' ? 'active' : '' }}" 
-                                   href="{{ route('complaints.create') }}"
-                                   style="border-radius: 12px; margin: 6px 10px; transition: all 0.3s ease; font-weight: 500;"
-                                   onmouseover="this.style.background='linear-gradient(135deg, #f8f9fa, #e9ecef)'; this.style.transform='translateX(8px)'"
-                                   onmouseout="this.style.background='transparent'; this.style.transform='translateX(0)'">
-                                    <i class="fas fa-flag me-3" style="color: #4A90E2; width: 24px; font-size: 16px;"></i>
-                                    <span style="color: #2c3e50;">File a Complaint</span>
-                                </a>
-                            </li>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ route('health.request') }}">Health Services</a></li>
+                            <li><a class="dropdown-item" href="{{ route('documents.request') }}">Document Request</a></li>
+                            <li><a class="dropdown-item" href="{{ route('complaints.create') }}">File a Complaint</a></li>
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white px-4 py-2 rounded-pill modern-nav-link {{ Route::currentRouteName() == 'public.contact' ? 'active' : '' }}" 
-                           href="{{ route('public.contact') }}"
-                           style="font-weight: 500; letter-spacing: 0.5px; font-size: 14px; transition: all 0.3s ease;">
-                           CONTACT
-                        </a>
+                        <a class="nav-link {{ Route::currentRouteName() == 'public.contact' ? 'active text-primary fw-bold' : '' }}" href="{{ route('public.contact') }}">Contact</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white px-4 py-2 rounded-pill modern-nav-link {{ str_contains(Route::currentRouteName(), 'public.pre-registration') ? 'active' : '' }}" 
-                           href="{{ route('public.pre-registration.create') }}"
-                           style="font-weight: 500; letter-spacing: 0.5px; font-size: 14px; transition: all 0.3s ease;">
-                           REGISTER
-                        </a>
+                        <a class="nav-link {{ str_contains(Route::currentRouteName(), 'public.pre-registration') ? 'active text-primary fw-bold' : '' }}" href="{{ route('public.pre-registration.create') }}">Register</a>
                     </li>
+                </ul>
+                
+                <!-- Right-aligned Dashboard/Login -->
+                <ul class="navbar-nav ms-auto">
                     @auth
                         <li class="nav-item">
-                            <a class="nav-link text-white px-4 py-2 rounded-pill modern-nav-link" 
-                               href="{{ route('dashboard') }}"
-                               style="font-weight: 500; letter-spacing: 0.5px; font-size: 14px; transition: all 0.3s ease;">
-                               DASHBOARD
-                            </a>
+                            <a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a>
                         </li>
                     @else
-                        <li class="nav-item ms-3">
-                            <a class="nav-link btn px-5 py-2 rounded-pill" 
-                               href="{{ route('login') }}"
-                               style="font-weight: 600; letter-spacing: 0.8px; font-size: 14px; background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; border: 2px solid rgba(255,255,255,0.2); transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);"
-                               onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(74, 144, 226, 0.4)'"
-                               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(74, 144, 226, 0.3)'">
-                               LOGIN
-                            </a>
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-primary btn-sm text-white" href="{{ route('login') }}">Login</a>
                         </li>
                     @endauth
                 </ul>
@@ -277,7 +205,7 @@
     </nav>
 
     <!-- Spacer for fixed navbar -->
-    <div style="height: 65px;"></div>
+    <div style="height: 45px;"></div>
 
     <!-- Main Content -->
     <main>
