@@ -4,19 +4,11 @@
 
 @push('styles')
 <style>
-    /* Hero Section Background */
+    /* Hero Section (simplified clean look) */
     .hero-section {
-        background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{{ asset("images/bglumanglipa.jpeg") }}');
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
+        background: #ffffff;
         position: relative;
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding-top: 20px; /* Add space from navigation */
+        padding: 80px 0 40px 0;
     }
     
     /* Carousel Navigation Arrows */
@@ -59,27 +51,29 @@
     }
     
     .hero-title {
-        font-size: 4rem;
-        font-weight: bold;
+        font-size: 3rem;
+        font-weight: 700;
         margin-bottom: 1rem;
-        text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9), 0 0 20px rgba(255, 255, 255, 0.1);
-        letter-spacing: 2px;
-        line-height: 1.2;
+        letter-spacing: 1px;
+        line-height: 1.15;
+        color: #2A7BC4;
+        text-shadow: none;
     }
     
     .hero-subtitle {
-        font-size: 1.5rem;
-        margin-bottom: 3rem;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 15px rgba(255, 255, 255, 0.1);
+        font-size: 1.05rem;
+        margin-bottom: 1.25rem;
         font-weight: 500;
-        letter-spacing: 1px;
+        letter-spacing: .5px;
+        color: #555;
+        text-shadow: none;
     }
     
     .hero-buttons {
         display: flex;
-        gap: 20px;
+        gap: 15px;
         justify-content: center;
-        margin-bottom: 4rem;
+        margin-bottom: 2.5rem;
     }
     
     .hero-btn {
@@ -189,6 +183,37 @@
     .services-section {
         padding: 100px 0;
         background-color: #f8f9fa;
+    }
+
+    /* Officials Section */
+    .officials-section {
+        padding: 70px 0 90px 0;
+        background: #ffffff;
+    }
+    .officials-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 25px;
+        margin-top: 30px;
+    }
+    .official-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 18px 14px 22px;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        transition: all .25s ease;
+    }
+    .official-card:hover { transform: translateY(-6px); box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
+    .official-avatar { width: 90px; height: 90px; border-radius: 50%; overflow: hidden; margin: 0 auto 12px; background: #f1f5f9; display:flex; align-items:center; justify-content:center; }
+    .official-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .official-name { font-size: .95rem; font-weight: 600; color:#1f2937; margin-bottom: 4px; }
+    .official-role { font-size: .75rem; font-weight: 500; color:#2563eb; letter-spacing: .5px; text-transform: uppercase; }
+    .official-badge { position:absolute; top:8px; right:10px; font-size:11px; padding:4px 7px; border-radius:20px; background:#2A7BC4; color:#fff; font-weight:600; }
+    @media (max-width: 576px){
+        .hero-title { font-size: 2.2rem; }
+        .hero-section { padding: 60px 0 30px 0; }
     }
 
     /* Floating Chatbot Styles */
@@ -501,56 +526,36 @@
 @section('content')
 <!-- Hero Section -->
 <section class="hero-section">
-    <!-- Carousel Navigation Arrows -->
-    <div class="carousel-nav prev">
-        <i class="fas fa-chevron-left"></i>
-    </div>
-    <div class="carousel-nav next">
-        <i class="fas fa-chevron-right"></i>
-    </div>
-    
     <div class="container">
-        <div class="hero-content">
-            <h1 class="hero-title"><span style="color: white;">WELCOME TO</span><br><span style="color: #3F9EDD;">BARANGAY LUMANGLIPA</span></h1>
-            <p class="hero-subtitle" style="font-size: 1.2rem; margin-bottom: 2rem;">MATAAS NA KAHOY, BATANGAS</p>
-            <p class="hero-subtitle">Your community, your government. We're committed to providing excellent services to all our residents.</p>
-            
-            <div class="hero-buttons">
-                <a href="{{ route('public.contact') }}" class="hero-btn btn-contact">CONTACT US</a>
-                @auth
-                    <a href="{{ route('dashboard') }}" class="hero-btn btn-login">GO TO DASHBOARD</a>
-                @else
-                    <a href="{{ route('login') }}" class="hero-btn btn-login">LOGIN NOW</a>
-                @endauth
+        <div class="row align-items-center g-4">
+            <div class="col-lg-7">
+                <div class="hero-content text-start" style="color:#1f2937;">
+                    <h1 class="hero-title" style="color:#2A7BC4;">Barangay Lumanglipa</h1>
+                    <p class="hero-subtitle" style="margin-bottom:.75rem; font-size:.85rem; letter-spacing:2px; text-transform:uppercase; color:#2A7BC4; font-weight:700;">Mataas na Kahoy, Batangas</p>
+                    <p class="hero-subtitle" style="font-size:1.05rem; line-height:1.55; color:#444;">Isang modernong portal para sa mga residente. Madali ang pagkuha ng barangay documents, health services, pag-file ng reklamo, at iba pang serbisyo ng pamahalaang barangay.</p>
+                    <ul style="list-style:none; padding:0; margin:18px 0 28px 0; display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:10px; font-size:.85rem; color:#444;">
+                        <li style="display:flex; gap:8px; align-items:flex-start;"><span style="color:#2A7BC4;">✔</span><span>Online document requests (Clearance, Residency, Indigency)</span></li>
+                        <li style="display:flex; gap:8px; align-items:flex-start;"><span style="color:#2A7BC4;">✔</span><span>Health & medical assistance coordination</span></li>
+                        <li style="display:flex; gap:8px; align-items:flex-start;"><span style="color:#2A7BC4;">✔</span><span>Complaint filing & status tracking</span></li>
+                        <li style="display:flex; gap:8px; align-items:flex-start;"><span style="color:#2A7BC4;">✔</span><span>Resident registration & Barangay ID</span></li>
+                    </ul>
+                    <div class="hero-buttons justify-content-start">
+                        <a href="{{ route('public.contact') }}" class="hero-btn btn-contact" style="border-radius:10px;">Contact Us</a>
+                        @auth
+                            <a href="{{ route('dashboard') }}" class="hero-btn btn-login" style="border-radius:10px;">Dashboard</a>
+                        @else
+                            <a href="{{ route('login') }}" class="hero-btn btn-login" style="border-radius:10px;">Login</a>
+                        @endauth
+                    </div>
+                </div>
             </div>
-            
-            <!-- Service Cards Grid -->
-            <div class="services-grid">
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-users"></i>
+            <div class="col-lg-5">
+                <div style="position:relative; border:1px solid #e5e7eb; border-radius:18px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,.06); background:#f8fafc;">
+                    <img src="{{ asset('images/bglumanglipa.jpeg') }}" alt="Barangay Hall" style="width:100%; height:320px; object-fit:cover; filter:brightness(0.92);">
+                    <div style="position:absolute; bottom:0; left:0; right:0; padding:14px 18px; background:linear-gradient(to top, rgba(0,0,0,.55), rgba(0,0,0,0)); color:#fff;">
+                        <div style="font-size:.7rem; letter-spacing:1px; font-weight:600; text-transform:uppercase; opacity:.85;">Serbisyong Totoo</div>
+                        <div style="font-size:1.05rem; font-weight:600;">Accessible • Transparent • Community-Centered</div>
                     </div>
-                    <h4>Barangay Officials</h4>
-                    <p>Meet your elected barangay officials and learn about their roles in serving the community.</p>
-                    <a href="{{ route('public.about') }}" class="service-btn">Learn More</a>
-                </div>
-                
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-bullhorn"></i>
-                    </div>
-                    <h4>Announcements</h4>
-                    <p>Stay informed about barangay announcements, events, and important community news.</p>
-                    <a href="{{ route('public.about') }}" class="service-btn">Learn More</a>
-                </div>
-                
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-file-alt"></i>
-                    </div>
-                    <h4>Document Issuance</h4>
-                    <p>Request official documents online including Barangay Clearance, Certificate of Residency, and more.</p>
-                    <a href="{{ route('documents.request') }}" class="service-btn">Learn More</a>
                 </div>
             </div>
         </div>
@@ -558,71 +563,105 @@
 </section>
 
 <!-- Recent Announcements Section -->
-<section class="py-5" style="background-color: #f8f9fa;">
+<section class="py-5" style="background-color:#f8f9fa;">
     <div class="container">
-        <div class="mb-5">
-            <h2 class="fw-bold text-primary mb-3">| Recent Announcements</h2>
-            <p class="text-muted">Check out the latest news, events and announcements here.</p>
+        <div class="d-flex flex-wrap justify-content-between align-items-end mb-4 gap-2">
+            <div>
+                <h2 class="fw-bold mb-1" style="color:#2A7BC4;">Recent Announcements</h2>
+                <p class="text-muted mb-0">Mga pinakabagong balita at aktibidad (sample data)</p>
+            </div>
+            <a href="{{ route('public.about') }}" class="btn btn-outline-primary btn-sm" style="border-radius:8px;">View All</a>
         </div>
-        
         <div class="row g-4">
             <div class="col-md-4">
-                <div class="card shadow-sm border-0">
+                <div class="card h-100 border-0 shadow-sm overflow-hidden" style="border-radius:16px;">
+                    <div style="position:relative;">
+                        <img src="https://images.unsplash.com/photo-1606206591510-092151f89a46?auto=format&fit=crop&w=800&q=60" alt="Health" style="width:100%; height:170px; object-fit:cover;">
+                        <span class="badge bg-success" style="position:absolute; top:12px; left:12px;">Health</span>
+                    </div>
                     <div class="card-body">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                                <span class="fw-bold">27</span>
-                            </div>
-                            <div class="ms-3">
-                                <small class="text-muted">December</small>
-                            </div>
+                        <h6 class="fw-semibold mb-2" style="line-height:1.3;">Community Health Program & Free Vaccination Drive</h6>
+                        <p class="text-muted small mb-3">Libreng check-up at bakuna para sa lahat ng residente. Limited slots available.</p>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <span class="text-muted small">Feb 12, 2025</span>
+                            <a href="#" class="text-primary small text-decoration-none">Details →</a>
                         </div>
-                        <h5 class="card-title">Community Health Program</h5>
-                        <p class="card-text text-muted">Free medical check-up and vaccination program for all residents. Schedule your appointment today.</p>
-                        <a href="#" class="text-primary text-decoration-none">See More</a>
                     </div>
                 </div>
             </div>
-            
             <div class="col-md-4">
-                <div class="card shadow-sm border-0">
+                <div class="card h-100 border-0 shadow-sm overflow-hidden" style="border-radius:16px;">
+                    <div style="position:relative;">
+                        <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=60" alt="Assembly" style="width:100%; height:170px; object-fit:cover;">
+                        <span class="badge bg-warning text-dark" style="position:absolute; top:12px; left:12px;">Assembly</span>
+                    </div>
                     <div class="card-body">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                                <span class="fw-bold">15</span>
-                            </div>
-                            <div class="ms-3">
-                                <small class="text-muted">December</small>
-                            </div>
+                        <h6 class="fw-semibold mb-2" style="line-height:1.3;">Monthly Barangay Assembly & Development Updates</h6>
+                        <p class="text-muted small mb-3">Inaanyayahan ang lahat na dumalo sa pagtalakay ng mga proyekto at concerns.</p>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <span class="text-muted small">Feb 08, 2025</span>
+                            <a href="#" class="text-primary small text-decoration-none">Agenda →</a>
                         </div>
-                        <h5 class="card-title">Barangay Assembly Meeting</h5>
-                        <p class="card-text text-muted">Monthly assembly meeting to discuss community issues and development plans.</p>
-                        <a href="#" class="text-primary text-decoration-none">See More</a>
                     </div>
                 </div>
             </div>
-            
             <div class="col-md-4">
-                <div class="card shadow-sm border-0">
+                <div class="card h-100 border-0 shadow-sm overflow-hidden" style="border-radius:16px;">
+                    <div style="position:relative;">
+                        <img src="https://images.unsplash.com/photo-1503596476-1c12a8ba09a8?auto=format&fit=crop&w=800&q=60" alt="Clean Up" style="width:100%; height:170px; object-fit:cover;">
+                        <span class="badge bg-info text-dark" style="position:absolute; top:12px; left:12px;">Environment</span>
+                    </div>
                     <div class="card-body">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="bg-info text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                                <span class="fw-bold">10</span>
-                            </div>
-                            <div class="ms-3">
-                                <small class="text-muted">December</small>
-                            </div>
+                        <h6 class="fw-semibold mb-2" style="line-height:1.3;">Barangay Wide Clean-Up & Waste Segregation Drive</h6>
+                        <p class="text-muted small mb-3">Sama-sama tayong maglinis para sa mas maayos na kapaligiran.</p>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <span class="text-muted small">Feb 03, 2025</span>
+                            <a href="#" class="text-primary small text-decoration-none">Join →</a>
                         </div>
-                        <h5 class="card-title">Clean-up Drive</h5>
-                        <p class="card-text text-muted">Community-wide clean-up drive to maintain the cleanliness and beauty of our barangay.</p>
-                        <a href="#" class="text-primary text-decoration-none">See More</a>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <div class="text-center mt-4">
-            <a href="{{ route('public.about') }}" class="btn btn-primary">View All Announcements</a>
+    </div>
+</section>
+
+<!-- Officials Section -->
+<section class="officials-section">
+    <div class="container">
+        <div class="d-flex flex-wrap justify-content-between align-items-end mb-4 gap-2">
+            <div>
+                <h2 class="fw-bold mb-1" style="color:#2A7BC4;">Barangay Officials</h2>
+                <p class="text-muted mb-0">Dummy listing – sample profiles</p>
+            </div>
+            <a href="{{ route('public.about') }}" class="btn btn-outline-primary btn-sm" style="border-radius:8px;">Full List</a>
+        </div>
+        <div class="officials-grid">
+            @php
+                $officials = [
+                    ['name' => 'Juan Dela Cruz', 'role' => 'Barangay Captain'],
+                    ['name' => 'Maria Santos', 'role' => 'Kagawad'],
+                    ['name' => 'Pedro Ramirez', 'role' => 'Kagawad'],
+                    ['name' => 'Linda Mercado', 'role' => 'Kagawad'],
+                    ['name' => 'Josefa Villanueva', 'role' => 'Kagawad'],
+                    ['name' => 'Erwin Bautista', 'role' => 'Kagawad'],
+                    ['name' => 'Arnel Cruz', 'role' => 'Kagawad'],
+                    ['name' => 'Leah Garcia', 'role' => 'SK Chairperson'],
+                    ['name' => 'Romeo Flores', 'role' => 'Secretary'],
+                    ['name' => 'Cynthia Reyes', 'role' => 'Treasurer'],
+                ];
+            @endphp
+            @foreach($officials as $o)
+                <div class="official-card position-relative">
+                    @if($loop->first)
+                        <div class="official-badge">Lead</div>
+                    @endif
+                    <div class="official-avatar">
+                        <img src="https://ui-avatars.com/api/?name={{ urlencode($o['name']) }}&background=2A7BC4&color=fff&size=128" alt="{{ $o['name'] }}" loading="lazy">
+                    </div>
+                    <div class="official-name">{{ $o['name'] }}</div>
+                    <div class="official-role">{{ $o['role'] }}</div>
+                </div>
+            @endforeach
         </div>
     </div>
 </section>
