@@ -10,7 +10,85 @@
     <link rel="icon" href="{{ asset('favicon.ico') }}">
     <title>@yield('title', 'Barangay Lumanglipa')</title>
     
-    <!-- Performance monitoring script -->
+    <!-- Performance    <!-- Time Display Script -->
+    <script>
+        function updateTime() {
+            const now = new Date();
+            const options = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            document.getElementById('philippineTime').textContent = now.toLocaleTimeString('en-US', options);
+            
+            const dateOptions = { weekday: 'long', year: 'numeric', month: 'numeric', day: 'numeric' };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', dateOptions);
+        }
+        
+        // Update time immediately and then every second
+        updateTime();
+        setInterval(updateTime, 1000);
+    </script>
+
+    <!-- Mobile Menu Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const mobileMenuClose = document.getElementById('mobileMenuClose');
+            const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+            const navbarCollapse = document.getElementById('navbarNav');
+            
+            // Open mobile menu
+            if (mobileMenuToggle) {
+                mobileMenuToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    navbarCollapse.classList.add('show');
+                    mobileMenuOverlay.classList.add('show');
+                    document.body.style.overflow = 'hidden';
+                });
+            }
+            
+            // Close mobile menu
+            function closeMobileMenu() {
+                navbarCollapse.classList.remove('show');
+                mobileMenuOverlay.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+            
+            if (mobileMenuClose) {
+                mobileMenuClose.addEventListener('click', closeMobileMenu);
+            }
+            
+            if (mobileMenuOverlay) {
+                mobileMenuOverlay.addEventListener('click', closeMobileMenu);
+            }
+            
+            // Close menu when clicking on nav links
+            const navLinks = document.querySelectorAll('#navbarNav .nav-link:not(.dropdown-toggle)');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth < 992) {
+                        closeMobileMenu();
+                    }
+                });
+            });
+            
+            // Close menu when clicking on dropdown items
+            const dropdownItems = document.querySelectorAll('#navbarNav .dropdown-item');
+            dropdownItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    if (window.innerWidth < 992) {
+                        closeMobileMenu();
+                    }
+                });
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 992) {
+                    closeMobileMenu();
+                }
+            });
+        });
+    </script>
+    
+    @stack('scripts')t -->
     <script src="{{ asset('js/performance-monitor.js') }}"></script>
     
     <!-- Simple bar CSS -->
@@ -90,6 +168,275 @@
             float: right;
             margin-top: 0.1rem;
         }
+
+        /* Mobile Sliding Drawer Styles */
+        @media (max-width: 991.98px) {
+            /* Override Bootstrap's navbar-expand-lg behavior on mobile */
+            .navbar-expand-lg .navbar-toggler {
+                display: block !important;
+            }
+
+            .navbar-expand-lg .navbar-collapse {
+                display: block !important;
+            }
+
+            /* Mobile toggle button - positioned on the right */
+            .navbar-toggler {
+                display: block !important;
+                border: 1px solid rgba(0,0,0,0.1) !important;
+                padding: 0.25rem 0.5rem !important;
+                font-size: 1.25rem !important;
+                background: transparent !important;
+                margin-left: auto !important;
+            }
+
+            .navbar-toggler:focus {
+                box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25) !important;
+            }
+
+            .navbar-toggler-icon {
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%2833, 37, 41, 0.75%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='m4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+                width: 1.5em !important;
+                height: 1.5em !important;
+            }
+
+            /* Mobile navbar container layout */
+            .navbar .container {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: flex-start !important;
+                position: relative !important;
+                flex-wrap: nowrap !important;
+            }
+
+            /* Mobile logo - fixed on left */
+            .navbar-brand {
+                order: 1 !important;
+                flex-shrink: 0 !important;
+            }
+
+            /* Mobile barangay title - centered between logo and hamburger */
+            .mobile-barangay-title {
+                position: absolute !important;
+                left: 50% !important;
+                top: 50% !important;
+                transform: translate(-50%, -50%) !important;
+                text-align: center !important;
+                pointer-events: none !important;
+                z-index: 1 !important;
+            }
+
+            .mobile-barangay-title .barangay-name {
+                font-size: 0.8rem !important;
+                font-weight: 700 !important;
+                color: #2c5530 !important;
+                line-height: 1.1 !important;
+                margin-bottom: 1px !important;
+                letter-spacing: 0.3px !important;
+                white-space: nowrap !important;
+            }
+
+            .mobile-barangay-title .barangay-location {
+                font-size: 0.55rem !important;
+                font-weight: 500 !important;
+                color: #6c757d !important;
+                line-height: 1 !important;
+                letter-spacing: 0.2px !important;
+                white-space: nowrap !important;
+            }
+
+            /* Mobile overlay */
+            .mobile-menu-overlay {
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: 100vh !important;
+                background: rgba(0,0,0,0.5) !important;
+                z-index: 9998 !important;
+                opacity: 0 !important;
+                visibility: hidden !important;
+                transition: all 0.3s ease !important;
+            }
+
+            .mobile-menu-overlay.show {
+                opacity: 1 !important;
+                visibility: visible !important;
+            }
+
+            /* Right sliding drawer */
+            .navbar-collapse {
+                position: fixed !important;
+                top: 0 !important;
+                right: -100% !important;
+                width: 320px !important;
+                max-width: 85vw !important;
+                height: 100vh !important;
+                background: white !important;
+                box-shadow: -3px 0 15px rgba(0,0,0,0.2) !important;
+                z-index: 9999 !important;
+                transition: right 0.3s ease !important;
+                overflow-y: auto !important;
+                padding: 0 !important;
+                border: none !important;
+                margin: 0 !important;
+            }
+
+            .navbar-collapse.show {
+                right: 0 !important;
+            }
+
+            /* Mobile menu header with blue background */
+            .mobile-menu-header {
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                padding: 1.5rem 1rem !important;
+                background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%) !important;
+                color: white !important;
+                border-bottom: none !important;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+            }
+
+            .mobile-menu-header .mobile-barangay-info {
+                text-align: center !important;
+                flex-grow: 1 !important;
+            }
+
+            .mobile-menu-header .mobile-barangay-info .barangay-name {
+                color: white !important;
+                font-size: 1.1rem !important;
+                font-weight: 700 !important;
+                margin-bottom: 3px !important;
+                letter-spacing: 0.5px !important;
+            }
+
+            .mobile-menu-header .mobile-barangay-info .barangay-location {
+                color: rgba(255,255,255,0.9) !important;
+                font-size: 0.75rem !important;
+                font-weight: 500 !important;
+                letter-spacing: 0.3px !important;
+            }
+
+            .mobile-menu-close {
+                background: none !important;
+                border: none !important;
+                font-size: 1.8rem !important;
+                color: white !important;
+                cursor: pointer !important;
+                padding: 0.25rem !important;
+                line-height: 1 !important;
+                border-radius: 50% !important;
+                width: 35px !important;
+                height: 35px !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                transition: background-color 0.2s ease !important;
+            }
+
+            .mobile-menu-close:hover {
+                background: rgba(255,255,255,0.2) !important;
+            }
+
+            /* Mobile navigation items */
+            .navbar-nav {
+                flex-direction: column !important;
+                padding: 0 !important;
+                width: 100% !important;
+                margin: 0 !important;
+            }
+
+            .navbar-nav .nav-item {
+                border-bottom: 1px solid #f1f3f4 !important;
+                width: 100% !important;
+                margin: 0 !important;
+            }
+
+            .navbar-nav .nav-item:last-child {
+                border-bottom: none !important;
+            }
+
+            .navbar-nav .nav-link {
+                padding: 1.2rem 1.5rem !important;
+                margin: 0 !important;
+                color: #333 !important;
+                width: 100% !important;
+                text-align: left !important;
+                font-weight: 500 !important;
+                display: flex !important;
+                align-items: center !important;
+                transition: all 0.2s ease !important;
+                font-size: 1rem !important;
+            }
+
+            .navbar-nav .nav-link:hover,
+            .navbar-nav .nav-link.active {
+                background-color: #f8f9fa !important;
+                color: #4a90e2 !important;
+                padding-left: 2rem !important;
+            }
+
+            .navbar-nav .nav-link img {
+                display: none !important;
+            }
+
+            /* Mobile dropdown menu */
+            .navbar-nav .dropdown-menu {
+                position: static !important;
+                box-shadow: none !important;
+                border: none !important;
+                background: #f8f9fa !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                border-radius: 0 !important;
+            }
+
+            .navbar-nav .dropdown-item {
+                padding: 1rem 2.5rem !important;
+                color: #666 !important;
+                border-bottom: 1px solid #e9ecef !important;
+                font-size: 0.9rem !important;
+                transition: all 0.2s ease !important;
+            }
+
+            .navbar-nav .dropdown-item:hover {
+                background-color: #e9ecef !important;
+                color: #4a90e2 !important;
+                padding-left: 3rem !important;
+            }
+
+            .navbar-nav .dropdown-item:last-child {
+                border-bottom: none !important;
+            }
+
+            /* Login section at bottom */
+            .navbar-nav.ms-auto {
+                margin-left: 0 !important;
+                border-top: 2px solid #f1f3f4 !important;
+                margin-top: 1rem !important;
+                padding-top: 0 !important;
+            }
+
+            .navbar-nav.ms-auto .nav-link {
+                text-align: center !important;
+                background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%) !important;
+                color: white !important;
+                margin: 1.5rem !important;
+                border-radius: 8px !important;
+                font-weight: 600 !important;
+                padding: 1rem !important;
+                box-shadow: 0 2px 4px rgba(74, 144, 226, 0.3) !important;
+            }
+
+            .navbar-nav.ms-auto .nav-link:hover {
+                background: linear-gradient(135deg, #357abd 0%, #2968a3 100%) !important;
+                color: white !important;
+                transform: translateY(-1px) !important;
+                box-shadow: 0 4px 8px rgba(74, 144, 226, 0.4) !important;
+                padding-left: 1rem !important;
+            }
+        }
         
         /* Chat widget positioning and visibility fixes */
         .chat-widget,
@@ -152,13 +499,37 @@
     <!-- Top Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
         <div class="container">
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <!-- Mobile Logo (visible only on mobile) -->
+            <a class="navbar-brand d-lg-none" href="{{ route('public.home') }}">
+                <img src="{{ asset('images/logo.png') }}" alt="Logo" width="45" height="45">
+            </a>
+
+            <!-- Mobile Barangay Title (centered on mobile only) -->
+            <div class="mobile-barangay-title d-lg-none">
+                <div class="barangay-name">BARANGAY LUMANGLIPA</div>
+                <div class="barangay-location">MATAAS NA KAHOY, BATANGAS</div>
+            </div>
+
+            <button class="navbar-toggler" type="button" id="mobileMenuToggle">
                 <span class="navbar-toggler-icon"></span>
             </button>
             
+            <!-- Mobile menu overlay -->
+            <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+            
             <div class="collapse navbar-collapse" id="navbarNav">
+                <!-- Mobile menu header -->
+                <div class="mobile-menu-header d-lg-none">
+                    <div class="mobile-barangay-info">
+                        <div class="barangay-name">BARANGAY LUMANGLIPA</div>
+                        <div class="barangay-location">MATAAS NA KAHOY, BATANGAS</div>
+                    </div>
+                    <button class="mobile-menu-close" id="mobileMenuClose">&times;</button>
+                </div>
+
                 <ul class="navbar-nav">
-                    <li class="nav-item">
+                    <!-- Desktop Logo (inside nav items, original position) -->
+                    <li class="nav-item d-none d-lg-block">
                         <a class="nav-link" href="{{ route('public.home') }}">
                             <img src="{{ asset('images/logo.png') }}" alt="Logo" width="60" height="60">
                         </a>

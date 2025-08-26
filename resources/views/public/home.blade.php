@@ -162,17 +162,75 @@
         font-size: 1.2rem;
         width: 30px;
         text-align: center;
+        flex-shrink: 0;
     }
     
     .service-item {
         transition: all 0.3s ease;
         border: 1px solid #e2e8f0;
+        min-height: 70px;
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+    }
+    
+    .service-item .d-flex {
+        width: 100%;
+        align-items: center !important;
+    }
+    
+    .service-item .flex-grow-1 {
+        min-width: 0;
+        flex: 1;
     }
     
     .service-item:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         border-color: #3F9EDD;
+    }
+    
+    .services-preview .row {
+        margin: 0 -8px;
+    }
+    
+    .services-preview .col-12,
+    .services-preview .col-sm-6 {
+        padding: 0 8px;
+        margin-bottom: 16px;
+    }
+    
+    /* Mobile responsive fixes for service cards */
+    @media (max-width: 575.98px) {
+        .services-preview .col-12 {
+            margin-bottom: 12px;
+        }
+        
+        .service-item {
+            min-height: 65px;
+            padding: 12px !important;
+        }
+        
+        .service-icon-sm {
+            font-size: 1.5rem !important;
+            margin-right: 12px !important;
+        }
+        
+        .service-item .fw-bold {
+            font-size: 0.85rem !important;
+            line-height: 1.3;
+        }
+        
+        .service-item .text-muted {
+            font-size: 0.7rem !important;
+            line-height: 1.2;
+        }
+    }
+    
+    @media (min-width: 576px) and (max-width: 767.98px) {
+        .service-item {
+            min-height: 68px;
+        }
     }
     
     .floating-stat {
@@ -269,12 +327,75 @@
     .staff-branch:before { content:""; position:absolute; top:-32px; left:50%; transform:translateX(-50%); width:3px; height:32px; background:linear-gradient(#2A7BC4,#3F9EDD); border-radius:3px; }
     .staff-children { display:flex; gap:26px; justify-content:center; flex-wrap:wrap; margin-top:26px; position:relative; }
     .staff-children:before { content:""; position:absolute; top:-20px; left:50%; transform:translateX(-50%); width:180px; max-width:60%; height:2px; background:linear-gradient(90deg,#2A7BC4,#3F9EDD); }
-    @media (max-width:820px){ .kagawad-wrapper { padding:32px 10px 6px; } .kagawad-wrapper:before { left:10px; right:10px; } }
+    
+    /* Additional CSS for profile images */
+    .tree-initial.has-image {
+        background-size: cover !important;
+        background-position: center !important;
+        background-repeat: no-repeat !important;
+        color: transparent !important;
+    }
+    .tree-initial.secretary, .tree-initial.treasurer {
+        width: 54px !important;
+        height: 54px !important;
+        font-size: 0.9rem !important;
+    }
+    
+    /* Mobile responsive improvements for tree structure */
+    @media (max-width: 992px) {
+        .officials-tree-structure { max-width: 100%; padding: 0 15px; }
+        .tree-level { gap: 15px; }
+        .tree-card { min-width: 140px; padding: 12px; }
+        .tree-card.captain .tree-initial { width: 60px; height: 60px; }
+        .tree-initial { width: 50px; height: 50px; font-size: 0.9rem; }
+        .tree-name { font-size: 0.7rem; }
+        .tree-role { font-size: 0.55rem; }
+    }
+    }
+    
+    @media (max-width:820px){ 
+        .kagawad-wrapper { padding:32px 10px 6px; } 
+        .kagawad-wrapper:before { left:10px; right:10px; } 
+        .tree-level { gap: 12px; }
+        .tree-card { min-width: 120px; }
+    }
+    
     @media (max-width:620px){
         .kagawad-wrapper:after, .kagawad-wrapper:before, .staff-children:before { display:none; }
         .kagawad-wrapper { padding-top:10px; }
         .connector-vertical, .staff-branch:before { display:none; }
+        .tree-level { gap: 8px; justify-content: center; }
+        .tree-card { 
+            min-width: 100px; 
+            max-width: 140px; 
+            padding: 10px 8px 12px; 
+            margin-bottom: 10px;
+        }
+        .tree-initial { width: 45px; height: 45px; font-size: 0.8rem; margin-bottom: 8px; }
+        .tree-card.captain .tree-initial { width: 55px; height: 55px; }
+        .tree-name { font-size: 0.65rem; line-height: 1.2; }
+        .tree-role { font-size: 0.5rem; margin-top: 2px; }
+        .staff-children { gap: 8px; margin-top: 15px; }
+        .officials-section { padding: 50px 0 60px; }
     }
+    
+    @media (max-width: 480px) {
+        .tree-level { 
+            gap: 6px; 
+            justify-content: space-around; 
+        }
+        .tree-card { 
+            min-width: 90px; 
+            max-width: 120px; 
+            padding: 8px 6px 10px; 
+        }
+        .tree-initial { width: 40px; height: 40px; font-size: 0.75rem; margin-bottom: 6px; }
+        .tree-card.captain .tree-initial { width: 50px; height: 50px; }
+        .tree-name { font-size: 0.6rem; }
+        .tree-role { font-size: 0.45rem; }
+        .staff-children { gap: 6px; }
+    }
+    
     .officials-subnote { font-size:.65rem; letter-spacing:.5px; color:#94a3b8; margin-top:18px; text-align:center; }
     @media (max-width: 576px){
         .hero-title { font-size: 2.2rem; }
@@ -608,46 +729,46 @@
                     <!-- Services Grid -->
                     <div class="services-preview mb-4">
                         <div class="row g-2">
-                            <div class="col-6">
+                            <div class="col-12 col-sm-6">
                                 <div class="service-item p-3 bg-light rounded-3 h-100">
                                     <div class="d-flex align-items-center">
-                                        <div class="service-icon-sm me-2">📄</div>
-                                        <div>
-                                            <div class="fw-bold text-dark" style="font-size: 0.85rem;">Document Requests</div>
-                                            <div class="text-muted" style="font-size: 0.7rem;">Clearance, Residency & More</div>
+                                        <div class="service-icon-sm me-3" style="font-size: 1.6rem;">📄</div>
+                                        <div class="flex-grow-1">
+                                            <div class="fw-bold text-dark" style="font-size: 0.9rem; line-height: 1.3;">Document Requests</div>
+                                            <div class="text-muted" style="font-size: 0.72rem; line-height: 1.2;">Clearance, Residency & More</div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-6">
+                            <div class="col-12 col-sm-6">
                                 <div class="service-item p-3 bg-light rounded-3 h-100">
                                     <div class="d-flex align-items-center">
-                                        <div class="service-icon-sm me-2">🏥</div>
-                                        <div>
-                                            <div class="fw-bold text-dark" style="font-size: 0.85rem;">Health Services</div>
-                                            <div class="text-muted" style="font-size: 0.7rem;">Medical Assistance</div>
+                                        <div class="service-icon-sm me-3" style="font-size: 1.6rem;">🏥</div>
+                                        <div class="flex-grow-1">
+                                            <div class="fw-bold text-dark" style="font-size: 0.9rem; line-height: 1.3;">Health Services</div>
+                                            <div class="text-muted" style="font-size: 0.72rem; line-height: 1.2;">Medical Assistance</div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-6">
+                            <div class="col-12 col-sm-6">
                                 <div class="service-item p-3 bg-light rounded-3 h-100">
                                     <div class="d-flex align-items-center">
-                                        <div class="service-icon-sm me-2">📝</div>
-                                        <div>
-                                            <div class="fw-bold text-dark" style="font-size: 0.85rem;">File Complaints</div>
-                                            <div class="text-muted" style="font-size: 0.7rem;">24/7 Online System</div>
+                                        <div class="service-icon-sm me-3" style="font-size: 1.6rem;">📝</div>
+                                        <div class="flex-grow-1">
+                                            <div class="fw-bold text-dark" style="font-size: 0.9rem; line-height: 1.3;">File Complaints</div>
+                                            <div class="text-muted" style="font-size: 0.72rem; line-height: 1.2;">24/7 Online System</div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-6">
+                            <div class="col-12 col-sm-6">
                                 <div class="service-item p-3 bg-light rounded-3 h-100">
                                     <div class="d-flex align-items-center">
-                                        <div class="service-icon-sm me-2">🆔</div>
-                                        <div>
-                                            <div class="fw-bold text-dark" style="font-size: 0.85rem;">Resident Registration</div>
-                                            <div class="text-muted" style="font-size: 0.7rem;">Barangay ID & More</div>
+                                        <div class="service-icon-sm me-3" style="font-size: 1.6rem;">🆔</div>
+                                        <div class="flex-grow-1">
+                                            <div class="fw-bold text-dark" style="font-size: 0.9rem; line-height: 1.3;">Resident Registration</div>
+                                            <div class="text-muted" style="font-size: 0.72rem; line-height: 1.2;">Barangay ID & More</div>
                                         </div>
                                     </div>
                                 </div>
@@ -781,7 +902,11 @@
                 @php $captain = $officials->where('position', 'Captain')->first() @endphp
                 @if($captain)
                     <div class="tree-card captain">
-                        <div class="tree-initial" style="{{ $captain->profile_pic ? 'background-image: url(\'' . asset('storage/officials/' . $captain->profile_pic) . '\'); background-size: cover; background-position: center; color: transparent;' : '' }}">{{ $captain->profile_pic ? '' : $captain->initials }}</div>
+                        @if($captain->profile_pic)
+                            <div class="tree-initial has-image" style="background-image: url({{ asset('storage/officials/' . $captain->profile_pic) }});"></div>
+                        @else
+                            <div class="tree-initial">{{ $captain->initials }}</div>
+                        @endif
                         <div class="tree-name">{{ $captain->name }}</div>
                         <div class="tree-role">BARANGAY CAPTAIN</div>
                     </div>
@@ -802,7 +927,11 @@
                     @if($councilors->count() > 0)
                         @foreach($councilors as $councilor)
                             <div class="tree-card">
-                                <div class="tree-initial" style="{{ $councilor->profile_pic ? 'background-image: url(\'' . asset('storage/officials/' . $councilor->profile_pic) . '\'); background-size: cover; background-position: center; color: transparent;' : '' }}">{{ $councilor->profile_pic ? '' : $councilor->initials }}</div>
+                                @if($councilor->profile_pic)
+                                    <div class="tree-initial has-image" style="background-image: url({{ asset('storage/officials/' . $councilor->profile_pic) }});"></div>
+                                @else
+                                    <div class="tree-initial">{{ $councilor->initials }}</div>
+                                @endif
                                 <div class="tree-name">{{ $councilor->name }}</div>
                                 <div class="tree-role">COUNCILOR</div>
                                 @if($councilor->committee)
@@ -830,21 +959,33 @@
                 
                 @if($skChairman)
                     <div class="tree-card sk staff-branch">
-                        <div class="tree-initial" style="{{ $skChairman->profile_pic ? 'background-image: url(\'' . asset('storage/officials/' . $skChairman->profile_pic) . '\'); background-size: cover; background-position: center; color: transparent;' : '' }}">{{ $skChairman->profile_pic ? '' : $skChairman->initials }}</div>
+                        @if($skChairman->profile_pic)
+                            <div class="tree-initial has-image" style="background-image: url({{ asset('storage/officials/' . $skChairman->profile_pic) }});"></div>
+                        @else
+                            <div class="tree-initial">{{ $skChairman->initials }}</div>
+                        @endif
                         <div class="tree-name">{{ $skChairman->name }}</div>
                         <div class="tree-role">SK CHAIRMAN</div>
                         <!-- Staff children -->
                         <div class="staff-children">
                             @if($secretary)
                                 <div class="tree-card" style="min-width:150px;">
-                                    <div class="tree-initial" style="width:54px;height:54px;font-size:.9rem;{{ $secretary->profile_pic ? 'background-image: url(\'' . asset('storage/officials/' . $secretary->profile_pic) . '\'); background-size: cover; background-position: center; color: transparent;' : '' }}">{{ $secretary->profile_pic ? '' : $secretary->initials }}</div>
+                                    @if($secretary->profile_pic)
+                                        <div class="tree-initial secretary treasurer has-image" style="background-image: url({{ asset('storage/officials/' . $secretary->profile_pic) }});"></div>
+                                    @else
+                                        <div class="tree-initial secretary treasurer">{{ $secretary->initials }}</div>
+                                    @endif
                                     <div class="tree-name">{{ $secretary->name }}</div>
                                     <div class="tree-role">SECRETARY</div>
                                 </div>
                             @endif
                             @if($treasurer)
                                 <div class="tree-card" style="min-width:150px;">
-                                    <div class="tree-initial" style="width:54px;height:54px;font-size:.9rem;{{ $treasurer->profile_pic ? 'background-image: url(\'' . asset('storage/officials/' . $treasurer->profile_pic) . '\'); background-size: cover; background-position: center; color: transparent;' : '' }}">{{ $treasurer->profile_pic ? '' : $treasurer->initials }}</div>
+                                    @if($treasurer->profile_pic)
+                                        <div class="tree-initial secretary treasurer has-image" style="background-image: url({{ asset('storage/officials/' . $treasurer->profile_pic) }});"></div>
+                                    @else
+                                        <div class="tree-initial secretary treasurer">{{ $treasurer->initials }}</div>
+                                    @endif
                                     <div class="tree-name">{{ $treasurer->name }}</div>
                                     <div class="tree-role">TREASURER</div>
                                 </div>
