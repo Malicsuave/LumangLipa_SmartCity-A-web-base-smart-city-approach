@@ -21,5 +21,16 @@ class BarangayOfficial extends Model
         'councilor5_name',
         'councilor6_name',
         'councilor7_name',
+        'captain_photo',
+        'secretary_photo',
+        'sk_chairperson_photo',
+        'treasurer_photo',
+        'councilor1_photo',
+        'councilor2_photo',
+        'councilor3_photo',
+        'councilor4_photo',
+        'councilor5_photo',
+        'councilor6_photo',
+        'councilor7_photo',
     ];
 }

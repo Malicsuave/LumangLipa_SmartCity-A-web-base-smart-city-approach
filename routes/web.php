@@ -646,6 +646,7 @@ Route::post('/admin/residents/id/{resident}/upload-signature', [ResidentIdContro
 Route::middleware(['role:Barangay Captain,Barangay Secretary'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('officials/edit-single', [App\Http\Controllers\Admin\BarangayOfficialController::class, 'edit'])->name('officials.edit-single');
     Route::post('officials/edit-single', [App\Http\Controllers\Admin\BarangayOfficialController::class, 'update'])->name('officials.update-single');
+    Route::delete('officials/photo/{field}', [App\Http\Controllers\Admin\BarangayOfficialController::class, 'deletePhoto'])->name('officials.delete-photo');
 });
 
 

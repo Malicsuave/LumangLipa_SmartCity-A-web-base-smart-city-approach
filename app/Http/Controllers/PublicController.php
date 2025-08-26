@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Official;
 
 class PublicController extends Controller
 {
@@ -11,7 +12,9 @@ class PublicController extends Controller
      */
     public function home()
     {
-        return view('public.home');
+        $officials = Official::getOrderedOfficials();
+        
+        return view('public.home', compact('officials'));
     }
     
     /**
@@ -19,7 +22,9 @@ class PublicController extends Controller
      */
     public function about()
     {
-        return view('public.about');
+        $officials = Official::getOrderedOfficials();
+        
+        return view('public.about', compact('officials'));
     }
     
     /**

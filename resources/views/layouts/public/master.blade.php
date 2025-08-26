@@ -184,7 +184,7 @@
                         <a class="nav-link {{ Route::currentRouteName() == 'public.contact' ? 'active text-primary fw-bold' : '' }}" href="{{ route('public.contact') }}">Contact</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ str_contains(Route::currentRouteName(), 'public.pre-registration') ? 'active text-primary fw-bold' : '' }}" href="{{ route('public.pre-registration.create') }}">Register</a>
+                        <a class="nav-link {{ str_contains(Route::currentRouteName(), 'public.pre-registration') ? 'active text-primary fw-bold' : '' }}" href="{{ route('public.pre-registration.step1') }}">Register</a>
                     </li>
                 </ul>
                 

@@ -252,9 +252,11 @@
     .tree-card:hover { transform:translateY(-4px); box-shadow:0 12px 28px -6px rgba(0,0,0,.18); }
     .tree-card.captain { border-color:#2A7BC4; box-shadow:0 8px 28px -6px rgba(42,123,196,.4); }
     .tree-card.sk { border-style:dashed; }
-    .tree-initial { width:60px; height:60px; border-radius:14px; margin:0 auto 10px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1.05rem; color:#2A7BC4; background:linear-gradient(135deg,#eef6ff,#e2effd); letter-spacing:.5px; }
+    .tree-initial { width:60px; height:60px; border-radius:14px; margin:0 auto 10px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1.05rem; color:#2A7BC4; background:linear-gradient(135deg,#eef6ff,#e2effd); letter-spacing:.5px; background-size: cover; background-position: center; background-repeat: no-repeat; }
     .tree-card.captain .tree-initial { width:70px; height:70px; font-size:1.25rem; }
     .tree-card.captain .tree-initial[style*="background-image"] { border: 2px solid #2A7BC4; box-shadow: 0 2px 8px rgba(42,123,196,0.3); }
+    .tree-initial[style*="background-image"] { border: 2px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .tree-initial[style*="background-image"]:hover { transform: scale(1.05); transition: transform 0.2s ease; }
     .tree-name { font-size:.78rem; font-weight:700; color:#1e293b; line-height:1.25; }
     .tree-role { font-size:.6rem; font-weight:600; color:#2563eb; letter-spacing:1px; margin-top:4px; text-transform:uppercase; }
     .connector-vertical { position:relative; width:100%; height:48px; }
@@ -773,65 +775,89 @@
             </div>
             <a href="{{ route('public.about') }}" class="btn btn-outline-primary btn-sm" style="border-radius:8px;">Tingnan Pa</a>
         </div>
-        @php
-            $captain = ['HON. NOVILITO M. MANALO' => 'Barangay Captain'];
-            $kagawad = [
-                'HON. ROLDAN A. ROSITA',
-                'HON. LEXTER D. MAQUINTO',
-                'HON. RICHARD C. CANOSA',
-                'HON. RODOLFO U. MANALO JR',
-                'HON. ROSENDO T. BABADILLA',
-                'HON. JAIME C. LAQUI',
-                'HON. RECHEL R. CIRUELAS',
-            ];
-            $sk = ['HON. JOHN MARCO C. ARRIOLA' => 'SK Chairman'];
-            $staff = ['APRIL JANE J. SISCAR' => 'Secretary', 'JOSEPHINE R. QUISTO' => 'Treasurer'];
-            $makeInitials = function($full){ $parts = preg_split('/\s+/', preg_replace('/[^A-Z\s]/','',$full)); return collect($parts)->filter()->map(fn($p)=> substr($p,0,1))->take(3)->implode(''); };
-        @endphp
         <div class="officials-tree-structure">
             <!-- Captain -->
             <div class="tree-level">
-                @foreach($captain as $n=>$r)
+                @php $captain = $officials->where('position', 'Captain')->first() @endphp
+                @if($captain)
                     <div class="tree-card captain">
-                        <div class="tree-initial" style="background-image: url('{{ asset('images/officials/captain.png') }}'); background-size: cover; background-position: center; color: transparent;">{{ $makeInitials($n) }}</div>
-                        <div class="tree-name">{{ $n }}</div>
-                        <div class="tree-role">{{ strtoupper($r) }}</div>
+                        <div class="tree-initial" style="{{ $captain->profile_pic ? 'background-image: url(\'' . asset('storage/officials/' . $captain->profile_pic) . '\'); background-size: cover; background-position: center; color: transparent;' : '' }}">{{ $captain->profile_pic ? '' : $captain->initials }}</div>
+                        <div class="tree-name">{{ $captain->name }}</div>
+                        <div class="tree-role">BARANGAY CAPTAIN</div>
                     </div>
-                @endforeach
+                @else
+                    <div class="tree-card captain">
+                        <div class="tree-initial">N/A</div>
+                        <div class="tree-name">No Captain Assigned</div>
+                        <div class="tree-role">BARANGAY CAPTAIN</div>
+                    </div>
+                @endif
             </div>
             <div class="connector-vertical"></div>
-            <!-- Kagawad Group (7) -->
+            <!-- Councilors -->
             <div class="kagawad-wrapper">
                 <div class="tree-level">
-                    @foreach($kagawad as $n)
+                    @php $councilors = $officials->where('position', 'Councilor') @endphp
+                    
+                    @if($councilors->count() > 0)
+                        @foreach($councilors as $councilor)
+                            <div class="tree-card">
+                                <div class="tree-initial" style="{{ $councilor->profile_pic ? 'background-image: url(\'' . asset('storage/officials/' . $councilor->profile_pic) . '\'); background-size: cover; background-position: center; color: transparent;' : '' }}">{{ $councilor->profile_pic ? '' : $councilor->initials }}</div>
+                                <div class="tree-name">{{ $councilor->name }}</div>
+                                <div class="tree-role">COUNCILOR</div>
+                                @if($councilor->committee)
+                                    <div class="tree-committee" style="font-size: 0.7rem; color: #6b7280; margin-top: 2px;">{{ $councilor->committee }}</div>
+                                @endif
+                            </div>
+                        @endforeach
+                    @else
                         <div class="tree-card">
-                            <div class="tree-initial">{{ $makeInitials($n) }}</div>
-                            <div class="tree-name">{{ $n }}</div>
+                            <div class="tree-initial">N/A</div>
+                            <div class="tree-name">No Councilors Assigned</div>
                             <div class="tree-role">COUNCILOR</div>
                         </div>
-                    @endforeach
+                    @endif
                 </div>
             </div>
-            <!-- SK Chairman Branch -->
+            <!-- SK Chairman and other positions -->
             <div class="connector-vertical"></div>
             <div class="tree-level">
-                @foreach($sk as $n=>$r)
+                @php 
+                    $skChairman = $officials->where('position', 'SK Chairman')->first();
+                    $secretary = $officials->where('position', 'Secretary')->first();
+                    $treasurer = $officials->where('position', 'Treasurer')->first();
+                @endphp
+                
+                @if($skChairman)
                     <div class="tree-card sk staff-branch">
-                        <div class="tree-initial">{{ $makeInitials($n) }}</div>
-                        <div class="tree-name">{{ $n }}</div>
-                        <div class="tree-role">{{ strtoupper($r) }}</div>
+                        <div class="tree-initial" style="{{ $skChairman->profile_pic ? 'background-image: url(\'' . asset('storage/officials/' . $skChairman->profile_pic) . '\'); background-size: cover; background-position: center; color: transparent;' : '' }}">{{ $skChairman->profile_pic ? '' : $skChairman->initials }}</div>
+                        <div class="tree-name">{{ $skChairman->name }}</div>
+                        <div class="tree-role">SK CHAIRMAN</div>
                         <!-- Staff children -->
                         <div class="staff-children">
-                            @foreach($staff as $sn=>$sr)
+                            @if($secretary)
                                 <div class="tree-card" style="min-width:150px;">
-                                    <div class="tree-initial" style="width:54px;height:54px;font-size:.9rem;">{{ $makeInitials($sn) }}</div>
-                                    <div class="tree-name">{{ $sn }}</div>
-                                    <div class="tree-role">{{ strtoupper($sr) }}</div>
+                                    <div class="tree-initial" style="width:54px;height:54px;font-size:.9rem;{{ $secretary->profile_pic ? 'background-image: url(\'' . asset('storage/officials/' . $secretary->profile_pic) . '\'); background-size: cover; background-position: center; color: transparent;' : '' }}">{{ $secretary->profile_pic ? '' : $secretary->initials }}</div>
+                                    <div class="tree-name">{{ $secretary->name }}</div>
+                                    <div class="tree-role">SECRETARY</div>
                                 </div>
-                            @endforeach
+                            @endif
+                            @if($treasurer)
+                                <div class="tree-card" style="min-width:150px;">
+                                    <div class="tree-initial" style="width:54px;height:54px;font-size:.9rem;{{ $treasurer->profile_pic ? 'background-image: url(\'' . asset('storage/officials/' . $treasurer->profile_pic) . '\'); background-size: cover; background-position: center; color: transparent;' : '' }}">{{ $treasurer->profile_pic ? '' : $treasurer->initials }}</div>
+                                    <div class="tree-name">{{ $treasurer->name }}</div>
+                                    <div class="tree-role">TREASURER</div>
+                                </div>
+                            @endif
                         </div>
                     </div>
-                @endforeach
+                @else
+                    <div class="tree-card sk">
+                        <div class="tree-initial">N/A</div>
+                        <div class="tree-name">No SK Chairman Assigned</div>
+                        <div class="tree-role">SK CHAIRMAN</div>
+                    </div>
+                @endif
             </div>
             
         </div>
