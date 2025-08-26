@@ -254,6 +254,7 @@
     .tree-card.sk { border-style:dashed; }
     .tree-initial { width:60px; height:60px; border-radius:14px; margin:0 auto 10px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1.05rem; color:#2A7BC4; background:linear-gradient(135deg,#eef6ff,#e2effd); letter-spacing:.5px; }
     .tree-card.captain .tree-initial { width:70px; height:70px; font-size:1.25rem; }
+    .tree-card.captain .tree-initial[style*="background-image"] { border: 2px solid #2A7BC4; box-shadow: 0 2px 8px rgba(42,123,196,0.3); }
     .tree-name { font-size:.78rem; font-weight:700; color:#1e293b; line-height:1.25; }
     .tree-role { font-size:.6rem; font-weight:600; color:#2563eb; letter-spacing:1px; margin-top:4px; text-transform:uppercase; }
     .connector-vertical { position:relative; width:100%; height:48px; }
@@ -792,7 +793,7 @@
             <div class="tree-level">
                 @foreach($captain as $n=>$r)
                     <div class="tree-card captain">
-                        <div class="tree-initial">{{ $makeInitials($n) }}</div>
+                        <div class="tree-initial" style="background-image: url('{{ asset('images/officials/captain.png') }}'); background-size: cover; background-position: center; color: transparent;">{{ $makeInitials($n) }}</div>
                         <div class="tree-name">{{ $n }}</div>
                         <div class="tree-role">{{ strtoupper($r) }}</div>
                     </div>
@@ -1614,9 +1615,7 @@ Office Hours: Mon-Fri 8AM-5PM, Sat 8AM-12PM
              this.getServiceOptions('Complaint Filing')],
 
             [['barangay id', 'id card', 'resident id', 'identification'],
-             `
-
-What would you like to know about Barangay ID?
+             `What would you like to know about Barangay ID?
 
 <div class="quick-actions" style="margin-top: 15px;">
     <button class="quick-action-btn" data-action="what-is-barangay-id">❓ What is Barangay ID?</button>
