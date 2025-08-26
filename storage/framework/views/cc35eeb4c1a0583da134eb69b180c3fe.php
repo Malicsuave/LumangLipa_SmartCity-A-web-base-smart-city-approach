@@ -1,0 +1,2 @@
+<?php // This partial expects $pendingIssuance to be passed in ?>
+<?php echo $__env->make('admin.residents.pending-ids-filter-main-content', ['pendingIssuance' => $pendingIssuance], \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?> <?php /**PATH /var/www/html/lumanglipa/resources/views/admin/residents/pending-ids-filter-main.blade.php ENDPATH**/ ?>

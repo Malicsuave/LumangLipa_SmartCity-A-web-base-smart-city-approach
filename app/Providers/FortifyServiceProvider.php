@@ -68,8 +68,8 @@ class FortifyServiceProvider extends ServiceProvider
             ->name('two-factor.disable') // Name the route for disabling 2FA
             ->middleware(['auth']);
 
-        Route::post('/user/two-factor-recovery-codes', [TwoFactorAuthenticationController::class, 'recoveryCodes'])
-            ->name('two-factor.recovery-codes') // Name the route for regenerating recovery codes
-            ->middleware(['auth']);
+        // Route::post('/user/two-factor-recovery-codes', [TwoFactorAuthenticationController::class, 'recoveryCodes'])
+        //     ->name('two-factor.recovery-codes') // Name the route for regenerating recovery codes
+        //     ->middleware(['auth']);
     }
 }

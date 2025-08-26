@@ -10490,6 +10490,7 @@ form.was-validated select:valid ~ .select2-container--bootstrap4 .select2-select
       margin-right: 8px;
       max-width: 20px;
       max-height: 20px;
+    }
 
 .uppy-ProviderBrowserItem-fakeCheckbox {
   position: relative;

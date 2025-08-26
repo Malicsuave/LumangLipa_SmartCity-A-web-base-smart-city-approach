@@ -2,16 +2,33 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 use App\Http\Requests\AdminProfileUpdateRequest;
 use App\Http\Requests\ProfilePhotoUpdateRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 
 class AdminProfileController extends Controller
 {
+    /**
+     * Display the admin profile page.
+     */
+    public function show()
+    {
+        $user = Auth::user();
+        return view('admin.profile', compact('user'));
+    }
+
+    /**
+     * Update the admin profile information (route expects update, not updateProfile).
+     */
+    public function update(AdminProfileUpdateRequest $request)
+    {
+        return $this->updateProfile($request);
+    }
+
     public function updateProfile(AdminProfileUpdateRequest $request)
     {
         $user = Auth::user();
@@ -22,10 +39,10 @@ class AdminProfileController extends Controller
         $user->email = $validated['email'];
         $user->save();
 
-        return redirect()->route('admin.profile')->with('status', 'Profile information updated successfully.');
+        return redirect()->route('admin.profile')->with('profile_status', 'Profile information updated successfully.');
     }
 
-    public function updateProfilePhoto(ProfilePhotoUpdateRequest $request)
+    public function updatePhoto(ProfilePhotoUpdateRequest $request)
     {
         $validated = $request->validated();
         $user = Auth::user();
@@ -41,7 +58,7 @@ class AdminProfileController extends Controller
         $user->profile_photo_path = $path;
         $user->save();
 
-        return redirect()->route('admin.profile')->with('status', 'Profile photo updated successfully.');
+        return redirect()->route('admin.profile')->with('profile_status', 'Profile photo updated successfully.');
     }
 
     public function deleteProfilePhoto()
@@ -54,7 +71,7 @@ class AdminProfileController extends Controller
             $user->save();
         }
 
-        return redirect()->route('admin.profile')->with('status', 'Profile photo removed successfully.');
+        return redirect()->route('admin.profile')->with('profile_status', 'Profile photo removed successfully.');
     }
 
     public function debugProfile()
@@ -78,22 +95,28 @@ class AdminProfileController extends Controller
         $user = auth()->user();
 
         // Check current password
-        if (!Hash::check($request->current_password, $user->password)) {
-            throw ValidationException::withMessages([
-                'current_password' => ['The current password is incorrect.'],
-            ]);
+        if (!Hash::check($request->current_password, $user->getAuthPassword())) {
+            return back()->withErrors([
+                'current_password' => 'The current password is incorrect.',
+            ])->with('show_security_tab', true);
         }
 
         // Prevent using the same password
-        if (Hash::check($request->new_password, $user->password)) {
-            throw ValidationException::withMessages([
-                'new_password' => ['The new password must be different from the current password.'],
-            ]);
+        if (Hash::check($request->new_password, $user->getAuthPassword())) {
+            return back()->withErrors([
+                'new_password' => 'The new password must be different from the current password.',
+            ])->with('show_security_tab', true);
         }
 
-        $user->password = Hash::make($request->new_password);
-        $user->save();
+        $user->forceFill([
+            'password' => Hash::make($request->new_password),
+            'password_changed_at' => now(),
+            'force_password_change' => false,
+        ])->save();
 
-        return back()->with('status', 'Password changed successfully!');
+        return back()->with([
+            'security_status' => 'Password changed successfully!',
+            'show_security_tab' => true
+        ]);
     }
 }

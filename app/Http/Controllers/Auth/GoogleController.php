@@ -20,7 +20,8 @@ class GoogleController extends Controller
      */
     public function redirectToGoogle()
     {
-        return Socialite::driver('google')->redirect();
+        // Force Google to show the account chooser every time
+        return Socialite::driver('google')->with(['prompt' => 'select_account'])->redirect();
     }
 
     /**

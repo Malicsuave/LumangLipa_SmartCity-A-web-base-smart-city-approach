@@ -5,9 +5,28 @@ namespace App\Services;
 use App\Models\DocumentRequest;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use BaconQrCode\Renderer\ImageRenderer;
+use BaconQrCode\Renderer\Image\ImagickImageBackEnd;
+use BaconQrCode\Renderer\RendererStyle\RendererStyle;
+use BaconQrCode\Writer;
 
 class DocumentPdfService
 {
+    /**
+     * Generate QR code for document verification
+     */
+    private function generateQrCode($uuid)
+    {
+        $verificationUrl = url('/verify/' . $uuid);
+        $renderer = new ImageRenderer(
+            new RendererStyle(150),
+            new ImagickImageBackEnd()
+        );
+        $writer = new Writer($renderer);
+        $qrPng = base64_encode($writer->writeString($verificationUrl));
+        return $qrPng;
+    }
+
     /**
      * Generate PDF content for a document request using Snappy PDF
      */
@@ -19,6 +38,16 @@ class DocumentPdfService
             if (!$resident) {
                 throw new \Exception('Resident not found for document request');
             }
+            
+            // Get barangay officials data
+            $officials = \App\Models\BarangayOfficial::first();
+            
+            if (!$officials) {
+                throw new \Exception('Barangay officials data not found. Please ensure officials information is configured in the system.');
+            }
+            
+            // Generate QR code for document verification
+            $qrCode = $this->generateQrCode($documentRequest->uuid);
             
             // Prepare common data for document generation
             $data = [
@@ -32,41 +61,65 @@ class DocumentPdfService
                 'dateIssued' => $documentRequest->approved_at ? $documentRequest->approved_at : now(),
                 'barangayId' => $resident->barangay_id,
                 'isPrintMode' => false, // Don't show print button in PDF
+                'officials' => $officials, // Add officials data for templates
+                'qrCode' => $qrCode, // Add QR code for verification
             ];
             
             // Get the appropriate view template based on document type
             $viewTemplate = $this->getViewTemplate($documentRequest->document_type, $data);
+
+            // Render Blade view to HTML so we can inspect it and pass raw HTML to Snappy
+            $html = view($viewTemplate['view'], $viewTemplate['data'])->render();
             
-            // Generate PDF using Snappy with print-optimized settings
-            $pdf = \Barryvdh\Snappy\Facades\SnappyPdf::loadView($viewTemplate['view'], $viewTemplate['data']);
+            if (empty(trim($html))) {
+                throw new \Exception('Rendered HTML is empty for view: ' . $viewTemplate['view']);
+            }
+
+            // Write rendered HTML to a temporary file and load it with Snappy
+            $tempHtml = tempnam(sys_get_temp_dir(), 'doc_html_') . '.html';
+            if (file_put_contents($tempHtml, $html) === false) {
+                throw new \Exception('Failed to write temporary HTML file for PDF generation');
+            }
+
+            $pdf = \Barryvdh\Snappy\Facades\SnappyPdf::loadFile($tempHtml);
             
             // Set PDF options to match the certificate print format exactly
             $pdf->setOptions([
-                'page-size' => 'Letter', // 8.5 x 11 inches (same as template)
+                // Use a smaller custom page size and even margins
+                'page-width' => '7.5in',
+                'page-height' => '9in',
                 'orientation' => 'Portrait',
-                'margin-top' => '0.25in',    // Match template @page margins
-                'margin-right' => '0.25in',
-                'margin-bottom' => '0.5in',
-                'margin-left' => '0.7in',
+                'margin-top' => '0.15in',
+                'margin-right' => '0.15in',
+                'margin-bottom' => '0.10in', // tightened to match visual balance
+                'margin-left' => '0.15in',
                 'encoding' => 'UTF-8',
                 'enable-local-file-access' => true,
-                'disable-smart-shrinking' => true, // Preserve exact sizing
+                'disable-smart-shrinking' => true,
                 'dpi' => 300,
                 'image-quality' => 100,
-                'zoom' => 1.0,
+                // Scale down content to fit the reduced page
+                'zoom' => 0.88,
                 'load-error-handling' => 'ignore',
                 'load-media-error-handling' => 'ignore',
                 'enable-external-links' => false,
                 'enable-internal-links' => false,
-                'print-media-type' => true,        // Use print CSS
-                'no-background' => false,          // Include background images
-                'javascript-delay' => 1000,       // Allow time for images to load
+                'print-media-type' => true,
+                'no-background' => false,
+                'javascript-delay' => 1000,
                 'no-stop-slow-scripts' => true,
                 'debug-javascript' => false,
             ]);
             
-            // Generate and return PDF content
-            return $pdf->output();
+            // Generate PDF content
+            $pdfContent = $pdf->output();
+            
+            // Clean up temporary HTML file
+            if (isset($tempHtml) && file_exists($tempHtml)) {
+                @unlink($tempHtml);
+            }
+            
+            return $pdfContent;
             
         } catch (\Exception $e) {
             Log::error('Failed to generate PDF content', [

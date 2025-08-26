@@ -213,7 +213,7 @@
                                     <i class="fas fa-receipt text-primary me-2"></i>
                                     Upload GCash Payment Receipt <span class="text-danger">*</span>
                                 </label>
-                                <input type="file" class="form-control" id="receipt" name="receipt" accept="image/*,.pdf" required disabled>
+                                <input type="file" class="form-control" id="receipt" name="receipt" accept="image/*,.pdf" required>
                                 <div class="form-text">
                                     Accepted formats: JPG, PNG, PDF. Max size: 5MB.
                                 </div>

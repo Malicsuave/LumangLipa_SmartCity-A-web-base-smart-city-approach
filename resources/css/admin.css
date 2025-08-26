@@ -14,10 +14,10 @@
 @import '../../public/admin/dark/css/app-light.css';
 
 /* Import custom CSS (only existing files) */
-@import '../public/css/search-icon.css';
-@import '../public/css/health-metrics.css';
-@import '../public/css/complaint-table.css';
-@import '../public/css/admin.css';
+/* @import '../public/css/search-icon.css'; */
+/* @import '../public/css/health-metrics.css'; */
+/* @import '../public/css/complaint-table.css'; */
+/* @import '../public/css/admin.css'; */
 
 /* Table row hover effect for all admin tables */
 .table-hover tbody tr:hover, .table-striped tbody tr:hover {

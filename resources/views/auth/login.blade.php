@@ -13,11 +13,13 @@
     <!-- Styles -->
 
     
-    <link href="{{ asset('css/auth.css') }}" rel="stylesheet">
+
+        @vite(['resources/css/app.css'])
 
    
 </head>
 
+<body class="font-sans antialiased bg-white">
 <body class="font-sans antialiased bg-[#1E293B]">
     <x-guest-layout>
         <x-authentication-card>

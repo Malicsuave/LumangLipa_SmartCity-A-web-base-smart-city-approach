@@ -1,0 +1,2 @@
+<?php // This partial expects $expiringSoon to be passed in ?>
+<?php echo $__env->make('admin.residents.pending-ids-filter-expiring-content', ['expiringSoon' => $expiringSoon], \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?> <?php /**PATH /var/www/html/lumanglipa/resources/views/admin/residents/pending-ids-filter-expiring.blade.php ENDPATH**/ ?>

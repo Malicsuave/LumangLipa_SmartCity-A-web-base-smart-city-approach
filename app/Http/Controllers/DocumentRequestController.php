@@ -140,6 +140,7 @@ class DocumentRequestController extends Controller
             'purpose' => $request->purpose,
             'status' => 'pending',
             'resident_id' => $resident->id, // Set resident_id
+            'receipt_path' => $receiptPath,
         ]);
 
         return response()->json([
@@ -176,19 +177,19 @@ class DocumentRequestController extends Controller
             'approved_by' => auth()->id(),
         ]);
 
-        // Send notification to resident with PDF attachment
+        // Send notification to resident with PDF attachment asynchronously (queue)
         if ($documentRequest->resident && $documentRequest->resident->email_address) {
             try {
-                $documentRequest->resident->notify(new \App\Notifications\DocumentRequestApproved($documentRequest));
+                $notification = new \App\Notifications\DocumentRequestApproved($documentRequest);
+                // Dispatch notification to queue
+                $documentRequest->resident->notify($notification);
             } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error('Failed to send document approval notification', [
+                \Illuminate\Support\Facades\Log::error('Failed to queue document approval notification', [
                     'document_request_id' => $documentRequest->id,
                     'resident_email' => $documentRequest->resident->email_address,
                     'error' => $e->getMessage()
                 ]);
-                
-                // Continue with success response even if email fails
-                // The document is still approved
+                // Continue with success response even if queuing fails
             }
         }
 

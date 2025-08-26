@@ -35,6 +35,11 @@ use App\Http\Controllers\TestController;
 |
 */
 
+// Test route
+Route::get('/test', function () {
+    return 'Laravel is working!';
+});
+
 // Public routes
 Route::get('/', [PublicController::class, 'home'])->name('public.home');
 Route::get('/about', [PublicController::class, 'about'])->name('public.about');
@@ -102,7 +107,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/set-password', [App\Http\Controllers\GoogleAccountPasswordController::class, 'setPassword'])
         ->name('password.set');
     Route::post('/update-password', [App\Http\Controllers\GoogleAccountPasswordController::class, 'updatePassword'])
-        ->name('password.update');
+        ->name('password.google-update');
 });
 
 // Unauthorized access routes
@@ -180,6 +185,8 @@ Route::middleware([
             Route::get('/', [ResidentController::class, 'index'])->name('index');
             Route::get('/archived', [ResidentController::class, 'archived'])->name('archived');
             Route::get('/create', [ResidentController::class, 'create'])->name('create');
+            // Barangay ID Registration page for admin
+            Route::get('/barangay-id-registration', [ResidentController::class, 'barangayIdRegistration'])->name('barangay-id-registration');
             
             // Multi-step resident creation routes
             Route::get('/create/step1', [ResidentController::class, 'createStep1'])->name('create.step1');
@@ -207,12 +214,17 @@ Route::middleware([
             Route::get('/{resident}/services', [App\Http\Controllers\ResidentController::class, 'services'])->name('services');
             Route::delete('/{resident}/force-delete', [App\Http\Controllers\ResidentController::class, 'forceDelete'])->name('force-delete');
             Route::get('/{resident}/generate-issue-id', [App\Http\Controllers\ResidentIdController::class, 'generateNewIssueId'])->name('id.generate');
+            Route::get('/census-data', function () {
+                return view('admin.residents.census-data');
+            })->name('census-data');
         });
         
         // Admin Profile Management
         Route::get('/admin/profile', [AdminProfileController::class, 'show'])->name('admin.profile');
         Route::put('/admin/profile', [AdminProfileController::class, 'update'])->name('admin.profile.update');
         Route::post('/admin/profile/photo', [AdminProfileController::class, 'updatePhoto'])->name('admin.profile.photo.update');
+        Route::post('/admin/profile/photo/delete', [AdminProfileController::class, 'deleteProfilePhoto'])->name('admin.profile.photo.delete');
+        Route::post('/admin/profile/password', [AdminProfileController::class, 'updatePassword'])->name('admin.profile.password.update');
         
         // Admin Approvals Management
         Route::prefix('admin/approvals')->name('admin.approvals.')->group(function() {
@@ -521,3 +533,18 @@ Route::middleware(['role:Barangay Captain,Barangay Secretary'])->prefix('admin')
 });
 
 
+
+// Add census-data route to the main admin.residents group
+// ...existing code...
+Route::prefix('admin/residents')->name('admin.residents.')->group(function() {
+    // ...existing resident routes...
+    Route::get('/census-data', function () {
+        return view('admin.residents.census-data');
+    })->name('census-data');
+    // ...existing resident routes...
+});
+
+
+
+// Test route for debugging
+Route::get("/test", function() { return "Hello World - Laravel is working"; });

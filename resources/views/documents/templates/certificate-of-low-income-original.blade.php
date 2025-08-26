@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=1000, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Certificate of Low Income - {{ $fullName }}</title>
     @php
         $isPrintMode = $isPrintMode ?? false;
@@ -46,27 +46,35 @@
             width: 34%;
             border-right: 2px solid #000;
             vertical-align: top;
-            padding: 18px 10px 10px 18px;
+            padding: 18px 15px 10px 18px;
             position: relative;
             padding-bottom: 0 !important;
         }
         .cert-right {
             width: 66%;
             vertical-align: top;
-            padding: 10px 30px 10px 30px;
+            padding: 10px 25px 10px 25px;
             position: relative;
             height: 100%;
             background: none;
             padding-bottom: 0 !important;
-        }        .cert-right::before {
+        }
+        .logo {
+            width: 130px;
+            height: 130px;
+            margin-bottom: 5px;
+        }
+        .cert-right::before {
             content: "";
             position: absolute;
-            top: 50%; left: 50%;
+            top: 50%; 
+            left: 50%;
             transform: translate(-50%, -50%);
-            width: 500px;
-            height: 500px;
-            background: url('{{ asset("request/kahoylogo.png") }}') no-repeat center center;
+            width: 400px;
+            height: 400px;
+            background: url('{{ 'file://' . public_path('images/kahoylogo.png') }}') no-repeat center center;
             background-size: contain;
+            background-position: center center;
             opacity: 0.08;
             z-index: 0;
             pointer-events: none;
@@ -155,7 +163,8 @@
         }
         .cert-underline {
             text-decoration: underline;
-        }        .cert-fill {
+        }
+        .cert-fill {
             display: inline-block;
             min-width: 180px;
             border-bottom: 1px solid #000;
@@ -202,12 +211,10 @@
         }
         @media print {
             @page {
-                size: 8.5in 11in;
-                margin: 0.25in 0.25in 0.5in 0.7in;
+                size: letter;
+                margin: 0;
             }
             body, html {
-                width: 8.5in !important;
-                height: 11in !important;
                 margin: 0;
                 padding: 0;
                 background: white !important;
@@ -215,22 +222,36 @@
             .container {
                 box-shadow: none !important;
                 border-radius: 0 !important;
-                padding: 0 !important;
+                padding: 0.05in !important; /* reduced from 0.2in */
                 margin: 0 !important;
                 background: white !important;
+                width: 100% !important;
+                height: 100% !important;
+                box-sizing: border-box !important;
+                display: block !important;
             }
             .print-button {
                 display: none !important;
             }
             .certificate-container {
-                width: 816px !important;
-                height: 1056px !important;
-                margin: 0 auto !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                height: 100% !important;
+                margin: 0 !important;
                 padding: 0 !important;
                 border: 3px solid #000 !important;
                 overflow: hidden !important;
                 background: white !important;
                 box-shadow: none !important;
+                page-break-inside: avoid !important;
+                page-break-after: avoid !important;
+                box-sizing: border-box !important;
+            }
+            .cert-right::before {
+                width: 250px !important;
+                height: 250px !important;
+                top: 45% !important;
+                opacity: 0.06 !important;
             }
         }
     </style>
@@ -290,7 +311,7 @@
                         <table style="width:100%; border-collapse:collapse;">
                             <tr>
                                 <td colspan="2" style="position:relative; padding-bottom:0;">                                    <!-- LOGO TOP LEFT -->
-                                    <img src="{{ asset('request/kahoylogo.png') }}" alt="Barangay Logo" style="width:90px; position:absolute; margin-left:-25px; margin-top:-5px;">
+                                    <img src="{{ 'file://' . public_path('images/logo.png') }}" alt="Barangay Logo" class="logo" style="position:absolute; top:0; left:8px; margin-top:-20px; margin-left:0;">
                                     <div style="text-align:center;">
                                         <div class="republic-text">
                                             Republic of the Philippines<br>

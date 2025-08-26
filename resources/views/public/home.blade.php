@@ -14,9 +14,122 @@
         position: relative;
         min-height: 100vh;
         display: flex;
-        align-items: center;
+        align-items: flex-end; /* Move content to the bottom */
         justify-content: center;
-        padding-top: 20px; /* Add space from navigation */
+        padding-bottom: 60px; /* Add space from the bottom */
+        padding-top: 120px; /* Increased space from navbar on desktop */
+    }
+    
+    /* Mobile Responsiveness for Hero Section */
+    @media (max-width: 768px) {
+        .hero-section {
+            background-attachment: scroll; /* Fixed background causes issues on mobile */
+            min-height: 80vh;
+            padding-bottom: 40px;
+            align-items: flex-start; /* Start from top on mobile */
+            padding-top: 80px; /* Increased spacing from navbar on mobile */
+        }
+        
+        .hero-title {
+            font-size: 2.3rem !important;
+            letter-spacing: 1px !important;
+            margin-bottom: 0.6rem !important;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.1rem !important;
+            margin-bottom: 1.8rem !important;
+            letter-spacing: 0.5px !important;
+        }
+        
+        .hero-buttons {
+            flex-direction: column !important;
+            gap: 15px !important;
+            align-items: center !important;
+            margin-bottom: 2rem !important;
+        }
+        
+        .hero-btn {
+            padding: 12px 25px !important;
+            font-size: 1rem !important;
+            width: 200px !important;
+        }
+        
+        .services-grid {
+            grid-template-columns: 1fr !important;
+            gap: 20px !important;
+            margin-top: 30px !important;
+        }
+        
+        .service-card {
+            padding: 30px 20px !important;
+        }
+        
+        .carousel-nav {
+            width: 40px !important;
+            height: 40px !important;
+        }
+        
+        .carousel-nav.prev {
+            left: 15px !important;
+        }
+        
+        .carousel-nav.next {
+            right: 15px !important;
+        }
+        
+        /* Recent Announcements Mobile Styles */
+        .announcements-title {
+            font-size: 2rem !important;
+        }
+        
+        .announcements-subtitle {
+            font-size: 1rem !important;
+        }
+        
+        .announcement-card-title {
+            font-size: 1.2rem !important;
+        }
+        
+        .announcement-card-text {
+            font-size: 1rem !important;
+        }
+        
+        .announcement-see-more {
+            font-size: 1rem !important;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .hero-section {
+            min-height: 70vh;
+            padding-bottom: 30px;
+            padding-top: 70px; /* Increased spacing on very small screens */
+        }
+        
+        .hero-title {
+            font-size: 1.9rem !important;
+            margin-bottom: 0.4rem !important;
+        }
+        
+        .hero-subtitle {
+            font-size: 1rem !important;
+            margin-bottom: 1.5rem !important;
+        }
+        
+        .hero-btn {
+            padding: 10px 20px !important;
+            font-size: 0.9rem !important;
+            width: 180px !important;
+        }
+        
+        .service-card {
+            padding: 25px 15px !important;
+        }
+        
+        .carousel-nav {
+            display: none !important; /* Hide navigation arrows on very small screens */
+        }
     }
     
     /* Carousel Navigation Arrows */
@@ -56,6 +169,13 @@
         color: white;
         z-index: 2;
         position: relative;
+        margin-bottom: 40px; /* Add space from the bottom */
+        margin-top: 0px;   /* Remove desktop margin-top */
+    }
+    
+    /* Hide mobile logo on desktop */
+    .mobile-hero-logo {
+        display: none;
     }
     
     .hero-title {
@@ -237,7 +357,10 @@
     
     <div class="container">
         <div class="hero-content">
-            <h1 class="hero-title"><span style="color: white;">WELCOME TO</span><br><span style="color: #3F9EDD;">BARANGAY LUMANGLIPA</span></h1>
+            <!-- Mobile Logo - Only visible on mobile devices, no white background -->
+            <img src="{{ asset('/images/logo.png') }}" alt="Barangay Lumanglipa Logo" class="mobile-hero-logo" onerror="console.error('Logo failed to load'); this.style.display='none';">
+            
+            <h1 class="hero-title"><span style="color: white;">WELCOME TO</span><br><span style="color: white;">BARANGAY LUMANGLIPA</span></h1>
             <p class="hero-subtitle" style="font-size: 1.2rem; margin-bottom: 2rem;">MATAAS NA KAHOY, BATANGAS</p>
             <p class="hero-subtitle">Your community, your government. We're committed to providing excellent services to all our residents.</p>
             
@@ -287,8 +410,8 @@
 <section class="py-5" style="background-color: #f8f9fa;">
     <div class="container">
         <div class="mb-5">
-            <h2 class="fw-bold text-primary mb-3">| Recent Announcements</h2>
-            <p class="text-muted">Check out the latest news, events and announcements here.</p>
+            <h2 class="fw-bold text-primary mb-3 announcements-title" style="font-size: 2.5rem;">| Recent Announcements</h2>
+            <p class="text-muted announcements-subtitle" style="font-size: 1.2rem;">Check out the latest news, events and announcements here.</p>
         </div>
         
         <div class="row g-4">
@@ -303,9 +426,9 @@
                                 <small class="text-muted">December</small>
                             </div>
                         </div>
-                        <h5 class="card-title">Community Health Program</h5>
-                        <p class="card-text text-muted">Free medical check-up and vaccination program for all residents. Schedule your appointment today.</p>
-                        <a href="#" class="text-primary text-decoration-none">See More</a>
+                        <h5 class="card-title announcement-card-title" style="font-size: 1.4rem;">Community Health Program</h5>
+                        <p class="card-text text-muted announcement-card-text" style="font-size: 1.1rem;">Free medical check-up and vaccination program for all residents. Schedule your appointment today.</p>
+                        <a href="#" class="text-primary text-decoration-none announcement-see-more" style="font-size: 1.1rem;">See More</a>
                     </div>
                 </div>
             </div>
@@ -321,9 +444,9 @@
                                 <small class="text-muted">December</small>
                             </div>
                         </div>
-                        <h5 class="card-title">Barangay Assembly Meeting</h5>
-                        <p class="card-text text-muted">Monthly assembly meeting to discuss community issues and development plans.</p>
-                        <a href="#" class="text-primary text-decoration-none">See More</a>
+                        <h5 class="card-title announcement-card-title" style="font-size: 1.4rem;">Barangay Assembly Meeting</h5>
+                        <p class="card-text text-muted announcement-card-text" style="font-size: 1.1rem;">Monthly assembly meeting to discuss community issues and development plans.</p>
+                        <a href="#" class="text-primary text-decoration-none announcement-see-more" style="font-size: 1.1rem;">See More</a>
                     </div>
                 </div>
             </div>
@@ -339,9 +462,9 @@
                                 <small class="text-muted">December</small>
                             </div>
                         </div>
-                        <h5 class="card-title">Clean-up Drive</h5>
-                        <p class="card-text text-muted">Community-wide clean-up drive to maintain the cleanliness and beauty of our barangay.</p>
-                        <a href="#" class="text-primary text-decoration-none">See More</a>
+                        <h5 class="card-title announcement-card-title" style="font-size: 1.4rem;">Clean-up Drive</h5>
+                        <p class="card-text text-muted announcement-card-text" style="font-size: 1.1rem;">Community-wide clean-up drive to maintain the cleanliness and beauty of our barangay.</p>
+                        <a href="#" class="text-primary text-decoration-none announcement-see-more" style="font-size: 1.1rem;">See More</a>
                     </div>
                 </div>
             </div>
