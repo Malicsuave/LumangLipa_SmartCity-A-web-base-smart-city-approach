@@ -49,7 +49,7 @@
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-borderless table-striped">
+                            <table class="table table-borderless table-striped table-hover">
                                 <thead>
                                     <tr>
                                         <th style="min-width: 180px;">Email</th>
@@ -63,6 +63,9 @@
                                 </thead>
                                 <tbody>
                                     @forelse($approvals as $approval)
+                                        @php
+                                            $isLastTwo = $loop->remaining < 2;
+                                        @endphp
                                         <tr class="{{ $approval->is_active ? '' : 'text-muted' }}">
                                             <td class="text-truncate" style="max-width: 200px;" title="{{ $approval->email }}">
                                                 {{ $approval->email }}
@@ -91,42 +94,55 @@
                                                 @endif
                                             </td>
                                             <td class="text-center">
-                                                <div class="dropdown">
-                                                    <button class="btn btn-sm btn-icon" type="button" id="dropdownMenuButton-{{ $approval->id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                        <i class="fe fe-more-vertical fe-16"></i>
-                                                    </button>
-                                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton-{{ $approval->id }}">
-                                                        <a class="dropdown-item" href="#" onclick="confirmEdit('{{ $approval->id }}', '{{ $approval->email }}', '{{ $approval->role->name ?? 'No Role' }}')">
-                                                            <i class="fe fe-edit-2 fe-16 mr-2 text-primary"></i>Edit
-                                                        </a>
-                                                        
-                                                        <form id="toggle-form-{{ $approval->id }}" method="POST" action="{{ route('admin.approvals.toggle', $approval->id) }}">
-                                                            @csrf
-                                                            @method('PATCH')
-                                                            <button type="button" class="dropdown-item" onclick="confirmToggle('{{ $approval->id }}', '{{ $approval->email }}', {{ $approval->is_active ? 'true' : 'false' }})">
-                                                                @if($approval->is_active)
-                                                                    <i class="fe fe-slash fe-16 mr-2 text-warning"></i>Deactivate
-                                                                @else
-                                                                    <i class="fe fe-check-circle fe-16 mr-2 text-success"></i>Activate
-                                                                @endif
-                                                            </button>
-                                                        </form>
-                                                        
-                                                        <div class="dropdown-divider"></div>
-                                                        <form id="delete-form-{{ $approval->id }}" method="POST" action="{{ route('admin.approvals.destroy', $approval->id) }}">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="button" class="dropdown-item text-danger" onclick="confirmDelete('{{ $approval->id }}', '{{ $approval->email }}', '{{ $approval->role->name ?? 'No Role' }}')">
-                                                                <i class="fe fe-trash-2 fe-16 mr-2"></i>Delete
-                                                            </button>
-                                                        </form>
-                                                    </div>
-                                                </div>
+                                                @php
+                                                    $dropdownItems = [];
+                                                    $dropdownItems[] = [
+                                                        'label' => 'Edit',
+                                                        'icon' => 'fe fe-edit-2 fe-16 text-primary',
+                                                        'class' => 'edit-approval',
+                                                        'attrs' => 'data-id="' . $approval->id . '" data-email="' . $approval->email . '" data-role="' . ($approval->role->name ?? 'No Role') . '"',
+                                                    ];
+                                                    
+                                                    $dropdownItems[] = [
+                                                        'label' => $approval->is_active ? 'Deactivate' : 'Activate',
+                                                        'icon' => $approval->is_active ? 'fe fe-slash fe-16 text-warning' : 'fe fe-check-circle fe-16 text-success',
+                                                        'class' => 'toggle-approval',
+                                                        'attrs' => 'data-id="' . $approval->id . '" data-email="' . $approval->email . '" data-active="' . ($approval->is_active ? 'true' : 'false') . '"',
+                                                    ];
+                                                    
+                                                    $dropdownItems[] = [
+                                                        'divider' => true
+                                                    ];
+                                                    
+                                                    $dropdownItems[] = [
+                                                        'label' => 'Delete',
+                                                        'icon' => 'fe fe-trash-2 fe-16 text-danger',
+                                                        'class' => 'delete-approval',
+                                                        'attrs' => 'data-id="' . $approval->id . '" data-email="' . $approval->email . '" data-role="' . ($approval->role->name ?? 'No Role') . '"',
+                                                    ];
+                                                @endphp
+                                                @include('components.custom-dropdown', ['items' => $dropdownItems, 'dropup' => $isLastTwo])
                                             </td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="7" class="text-center">No admin approvals found. Use the "Add New Admin" button to authorize Gmail accounts.</td>
+                                            <td colspan="7" class="text-center">
+                                                <div class="text-center py-5">
+                                                    <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" class="mb-3">
+                                                      <circle cx="60" cy="60" r="56" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="4"/>
+                                                      <rect x="35" y="70" width="50" height="10" rx="5" fill="#e5e7eb"/>
+                                                      <ellipse cx="60" cy="54" rx="18" ry="20" fill="#e5e7eb"/>
+                                                      <ellipse cx="60" cy="54" rx="10" ry="12" fill="#f3f4f6"/>
+                                                      <circle cx="54" cy="52" r="2" fill="#bdbdbd"/>
+                                                      <circle cx="66" cy="52" r="2" fill="#bdbdbd"/>
+                                                      <rect x="56" y="58" width="8" height="2" rx="1" fill="#bdbdbd"/>
+                                                    </svg>
+                                                    <h4>No approvals found</h4>
+                                                    <p class="text-muted">
+                                                        No approvals match your search criteria.
+                                                    </p>
+                                                </div>
+                                            </td>
                                         </tr>
                                     @endforelse
                                 </tbody>
@@ -141,47 +157,205 @@
         </div>
     </div>
 
+    <!-- Edit Confirmation Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Edit Admin Approval</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to edit this admin approval?</p>
+                    <div class="alert alert-info">
+                        <strong>Email:</strong> <span id="editEmail"></span><br>
+                        <strong>Role:</strong> <span id="editRole"></span>
+                    </div>
+                    <p class="text-primary">This will redirect you to the edit page.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmEdit">Proceed to Edit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toggle Confirmation Modal -->
+    <div class="modal fade" id="toggleModal" tabindex="-1" role="dialog" aria-labelledby="toggleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="toggleModalLabel">Toggle Admin Status</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to <strong id="toggleAction"></strong> this admin approval?</p>
+                    <div class="alert alert-warning">
+                        <strong>Email:</strong> <span id="toggleEmail"></span>
+                    </div>
+                    <p class="text-info">This will change the active status of the admin account.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-warning" id="confirmToggle">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Delete Admin Approval</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this admin approval?</p>
+                    <div class="alert alert-danger">
+                        <i class="fe fe-alert-triangle fe-16 mr-2"></i>
+                        <strong>Email:</strong> <span id="deleteEmail"></span><br>
+                        <strong>Role:</strong> <span id="deleteRole"></span>
+                    </div>
+                    <div class="alert alert-danger">
+                        <i class="fe fe-alert-triangle fe-16 mr-2"></i>
+                        <strong>Warning:</strong> This action cannot be undone. The admin approval will be permanently removed from the system.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmDelete">Delete Permanently</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        function confirmEdit(id, email, role) {
-            // Custom JavaScript confirmation dialog for editing
-            if (confirm('Edit Admin Approval\n\nEmail: ' + email + '\nRole: ' + role + '\n\nProceed with editing?')) {
-                // Redirect to the edit route if confirmed
-                window.location.href = '/admin/approvals/' + id + '/edit';
-            }
-        }
+        document.addEventListener('DOMContentLoaded', function() {
+            let currentAction = null;
+            let currentId = null;
 
-        function confirmToggle(id, email, isActive) {
-            // Custom JavaScript confirmation dialog for toggling active status
-            var action = isActive ? 'deactivate' : 'activate';
-            if (confirm('Are you sure you want to ' + action + ' this admin approval?\n\nEmail: ' + email)) {
-                // Submit the toggle form if confirmed
-                document.getElementById('toggle-form-' + id).submit();
-            }
-        }
+            // Edit approval handler
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.edit-approval')) {
+                    e.preventDefault();
+                    const element = e.target.closest('.edit-approval');
+                    const id = element.getAttribute('data-id');
+                    const email = element.getAttribute('data-email');
+                    const role = element.getAttribute('data-role');
+                    
+                    // Set modal content
+                    document.getElementById('editEmail').textContent = email;
+                    document.getElementById('editRole').textContent = role;
+                    
+                    // Set up confirm button
+                    document.getElementById('confirmEdit').onclick = function() {
+                        window.location.href = '/admin/approvals/' + id + '/edit';
+                    };
+                    
+                    // Show modal
+                    $('#editModal').modal('show');
+                }
+            });
 
-        function confirmDelete(id, email, role) {
-            // Custom JavaScript confirmation dialog for deletion
-            if (confirm('Are you sure you want to delete this admin approval?\n\nEmail: ' + email + '\nRole: ' + role + '\n\nThis action cannot be undone.')) {
-                // Submit the delete form if confirmed
-                document.getElementById('delete-form-' + id).submit();
-            }
-        }
+            // Toggle approval handler
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.toggle-approval')) {
+                    e.preventDefault();
+                    const element = e.target.closest('.toggle-approval');
+                    const id = element.getAttribute('data-id');
+                    const email = element.getAttribute('data-email');
+                    const isActive = element.getAttribute('data-active') === 'true';
+                    
+                    const action = isActive ? 'deactivate' : 'activate';
+                    
+                    // Set modal content
+                    document.getElementById('toggleAction').textContent = action;
+                    document.getElementById('toggleEmail').textContent = email;
+                    
+                    // Set up confirm button
+                    document.getElementById('confirmToggle').onclick = function() {
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = '/admin/approvals/' + id + '/toggle';
+                        
+                        const csrfToken = document.createElement('input');
+                        csrfToken.type = 'hidden';
+                        csrfToken.name = '_token';
+                        csrfToken.value = '{{ csrf_token() }}';
+                        
+                        const methodField = document.createElement('input');
+                        methodField.type = 'hidden';
+                        methodField.name = '_method';
+                        methodField.value = 'PATCH';
+                        
+                        form.appendChild(csrfToken);
+                        form.appendChild(methodField);
+                        document.body.appendChild(form);
+                        form.submit();
+                    };
+                    
+                    // Show modal
+                    $('#toggleModal').modal('show');
+                }
+            });
+
+            // Delete approval handler
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.delete-approval')) {
+                    e.preventDefault();
+                    const element = e.target.closest('.delete-approval');
+                    const id = element.getAttribute('data-id');
+                    const email = element.getAttribute('data-email');
+                    const role = element.getAttribute('data-role');
+                    
+                    // Set modal content
+                    document.getElementById('deleteEmail').textContent = email;
+                    document.getElementById('deleteRole').textContent = role;
+                    
+                    // Set up confirm button
+                    document.getElementById('confirmDelete').onclick = function() {
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = '/admin/approvals/' + id;
+                        
+                        const csrfToken = document.createElement('input');
+                        csrfToken.type = 'hidden';
+                        csrfToken.name = '_token';
+                        csrfToken.value = '{{ csrf_token() }}';
+                        
+                        const methodField = document.createElement('input');
+                        methodField.type = 'hidden';
+                        methodField.name = '_method';
+                        methodField.value = 'DELETE';
+                        
+                        form.appendChild(csrfToken);
+                        form.appendChild(methodField);
+                        document.body.appendChild(form);
+                        form.submit();
+                    };
+                    
+                    // Show modal
+                    $('#deleteModal').modal('show');
+                }
+            });
+        });
     </script>
 
     <style>
-    /* Additional styles to enhance table responsiveness */
-    .table-responsive {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-    
     .text-truncate {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-    
-    /* Make sure the table doesn't expand too wide on mobile */
     @media (max-width: 768px) {
         .table th, .table td {
             white-space: nowrap;

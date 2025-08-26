@@ -5,8 +5,13 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\DocumentRequest;
 use App\Models\Resident;
+use App\Models\BarangayOfficial;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use BaconQrCode\Renderer\ImageRenderer;
+use BaconQrCode\Renderer\Image\ImagickImageBackEnd;
+use BaconQrCode\Renderer\RendererStyle\RendererStyle;
+use BaconQrCode\Writer;
 
 class DocumentGeneratorController extends Controller
 {
@@ -57,8 +62,22 @@ class DocumentGeneratorController extends Controller
         }
     }
 
+    private function generateQrCode($uuid)
+    {
+        $verificationUrl = url('/verify/' . $uuid);
+        $renderer = new ImageRenderer(
+            new RendererStyle(150),
+            new ImagickImageBackEnd()
+        );
+        $writer = new Writer($renderer);
+        $qrPng = base64_encode($writer->writeString($verificationUrl));
+        return $qrPng;
+    }
+
     private function generateBarangayClearance($documentRequest, $resident, $isPrintMode = false)
     {
+        $officials = BarangayOfficial::first();
+        $qrCode = $this->generateQrCode($documentRequest->uuid);
         $data = [
             'resident' => $resident,
             'documentRequest' => $documentRequest,
@@ -70,13 +89,16 @@ class DocumentGeneratorController extends Controller
             'dateIssued' => $documentRequest->approved_at ? $documentRequest->approved_at : now(),
             'barangayId' => $resident->barangay_id,
             'isPrintMode' => $isPrintMode,
+            'officials' => $officials,
+            'qrCode' => $qrCode,
         ];
-
         return view('documents.templates.barangay-clearance', $data);
     }
 
     private function generateResidencyCertificate($documentRequest, $resident, $isPrintMode = false)
     {
+        $officials = BarangayOfficial::first();
+        $qrCode = $this->generateQrCode($documentRequest->uuid);
         $data = [
             'resident' => $resident,
             'documentRequest' => $documentRequest,
@@ -89,13 +111,16 @@ class DocumentGeneratorController extends Controller
             'barangayId' => $resident->barangay_id,
             'purok' => $resident->purok ?? 'N/A',
             'isPrintMode' => $isPrintMode,
+            'officials' => $officials,
+            'qrCode' => $qrCode,
         ];
-
         return view('documents.templates.certificate-of-residency-fixed', $data);
     }
 
     private function generateIndigencyCertificate($documentRequest, $resident, $isPrintMode = false)
     {
+        $officials = BarangayOfficial::first();
+        $qrCode = $this->generateQrCode($documentRequest->uuid);
         $data = [
             'resident' => $resident,
             'documentRequest' => $documentRequest,
@@ -107,13 +132,16 @@ class DocumentGeneratorController extends Controller
             'dateIssued' => $documentRequest->approved_at ? $documentRequest->approved_at : now(),
             'barangayId' => $resident->barangay_id,
             'isPrintMode' => $isPrintMode,
+            'officials' => $officials,
+            'qrCode' => $qrCode,
         ];
-
         return view('documents.templates.certificate-of-indigency-original', $data);
     }
 
     private function generateLowIncomeCertificate($documentRequest, $resident, $isPrintMode = false)
     {
+        $officials = BarangayOfficial::first();
+        $qrCode = $this->generateQrCode($documentRequest->uuid);
         $data = [
             'resident' => $resident,
             'documentRequest' => $documentRequest,
@@ -128,13 +156,16 @@ class DocumentGeneratorController extends Controller
             'income' => $resident->monthly_income ?? 'N/A',
             'occupation' => $resident->occupation ?? 'N/A',
             'isPrintMode' => $isPrintMode,
+            'officials' => $officials,
+            'qrCode' => $qrCode,
         ];
-
         return view('documents.templates.certificate-of-low-income-original', $data);
     }
 
     private function generateBusinessPermit($documentRequest, $resident, $isPrintMode = false)
     {
+        $officials = BarangayOfficial::first();
+        $qrCode = $this->generateQrCode($documentRequest->uuid);
         $data = [
             'resident' => $resident,
             'documentRequest' => $documentRequest,
@@ -148,8 +179,9 @@ class DocumentGeneratorController extends Controller
             'businessName' => $documentRequest->business_name ?? 'N/A',
             'businessAddress' => $documentRequest->business_address ?? $resident->address,
             'isPrintMode' => $isPrintMode,
+            'officials' => $officials,
+            'qrCode' => $qrCode,
         ];
-
         return view('documents.templates.business-permit', $data);
     }
 }

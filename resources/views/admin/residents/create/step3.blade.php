@@ -87,7 +87,7 @@
                                     <div class="form-group">
                                         <label class="form-label">Gender <span class="text-danger">*</span></label>
                                         <select name="primary_gender" id="primary_gender" class="form-control @error('primary_gender') is-invalid @enderror" required>
-                                            <option value="">Select Gender</option>
+                                            <option value="">-- Select Gender --</option>
                                             <option value="Male" {{ old('primary_gender', session('registration.step3.primary_gender')) == 'Male' ? 'selected' : '' }}>Male</option>
                                             <option value="Female" {{ old('primary_gender', session('registration.step3.primary_gender')) == 'Female' ? 'selected' : '' }}>Female</option>
                                             <option value="Non-binary" {{ old('primary_gender', session('registration.step3.primary_gender')) == 'Non-binary' ? 'selected' : '' }}>Non-binary</option>
@@ -194,7 +194,7 @@
                                     <div class="form-group">
                                         <label class="form-label">Gender</label>
                                         <select name="secondary_gender" id="secondary_gender" class="form-control @error('secondary_gender') is-invalid @enderror">
-                                            <option value="">Select Gender</option>
+                                            <option value="">-- Select Gender --</option>
                                             <option value="Male" {{ old('secondary_gender', session('registration.step3.secondary_gender')) == 'Male' ? 'selected' : '' }}>Male</option>
                                             <option value="Female" {{ old('secondary_gender', session('registration.step3.secondary_gender')) == 'Female' ? 'selected' : '' }}>Female</option>
                                             <option value="Non-binary" {{ old('secondary_gender', session('registration.step3.secondary_gender')) == 'Non-binary' ? 'selected' : '' }}>Non-binary</option>
@@ -313,10 +313,13 @@
                                         <label for="emergency_phone" class="form-label">Phone Number</label>
                                         <input type="text" class="form-control @error('emergency_phone') is-invalid @enderror" 
                                                id="emergency_phone" name="emergency_phone" value="{{ old('emergency_phone', session('registration.step3.emergency_phone')) }}" 
-                                               placeholder="09123456789">
+                                               placeholder="09123456789" maxlength="11" pattern="[0-9]{11}" 
+                                               title="Please enter exactly 11 digits (e.g., 09123456789)" 
+                                               oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11)">
                                         @error('emergency_phone')
                                             <div class="text-danger mt-1">{{ $message }}</div>
                                         @enderror
+                                        <small class="form-text text-muted">Enter a valid Philippine mobile number (11 digits, e.g., 09XXXXXXXXX)</small>
                                     </div>
                                 </div>
                             </div>

@@ -1,0 +1,465 @@
+/* Pending IDs Page Styles */
+
+/* Modern Search and Filter Styling (matching documents page) */
+.search-input-group {
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.search-input-group:focus-within {
+    box-shadow: 0 6px 25px rgba(27, 104, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+.search-icon {
+    background: linear-gradient(135deg, #1b68ff 0%, #1e88e5 100%);
+    border: none;
+    color: white;
+    border-radius: 0.75rem 0 0 0.75rem;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.search-input {
+    border: none;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    background: #ffffff;
+    border-radius: 0;
+    outline: none;
+    box-shadow: none;
+    height: auto;
+}
+
+.search-input:focus {
+    box-shadow: none;
+    border-color: transparent;
+    background: #ffffff;
+}
+
+.search-input::placeholder {
+    color: #6c757d;
+    font-style: italic;
+}
+
+.clear-search {
+    background: #dc3545;
+    border: none;
+    color: white;
+    border-radius: 0 0.75rem 0.75rem 0;
+    padding: 0.75rem 1rem;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.clear-search:hover {
+    background: #c82333;
+    color: white;
+    text-decoration: none;
+}
+
+/* Enhanced Filter Button Styling */
+.filter-btn-hover {
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid #1b68ff;
+}
+
+.filter-btn-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(27, 104, 255, 0.3);
+}
+
+.filter-btn-hover.btn-outline-primary {
+    background: white;
+    color: #1b68ff;
+}
+
+.filter-btn-hover.btn-outline-primary:hover {
+    background: #1b68ff;
+    color: white;
+    border-color: #1b68ff;
+}
+
+.filter-btn-hover.btn-outline-secondary {
+    border-color: #6c757d;
+    color: #6c757d;
+}
+
+.filter-btn-hover.btn-outline-secondary:hover {
+    background: #6c757d;
+    color: white;
+    border-color: #6c757d;
+}
+
+/* Enhanced Filter Section */
+.filter-section {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+    background: white;
+}
+
+.filter-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 2px solid #dee2e6;
+    padding: 1.25rem 1.5rem;
+}
+
+.filter-body {
+    padding: 1.5rem;
+    background: #ffffff;
+}
+
+.filter-select {
+    border-radius: 0.5rem;
+    border: 2px solid #e9ecef;
+    padding: 0.6rem 0.9rem;
+    transition: all 0.3s ease;
+    background: white;
+    font-size: 0.9rem;
+}
+
+.filter-select:focus {
+    border-color: #1b68ff;
+    box-shadow: 0 0 0 0.2rem rgba(27, 104, 255, 0.15);
+    background: white;
+}
+
+/* Active Filters Section */
+.active-filters-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border-radius: 0.75rem;
+    padding: 1rem 1.25rem;
+    border: 2px solid #e9ecef;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.active-filters-label {
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+/* Enhanced Filter Badges */
+.filter-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    border-radius: 2rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    white-space: nowrap;
+    color: white;
+}
+
+.filter-badge:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    text-decoration: none;
+    color: white;
+}
+
+.filter-badge-search {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border-color: #28a745;
+}
+
+.filter-badge-search:hover {
+    background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
+}
+
+.filter-badge-type {
+    background: linear-gradient(135deg, #1b68ff 0%, #0056d3 100%);
+    border-color: #1b68ff;
+}
+
+.filter-badge-type:hover {
+    background: linear-gradient(135deg, #0056d3 0%, #003d82 100%);
+}
+
+.filter-badge-gender {
+    background: linear-gradient(135deg, #e91e63 0%, #ad1457 100%);
+    border-color: #e91e63;
+}
+
+.filter-badge-gender:hover {
+    background: linear-gradient(135deg, #ad1457 0%, #880e4f 100%);
+}
+
+.filter-badge-age {
+    background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+    border-color: #ff9800;
+}
+
+.filter-badge-age:hover {
+    background: linear-gradient(135deg, #f57c00 0%, #e65100 100%);
+}
+
+.filter-badge-photo {
+    background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);
+    border-color: #9c27b0;
+}
+
+.filter-badge-photo:hover {
+    background: linear-gradient(135deg, #7b1fa2 0%, #4a148c 100%);
+}
+
+.filter-badge-status {
+    background: linear-gradient(135deg, #607d8b 0%, #455a64 100%);
+    border-color: #607d8b;
+}
+
+.filter-badge-status:hover {
+    background: linear-gradient(135deg, #455a64 0%, #263238 100%);
+}
+
+.clear-all-filters {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    border-radius: 2rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+    border: 2px solid #dc3545;
+}
+
+.clear-all-filters:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+    text-decoration: none;
+    color: white;
+    background: linear-gradient(135deg, #c82333 0%, #a71e2a 100%);
+}
+
+/* Fix for dropdown menus in tables with few rows */
+.dropdown-menu {
+    position: absolute;
+    z-index: 1000;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Ensure table doesn't cause horizontal scrolling with dropdowns */
+.table-responsive {
+    overflow-x: visible;
+    overflow-y: visible;
+}
+
+/* When only one row exists, maintain dropdown menu position */
+.table tr:only-child .dropdown-menu {
+    right: 0;
+    left: auto;
+    transform: none !important;
+    top: 100% !important;
+    position: fixed;
+}
+
+/* For single row tables, adjust dropdown position to prevent scrolling */
+.table-responsive:has(tr:only-child) {
+    overflow: visible;
+}
+
+/* Ensure dropdown is always on top of other elements */
+.dropdown-menu.show {
+    z-index: 1050;
+}
+
+/* ULTRA HIGH SPECIFICITY OVERRIDES FOR TABLE HEADERS */
+/* These rules use very high specificity to override any theme or Bootstrap styles */
+
+/* Basic table header styling - highest priority */
+body .table thead th,
+body .table thead th *,
+body .table thead th a,
+body .table thead th a *,
+body .table thead th span,
+body .table thead th i,
+body table.dataTable thead th,
+body table.dataTable thead th *,
+body table.dataTable thead th a,
+body table.dataTable thead th a *,
+body #pendingIssuanceTable thead th,
+body #pendingIssuanceTable thead th *,
+body #pendingIssuanceTable thead th a,
+body #pendingIssuanceTable thead th a *,
+body #pendingRenewalTable thead th,
+body #pendingRenewalTable thead th *,
+body #pendingRenewalTable thead th a,
+body #pendingRenewalTable thead th a *,
+body #expiringSoonTable thead th,
+body #expiringSoonTable thead th *,
+body #expiringSoonTable thead th a,
+body #expiringSoonTable thead th a * {
+    color: #2c3e50 !important;
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    text-decoration: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    transform: none !important;
+    transition: none !important;
+}
+
+/* Remove any primary/blue styling */
+body .table-primary thead th,
+body .table-primary thead th *,
+body .table-primary thead th a,
+body .table-primary thead th a *,
+body table.dataTable.table-primary thead th,
+body table.dataTable.table-primary thead th *,
+body table.dataTable.table-primary thead th a,
+body table.dataTable.table-primary thead th a * {
+    color: #2c3e50 !important;
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    text-decoration: none !important;
+}
+
+/* Override Bootstrap table variants */
+body .table thead th.table-primary,
+body .table thead th.bg-primary,
+body .table thead th.text-primary,
+body .table thead th a.text-primary,
+body .table thead th span.text-primary,
+body .table thead th i.text-primary {
+    color: #2c3e50 !important;
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+}
+
+/* Override any hover states */
+body .table thead th:hover,
+body .table thead th *:hover,
+body .table thead th a:hover,
+body .table thead th a *:hover,
+body .table thead th:focus,
+body .table thead th *:focus,
+body .table thead th a:focus,
+body .table thead th a *:focus,
+body .table thead th:active,
+body .table thead th *:active,
+body .table thead th a:active,
+body .table thead th a *:active,
+body .table thead th:visited,
+body .table thead th *:visited,
+body .table thead th a:visited,
+body .table thead th a *:visited {
+    color: #2c3e50 !important;
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    text-decoration: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+/* Force specific table IDs */
+body #pendingIssuanceTable thead th:hover,
+body #pendingIssuanceTable thead th a:hover,
+body #pendingRenewalTable thead th:hover,
+body #pendingRenewalTable thead th a:hover,
+body #expiringSoonTable thead th:hover,
+body #expiringSoonTable thead th a:hover {
+    color: #2c3e50 !important;
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    text-decoration: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+/* Override DataTables specific styling */
+body table.dataTable thead .sorting,
+body table.dataTable thead .sorting_asc,
+body table.dataTable thead .sorting_desc,
+body table.dataTable thead .sorting:hover,
+body table.dataTable thead .sorting_asc:hover,
+body table.dataTable thead .sorting_desc:hover {
+    color: #2c3e50 !important;
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+}
+
+/* Override any theme-specific classes */
+body .thead-light th,
+body .thead-dark th,
+body .thead-primary th {
+    color: #2c3e50 !important;
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+}
+
+/* Force override any CSS custom properties or variables */
+body .table thead th {
+    --bs-table-accent-bg: #ffffff !important;
+    --bs-table-bg: #ffffff !important;
+    --bs-table-color: #2c3e50 !important;
+}
+
+/* Icons and sorting indicators */
+body .table thead th .fe,
+body .table thead th a .fe,
+body .table thead th i,
+body .table thead th a i {
+    color: #2c3e50 !important;
+    opacity: 0.6 !important;
+}
+
+body .table thead th a:hover .fe,
+body .table thead th a:hover i {
+    color: #2c3e50 !important;
+    opacity: 0.8 !important;
+}
+
+/* Table body styling to complement the white headers */
+.table tbody tr {
+    transition: all 0.2s ease-in-out;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(248, 249, 250, 0.8) !important;
+}
+
+/* Enhanced table styling */
+.table {
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e9ecef;
+}
+
+/* Card styling */
+.card {
+    border: none;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border-radius: 1rem;
+}
+
+.card-header {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-bottom: 2px solid #e9ecef;
+    border-radius: 1rem 1rem 0 0 !important;
+}

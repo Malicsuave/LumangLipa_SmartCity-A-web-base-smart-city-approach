@@ -169,6 +169,15 @@
                                     @enderror
                                                 </div>
                                             </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label class="form-label">Contact Number (optional)</label>
+                                                    <input type="text" name="family_members[{{ $index }}][contact_number]" class="form-control phone-field" value="{{ $member['contact_number'] ?? '' }}" pattern="[0-9]{11}" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                                    @error('family_members.'.$index.'.contact_number')
+                                                        <div class="text-danger mt-1">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                            </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-md-6">
@@ -305,6 +314,12 @@
                     <div class="form-group">
                         <label class="form-label">Work/Occupation</label>
                         <input type="text" name="family_members[INDEX][work]" class="form-control" placeholder="Student, Teacher, etc.">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label class="form-label">Contact Number (optional)</label>
+                        <input type="text" name="family_members[INDEX][contact_number]" class="form-control phone-field" pattern="[0-9]{11}" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                     </div>
                 </div>
             </div>

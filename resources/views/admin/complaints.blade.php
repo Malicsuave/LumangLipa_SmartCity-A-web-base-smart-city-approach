@@ -23,66 +23,58 @@
                 
                 <!-- Metrics Section - Optimized with Lazy Loading -->
                 <div class="row mb-4">
-                    <!-- Total Complaints Metric -->
-                    <div class="col-md-4">
-                        <div class="card mb-4 shadow health-metric-card metric-card metric-card-1 h-100 border-left-primary">
+                    <div class="col-md-4 mb-4">
+                        <div class="card document-metric-card shadow h-100">
                             <div class="card-body">
-                                <div class="row align-items-center no-gutters">
+                                <div class="row align-items-center">
                                     <div class="col-3 text-center">
-                                        <span class="circle circle-sm bg-primary metric-icon">
-                                            <i class="fe fe-clipboard text-white"></i>
+                                        <span class="circle circle-sm bg-primary">
+                                            <i class="fe fe-clipboard text-white mb-0"></i>
                                         </span>
                                     </div>
-                                    <div class="col-9">
+                                    <div class="col pr-0">
                                         <p class="small text-muted mb-0">Total Complaints</p>
-                                        <div class="d-flex align-items-baseline">
-                                            <span class="h3 metric-counter mb-0 me-1" id="totalComplaints">{{ $totalComplaints ?? 0 }}</span>
-                                            <span class="small text-muted">All time</span>
-                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <span class="h3 mb-0" id="totalComplaints">{{ $totalComplaints ?? 0 }}</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Pending Complaints Metric -->
-                    <div class="col-md-4">
-                        <div class="card mb-4 shadow health-metric-card metric-card metric-card-2 h-100 border-left-warning">
+                    <div class="col-md-4 mb-4">
+                        <div class="card document-metric-card shadow h-100">
                             <div class="card-body">
-                                <div class="row align-items-center no-gutters">
+                                <div class="row align-items-center">
                                     <div class="col-3 text-center">
-                                        <span class="circle circle-sm bg-warning metric-icon">
-                                            <i class="fe fe-clock text-white"></i>
+                                        <span class="circle circle-sm bg-warning">
+                                            <i class="fe fe-clock text-white mb-0"></i>
                                         </span>
                                     </div>
-                                    <div class="col-9">
+                                    <div class="col pr-0">
                                         <p class="small text-muted mb-0">Pending</p>
-                                        <div class="d-flex align-items-baseline">
-                                            <span class="h3 metric-counter mb-0 me-1" id="pendingComplaints">{{ $pendingComplaints ?? 0 }}</span>
-                                            <span class="small text-muted">Awaiting review</span>
-                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <span class="h3 mb-0" id="pendingComplaints">{{ $pendingComplaints ?? 0 }}</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Resolved Complaints Metric -->
-                    <div class="col-md-4">
-                        <div class="card mb-4 shadow health-metric-card metric-card metric-card-3 h-100 border-left-success">
+                    <div class="col-md-4 mb-4">
+                        <div class="card document-metric-card shadow h-100">
                             <div class="card-body">
-                                <div class="row align-items-center no-gutters">
+                                <div class="row align-items-center">
                                     <div class="col-3 text-center">
-                                        <span class="circle circle-sm bg-success metric-icon">
-                                            <i class="fe fe-check text-white"></i>
+                                        <span class="circle circle-sm bg-success">
+                                            <i class="fe fe-check text-white mb-0"></i>
                                         </span>
                                     </div>
-                                    <div class="col-9">
+                                    <div class="col pr-0">
                                         <p class="small text-muted mb-0">Resolved</p>
-                                        <div class="d-flex align-items-baseline">
-                                            <span class="h3 metric-counter mb-0 me-1" id="resolvedComplaints">{{ $resolvedComplaints ?? 0 }}</span>
-                                            <span class="small text-muted">This month</span>
-                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <span class="h3 mb-0" id="resolvedComplaints">{{ $resolvedComplaints ?? 0 }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -125,9 +117,7 @@
                                         <tbody>
                                             @foreach($recentComplaints as $complaint)
                                             <tr>
-                                                <td>
-                                                    <span class="badge badge-light">#{{ $complaint->id }}</span>
-                                                </td>
+                                                <td>{{ $complaint->id }}</td>
                                                 <td>
                                                     <strong>{{ $complaint->complainant_name }}</strong>
                                                     <br>
@@ -157,6 +147,12 @@
                                     <p class="text-muted">Recent complaints will appear here once residents start filing them.</p>
                                 </div>
                             @endif
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <div class="text-muted small">
+                                Showing {{ $recentComplaints->count() }} recent complaints
+                            </div>
+                            <!-- Remove paginator links for recentComplaints, as it's not paginated -->
                         </div>
                     </div>
                 </div>
@@ -236,6 +232,16 @@
 .toast-content {
     display: flex;
     align-items: center;
+}
+
+.table-responsive,
+.card-body,
+.collapse,
+#filterSection {
+    overflow: visible !important;
+}
+.dropdown-menu {
+    z-index: 9999 !important;
 }
 </style>
 @endpush

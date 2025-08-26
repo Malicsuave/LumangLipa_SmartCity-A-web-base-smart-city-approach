@@ -18,3 +18,11 @@
 @import '../public/css/health-metrics.css';
 @import '../public/css/complaint-table.css';
 @import '../public/css/admin.css';
+
+/* Table row hover effect for all admin tables */
+.table-hover tbody tr:hover, .table-striped tbody tr:hover {
+    background-color: #f8f9fa !important;
+    transform: translateY(-1px);
+    transition: all 0.2s ease;
+    cursor: pointer;
+}

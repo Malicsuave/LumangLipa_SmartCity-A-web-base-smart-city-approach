@@ -89,16 +89,21 @@ class AnalyticsRepository implements AnalyticsRepositoryInterface
         return Cache::remember('analytics.age_distribution', 600, function () {
             return Resident::select(
                 DB::raw('CASE 
-                    WHEN TIMESTAMPDIFF(YEAR, birth_date, CURDATE()) BETWEEN 0 AND 17 THEN "0-17"
-                    WHEN TIMESTAMPDIFF(YEAR, birth_date, CURDATE()) BETWEEN 18 AND 35 THEN "18-35"
-                    WHEN TIMESTAMPDIFF(YEAR, birth_date, CURDATE()) BETWEEN 36 AND 55 THEN "36-55"
-                    WHEN TIMESTAMPDIFF(YEAR, birth_date, CURDATE()) BETWEEN 56 AND 75 THEN "56-75"
-                    ELSE "75+"
+                    WHEN TIMESTAMPDIFF(YEAR, birthdate, CURDATE()) BETWEEN 0 AND 17 THEN "0-17"
+                    WHEN TIMESTAMPDIFF(YEAR, birthdate, CURDATE()) BETWEEN 18 AND 35 THEN "18-35"
+                    WHEN TIMESTAMPDIFF(YEAR, birthdate, CURDATE()) BETWEEN 36 AND 55 THEN "36-55"
+                    WHEN TIMESTAMPDIFF(YEAR, birthdate, CURDATE()) BETWEEN 56 AND 75 THEN "56-75"
+                    WHEN TIMESTAMPDIFF(YEAR, birthdate, CURDATE()) >= 76 THEN "75+"
+                    ELSE NULL
                 END as age_group'),
                 DB::raw('COUNT(*) as count')
             )
-            ->whereNotNull('birth_date')
+            ->whereNotNull('birthdate')
+            ->where('birthdate', '!=', '')
+            ->where('birthdate', '!=', '0000-00-00')
+            ->whereRaw('birthdate IS NOT NULL AND birthdate != "" AND birthdate != "0000-00-00" AND STR_TO_DATE(birthdate, "%Y-%m-%d") IS NOT NULL')
             ->groupBy('age_group')
+            ->havingRaw('age_group IS NOT NULL')
             ->pluck('count', 'age_group')
             ->toArray();
         });

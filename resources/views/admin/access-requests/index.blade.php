@@ -46,7 +46,7 @@
                     <div class="card-body">
                         @if($pendingRequests->count() > 0)
                             <div class="table-responsive">
-                                <table class="table table-borderless table-striped">
+                                <table class="table table-borderless table-striped table-hover">
                                     <thead>
                                         <tr>
                                             <th>Name</th>
@@ -59,6 +59,29 @@
                                     </thead>
                                     <tbody>
                                         @foreach($pendingRequests as $request)
+                                            @php
+                                                $isLastTwo = $loop->remaining < 2;
+                                                $dropdownItems = [];
+                                                $dropdownItems[] = [
+                                                    'label' => 'Review Details',
+                                                    'icon' => 'fe fe-eye fe-16 text-primary',
+                                                    'class' => '',
+                                                    'href' => route('admin.access-requests.show', $request),
+                                                ];
+                                                $dropdownItems[] = ['divider' => true];
+                                                $dropdownItems[] = [
+                                                    'label' => 'Approve Request',
+                                                    'icon' => 'fe fe-check-circle fe-16 text-success',
+                                                    'class' => '',
+                                                    'attrs' => "data-toggle=\"modal\" data-target=\"#approveModal{$request->id}\" href='#'",
+                                                ];
+                                                $dropdownItems[] = [
+                                                    'label' => 'Deny Request',
+                                                    'icon' => 'fe fe-x-circle fe-16 text-danger',
+                                                    'class' => '',
+                                                    'attrs' => "data-toggle=\"modal\" data-target=\"#denyModal{$request->id}\" href='#'",
+                                                ];
+                                            @endphp
                                             <tr>
                                                 <td>
                                                     <div class="font-weight-bold">{{ $request->name ?? 'Not provided' }}</div>
@@ -82,25 +105,8 @@
                                                         <a href="{{ route('admin.access-requests.show', $request) }}" class="small">Read more</a>
                                                     @endif
                                                 </td>
-                                                <td class="text-center">
-                                                    <div class="dropdown">
-                                                        <button class="btn btn-sm btn-icon" type="button" id="dropdownMenuButton-{{ $request->id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                            <i class="fe fe-more-vertical fe-16"></i>
-                                                        </button>
-                                                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton-{{ $request->id }}">
-                                                            <a class="dropdown-item" href="{{ route('admin.access-requests.show', $request) }}">
-                                                                <i class="fe fe-eye fe-16 mr-2 text-primary"></i>Review Details
-                                                            </a>
-                                                            <div class="dropdown-divider"></div>
-                                                            <a class="dropdown-item text-success" href="#" data-toggle="modal" data-target="#approveModal{{ $request->id }}">
-                                                                <i class="fe fe-check-circle fe-16 mr-2"></i>Approve Request
-                                                            </a>
-                                                            <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#denyModal{{ $request->id }}">
-                                                                <i class="fe fe-x-circle fe-16 mr-2"></i>Deny Request
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                    
+                                                <td class="text-center table-actions-col">
+                                                    @include('components.custom-dropdown', ['items' => $dropdownItems, 'dropup' => $isLastTwo])
                                                     <!-- Approve Modal -->
                                                     <div class="modal fade" id="approveModal{{ $request->id }}" tabindex="-1" role="dialog" aria-labelledby="approveModalLabel" aria-hidden="true">
                                                         <div class="modal-dialog" role="document">
@@ -165,12 +171,20 @@
                                 </table>
                             </div>
                         @else
-                            <div class="text-center py-4">
-                                <div class="mb-3">
-                                    <i class="fe fe-check-circle fe-32 text-success"></i>
-                                </div>
-                                <h5>No Pending Requests</h5>
-                                <p class="text-muted">All access requests have been processed. New requests will appear here.</p>
+                            <div class="text-center py-5">
+                                <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" class="mb-3">
+                                  <circle cx="60" cy="60" r="56" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="4"/>
+                                  <rect x="35" y="70" width="50" height="10" rx="5" fill="#e5e7eb"/>
+                                  <ellipse cx="60" cy="54" rx="18" ry="20" fill="#e5e7eb"/>
+                                  <ellipse cx="60" cy="54" rx="10" ry="12" fill="#f3f4f6"/>
+                                  <circle cx="54" cy="52" r="2" fill="#bdbdbd"/>
+                                  <circle cx="66" cy="52" r="2" fill="#bdbdbd"/>
+                                  <rect x="56" y="58" width="8" height="2" rx="1" fill="#bdbdbd"/>
+                                </svg>
+                                <h4>No access requests found</h4>
+                                <p class="text-muted">
+                                    No access requests match your search criteria.
+                                </p>
                             </div>
                         @endif
                     </div>
@@ -184,7 +198,7 @@
                     <div class="card-body">
                         @if($processedRequests->count() > 0)
                             <div class="table-responsive">
-                                <table class="table table-borderless table-striped">
+                                <table class="table table-borderless table-striped table-hover">
                                     <thead>
                                         <tr>
                                             <th>Name</th>
@@ -289,4 +303,16 @@
             window.location.reload();
         }
     </script>
+
+    <style>
+        .table-responsive,
+        .card-body,
+        .collapse,
+        #filterSection {
+            overflow: visible !important;
+        }
+        .dropdown-menu {
+            z-index: 9999 !important;
+        }
+    </style>
 @endsection

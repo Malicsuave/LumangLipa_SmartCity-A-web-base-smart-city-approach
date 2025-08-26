@@ -400,6 +400,25 @@ class ResidentIdController extends Controller
     }
 
     /**
+     * Remove a resident from the issuance queue.
+     *
+     * @param Resident $resident
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function removeFromIssuance(Resident $resident)
+    {
+        $resident->update([
+            'id_status' => null, // Remove from issuance queue
+        ]);
+        
+        Activity::causedBy(auth()->user())
+            ->performedOn($resident)
+            ->log('removed_from_issuance_queue');
+
+        return back()->with('success', 'Resident has been removed from the issuance queue.');
+    }
+
+    /**
      * Display residents with pending ID issuance or renewal.
      *
      * @param Request $request
@@ -500,6 +519,44 @@ class ResidentIdController extends Controller
                 });
         }
 
+        // Helper function to apply sorting
+        $applySorting = function($query, $sortParam, $directionParam) use ($request) {
+            $sort = $request->get($sortParam, 'barangay_id');
+            $direction = $request->get($directionParam, 'asc');
+            
+            // Validate direction
+            if (!in_array($direction, ['asc', 'desc'])) {
+                $direction = 'asc';
+            }
+            
+            switch ($sort) {
+                case 'barangay_id':
+                    $query->orderBy('barangay_id', $direction);
+                    break;
+                case 'name':
+                    $query->orderBy('last_name', $direction)
+                          ->orderBy('first_name', $direction);
+                    break;
+                case 'type':
+                    $query->orderBy('type_of_resident', $direction);
+                    break;
+                case 'age':
+                    $query->orderBy('birthdate', $direction === 'asc' ? 'desc' : 'asc'); // Reverse for age
+                    break;
+                case 'created_at':
+                    $query->orderBy('created_at', $direction);
+                    break;
+                case 'expiry_date':
+                    $query->orderBy('id_expires_at', $direction);
+                    break;
+                default:
+                    $query->orderBy('barangay_id', 'asc');
+                    break;
+            }
+            
+            return $query;
+        };
+
         // 1. Pending ID Issuance - Use cloned query to maintain filters
         $pendingIssuanceQuery = clone $baseQuery;
         
@@ -511,25 +568,90 @@ class ResidentIdController extends Controller
             });
         }
         
+        // Apply sorting for pending issuance
+        $pendingIssuanceQuery = $applySorting($pendingIssuanceQuery, 'sort', 'direction');
+        
         $pendingIssuance = $pendingIssuanceQuery
             ->paginate(10, ['*'], 'issuance_page')
             ->appends(request()->except('issuance_page'));
         
-        // 2. Pending renewals (with search filters applied)
-        $pendingRenewalQuery = clone $baseQuery;
-        $pendingRenewal = $pendingRenewalQuery->where('id_status', 'needs_renewal')
+        // 2. Pending renewals - use independent filters
+        $pendingRenewalQuery = Resident::query()->where('id_status', 'needs_renewal');
+        if ($request->filled('renewal_search')) {
+            $search = $request->renewal_search;
+            $pendingRenewalQuery->where(function($query) use ($search) {
+                $query->where('first_name', 'like', "%$search%")
+                    ->orWhere('middle_name', 'like', "%$search%")
+                    ->orWhere('last_name', 'like', "%$search%")
+                    ->orWhere('barangay_id', 'like', "%$search%")
+                    ->orWhere('contact_number', 'like', "%$search%") ;
+            });
+        }
+        if ($request->filled('renewal_type')) {
+            $pendingRenewalQuery->where('type_of_resident', $request->renewal_type);
+        }
+        if ($request->filled('renewal_gender')) {
+            $pendingRenewalQuery->where('sex', $request->renewal_gender);
+        }
+        if ($request->filled('renewal_age_group')) {
+            $ageGroup = $request->renewal_age_group;
+            $pendingRenewalQuery->where(function($query) use ($ageGroup) {
+                $today = Carbon::today();
+                if ($ageGroup === '0-17') {
+                    $query->whereDate('birthdate', '>', $today->copy()->subYears(18));
+                } else if ($ageGroup === '18-59') {
+                    $query->whereDate('birthdate', '<=', $today->copy()->subYears(18))
+                          ->whereDate('birthdate', '>', $today->copy()->subYears(60));
+                } else if ($ageGroup === '60+') {
+                    $query->whereDate('birthdate', '<=', $today->copy()->subYears(60));
+                }
+            });
+        }
+        $pendingRenewalQuery = $applySorting($pendingRenewalQuery, 'renewal_sort', 'renewal_direction');
+        $pendingRenewal = $pendingRenewalQuery
             ->paginate(10, ['*'], 'renewal_page')
             ->appends(request()->except('renewal_page'));
-        
-        // 3. Expiring soon - Filter for not yet expired but about to expire in 3 months
-        $expiringQuery = clone $baseQuery;
-        $expiringSoon = $expiringQuery->where('id_status', 'issued')
+
+        // 3. Expiring soon - use independent filters
+        $expiringQuery = Resident::query()->where('id_status', 'issued')
             ->whereNotNull('id_expires_at')
             ->where('id_expires_at', '<=', Carbon::now()->addMonths(3))
-            ->where('id_expires_at', '>=', Carbon::now())
+            ->where('id_expires_at', '>=', Carbon::now());
+        if ($request->filled('expiring_search')) {
+            $search = $request->expiring_search;
+            $expiringQuery->where(function($query) use ($search) {
+                $query->where('first_name', 'like', "%$search%")
+                    ->orWhere('middle_name', 'like', "%$search%")
+                    ->orWhere('last_name', 'like', "%$search%")
+                    ->orWhere('barangay_id', 'like', "%$search%")
+                    ->orWhere('contact_number', 'like', "%$search%") ;
+            });
+        }
+        if ($request->filled('expiring_type')) {
+            $expiringQuery->where('type_of_resident', $request->expiring_type);
+        }
+        if ($request->filled('expiring_gender')) {
+            $expiringQuery->where('sex', $request->expiring_gender);
+        }
+        if ($request->filled('expiring_age_group')) {
+            $ageGroup = $request->expiring_age_group;
+            $expiringQuery->where(function($query) use ($ageGroup) {
+                $today = Carbon::today();
+                if ($ageGroup === '0-17') {
+                    $query->whereDate('birthdate', '>', $today->copy()->subYears(18));
+                } else if ($ageGroup === '18-59') {
+                    $query->whereDate('birthdate', '<=', $today->copy()->subYears(18))
+                          ->whereDate('birthdate', '>', $today->copy()->subYears(60));
+                } else if ($ageGroup === '60+') {
+                    $query->whereDate('birthdate', '<=', $today->copy()->subYears(60));
+                }
+            });
+        }
+        $expiringQuery = $applySorting($expiringQuery, 'expiring_sort', 'expiring_direction');
+        $expiringSoon = $expiringQuery
             ->paginate(10, ['*'], 'expiring_page')
             ->appends(request()->except('expiring_page'));
-        
+
         return view('admin.residents.pending-ids', compact('pendingIssuance', 'pendingRenewal', 'expiringSoon'));
     }
 
@@ -905,6 +1027,18 @@ class ResidentIdController extends Controller
     }
 
     /**
+     * Generate a new random Issue ID for AJAX requests.
+     *
+     * @param Resident $resident
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function generateNewIssueId(Resident $resident)
+    {
+        $issueId = $this->generateIssueIdNumber();
+        return response()->json(['issue_id' => $issueId]);
+    }
+
+    /**
      * Generate a unique issue ID number with format YYYY-NNN
      * 
      * @return string
@@ -912,20 +1046,13 @@ class ResidentIdController extends Controller
     private function generateIssueIdNumber(): string
     {
         $year = date('Y');
-        $latestId = \App\Models\Resident::whereNotNull('id_number')
-            ->where('id_number', 'like', "$year-%")
-            ->orderByRaw('CAST(SUBSTRING_INDEX(id_number, "-", -1) AS UNSIGNED) DESC')
-            ->first();
-            
-        if ($latestId) {
-            $parts = explode('-', $latestId->id_number);
-            $lastNumber = (int)end($parts);
-            $nextNumber = $lastNumber + 1;
-        } else {
-            $nextNumber = 1;
-        }
-        
-        return $year . '-' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+        $prefix = 'BR-';
+        do {
+            $randomNumber = random_int(1, 999);
+            $idNumber = $prefix . $year . '-' . str_pad($randomNumber, 3, '0', STR_PAD_LEFT);
+            $exists = \App\Models\Resident::where('id_number', $idNumber)->exists();
+        } while ($exists);
+        return $idNumber;
     }
 
     /**
@@ -965,5 +1092,19 @@ class ResidentIdController extends Controller
             default:
                 return null;
         }
+    }
+
+    public function revoke(Resident $resident)
+    {
+        $resident->update([
+            'id_status' => 'not_issued',
+            'id_issued_at' => null,
+            'id_expires_at' => null,
+        ]);
+        // Optionally, log the activity
+        Activity::causedBy(auth()->user())
+            ->performedOn($resident)
+            ->log('revoked_id_card');
+        return back()->with('success', 'Resident ID has been revoked.');
     }
 }

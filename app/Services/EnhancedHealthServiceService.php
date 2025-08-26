@@ -61,7 +61,7 @@ class EnhancedHealthServiceService
     /**
      * Get recent health service requests
      */
-    public function getRecentRequests(int $limit = 10): array
+    public function getRecentRequests(int $limit = 10)
     {
         return Cache::remember("health_service.recent_{$limit}", 180, function () use ($limit) {
             return $this->healthServiceRepository->getRecentRequests($limit);

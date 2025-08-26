@@ -11,10 +11,12 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Notifications\Notifiable;
 use Carbon\Carbon;
 use App\Traits\TracksActivity;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Resident extends Model
 {
-    use HasFactory, TracksActivity, SoftDeletes, Notifiable;
+    use HasFactory, LogsActivity, SoftDeletes, Notifiable;
 
     protected $fillable = [
         'barangay_id',
@@ -49,6 +51,7 @@ class Resident extends Model
         'id_status',
         'id_issued_at',
         'id_expires_at',
+        'id_number', // <-- Added for Issue ID / Reference Number
     ];
 
     protected $casts = [
@@ -57,6 +60,15 @@ class Resident extends Model
         'id_issued_at' => 'date',
         'id_expires_at' => 'date',
     ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('resident')
+            ->logAll()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }
 
     /**
      * Auto-generate barangay ID when creating resident

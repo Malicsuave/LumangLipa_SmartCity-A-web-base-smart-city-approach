@@ -8,6 +8,21 @@ use App\Http\Controllers\AdminProfileController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\UnauthorizedController;
 use App\Http\Controllers\AdminApprovalController;
+use App\Http\Controllers\ResidentController;
+use App\Http\Controllers\ResidentIdController;
+use App\Http\Controllers\Admin\AccessRequestController;
+use App\Http\Controllers\Admin\SeniorCitizenController;
+use App\Http\Controllers\ComplaintController;
+use App\Http\Controllers\ComplaintMeetingController;
+use App\Http\Controllers\HealthServiceController;
+use App\Http\Controllers\HealthMeetingController;
+use App\Http\Controllers\Admin\GadController;
+use App\Http\Controllers\UserActivityController;
+use App\Http\Controllers\Admin\UserActivityController as AdminUserActivityController;
+use App\Http\Controllers\Admin\SecurityController;
+use App\Http\Controllers\Admin\AuditLogController;
+use App\Http\Controllers\Admin\AnalyticsController;
+use App\Http\Controllers\TestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,29 +55,22 @@ Route::get('/admin-chat-debug', function() {
 
 // Public Pre-Registration Routes - Multi-step
 Route::prefix('pre-registration')->name('public.pre-registration.')->group(function () {
-    // Multi-step registration process
-    Route::get('/step1', [App\Http\Controllers\Public\PreRegistrationController::class, 'createStep1'])->name('step1');
-    Route::post('/step1', [App\Http\Controllers\Public\PreRegistrationController::class, 'storeStep1'])->name('step1.store');
-    Route::get('/step2', [App\Http\Controllers\Public\PreRegistrationController::class, 'createStep2'])->name('step2');
-    Route::post('/step2', [App\Http\Controllers\Public\PreRegistrationController::class, 'storeStep2'])->name('step2.store');
-    Route::get('/step3', [App\Http\Controllers\Public\PreRegistrationController::class, 'createStep3'])->name('step3');
-    Route::post('/step3', [App\Http\Controllers\Public\PreRegistrationController::class, 'storeStep3'])->name('step3.store');
-    Route::get('/step4-senior', [App\Http\Controllers\Public\PreRegistrationController::class, 'createStep4Senior'])->name('step4-senior');
-    Route::post('/step4-senior', [App\Http\Controllers\Public\PreRegistrationController::class, 'storeStep4Senior'])->name('step4-senior.store');
-    Route::get('/step4', [App\Http\Controllers\Public\PreRegistrationController::class, 'createStep4'])->name('step4');
-    Route::post('/step4', [App\Http\Controllers\Public\PreRegistrationController::class, 'storeStep4'])->name('step4.store');
-    Route::get('/review', [App\Http\Controllers\Public\PreRegistrationController::class, 'createReview'])->name('review');
-    
-    // Legacy single-step route (redirect to step1)
-    Route::get('/', function() {
-        return redirect()->route('public.pre-registration.step1');
-    })->name('create');
-    
-    // Final submission and other routes
-    Route::post('/', [App\Http\Controllers\Public\PreRegistrationController::class, 'store'])->name('store');
-    Route::get('/success', [App\Http\Controllers\Public\PreRegistrationController::class, 'success'])->name('success');
-    Route::get('/check-status', [App\Http\Controllers\Public\PreRegistrationController::class, 'checkStatus'])->name('check-status');
-    Route::post('/check-status', [App\Http\Controllers\Public\PreRegistrationController::class, 'checkStatus'])->name('check-status.post');
+    Route::get('step1', [\App\Http\Controllers\Public\PreRegistrationController::class, 'createStep1'])->name('step1');
+    Route::post('step1', [\App\Http\Controllers\Public\PreRegistrationController::class, 'storeStep1'])->name('step1.store');
+    Route::get('step2', [\App\Http\Controllers\Public\PreRegistrationController::class, 'createStep2'])->name('step2');
+    Route::post('step2', [\App\Http\Controllers\Public\PreRegistrationController::class, 'storeStep2'])->name('step2.store');
+    Route::get('step3', [\App\Http\Controllers\Public\PreRegistrationController::class, 'createStep3'])->name('step3');
+    Route::post('step3', [\App\Http\Controllers\Public\PreRegistrationController::class, 'storeStep3'])->name('step3.store');
+    Route::get('step4', [\App\Http\Controllers\Public\PreRegistrationController::class, 'createStep4'])->name('step4');
+    Route::post('step4', [\App\Http\Controllers\Public\PreRegistrationController::class, 'storeStep4'])->name('step4.store');
+    Route::get('step4-senior', [\App\Http\Controllers\Public\PreRegistrationController::class, 'createStep4Senior'])->name('step4-senior');
+    Route::post('step4-senior', [\App\Http\Controllers\Public\PreRegistrationController::class, 'storeStep4Senior'])->name('step4-senior.store');
+    Route::get('step5', [\App\Http\Controllers\Public\PreRegistrationController::class, 'createStep5'])->name('step5');
+    Route::post('step5', [\App\Http\Controllers\Public\PreRegistrationController::class, 'storeStep5'])->name('step5.store');
+    Route::get('review', [\App\Http\Controllers\Public\PreRegistrationController::class, 'createReview'])->name('review');
+    Route::post('submit', [\App\Http\Controllers\Public\PreRegistrationController::class, 'store'])->name('submit');
+    Route::get('success', [\App\Http\Controllers\Public\PreRegistrationController::class, 'success'])->name('success');
+    Route::match(['get', 'post'], 'check-status', [\App\Http\Controllers\Public\PreRegistrationController::class, 'checkStatus'])->name('check-status');
 });
 
 // Document Request Public Routes
@@ -71,6 +79,7 @@ Route::post('/request-document', [App\Http\Controllers\DocumentRequestController
 Route::post('/check-resident', [App\Http\Controllers\DocumentRequestController::class, 'checkResident'])->name('documents.check-resident');
 Route::post('/send-otp', [App\Http\Controllers\DocumentRequestController::class, 'sendOtp'])->name('documents.send-otp');
 Route::post('/verify-otp', [App\Http\Controllers\DocumentRequestController::class, 'verifyOtp'])->name('documents.verify-otp');
+Route::get('/verify/{uuid}', [App\Http\Controllers\DocumentVerificationController::class, 'show'])->name('documents.verify');
 
 // Health Service Public Routes
 Route::get('/health/request', [App\Http\Controllers\HealthServiceController::class, 'create'])->name('health.request');
@@ -87,7 +96,7 @@ Route::post('/complaints/send-otp', [App\Http\Controllers\ComplaintController::c
 Route::post('/complaints/verify-otp', [App\Http\Controllers\ComplaintController::class, 'verifyOtp'])->name('complaints.verify-otp');
 
 // Resident ID full preview route
-Route::get('/resident/{resident}/id/full-preview', [App\Http\Controllers\ResidentIdController::class, 'fullPreview'])->name('id.full-preview');
+Route::get('/resident/{resident}/id/full-preview', [ResidentIdController::class, 'fullPreview'])->name('id.full-preview');
 
 // Special logout page route
 Route::get('/logout-page', function () {
@@ -166,118 +175,103 @@ Route::middleware([
         Route::get('/admin/documents/{documentRequest}', [App\Http\Controllers\DocumentRequestController::class, 'show']);
         Route::post('/admin/documents/{documentRequest}/approve', [App\Http\Controllers\DocumentRequestController::class, 'approve']);
         Route::post('/admin/documents/{documentRequest}/reject', [App\Http\Controllers\DocumentRequestController::class, 'reject']);
+        Route::post('/admin/documents/{documentRequest}/mark-claimed', [App\Http\Controllers\DocumentRequestController::class, 'markAsClaimed']);
         Route::get('/admin/documents/{documentRequest}/view', [App\Http\Controllers\DocumentGeneratorController::class, 'generateDocument'])->name('admin.documents.view');
         Route::get('/admin/documents/{documentRequest}/print', [App\Http\Controllers\DocumentGeneratorController::class, 'generateDocument'])->name('admin.documents.print');
         
         // Resident Management Routes - Multi-step Form
-        Route::prefix('admin/residents')->name('admin.residents.')->group(function () {
-            Route::get('/', [App\Http\Controllers\ResidentController::class, 'index'])->name('index');
-            Route::get('/archived', [App\Http\Controllers\ResidentController::class, 'archived'])->name('archived');
-            Route::post('/restore/{id}', [App\Http\Controllers\ResidentController::class, 'restore'])->name('restore');
-            Route::delete('/force-delete/{id}', [App\Http\Controllers\ResidentController::class, 'forceDelete'])->name('force-delete');
-            Route::get('/create', [App\Http\Controllers\ResidentController::class, 'create'])->name('create');
-            
-            // Batch ID Management - MOVED BEFORE DYNAMIC ROUTES
-            Route::get('/pending-ids', [App\Http\Controllers\ResidentIdController::class, 'pendingIds'])->name('id.pending');
-            Route::post('/batch-issue', [App\Http\Controllers\ResidentIdController::class, 'batchIssue'])->name('id.batch-issue');
-            // Bulk Upload Routes
-            Route::get('/bulk-upload', [App\Http\Controllers\ResidentIdController::class, 'bulkUpload'])->name('id.bulk-upload');
-            Route::post('/bulk-upload', [App\Http\Controllers\ResidentIdController::class, 'processBulkUpload'])->name('id.bulk-upload');
-            Route::post('/bulk-signature-upload', [App\Http\Controllers\ResidentIdController::class, 'processBulkSignatureUpload'])->name('id.bulk-signature-upload');
-            Route::post('/bulk-issue', [App\Http\Controllers\ResidentIdController::class, 'bulkIssue'])->name('id.bulk-issue');
-            
-            // Multi-step form routes
-            Route::get('/create/step1', [App\Http\Controllers\ResidentController::class, 'createStep1'])->name('create.step1');
-            Route::post('/create/step1', [App\Http\Controllers\ResidentController::class, 'storeStep1'])->name('create.step1.store');
-            Route::get('/create/step2', [App\Http\Controllers\ResidentController::class, 'createStep2'])->name('create.step2');
-            Route::post('/create/step2', [App\Http\Controllers\ResidentController::class, 'storeStep2'])->name('create.step2.store');
-            Route::get('/create/step3', [App\Http\Controllers\ResidentController::class, 'createStep3'])->name('create.step3');
-            Route::post('/create/step3', [App\Http\Controllers\ResidentController::class, 'storeStep3'])->name('create.step3.store');
-            
-            // Senior Citizen Step (step 4)
-            Route::get('/create/step4-senior', [App\Http\Controllers\ResidentController::class, 'createStep4Senior'])->name('create.step4-senior');
-            Route::post('/create/step4-senior', [App\Http\Controllers\ResidentController::class, 'storeStep4Senior'])->name('create.step4-senior.store');
-            
-            // Family Members (step 5 - was previously step 4)
-            Route::get('/create/step4', [App\Http\Controllers\ResidentController::class, 'createStep4'])->name('create.step4');
-            Route::post('/create/step4', [App\Http\Controllers\ResidentController::class, 'storeStep4'])->name('create.step4.store');
-            
-            // Additional Info (step 6 - was previously step 5)
-            Route::get('/create/step5', [App\Http\Controllers\ResidentController::class, 'createStep5'])->name('create.step5');
-            Route::post('/create/step5', [App\Http\Controllers\ResidentController::class, 'storeStep5'])->name('create.step5.store');
-            
-            // Final Review (step 7 - was previously step 6)
-            Route::get('/create/review', [App\Http\Controllers\ResidentController::class, 'createReview'])->name('create.review');
-            Route::post('/store', [App\Http\Controllers\ResidentController::class, 'store'])->name('store');
-            
-            // DYNAMIC ROUTES - NOW AFTER STATIC ROUTES
-            Route::get('/{resident}', [App\Http\Controllers\ResidentController::class, 'show'])->name('show');
-            Route::get('/{resident}/edit', [App\Http\Controllers\ResidentController::class, 'edit'])->name('edit');
-            Route::put('/{resident}', [App\Http\Controllers\ResidentController::class, 'update'])->name('update');
-            Route::delete('/{resident}', [App\Http\Controllers\ResidentController::class, 'destroy'])->name('destroy');
-            
-            // Services route for residents
-            Route::get('/{resident}/services', [App\Http\Controllers\ResidentController::class, 'services'])->name('services');
-            
-            // ID Card Management Routes
-            Route::get('/{resident}/id', [App\Http\Controllers\ResidentIdController::class, 'show'])->name('id.show');
-            Route::post('/{resident}/id/upload-photo', [App\Http\Controllers\ResidentIdController::class, 'uploadPhoto'])->name('id.upload-photo');
-            Route::post('/{resident}/id/upload-signature', [App\Http\Controllers\ResidentIdController::class, 'uploadSignature'])->name('id.upload-signature');
-            Route::put('/{resident}/id/update', [App\Http\Controllers\ResidentIdController::class, 'updateIdInfo'])->name('id.update');
-            Route::post('/{resident}/id/issue', [App\Http\Controllers\ResidentIdController::class, 'issueId'])->name('id.issue');
-            Route::post('/{resident}/id/revoke', [App\Http\Controllers\ResidentIdController::class, 'revokeId'])->name('id.revoke');
-            Route::get('/{resident}/id/preview', [App\Http\Controllers\ResidentIdController::class, 'previewId'])->name('id.preview');
-            Route::get('/{resident}/id/download', [App\Http\Controllers\ResidentIdController::class, 'downloadId'])->name('id.download');
-            Route::post('/{resident}/id/mark-renewal', [App\Http\Controllers\ResidentIdController::class, 'markForRenewal'])->name('id.mark-renewal');
-            Route::post('/{resident}/id/remove-renewal', [App\Http\Controllers\ResidentIdController::class, 'removeFromRenewal'])->name('id.remove-renewal');
-            Route::get('/{resident}/id/preview-data', [App\Http\Controllers\ResidentIdController::class, 'getIdPreviewData'])->name('id.preview-data');
-            Route::get('/{resident}/id/full-preview', [App\Http\Controllers\ResidentIdController::class, 'fullPreview'])->name('id.full-preview'); // New route for full-page preview
-        });
-        
-        Route::get('/admin/profile', function () {
-            return view('admin.profile');
-        })->name('admin.profile');
-        
-        // Profile management routes
-        Route::post('/admin/profile/update', [AdminProfileController::class, 'updateProfile'])
-            ->name('admin.profile.update');
-        Route::post('/admin/profile/photo/update', [AdminProfileController::class, 'updateProfilePhoto'])
-            ->name('admin.profile.photo.update');
-        Route::post('/admin/profile/photo/delete', [AdminProfileController::class, 'deleteProfilePhoto'])
-            ->name('admin.profile.photo.delete');
-        
-        // Access Request Management Routes
-        Route::get('/admin/access-requests', [App\Http\Controllers\Admin\AccessRequestController::class, 'index'])
-            ->name('admin.access-requests.index');
-        Route::get('/admin/access-requests/{accessRequest}', [App\Http\Controllers\Admin\AccessRequestController::class, 'show'])
-            ->name('admin.access-requests.show');
-        Route::post('/admin/access-requests/{accessRequest}/approve', [App\Http\Controllers\Admin\AccessRequestController::class, 'approve'])
-            ->name('admin.access-requests.approve');
-        Route::post('/admin/access-requests/{accessRequest}/deny', [App\Http\Controllers\Admin\AccessRequestController::class, 'deny'])
-            ->name('admin.access-requests.deny');
-        
-        // Admin Approval Management Routes
-        Route::prefix('admin/approvals')->name('admin.approvals.')->group(function() {
-            Route::get('/', [AdminApprovalController::class, 'index'])->name('index');
-            Route::get('/create', [AdminApprovalController::class, 'create'])->name('create');
-            Route::post('/', [AdminApprovalController::class, 'store'])->name('store');
-            Route::get('/{adminApproval}', [AdminApprovalController::class, 'show'])->name('show');
-            Route::get('/{adminApproval}/edit', [AdminApprovalController::class, 'edit'])->name('edit');
-            Route::put('/{adminApproval}', [AdminApprovalController::class, 'update'])->name('update');
-            Route::patch('/{adminApproval}/toggle', [AdminApprovalController::class, 'toggle'])->name('toggle');
-            Route::delete('/{adminApproval}', [AdminApprovalController::class, 'destroy'])->name('destroy');
-        });
-
-        // Pre-Registration Management Routes
         Route::prefix('admin/pre-registrations')->name('admin.pre-registrations.')->group(function() {
             Route::get('/', [App\Http\Controllers\Admin\PreRegistrationController::class, 'index'])->name('index');
             Route::get('/{preRegistration}', [App\Http\Controllers\Admin\PreRegistrationController::class, 'show'])->name('show');
             Route::post('/{preRegistration}/approve', [App\Http\Controllers\Admin\PreRegistrationController::class, 'approve'])->name('approve');
             Route::post('/{preRegistration}/reject', [App\Http\Controllers\Admin\PreRegistrationController::class, 'reject'])->name('reject');
-            Route::delete('/{preRegistration}', [App\Http\Controllers\Admin\PreRegistrationController::class, 'destroy'])->name('destroy');
+        });
+        
+        // Resident Management Routes
+        Route::prefix('admin/residents')->name('admin.residents.')->group(function() {
+            Route::get('/', [ResidentController::class, 'index'])->name('index');
+            Route::get('/archived', [ResidentController::class, 'archived'])->name('archived');
+            Route::get('/create', [ResidentController::class, 'create'])->name('create');
+            
+            // Multi-step resident creation routes
+            Route::get('/create/step1', [ResidentController::class, 'createStep1'])->name('create.step1');
+            Route::post('/create/step1', [ResidentController::class, 'storeStep1'])->name('create.step1.store');
+            Route::get('/create/step2', [ResidentController::class, 'createStep2'])->name('create.step2');
+            Route::post('/create/step2', [ResidentController::class, 'storeStep2'])->name('create.step2.store');
+            Route::get('/create/step3', [ResidentController::class, 'createStep3'])->name('create.step3');
+            Route::post('/create/step3', [ResidentController::class, 'storeStep3'])->name('create.step3.store');
+            Route::get('/create/step4', [ResidentController::class, 'createStep4'])->name('create.step4');
+            Route::post('/create/step4', [ResidentController::class, 'storeStep4'])->name('create.step4.store');
+            Route::get('/create/step4-senior', [ResidentController::class, 'createStep4Senior'])->name('create.step4-senior');
+            Route::post('/create/step4-senior', [ResidentController::class, 'storeStep4Senior'])->name('create.step4-senior.store');
+            Route::get('/create/step5', [ResidentController::class, 'createStep5'])->name('create.step5');
+            Route::post('/create/step5', [ResidentController::class, 'storeStep5'])->name('create.step5.store');
+            Route::get('/create/review', [ResidentController::class, 'createReview'])->name('create.review');
+            Route::post('/create/store', [App\Http\Controllers\ResidentController::class, 'store'])->name('create.store');
+            
+            Route::get('/{resident}', [App\Http\Controllers\ResidentController::class, 'show'])->name('show');
+            Route::put('/{resident}', [App\Http\Controllers\ResidentController::class, 'update'])->name('update');
+            Route::delete('/{resident}', [App\Http\Controllers\ResidentController::class, 'destroy'])->name('destroy');
+            Route::post('/{resident}/upload-photo', [App\Http\Controllers\ResidentController::class, 'uploadPhoto'])->name('upload-photo');
+            Route::post('/{resident}/upload-signature', [App\Http\Controllers\ResidentController::class, 'uploadSignature'])->name('upload-signature');
+            Route::put('/{resident}/update-id-info', [App\Http\Controllers\ResidentController::class, 'updateIdInfo'])->name('update-id-info');
+            Route::get('/{resident}/edit', [App\Http\Controllers\ResidentController::class, 'edit'])->name('edit');
+            Route::get('/{resident}/services', [App\Http\Controllers\ResidentController::class, 'services'])->name('services');
+            Route::delete('/{resident}/force-delete', [App\Http\Controllers\ResidentController::class, 'forceDelete'])->name('force-delete');
+            Route::get('/{resident}/generate-issue-id', [App\Http\Controllers\ResidentIdController::class, 'generateNewIssueId'])->name('id.generate');
+        });
+        
+        // Admin Profile Management
+        Route::get('/admin/profile', [AdminProfileController::class, 'show'])->name('admin.profile');
+        Route::put('/admin/profile', [AdminProfileController::class, 'update'])->name('admin.profile.update');
+        Route::post('/admin/profile/photo', [AdminProfileController::class, 'updatePhoto'])->name('admin.profile.photo.update');
+        
+        // Admin Approvals Management
+        Route::prefix('admin/approvals')->name('admin.approvals.')->group(function() {
+            Route::get('/', [AdminApprovalController::class, 'index'])->name('index');
+            Route::get('/create', [AdminApprovalController::class, 'create'])->name('create');
+            Route::post('/', [AdminApprovalController::class, 'store'])->name('store');
+            Route::get('/{approval}/edit', [AdminApprovalController::class, 'edit'])->name('edit');
+            Route::put('/{approval}', [AdminApprovalController::class, 'update'])->name('update');
+            Route::delete('/{approval}', [AdminApprovalController::class, 'destroy'])->name('destroy');
+        });
+        
+        // Access Requests Management
+        Route::prefix('admin/access-requests')->name('admin.access-requests.')->group(function() {
+            Route::get('/', [App\Http\Controllers\Admin\AccessRequestController::class, 'index'])->name('index');
+            Route::get('/{accessRequest}', [App\Http\Controllers\Admin\AccessRequestController::class, 'show'])->name('show');
+            Route::post('/{accessRequest}/approve', [App\Http\Controllers\Admin\AccessRequestController::class, 'approve'])->name('approve');
+            Route::post('/{accessRequest}/deny', [App\Http\Controllers\Admin\AccessRequestController::class, 'deny'])->name('deny');
+        });
+        
+        // Resident ID Management
+        Route::prefix('admin/resident-ids')->name('admin.resident-ids.')->group(function() {
+            Route::get('/', [App\Http\Controllers\ResidentIdController::class, 'index'])->name('index');
+            Route::get('/{residentId}', [App\Http\Controllers\ResidentIdController::class, 'show'])->name('show');
+            Route::post('/{residentId}/generate', [App\Http\Controllers\ResidentIdController::class, 'generate'])->name('generate');
+            Route::get('/{residentId}/print', [App\Http\Controllers\ResidentIdController::class, 'print'])->name('print');
+            Route::post('/{residentId}/upload-photo', [App\Http\Controllers\ResidentIdController::class, 'uploadPhoto'])->name('upload-photo');
+            Route::post('/{residentId}/upload-signature', [App\Http\Controllers\ResidentIdController::class, 'uploadSignature'])->name('upload-signature');
+            Route::put('/{residentId}/update-id-info', [App\Http\Controllers\ResidentIdController::class, 'updateIdInfo'])->name('update-id-info');
+        });
+        
+        // Resident ID Pending Management - Add this route for the navigation menu
+        Route::get('/admin/residents/id/pending', [ResidentIdController::class, 'pendingIds'])->name('admin.residents.id.pending');
+        
+        // Senior Citizens Management
+        Route::prefix('admin/senior-citizens')->name('admin.senior-citizens.')->group(function() {
+            Route::post('/{seniorCitizen}/revoke-id', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'revokeId'])->name('revoke-id');
+            Route::get('/', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'index'])->name('index');
+           Route::get('/{seniorCitizen}', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'showIdManagement'])->name('show');
+            Route::put('/{seniorCitizen}', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'update'])->name('update');
+            Route::delete('/{seniorCitizen}', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'destroy'])->name('destroy');
+            Route::post('/{seniorCitizen}/upload-photo', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'uploadPhoto'])->name('upload-photo');
+            Route::post('/{seniorCitizen}/upload-signature', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'uploadSignature'])->name('upload-signature');
+            Route::put('/{seniorCitizen}/update-id-info', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'updateIdInfo'])->name('update-id-info');
+            Route::post('/{seniorCitizen}/mark-renewal', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'markForRenewal'])->name('mark-renewal');
         });
     });
-    
+
     // Complaint Manager routes
     Route::middleware('role:Complaint Manager,Barangay Captain,Barangay Secretary')->group(function () {
         // Complaint Management Routes
@@ -298,63 +292,112 @@ Route::middleware([
     
     // Health Worker routes
     Route::middleware('role:Health Worker,Barangay Captain,Barangay Secretary')->group(function () {
-        Route::get('/admin/health', [App\Http\Controllers\HealthServiceController::class, 'adminDashboard'])->name('admin.health');
+        Route::get('/admin/health', [HealthServiceController::class, 'adminDashboard'])->name('admin.health');
         
         // Health Service Management Routes
         Route::prefix('admin/health-services')->name('admin.health-services.')->group(function() {
-            Route::get('/', [App\Http\Controllers\HealthServiceController::class, 'index'])->name('index');
-            Route::get('/{id}', [App\Http\Controllers\HealthServiceController::class, 'show'])->name('show');
-            Route::post('/{id}/approve', [App\Http\Controllers\HealthServiceController::class, 'approve'])->name('approve');
-            Route::post('/{id}/complete', [App\Http\Controllers\HealthServiceController::class, 'complete'])->name('complete');
-            Route::post('/{id}/reject', [App\Http\Controllers\HealthServiceController::class, 'reject'])->name('reject');
+            Route::get('/', [HealthServiceController::class, 'index'])->name('index');
+            Route::get('/{id}', [HealthServiceController::class, 'show'])->name('show');
+            Route::post('/{id}/approve', [HealthServiceController::class, 'approve'])->name('approve');
+            Route::post('/{id}/complete', [HealthServiceController::class, 'complete'])->name('complete');
+            Route::post('/{id}/reject', [HealthServiceController::class, 'reject'])->name('reject');
         });
         
         // Health Meeting Management Routes
         Route::prefix('admin/health-meetings')->name('admin.health-meetings.')->group(function() {
-            Route::post('/', [App\Http\Controllers\HealthMeetingController::class, 'store'])->name('store');
-            Route::post('/{id}/complete', [App\Http\Controllers\HealthMeetingController::class, 'complete'])->name('complete');
-            Route::post('/{id}/cancel', [App\Http\Controllers\HealthMeetingController::class, 'cancel'])->name('cancel');
+            Route::post('/', [HealthMeetingController::class, 'store'])->name('store');
+            Route::post('/{id}/complete', [HealthMeetingController::class, 'complete'])->name('complete');
+            Route::post('/{id}/cancel', [HealthMeetingController::class, 'cancel'])->name('cancel');
         });
         
         // GAD (Gender and Development) Routes
         Route::prefix('admin/gad')->name('admin.gad.')->group(function() {
-            Route::get('/', [App\Http\Controllers\Admin\GadController::class, 'index'])->name('index');
-            Route::get('/archived', [App\Http\Controllers\Admin\GadController::class, 'archived'])->name('archived');
-            Route::post('/restore/{id}', [App\Http\Controllers\Admin\GadController::class, 'restore'])->name('restore');
-            Route::delete('/force-delete/{id}', [App\Http\Controllers\Admin\GadController::class, 'forceDelete'])->name('force-delete');
-            Route::get('/create', [App\Http\Controllers\Admin\GadController::class, 'create'])->name('create');
-            Route::post('/', [App\Http\Controllers\Admin\GadController::class, 'store'])->name('store');
-            Route::get('/{gad}', [App\Http\Controllers\Admin\GadController::class, 'show'])->name('show');
-            Route::get('/{gad}/edit', [App\Http\Controllers\Admin\GadController::class, 'edit'])->name('edit');
-            Route::put('/{gad}', [App\Http\Controllers\Admin\GadController::class, 'update'])->name('update');
-            Route::post('/{gad}/direct-update', [App\Http\Controllers\Admin\GadController::class, 'directUpdate'])->name('direct-update');
-            Route::delete('/{gad}', [App\Http\Controllers\Admin\GadController::class, 'destroy'])->name('destroy');
-            
-            // Archived GAD Records
-            Route::get('/archived/list', [App\Http\Controllers\Admin\GadController::class, 'archived'])->name('archived');
-            Route::post('/archived/{gad}/restore', [App\Http\Controllers\Admin\GadController::class, 'restore'])->name('restore');
-            Route::delete('/archived/{gad}', [App\Http\Controllers\Admin\GadController::class, 'forceDelete'])->name('force-delete');
-            
-            // GAD Reports
-            Route::get('/reports/generate', [App\Http\Controllers\Admin\GadController::class, 'reports'])->name('reports');
+            Route::get('/', [GadController::class, 'index'])->name('index');
+            Route::get('/create', [GadController::class, 'create'])->name('create');
+            Route::post('/', [GadController::class, 'store'])->name('store');
+            Route::get('/{gad}/edit', [GadController::class, 'edit'])->name('edit');
+            Route::put('/{gad}', [GadController::class, 'update'])->name('update');
+            Route::delete('/{gad}', [GadController::class, 'destroy'])->name('destroy');
         });
         
-        // Senior Citizens Management Routes
+        // GAD Archived Management
+        Route::get('/admin/gad/archived', [GadController::class, 'archived'])->name('admin.gad.archived');
+        
+        // GAD Reports Management
+        Route::get('/admin/gad/reports', [GadController::class, 'reports'])->name('admin.gad.reports');
+        
+        // Senior Citizens Management
         Route::prefix('admin/senior-citizens')->name('admin.senior-citizens.')->group(function() {
             Route::get('/', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'index'])->name('index');
-            Route::get('/dashboard', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'dashboard'])->name('dashboard');
-            Route::get('/{seniorCitizen}/edit', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'edit'])->name('edit');
+           Route::get('/{seniorCitizen}', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'showIdManagement'])->name('show');
             Route::put('/{seniorCitizen}', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'update'])->name('update');
-            Route::post('/{seniorCitizen}/issue-id', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'issueId'])->name('issue-id');
-            Route::post('/{seniorCitizen}/mark-renewal', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'markForRenewal'])->name('mark-renewal');
-            Route::post('/{seniorCitizen}/revoke-id', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'revokeId'])->name('revoke-id');
-            
-            // Senior Citizen ID Preview and Download Routes
-            Route::get('/{seniorCitizen}/id/preview', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'previewId'])->name('id.preview');
-            Route::get('/{seniorCitizen}/id/download', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'downloadId'])->name('id.download');
-            
-            // Senior Citizen Photo and Signature Management
-            Route::get('/{seniorCitizen}/id-management', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'showIdManagement'])->name('id-management');
+            Route::delete('/{seniorCitizen}', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'destroy'])->name('destroy');
+            Route::post('/{seniorCitizen}/upload-photo', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'uploadPhoto'])->name('upload-photo');
+            Route::post('/{seniorCitizen}/upload-signature', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'uploadSignature'])->name('upload-signature');
+            Route::put('/{seniorCitizen}/update-id-info', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'updateIdInfo'])->name('update-id-info');
+        });
+    });
+
+    // Complaint Manager routes
+    Route::middleware('role:Complaint Manager,Barangay Captain,Barangay Secretary')->group(function () {
+        // Complaint Management Routes
+        Route::get('/admin/complaints', [App\Http\Controllers\ComplaintController::class, 'adminDashboard'])->name('admin.complaints');
+        Route::get('/admin/complaint-management', [App\Http\Controllers\ComplaintController::class, 'index'])->name('admin.complaint-management');
+        Route::get('/admin/complaints/{complaint}', [App\Http\Controllers\ComplaintController::class, 'show'])->name('admin.complaints.show');
+        Route::post('/admin/complaints/{complaint}/approve', [App\Http\Controllers\ComplaintController::class, 'approve'])->name('admin.complaints.approve');
+        Route::post('/admin/complaints/{complaint}/resolve', [App\Http\Controllers\ComplaintController::class, 'resolve'])->name('admin.complaints.resolve');
+        Route::post('/admin/complaints/{complaint}/dismiss', [App\Http\Controllers\ComplaintController::class, 'dismiss'])->name('admin.complaints.dismiss');
+        
+        // Complaint Meeting Management Routes
+        Route::prefix('admin/complaint-meetings')->name('admin.complaint-meetings.')->group(function() {
+            Route::post('/', [App\Http\Controllers\ComplaintMeetingController::class, 'store'])->name('store');
+            Route::post('/{id}/complete', [App\Http\Controllers\ComplaintMeetingController::class, 'complete'])->name('complete');
+            Route::post('/{id}/cancel', [App\Http\Controllers\ComplaintMeetingController::class, 'cancel'])->name('cancel');
+        });
+    });
+    
+    // Health Worker routes
+    Route::middleware('role:Health Worker,Barangay Captain,Barangay Secretary')->group(function () {
+        Route::get('/admin/health', [HealthServiceController::class, 'adminDashboard'])->name('admin.health');
+        
+        // Health Service Management Routes
+        Route::prefix('admin/health-services')->name('admin.health-services.')->group(function() {
+            Route::get('/', [HealthServiceController::class, 'index'])->name('index');
+            Route::get('/{id}', [HealthServiceController::class, 'show'])->name('show');
+            Route::post('/{id}/approve', [HealthServiceController::class, 'approve'])->name('approve');
+            Route::post('/{id}/complete', [HealthServiceController::class, 'complete'])->name('complete');
+            Route::post('/{id}/reject', [HealthServiceController::class, 'reject'])->name('reject');
+        });
+        
+        // Health Meeting Management Routes
+        Route::prefix('admin/health-meetings')->name('admin.health-meetings.')->group(function() {
+            Route::post('/', [HealthMeetingController::class, 'store'])->name('store');
+            Route::post('/{id}/complete', [HealthMeetingController::class, 'complete'])->name('complete');
+            Route::post('/{id}/cancel', [HealthMeetingController::class, 'cancel'])->name('cancel');
+        });
+        
+        // GAD (Gender and Development) Routes
+        Route::prefix('admin/gad')->name('admin.gad.')->group(function() {
+            Route::get('/', [GadController::class, 'index'])->name('index');
+            Route::get('/create', [GadController::class, 'create'])->name('create');
+            Route::post('/', [GadController::class, 'store'])->name('store');
+            Route::get('/{gad}/edit', [GadController::class, 'edit'])->name('edit');
+            Route::put('/{gad}', [GadController::class, 'update'])->name('update');
+            Route::delete('/{gad}', [GadController::class, 'destroy'])->name('destroy');
+        });
+        
+        // GAD Archived Management
+        Route::get('/admin/gad/archived', [GadController::class, 'archived'])->name('admin.gad.archived');
+        
+        // GAD Reports Management
+        Route::get('/admin/gad/reports', [GadController::class, 'reports'])->name('admin.gad.reports');
+        
+        // Senior Citizens Management
+        Route::prefix('admin/senior-citizens')->name('admin.senior-citizens.')->group(function() {
+            Route::get('/', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'index'])->name('index');
+            Route::get('/{seniorCitizen}', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'showIdManagement'])->name('show');
+            Route::put('/{seniorCitizen}', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'update'])->name('update');
+            Route::delete('/{seniorCitizen}', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'destroy'])->name('destroy');
             Route::post('/{seniorCitizen}/upload-photo', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'uploadPhoto'])->name('upload-photo');
             Route::post('/{seniorCitizen}/upload-signature', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'uploadSignature'])->name('upload-signature');
             Route::put('/{seniorCitizen}/update-id-info', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'updateIdInfo'])->name('update-id-info');
@@ -364,55 +407,57 @@ Route::middleware([
     // User Activity & Security routes
     // Admin User Activity Management
     Route::middleware('role:Barangay Captain,Barangay Secretary,Health Worker,Complaint Manager')->group(function () {
-        Route::get('/admin/activities', [App\Http\Controllers\UserActivityController::class, 'adminIndex'])
+        Route::get('/admin/activities', [UserActivityController::class, 'adminIndex'])
             ->name('admin.activities');
             
         // User Activity and Security Dashboard Routes - RENAMED to avoid conflict
-        Route::get('/admin/security/user-activities', [App\Http\Controllers\Admin\UserActivityController::class, 'dashboard'])
+        Route::get('/admin/security/user-activities', [AdminUserActivityController::class, 'dashboard'])
             ->name('admin.security.user-activities');
-        Route::get('/admin/security/activities', [App\Http\Controllers\Admin\UserActivityController::class, 'activities'])
+        Route::get('/admin/security/activities', [AdminUserActivityController::class, 'activities'])
             ->name('admin.security.activities');
-        Route::get('/admin/security/users/{user}/sessions', [App\Http\Controllers\Admin\UserActivityController::class, 'userSessions'])
+        Route::get('/admin/security/users/{user}/sessions', [AdminUserActivityController::class, 'userSessions'])
             ->name('admin.security.user-sessions');
-        Route::delete('/admin/security/sessions/{sessionId}', [App\Http\Controllers\Admin\UserActivityController::class, 'terminateSession'])
+        Route::delete('/admin/security/sessions/{sessionId}', [AdminUserActivityController::class, 'terminateSession'])
             ->name('admin.security.terminate-session');
     });
 
     // Enhanced Security Management Routes (Barangay Captain and Secretary only)
     Route::middleware('role:Barangay Captain,Barangay Secretary')->group(function () {
         // Main Security Dashboard - This should be the primary security dashboard
-        Route::get('/admin/security/dashboard', [App\Http\Controllers\Admin\SecurityController::class, 'dashboard'])
+        Route::get('/admin/security/dashboard', [SecurityController::class, 'dashboard'])
             ->name('admin.security.dashboard');
-        Route::get('/admin/security', [App\Http\Controllers\Admin\SecurityController::class, 'dashboard'])
+        Route::get('/admin/security', [SecurityController::class, 'dashboard'])
             ->name('admin.security.index');
-        Route::get('/admin/security/analytics', [App\Http\Controllers\Admin\SecurityController::class, 'getAnalytics'])
+        Route::get('/admin/security/analytics', [SecurityController::class, 'getAnalytics'])
             ->name('admin.security.analytics');
+        // Audit Log Page
+        Route::get('/admin/security/audit-logs', [AuditLogController::class, 'index'])->name('admin.security.audit-logs');
         
-        // Analytics Route for Barangay Captain
-        Route::get('/admin/analytics', [App\Http\Controllers\Admin\AnalyticsController::class, 'index'])
+        // Analytics Route for Barangay Captain and Secretary
+        Route::get('/admin/analytics', [AnalyticsController::class, 'index'])
             ->name('admin.analytics');
         
         // Account management actions
-        Route::post('/admin/security/users/{user}/unlock', [App\Http\Controllers\Admin\SecurityController::class, 'unlockAccount'])
+        Route::post('/admin/security/users/{user}/unlock', [SecurityController::class, 'unlockAccount'])
             ->name('admin.security.unlock-account');
-        Route::post('/admin/security/users/{user}/force-password-change', [App\Http\Controllers\Admin\SecurityController::class, 'forcePasswordChange'])
+        Route::post('/admin/security/users/{user}/force-password-change', [SecurityController::class, 'forcePasswordChange'])
             ->name('admin.security.force-password-change');
-        Route::post('/admin/security/users/{user}/disable', [App\Http\Controllers\Admin\SecurityController::class, 'disableAccount'])
+        Route::post('/admin/security/users/{user}/disable', [SecurityController::class, 'disableAccount'])
             ->name('admin.security.disable-account');
         
         // Session management
-        Route::get('/admin/security/users/{user}/sessions', [App\Http\Controllers\Admin\SecurityController::class, 'getUserSessions'])
+        Route::get('/admin/security/users/{user}/sessions', [SecurityController::class, 'getUserSessions'])
             ->name('admin.security.get-user-sessions');
-        Route::delete('/admin/security/users/{user}/sessions/{sessionId}', [App\Http\Controllers\Admin\SecurityController::class, 'terminateSession'])
+        Route::delete('/admin/security/users/{user}/sessions/{sessionId}', [SecurityController::class, 'terminateSession'])
             ->name('admin.security.terminate-user-session');
     });
 });
 
 // Test routes for debugging
 Route::prefix('test')->group(function () {
-    Route::get('household-update/{resident_id}', [App\Http\Controllers\TestController::class, 'testHouseholdUpdate']);
-    Route::get('database-structure', [App\Http\Controllers\TestController::class, 'showDatabaseStructure']);
-    Route::get('household-data/{resident_id}', [App\Http\Controllers\TestController::class, 'getHouseholdData']);
+    Route::get('household-update/{resident_id}', [TestController::class, 'testHouseholdUpdate']);
+    Route::get('database-structure', [TestController::class, 'showDatabaseStructure']);
+    Route::get('household-data/{resident_id}', [TestController::class, 'getHouseholdData']);
 });
 
 // Temporary diagnostic route - remove after debugging
@@ -567,6 +612,40 @@ Route::get('/debug-auth', function () {
 // Test chat layout
 Route::get('/test-chat-layout', function () {
     return view('test-chat-layout');
+});
+
+// Resident ID Bulk Upload Management
+Route::get('/admin/residents/id/bulk-upload', [ResidentIdController::class, 'bulkUpload'])->name('admin.residents.id.bulk-upload');
+Route::post('/admin/residents/id/bulk-upload', [ResidentIdController::class, 'processBulkUpload'])->name('admin.residents.id.bulk-upload.process');
+Route::post('/admin/residents/id/bulk-signature-upload', [ResidentIdController::class, 'processBulkSignatureUpload'])->name('admin.residents.id.bulk-signature-upload');
+Route::post('/admin/residents/id/bulk-issue', [ResidentIdController::class, 'bulkIssue'])->name('admin.residents.id.bulk-issue');
+Route::get('/admin/residents/id/{resident}', [ResidentIdController::class, 'show'])->name('admin.residents.id.show');
+Route::get('/admin/residents/id/{resident}/preview', [ResidentIdController::class, 'previewId'])->name('admin.residents.id.preview');
+Route::get('/admin/residents/id/{resident}/download', [ResidentIdController::class, 'downloadId'])->name('admin.residents.id.download');
+Route::put('/admin/residents/id/{resident}', [ResidentIdController::class, 'updateIdInfo'])->name('admin.residents.id.update');
+Route::post('/admin/residents/id/{resident}/mark-renewal', [ResidentIdController::class, 'markForRenewal'])->name('admin.residents.id.mark-renewal');
+Route::post('/admin/residents/id/{resident}/revoke', [ResidentIdController::class, 'revoke'])->name('admin.residents.id.revoke');
+Route::post('/admin/residents/id/{resident}/issue', [ResidentIdController::class, 'issueId'])->name('admin.residents.id.issue');
+Route::post('/admin/residents/id/{resident}/remove-renewal', [ResidentIdController::class, 'removeFromRenewal'])->name('admin.residents.id.remove-renewal');
+Route::post('/admin/residents/id/{resident}/remove-issuance', [ResidentIdController::class, 'removeFromIssuance'])->name('admin.residents.id.remove-issuance');
+// GAD Show Management
+Route::get('/admin/gad/{gad}', [GadController::class, 'show'])->name('admin.gad.show');
+Route::post('/admin/gad/{gad}/restore', [GadController::class, 'restore'])->name('admin.gad.restore');
+Route::delete('/admin/gad/{gad}/force-delete', [GadController::class, 'forceDelete'])->name('admin.gad.force-delete');
+// Senior Citizens Edit Management
+Route::get('/admin/senior-citizens/{seniorCitizen}/edit', [SeniorCitizenController::class, 'edit'])->name('admin.senior-citizens.edit');
+Route::get('/admin/senior-citizens/{seniorCitizen}/id-management', [SeniorCitizenController::class, 'showIdManagement'])->name('admin.senior-citizens.id-management');
+Route::get('/admin/senior-citizens/{seniorCitizen}/id/preview', [SeniorCitizenController::class, 'previewId'])->name('admin.senior-citizens.id.preview');
+Route::get('/admin/senior-citizens/{seniorCitizen}/id/download', [SeniorCitizenController::class, 'downloadId'])->name('admin.senior-citizens.id.download');
+Route::post('/admin/senior-citizens/{seniorCitizen}/issue-id', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'issueId'])->name('admin.senior-citizens.issue-id');
+Route::post('/admin/residents/{resident}/restore', [ResidentController::class, 'restore'])->name('admin.residents.restore');
+Route::post('/admin/residents/id/{resident}/upload-photo', [ResidentIdController::class, 'uploadPhoto'])->name('admin.residents.id.upload-photo');
+Route::post('/admin/residents/id/{resident}/upload-signature', [ResidentIdController::class, 'uploadSignature'])->name('admin.residents.id.upload-signature');
+
+// Single-form Barangay Officials Management
+Route::middleware(['role:Barangay Captain,Barangay Secretary'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('officials/edit-single', [App\Http\Controllers\Admin\BarangayOfficialController::class, 'edit'])->name('officials.edit-single');
+    Route::post('officials/edit-single', [App\Http\Controllers\Admin\BarangayOfficialController::class, 'update'])->name('officials.update-single');
 });
 
 

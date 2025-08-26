@@ -264,52 +264,39 @@
                             <div class="officials-title">SANGGUNIANG BARANGAY</div>
                             <br><br>
                             <div class="officials-list">
-                                <div class="official-name">HON. NOVILITO M. MANALO</div>
+                                <div class="official-name">HON. {{ $officials->captain_name }}</div>
                                 <div class="official-position">Barangay Captain</div><br><br>
-                                
-                                <div class="official-name">HON. ROLDAN A. ROSITA</div>
-                                <div class="official-position">Councilor</div>
-                                <div class="official-committee">Committee on Agriculture, Cooperative, Trade, Commerce and Industry</div><br>
-                                
-                                <div class="official-name">HON. LEXTER D. MAQUINTO</div>
-                                <div class="official-position">Councilor</div>
-                                <div class="official-committee">Committee on Family & Human Rights</div><br>
-                                
-                                <div class="official-name">HON. RICHARD C. CANOSA</div>
-                                <div class="official-position">Councilor</div>
-                                <div class="official-committee">Committee on Peace & Order, Transportation and Communication</div><br>
-                                
-                                <div class="official-name">HON. RODOLFO U. MANALO JR</div>
-                                <div class="official-position">Councilor</div>
-                                <div class="official-committee">Committee on Public Works & Beautification and Environmental Protection</div><br>
-                                
-                                <div class="official-name">HON. ROSENDO T. BABADILLA</div>
-                                <div class="official-position">Councilor</div>
-                                <div class="official-committee">Committee on Finance, Ways and Means Laws, Rules and Ordinances</div><br>
-                                
-                                <div class="official-name">HON. JAIME C. LAQUI</div>
-                                <div class="official-position">Councilor</div>
-                                <div class="official-committee">Committee on Health and Social Welfare Services</div><br>
-                                
-                                <div class="official-name">HON. RECHEL R. CIRUELAS</div>
-                                <div class="official-position">Councilor</div>
-                                <div class="official-committee">Committee on Education and Culture</div><br>
-                                
-                                <div class="official-name">HON. JOHN MARCO C. ARRIOLA</div>
+                                @for($i = 1; $i <= 7; $i++)
+                                    <div class="official-name">HON. {{ $officials->{'councilor'.$i.'_name'} }}</div>
+                                    <div class="official-position">Councilor</div>
+                                    @php $committee = $officials->{'councilor'.$i.'_committee'} ?? null; @endphp
+                                    @if($committee)
+                                        <div class="official-committee" style="color: #007bff;">{{ $committee }}</div>
+                                    @endif
+                                    <br>
+                                @endfor
+                                <div class="official-name">HON. {{ $officials->sk_chairperson_name }}</div>
                                 <div class="official-position">SK Chairman</div>
-                                <div class="official-committee">Committee on Sports and Youth</div><br>
-                                
-                                <div class="official-name">APRIL JANE J. SISCAR</div>
+                                @php $sk_committee = $officials->sk_chairperson_committee ?? null; @endphp
+                                @if($sk_committee)
+                                    <div class="official-committee" style="color: #007bff;">{{ $sk_committee }}</div>
+                                @endif
+                                <br>
+                                <div class="official-name">{{ $officials->secretary_name }}</div>
                                 <div class="official-position">Secretary</div><br>
-                                
-                                <div class="official-name">JOSEPHINE R. QUISTO</div>
+                                <div class="official-name">{{ $officials->treasurer_name }}</div>
                                 <div class="official-position">Treasurer</div>
                             </div>
                         </div>
-                        <div style="position: absolute; left: 0; right: 0; bottom: 220px;">
-                            <div class="note-section" style="border-top:1px solid #000; padding-top:4px; font-size:13px; color:#1a4fa3;">
+                        <div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 12px 0 10px 0;">
+                            <div class="note-section" style="border-top:1px solid #000; padding-top:4px; font-size:13px; color:#1a4fa3; margin-bottom: 8px;">
                                 Note: Not Valid Without Official Dry Seal
                             </div>
+                            @if(isset($qrCode))
+                                <div style="text-align:center;">
+                                    <img src="data:image/png;base64,{{ $qrCode }}" alt="QR Code" width="170" height="170" style="display:block; margin:0 auto; border:2px solid #1a4fa3; background:#fff; padding:4px; border-radius:8px;">
+                                </div>
+                            @endif
                         </div>
                     </td>
                     <!-- RIGHT COLUMN -->
@@ -375,8 +362,8 @@
                                                 <div style="margin-left:300px; display:inline-block; text-align:center;">
                                                     <br><br><br><br><br>
                                                     <span class="signature-line" style="width:180px;"></span><br>
-                                                    <span class="cert-bold">HON. NOVILITO M. MANALO</span><br>
-                                                    <span class="cert-italic">Barangay Captain</span>
+                                                    <span class="cert-bold">{{ $officials->captain_name }}</span><br>
+                                                    <span class="cert-italic">Punong Barangay</span>
                                                 </div>
                                             </td>
                                         </tr>

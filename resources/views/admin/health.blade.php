@@ -20,75 +20,67 @@
             </div>
             <div class="card-body">
                 <p class="mb-4">Welcome to the health services management module.</p>
-                
-                <!-- Metrics Section - Optimized with Lazy Loading -->
+                <!-- Metrics Section - Match Complaints Dashboard -->
                 <div class="row mb-4">
-                    <!-- Total Requests Metric -->
-                    <div class="col-md-4">
-                        <div class="card mb-4 shadow health-metric-card metric-card metric-card-1 h-100 border-left-primary">
+                    <div class="col-md-4 mb-4">
+                        <div class="card document-metric-card shadow h-100">
                             <div class="card-body">
-                                <div class="row align-items-center no-gutters">
+                                <div class="row align-items-center">
                                     <div class="col-3 text-center">
-                                        <span class="circle circle-sm bg-primary metric-icon">
-                                            <i class="fe fe-users text-white"></i>
+                                        <span class="circle circle-sm bg-primary">
+                                            <i class="fe fe-users text-white mb-0"></i>
                                         </span>
                                     </div>
-                                    <div class="col-9">
+                                    <div class="col pr-0">
                                         <p class="small text-muted mb-0">Total Requests</p>
-                                        <div class="d-flex align-items-baseline">
-                                            <span class="h3 metric-counter mb-0 me-1" id="totalRequests">{{ $totalRequests ?? 0 }}</span>
-                                            <span class="small text-muted">All time</span>
-                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <span class="h3 mb-0" id="totalRequests">{{ $totalRequests ?? 0 }}</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Pending Requests Metric -->
-                    <div class="col-md-4">
-                        <div class="card mb-4 shadow health-metric-card metric-card metric-card-2 h-100 border-left-warning">
+                    <div class="col-md-4 mb-4">
+                        <div class="card document-metric-card shadow h-100">
                             <div class="card-body">
-                                <div class="row align-items-center no-gutters">
+                                <div class="row align-items-center">
                                     <div class="col-3 text-center">
-                                        <span class="circle circle-sm bg-warning metric-icon">
-                                            <i class="fe fe-clock text-white"></i>
+                                        <span class="circle circle-sm bg-warning">
+                                            <i class="fe fe-clock text-white mb-0"></i>
                                         </span>
                                     </div>
-                                    <div class="col-9">
+                                    <div class="col pr-0">
                                         <p class="small text-muted mb-0">Pending</p>
-                                        <div class="d-flex align-items-baseline">
-                                            <span class="h3 metric-counter mb-0 me-1" id="pendingRequests">{{ $pendingRequests ?? 0 }}</span>
-                                            <span class="small text-muted">Awaiting approval</span>
-                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <span class="h3 mb-0" id="pendingRequests">{{ $pendingRequests ?? 0 }}</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Completed Requests Metric -->
-                    <div class="col-md-4">
-                        <div class="card mb-4 shadow health-metric-card metric-card metric-card-3 h-100 border-left-success">
+                    <div class="col-md-4 mb-4">
+                        <div class="card document-metric-card shadow h-100">
                             <div class="card-body">
-                                <div class="row align-items-center no-gutters">
+                                <div class="row align-items-center">
                                     <div class="col-3 text-center">
-                                        <span class="circle circle-sm bg-success metric-icon">
-                                            <i class="fe fe-check text-white"></i>
+                                        <span class="circle circle-sm bg-success">
+                                            <i class="fe fe-check text-white mb-0"></i>
                                         </span>
                                     </div>
-                                    <div class="col-9">
+                                    <div class="col pr-0">
                                         <p class="small text-muted mb-0">Completed</p>
-                                        <div class="d-flex align-items-baseline">
-                                            <span class="h3 metric-counter mb-0 me-1" id="completedRequests">{{ $completedRequests ?? 0 }}</span>
-                                            <span class="small text-muted">This month</span>
-                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <span class="h3 mb-0" id="completedRequests">{{ $completedRequests ?? 0 }}</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <!-- End Metrics Section -->
                 
                 <!-- Recent Requests Table - Optimized with deferred loading -->
                 <div class="row">
@@ -107,13 +99,13 @@
                                 @endif
                             </div>
                         </div>
-                        
                         <div id="recentRequestsContainer">
                             @if(isset($recentRequests) && $recentRequests->count() > 0)
                                 <div class="table-responsive">
-                                    <table class="table table-borderless table-striped table-sm" id="recentRequestsTable">
+                                    <table class="table table-borderless table-striped table-sm complaints-table">
                                         <thead>
                                             <tr>
+                                                <th>ID</th>
                                                 <th>Resident</th>
                                                 <th>Service</th>
                                                 <th>Status</th>
@@ -123,6 +115,7 @@
                                         <tbody>
                                             @foreach($recentRequests as $request)
                                             <tr>
+                                                <td>{{ $request->id }}</td>
                                                 <td>{{ $request->resident_name }}</td>
                                                 <td>{{ ucwords(str_replace('_', ' ', $request->service_type)) }}</td>
                                                 <td>{!! $request->status_badge !!}</td>
@@ -232,7 +225,6 @@ function showToast(message) {
 }
 </script>
 @endpush
-
 @push('styles')
 <style>
 /* Performance optimized styles */
@@ -314,6 +306,16 @@ function showToast(message) {
 .card {
     backface-visibility: hidden;
     will-change: transform;
+}
+
+.table-responsive,
+.card-body,
+.collapse,
+#filterSection {
+    overflow: visible !important;
+}
+.dropdown-menu {
+    z-index: 9999 !important;
 }
 </style>
 @endpush

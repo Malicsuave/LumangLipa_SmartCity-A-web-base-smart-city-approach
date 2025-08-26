@@ -118,7 +118,7 @@
                     <!-- Action Buttons -->
                     <div class="text-center mt-4">
                         @if($registration->status === 'rejected')
-                            <a href="{{ route('public.pre-registration.create') }}" class="btn btn-primary">
+                            <a href="{{ route('public.pre-registration.step1') }}" class="btn btn-primary">
                                 <i class="fe fe-user-plus"></i> Submit New Registration
                             </a>
                         @endif

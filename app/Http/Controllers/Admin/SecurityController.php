@@ -197,7 +197,7 @@ class SecurityController extends Controller
                         'ip_address' => $activity->ip_address ?? 'Unknown',
                         'user_agent' => $activity->user_agent ?? 'Unknown',
                         'is_suspicious' => $activity->is_suspicious ?? false,
-                        'details' => json_decode($activity->details ?? '{}', true),
+                        'details' => is_string($activity->details) ? json_decode($activity->details, true) : ($activity->details ?? []),
                         'created_at' => $activity->created_at,
                     ];
                 })
@@ -250,7 +250,7 @@ class SecurityController extends Controller
                         'email' => $activity->user ? $activity->user->email : 'N/A',
                         'type' => $activity->activity_type,
                         'ip_address' => $activity->ip_address ?? 'Unknown',
-                        'details' => json_decode($activity->details ?? '{}', true),
+                        'details' => is_string($activity->details) ? json_decode($activity->details, true) : ($activity->details ?? []),
                         'created_at' => $activity->created_at,
                     ];
                 })

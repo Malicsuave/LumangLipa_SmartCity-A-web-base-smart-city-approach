@@ -10,184 +10,136 @@
 
 @section('content')
 <div class="row">
-    <!-- Resident Information Card -->
     <div class="col-md-4 mb-4">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0"><i class="fe fe-user fe-16 mr-2"></i>Resident Information</h5>
-            </div>
-            <div class="card-body">
-                <div class="text-center mb-3">
-                    <div class="avatar avatar-lg mb-3">
-                        @if($resident->photo)
-                            <img src="{{ $resident->photo_url }}" alt="{{ $resident->full_name }}" class="avatar-img rounded-circle">
-                        @else
-                            <div class="avatar-letter rounded-circle bg-primary">{{ substr($resident->first_name, 0, 1) }}</div>
-                        @endif
-                    </div>
-                    <h5 class="mb-1">{{ $resident->full_name }}</h5>
-                    <p class="text-muted mb-0">{{ $resident->barangay_id }}</p>
-                </div>
-                
-                <div class="row text-center">
-                    <div class="col-6">
-                        <div class="border-right">
-                            <span class="d-block text-muted">Age</span>
-                            <strong>{{ $resident->age }}</strong>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <span class="d-block text-muted">Gender</span>
-                        <strong>{{ $resident->sex }}</strong>
-                    </div>
-                </div>
-                
-                <hr>
-                
-                <div class="small">
-                    <div class="mb-2">
-                        <strong>Contact:</strong> {{ $resident->contact_number ?: 'N/A' }}
-                    </div>
-                    <div class="mb-2">
-                        <strong>Address:</strong> {{ $resident->address }}
-                    </div>
-                    <div class="mb-2">
-                        <strong>Civil Status:</strong> {{ $resident->civil_status }}
-                    </div>
-                    <div class="mb-2">
-                        <strong>Type:</strong> 
-                        <span class="badge badge-info">{{ $resident->type_of_resident }}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+        @include('admin.residents.partials.resident-info', ['resident' => $resident])
     </div>
-
-    <!-- Services Section -->
     <div class="col-md-8">
-        <div class="card shadow">
-            <div class="card-header">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fe fe-clipboard fe-16 mr-2"></i>Available Services</h5>
-                    <a href="{{ route('admin.residents.index') }}" class="btn btn-outline-secondary btn-sm">
-                        <i class="fe fe-arrow-left fe-16 mr-1"></i>Back to List
-                    </a>
+        @if(!request('service'))
+            <div class="card shadow mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fe fe-clipboard fe-16 mr-2"></i>Choose a Service</h5>
                 </div>
+                <div class="card-body">
+                    <div class="row">
+                        @foreach([
+                            'Barangay Clearance',
+                            'Certificate of Residency',
+                            'Certificate of Indigency',
+                            'Business Permit',
+                            'Medical Consultation',
+                            'Complaint'
+                        ] as $service)
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100 service-card" style="cursor:pointer;" onclick="window.location='?service={{ urlencode($service) }}'">
+                                <div class="card-body text-center">
+                                    <i class="fe fe-clipboard fe-32 mb-2"></i>
+                                    <h6 class="mb-1">{{ $service }}</h6>
+                                    <p class="text-muted small">Request or process {{ $service }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        @else
+            @if(request('service') == 'Barangay Clearance')
+                @include('public.request.barangayclearance-form', ['resident' => $resident, 'admin' => true])
+            @elseif(request('service') == 'Certificate of Residency')
+                @include('public.request.residency-form', ['resident' => $resident, 'admin' => true])
+            @elseif(request('service') == 'Certificate of Indigency')
+                @include('public.request.indigency-form', ['resident' => $resident, 'admin' => true])
+            @elseif(request('service') == 'Business Permit')
+                @include('public.request.businesspermit-form', ['resident' => $resident, 'admin' => true])
+            @elseif(request('service') == 'Medical Consultation')
+                @include('public.request.healthservice-form', ['resident' => $resident, 'admin' => true])
+            @elseif(request('service') == 'Complaint')
+                @include('public.request.complaint-form', ['resident' => $resident, 'admin' => true])
+            @endif
+        @endif
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card shadow mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fe fe-list fe-16 mr-2"></i>Service Request Tracking</h5>
             </div>
             <div class="card-body">
-                <div class="text-center py-5">
-                    <i class="fe fe-clipboard text-muted" style="font-size: 48px;"></i>
-                    <h5 class="mt-3 text-muted">Services Section</h5>
-                    <p class="text-muted">Services content will be added here.</p>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Service</th>
+                                <th>Purpose</th>
+                                <th>Status</th>
+                                <th>Reference</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php
+                                $requests = collect();
+                                $requests = $requests->concat(
+                                    \App\Models\DocumentRequest::where('barangay_id', $resident->barangay_id)->orderByDesc('requested_at')->get()
+                                );
+                                $requests = $requests->concat(
+                                    \App\Models\HealthServiceRequest::where('barangay_id', $resident->barangay_id)->orderByDesc('requested_at')->get()
+                                );
+                                $requests = $requests->concat(
+                                    \App\Models\Complaint::where('barangay_id', $resident->barangay_id)->orderByDesc('filed_at')->get()
+                                );
+                                $requests = $requests->sortByDesc(function($item) {
+                                    return $item->requested_at ?? $item->filed_at ?? $item->created_at;
+                                });
+                            @endphp
+                            @forelse($requests as $request)
+                                @php
+                                    $isLastTwo = $loop->remaining < 2;
+                                @endphp
+                                <tr>
+                                    <td>{{ $request->requested_at ? $request->requested_at->format('Y-m-d') : ($request->filed_at ? $request->filed_at->format('Y-m-d') : ($request->created_at ? $request->created_at->format('Y-m-d') : '-')) }}</td>
+                                    <td>{{ $request->document_type ?? $request->service_type ?? $request->formatted_complaint_type ?? 'N/A' }}</td>
+                                    <td>{{ $request->purpose ?? $request->description ?? '-' }}</td>
+                                    <td>{!! $request->status_badge ?? ucfirst($request->status ?? '-') !!}</td>
+                                    <td>
+                                        @if($request->reference_number)
+                                            {{ $request->reference_number }}
+                                        @else
+                                            {{ 'SRV-' . (isset($request->requested_at) && $request->requested_at ? $request->requested_at->format('Y') : (isset($request->filed_at) && $request->filed_at ? $request->filed_at->format('Y') : (isset($request->created_at) && $request->created_at ? $request->created_at->format('Y') : date('Y')))) . '-' . str_pad($request->id, 3, '0', STR_PAD_LEFT) }}
+                                        @endif
+                                    </td>
+                                    <td class="text-center">
+                                        @php
+                                            $dropdownItems = [];
+                                            $dropdownItems[] = [
+                                                'label' => 'View',
+                                                'icon' => 'fe fe-eye fe-16 text-primary',
+                                                'class' => '',
+                                                'href' => '#',
+                                            ];
+                                            if(($request->status ?? null) === 'approved' || ($request->status ?? null) === 'completed') {
+                                                $dropdownItems[] = [
+                                                    'label' => 'Print',
+                                                    'icon' => 'fe fe-printer fe-16 text-info',
+                                                    'class' => '',
+                                                    'href' => '#',
+                                                ];
+                                            }
+                                        @endphp
+                                        @include('components.custom-dropdown', ['items' => $dropdownItems, 'dropup' => $isLastTwo])
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">No service requests found for this resident.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Service Request Modal -->
-<div class="modal fade" id="serviceRequestModal" tabindex="-1" role="dialog" aria-labelledby="serviceRequestModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="serviceRequestModalLabel">Request Service</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <form id="serviceRequestForm">
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="serviceType">Service Type</label>
-                                <input type="text" class="form-control" id="serviceType" name="service_type" readonly>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="serviceDate">Service Date</label>
-                                <input type="date" class="form-control" id="serviceDate" name="service_date" value="{{ date('Y-m-d') }}">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="purpose">Purpose</label>
-                                <select class="form-control" id="purpose" name="purpose">
-                                    <option value="">Select Purpose</option>
-                                    <option value="Employment">Employment</option>
-                                    <option value="Business">Business</option>
-                                    <option value="School Requirement">School Requirement</option>
-                                    <option value="Government Requirement">Government Requirement</option>
-                                    <option value="Medical">Medical</option>
-                                    <option value="Legal">Legal</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="urgency">Urgency Level</label>
-                                <select class="form-control" id="urgency" name="urgency">
-                                    <option value="Normal">Normal</option>
-                                    <option value="Urgent">Urgent</option>
-                                    <option value="Emergency">Emergency</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="notes">Additional Notes</label>
-                        <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Any additional information or special requirements..."></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="requestedBy">Requested By</label>
-                        <input type="text" class="form-control" id="requestedBy" name="requested_by" value="{{ auth()->user()->name }}" readonly>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fe fe-check fe-16 mr-1"></i>Process Service
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Success Modal -->
-<div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title" id="successModalLabel">
-                    <i class="fe fe-check-circle fe-16 mr-2"></i>Service Processed Successfully
-                </h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body text-center">
-                <div class="mb-3">
-                    <i class="fe fe-check-circle text-success" style="font-size: 48px;"></i>
-                </div>
-                <h5 id="successServiceType"></h5>
-                <p class="text-muted">The service request has been processed for <strong>{{ $resident->full_name }}</strong></p>
-                <div class="alert alert-info">
-                    <strong>Reference Number:</strong> <span id="referenceNumber"></span>
-                </div>
-            </div>
-            <div class="modal-footer justify-content-center">
-                <button type="button" class="btn btn-success" data-dismiss="modal">OK</button>
-                <button type="button" class="btn btn-outline-primary" onclick="printReceipt()">
-                    <i class="fe fe-printer fe-16 mr-1"></i>Print Receipt
-                </button>
             </div>
         </div>
     </div>
@@ -196,6 +148,15 @@
 
 @push('styles')
 <style>
+.table-responsive,
+.card-body,
+.collapse,
+#filterSection {
+    overflow: visible !important;
+}
+.dropdown-menu {
+    z-index: 9999 !important;
+}
     .avatar {
         position: relative;
         width: 80px;
@@ -246,6 +207,45 @@
 
 @push('scripts')
 <script>
+const serviceTypes = {
+    Document: [
+        'Barangay Clearance',
+        'Certificate of Residency',
+        'Certificate of Indigency',
+        'Business Permit',
+        'Other Official Documents'
+    ],
+    Health: [
+        'Medical Consultation',
+        'Blood Pressure Check',
+        'Vaccination Programs',
+        'Prenatal Checkup',
+        'Health Certificates',
+        'Medicine Distribution'
+    ],
+    Complaint: [
+        'Noise Complaints',
+        'Property Disputes',
+        'Public Safety Issues',
+        'Infrastructure Problems',
+        'Other Community Concerns'
+    ]
+};
+
+document.getElementById('serviceCategory').addEventListener('change', function() {
+    const category = this.value;
+    const typeSelect = document.getElementById('serviceType');
+    typeSelect.innerHTML = '<option value="">Select Type</option>';
+    if (serviceTypes[category]) {
+        serviceTypes[category].forEach(type => {
+            const opt = document.createElement('option');
+            opt.value = type;
+            opt.textContent = type;
+            typeSelect.appendChild(opt);
+        });
+    }
+});
+
 function requestService(serviceType) {
     document.getElementById('serviceType').value = serviceType;
     $('#serviceRequestModal').modal('show');

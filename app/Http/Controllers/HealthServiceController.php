@@ -36,12 +36,64 @@ class HealthServiceController extends Controller
         return view('admin.health', compact('totalRequests', 'pendingRequests', 'completedRequests', 'recentRequests'));
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $healthRequests = HealthServiceRequest::with(['resident', 'approver'])
-            ->orderBy('requested_at', 'desc')
-            ->paginate(10);
+        $query = HealthServiceRequest::with(['resident', 'approver']);
         
+        // Search functionality
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('purpose', 'like', "%{$search}%")
+                    ->orWhere('barangay_id', 'like', "%{$search}%")
+                    ->orWhereHas('resident', function ($residentQuery) use ($search) {
+                        $residentQuery->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('middle_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%");
+                    });
+            });
+        }
+        
+        // Status filter
+        if ($request->has('status') && !empty($request->status)) {
+            $query->where('status', $request->status);
+        }
+        
+        // Service type filter
+        if ($request->has('service_type') && !empty($request->service_type)) {
+            $query->where('service_type', $request->service_type);
+        }
+        
+        // Date range filters
+        if ($request->has('date_from') && !empty($request->date_from)) {
+            $query->whereDate('requested_at', '>=', $request->date_from);
+        }
+        
+        if ($request->has('date_to') && !empty($request->date_to)) {
+            $query->whereDate('requested_at', '<=', $request->date_to);
+        }
+        
+        // Sorting functionality
+        $sortField = $request->get('sort', 'requested_at');
+        $sortDirection = $request->get('direction', 'desc');
+        
+        // Define allowed sort fields for security
+        $allowedSortFields = [
+            'id', 'service_type', 'status', 'requested_at', 'barangay_id'
+        ];
+        
+        if (in_array($sortField, $allowedSortFields)) {
+            $query->orderBy($sortField, $sortDirection);
+        } else {
+            // Default sorting
+            $query->orderBy('requested_at', 'desc');
+        }
+
+        $healthRequests = $query->paginate(10);
+        
+        // Append query parameters to pagination links
+        $healthRequests->appends($request->query());
+
         return view('admin.health-services', compact('healthRequests'));
     }
 
@@ -59,7 +111,7 @@ class HealthServiceController extends Controller
             'other' => 'Other Health Service'
         ];
 
-        return view('health.request', compact('serviceTypes'));
+        return view('public.forms.health-request', compact('serviceTypes'));
     }
 
     public function store(Request $request)

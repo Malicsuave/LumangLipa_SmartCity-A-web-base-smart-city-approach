@@ -11,7 +11,7 @@ class HealthServiceRepository implements HealthServiceRepositoryInterface
 {
     public function getFiltered(array $filters, int $perPage = 20)
     {
-        $query = HealthServiceRequest::with(['user', 'resident']);
+        $query = HealthServiceRequest::with(['approver', 'resident']);
 
         if (!empty($filters['status'])) {
             $query->where('status', $filters['status']);
@@ -70,7 +70,7 @@ class HealthServiceRepository implements HealthServiceRepositoryInterface
     public function getByStatus(string $status)
     {
         return HealthServiceRequest::where('status', $status)
-                                  ->with(['user', 'resident'])
+                                  ->with(['approver', 'resident'])
                                   ->orderBy('created_at', 'desc')
                                   ->get();
     }
@@ -78,18 +78,17 @@ class HealthServiceRepository implements HealthServiceRepositoryInterface
     public function getByServiceType(string $serviceType)
     {
         return HealthServiceRequest::where('service_type', $serviceType)
-                                  ->with(['user', 'resident'])
+                                  ->with(['approver', 'resident'])
                                   ->orderBy('created_at', 'desc')
                                   ->get();
     }
 
-    public function getRecentRequests(int $limit = 10): array
+    public function getRecentRequests(int $limit = 10)
     {
-        return HealthServiceRequest::with(['user', 'resident'])
+        return HealthServiceRequest::with(['approver', 'resident'])
                                   ->orderBy('created_at', 'desc')
                                   ->limit($limit)
-                                  ->get()
-                                  ->toArray();
+                                  ->get();
     }
 
     public function getServiceMetrics(): array

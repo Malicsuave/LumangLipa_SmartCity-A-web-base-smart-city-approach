@@ -61,7 +61,7 @@ class DocumentService
     /**
      * Get recent document requests
      */
-    public function getRecentRequests(int $limit = 10): array
+    public function getRecentRequests(int $limit = 10)
     {
         return Cache::remember("document.recent_{$limit}", 180, function () use ($limit) {
             return $this->documentRepository->getRecentRequests($limit);

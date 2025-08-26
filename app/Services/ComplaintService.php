@@ -61,7 +61,7 @@ class ComplaintService
     /**
      * Get recent complaints
      */
-    public function getRecentComplaints(int $limit = 10): array
+    public function getRecentComplaints(int $limit = 10)
     {
         return Cache::remember("complaint.recent_{$limit}", 180, function () use ($limit) {
             return $this->complaintRepository->getRecentComplaints($limit);

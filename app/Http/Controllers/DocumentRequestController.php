@@ -17,18 +17,81 @@ class DocumentRequestController extends Controller
     {
         $this->otpService = $otpService;
     }
-    public function index()
+    public function index(Request $request)
     {
-        $documentRequests = DocumentRequest::with(['resident', 'approver'])
-            ->orderBy('requested_at', 'desc')
-            ->paginate(10);
+        // Build query with search and filters
+        $query = DocumentRequest::with(['resident', 'approver']);
         
-        return view('admin.documents', compact('documentRequests'));
+        // Search functionality
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('document_type', 'like', "%{$search}%")
+                  ->orWhere('purpose', 'like', "%{$search}%")
+                  ->orWhere('barangay_id', 'like', "%{$search}%")
+                  ->orWhereHas('resident', function ($residentQuery) use ($search) {
+                      $residentQuery->where('first_name', 'like', "%{$search}%")
+                                   ->orWhere('last_name', 'like', "%{$search}%")
+                                   ->orWhere('middle_name', 'like', "%{$search}%");
+                  });
+            });
+        }
+        
+        // Status filter
+        if ($request->has('status') && !empty($request->status)) {
+            $query->where('status', $request->status);
+        }
+        
+        // Document type filter
+        if ($request->has('document_type') && !empty($request->document_type)) {
+            $query->where('document_type', $request->document_type);
+        }
+        
+        // Date range filter
+        if ($request->has('date_from') && !empty($request->date_from)) {
+            $query->whereDate('requested_at', '>=', $request->date_from);
+        }
+        
+        if ($request->has('date_to') && !empty($request->date_to)) {
+            $query->whereDate('requested_at', '<=', $request->date_to);
+        }
+        
+        // Sorting functionality
+        $sortField = $request->get('sort', 'requested_at');
+        $sortDirection = $request->get('direction', 'desc');
+        
+        // Define allowed sort fields for security
+        $allowedSortFields = [
+            'id', 'document_type', 'status', 'requested_at', 'barangay_id'
+        ];
+        
+        if (in_array($sortField, $allowedSortFields)) {
+            $query->orderBy($sortField, $sortDirection);
+        } else {
+            // Default sorting
+            $query->orderBy('requested_at', 'desc');
+        }
+        
+        $documentRequests = $query->paginate(10);
+        
+        // Append query parameters to pagination links
+        $documentRequests->appends($request->query());
+        
+        // Calculate metrics
+        $stats = [
+            'total' => DocumentRequest::count(),
+            'pending' => DocumentRequest::where('status', 'pending')->count(),
+            'approved' => DocumentRequest::where('status', 'approved')->count(),
+            'claimed' => DocumentRequest::where('status', 'claimed')->count(),
+            'rejected' => DocumentRequest::where('status', 'rejected')->count(),
+        ];
+        
+        return view('admin.documents', compact('documentRequests', 'stats'));
     }
 
     public function create()
     {
-        return view('documents.request');
+        return view('public.forms.document-request');
     }
 
     public function store(Request $request)
@@ -76,7 +139,7 @@ class DocumentRequestController extends Controller
             'document_type' => $request->document_type,
             'purpose' => $request->purpose,
             'status' => 'pending',
-            'receipt_path' => $receiptPath,
+            'resident_id' => $resident->id, // Set resident_id
         ]);
 
         return response()->json([
@@ -93,8 +156,14 @@ class DocumentRequestController extends Controller
 
     public function show($id)
     {
-        $documentRequest = DocumentRequest::with(['resident', 'approver'])->findOrFail($id);
-        return response()->json($documentRequest);
+        $documentRequest = DocumentRequest::with(['resident', 'approver', 'claimedBy'])->findOrFail($id);
+        $response = $documentRequest->toArray();
+        // Add claimed info if claimed
+        if ($documentRequest->status === 'claimed') {
+            $response['claimed_at'] = $documentRequest->claimed_at ? $documentRequest->claimed_at->format('Y-m-d H:i:s') : null;
+            $response['claimed_by'] = $documentRequest->claimedBy ? $documentRequest->claimedBy->name : null;
+        }
+        return response()->json($response);
     }
 
     public function approve($id)
@@ -153,6 +222,40 @@ class DocumentRequestController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Document request rejected successfully!'
+        ]);
+    }
+
+    /**
+     * Mark document as claimed by resident
+     */
+    public function markAsClaimed($id)
+    {
+        $documentRequest = DocumentRequest::with('resident')->findOrFail($id);
+        
+        // Check if document is approved
+        if ($documentRequest->status !== 'approved') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only approved documents can be marked as claimed.'
+            ], 422);
+        }
+        
+        $documentRequest->update([
+            'status' => 'claimed',
+            'claimed_at' => now(),
+            'claimed_by' => auth()->id(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Document marked as claimed successfully! The resident has personally collected the document.',
+            'data' => [
+                'document_id' => $documentRequest->id,
+                'resident_name' => $documentRequest->resident->first_name . ' ' . $documentRequest->resident->last_name,
+                'document_type' => $documentRequest->document_type,
+                'claimed_at' => $documentRequest->claimed_at->format('Y-m-d H:i:s'),
+                'claimed_by' => auth()->user()->name
+            ]
         ]);
     }
 

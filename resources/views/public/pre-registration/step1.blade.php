@@ -158,23 +158,15 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="form-label">Sex <span class="text-danger">*</span></label>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="custom-control custom-radio">
-                                                <input type="radio" id="male" name="sex" value="Male" 
-                                                      class="custom-control-input" {{ old('sex', session('pre_registration.step1.sex')) == 'Male' ? 'checked' : '' }}>
-                                                <label class="custom-control-label" for="male">Male</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="custom-control custom-radio">
-                                                <input type="radio" id="female" name="sex" value="Female" 
-                                                      class="custom-control-input" {{ old('sex', session('pre_registration.step1.sex')) == 'Female' ? 'checked' : '' }}>
-                                                <label class="custom-control-label" for="female">Female</label>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <label for="sex" class="form-label">Gender <span class="text-danger">*</span></label>
+                                    <select class="form-control @error('sex') is-invalid @enderror" id="sex" name="sex" required>
+                                        <option value="">Select Gender</option>
+                                        <option value="Male" {{ old('sex', session('pre_registration.step1.sex')) == 'Male' ? 'selected' : '' }}>Male</option>
+                                        <option value="Female" {{ old('sex', session('pre_registration.step1.sex')) == 'Female' ? 'selected' : '' }}>Female</option>
+                                        <option value="Non-binary" {{ old('sex', session('pre_registration.step1.sex')) == 'Non-binary' ? 'selected' : '' }}>Non-binary</option>
+                                        <option value="Transgender" {{ old('sex', session('pre_registration.step1.sex')) == 'Transgender' ? 'selected' : '' }}>Transgender</option>
+                                        <option value="Other" {{ old('sex', session('pre_registration.step1.sex')) == 'Other' ? 'selected' : '' }}>Other</option>
+                                    </select>
                                     @error('sex')
                                         <div class="text-danger mt-1">{{ $message }}</div>
                                     @enderror

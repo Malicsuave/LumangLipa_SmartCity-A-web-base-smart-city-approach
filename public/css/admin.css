@@ -272,7 +272,51 @@ body.collapsed-menu .collapse-hide {
 
 /* Welcome Widget Black Outline */
 .welcome-widget-outlined {
-  border: 1px solid #0000005b !important;
+  border: 1px solid rgba(52, 152, 219, 0.2) !important;
+  background: linear-gradient(90deg, #ffffff 0%, #3498db 100%) !important;
+  color: #2c3e50 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 24px rgba(52, 152, 219, 0.10) !important;
+  transition: all 0.3s ease !important;
+}
+
+/* Welcome widget text styling for better contrast */
+.welcome-widget-outlined .card-title {
+  color: #2c3e50 !important;
+  font-weight: 600 !important;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+}
+
+.welcome-widget-outlined .card-text {
+  color: #34495e !important;
+}
+
+.welcome-widget-outlined .card-text strong {
+  color: #2c3e50 !important;
+  font-weight: 700 !important;
+}
+
+.welcome-widget-outlined:hover {
+  box-shadow: 0 8px 20px rgba(52, 152, 219, 0.25) !important;
+}
+
+/* Login Success Message */
+.login-success-message {
+  padding: 0.15rem 0.75rem !important;
+  font-size: 0.85rem !important;
+  box-shadow: 0 1px 3px rgba(52, 152, 219, 0.04) !important;
+  border-radius: 6px !important;
+  margin-bottom: 0.5rem !important;
+  background: linear-gradient(90deg, #f0fdf4 0%, #e0f2fe 100%) !important;
+}
+
+.login-success-message .fe-check-circle {
+  font-size: 1.2rem !important;
+  margin-right: 0.5rem !important;
+}
+
+.login-success-message .font-weight-bold {
+  font-size: 0.95rem !important;
 }
 
 /* Admin-specific styles */
@@ -378,7 +422,7 @@ body.collapsed-menu .sidebar-left {
 .action-warning i,
 .btn-warning i,
 .warning-button i {
-  color: #f39c12 !important; /* Bright orange color */
+  color: #fff !important;
 }
 
 /* Secondary action icons */
@@ -595,356 +639,467 @@ td .actions svg,
 .vertical.narrow .sidebar-left {
   min-width: 5rem !important;
   width: 5rem !important;
+  max-width: 5rem !important;
+  overflow: hidden !important;
+  transition: width 0.3s, min-width 0.3s, max-width 0.3s !important;
 }
 
-/* When un-collapsed, restore proper width */
 .vertical:not(.collapsed):not(.narrow) .sidebar-left {
   min-width: 16rem !important;
   width: 16rem !important;
+  max-width: 16rem !important;
+  transition: width 0.3s, min-width 0.3s, max-width 0.3s !important;
 }
 
-/* Sidebar hover to expand functionality */
+.vertical.collapsed .sidebar-left .item-text,
+.vertical.narrow .sidebar-left .item-text {
+  display: none !important;
+  opacity: 0 !important;
+  width: 0 !important;
+}
+
+.vertical.collapsed .sidebar-left .logo-expanded,
+.vertical.narrow .sidebar-left .logo-expanded {
+  display: none !important;
+}
+
+.vertical.collapsed .sidebar-left .logo-collapsed,
+.vertical.narrow .sidebar-left .logo-collapsed {
+  display: block !important;
+}
+
 .vertical.collapsed .sidebar-left:hover,
-.vertical.narrow .sidebar-left:hover,
-body.collapsed-menu .sidebar-left:hover,
-.sidebar-collapsed .sidebar-left:hover {
+.vertical.narrow .sidebar-left:hover {
   min-width: 16rem !important;
   width: 16rem !important;
   overflow: visible !important;
-  z-index: 1050 !important; /* Higher z-index to appear above content */
+  z-index: 1050 !important;
   box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1) !important;
   transition: all 0.3s ease !important;
 }
 
-/* Show text elements on hover when sidebar is collapsed */
-.vertical.collapsed .sidebar-left:hover span,
-.vertical.narrow .sidebar-left:hover span,
-body.collapsed-menu .sidebar-left:hover span,
-.sidebar-collapsed .sidebar-left:hover span,
 .vertical.collapsed .sidebar-left:hover .item-text,
-.vertical.narrow .sidebar-left:hover .item-text,
-body.collapsed-menu .sidebar-left:hover .item-text,
-.sidebar-collapsed .sidebar-left:hover .item-text,
-.vertical.collapsed .sidebar-left:hover .collapse-hide,
-.vertical.narrow .sidebar-left:hover .collapse-hide,
-body.collapsed-menu .sidebar-left:hover .collapse-hide,
-.sidebar-collapsed .sidebar-left:hover .collapse-hide,
-.vertical.collapsed .sidebar-left:hover .nav-heading,
-.vertical.narrow .sidebar-left:hover .nav-heading,
-body.collapsed-menu .sidebar-left:hover .nav-heading,
-.sidebar-collapsed .sidebar-left:hover .nav-heading,
-.vertical.collapsed .sidebar-left:hover p,
-.vertical.narrow .sidebar-left:hover p,
-body.collapsed-menu .sidebar-left:hover p,
-.sidebar-collapsed .sidebar-left:hover p,
-.vertical.collapsed .sidebar-left:hover h1,
-.vertical.narrow .sidebar-left:hover h1,
-body.collapsed-menu .sidebar-left:hover h1,
-.sidebar-collapsed .sidebar-left:hover h1,
-.vertical.collapsed .sidebar-left:hover h2,
-.vertical.narrow .sidebar-left:hover h2,
-body.collapsed-menu .sidebar-left:hover h2,
-.sidebar-collapsed .sidebar-left:hover h2,
-.vertical.collapsed .sidebar-left:hover h3,
-.vertical.narrow .sidebar-left:hover h3,
-body.collapsed-menu .sidebar-left:hover h3,
-.sidebar-collapsed .sidebar-left:hover h3,
-.vertical.collapsed .sidebar-left:hover h4,
-.vertical.narrow .sidebar-left:hover h4,
-body.collapsed-menu .sidebar-left:hover h4,
-.sidebar-collapsed .sidebar-left:hover h4,
-.vertical.collapsed .sidebar-left:hover h5,
-.vertical.narrow .sidebar-left:hover h5,
-body.collapsed-menu .sidebar-left:hover h5,
-.sidebar-collapsed .sidebar-left:hover h5,
-.vertical.collapsed .sidebar-left:hover h6,
-.vertical.narrow .sidebar-left:hover h6,
-body.collapsed-menu .sidebar-left:hover h6,
-.sidebar-collapsed .sidebar-left:hover h6,
-.vertical.collapsed .sidebar-left:hover .text,
-.vertical.narrow .sidebar-left:hover .text,
-body.collapsed-menu .sidebar-left:hover .text,
-.sidebar-collapsed .sidebar-left:hover .text,
-.vertical.collapsed .sidebar-left:hover .text-muted,
-.vertical.narrow .sidebar-left:hover .text-muted,
-body.collapsed-menu .sidebar-left:hover .text-muted,
-.sidebar-collapsed .sidebar-left:hover .text-muted,
-.vertical.collapsed .sidebar-left:hover .nav-text,
-.vertical.narrow .sidebar-left:hover .nav-text,
-body.collapsed-menu .sidebar-left:hover .nav-text,
-.sidebar-collapsed .sidebar-left:hover .nav-text {
+.vertical.narrow .sidebar-left:hover .item-text {
   display: inline-block !important;
-  visibility: visible !important;
   opacity: 1 !important;
   width: auto !important;
-  height: auto !important;
-  overflow: visible !important;
-  transition: opacity 0.3s ease !important;
 }
 
-/* Restore logo on hover */
-.sidebar-collapsed .sidebar-left:hover .logo-expanded,
+/* Sidebar logo switch on hover for collapsed/narrow */
+.vertical.collapsed .sidebar-left .logo-expanded,
+.vertical.narrow .sidebar-left .logo-expanded {
+  display: none !important;
+}
+.vertical.collapsed .sidebar-left .logo-collapsed,
+.vertical.narrow .sidebar-left .logo-collapsed {
+  display: block !important;
+}
 .vertical.collapsed .sidebar-left:hover .logo-expanded,
-.vertical.narrow .sidebar-left:hover .logo-expanded,
-body.collapsed-menu .sidebar-left:hover .logo-expanded {
+.vertical.narrow .sidebar-left:hover .logo-expanded {
   display: block !important;
 }
-
-.sidebar-collapsed .sidebar-left:hover .logo-collapsed,
 .vertical.collapsed .sidebar-left:hover .logo-collapsed,
-.vertical.narrow .sidebar-left:hover .logo-collapsed,
-body.collapsed-menu .sidebar-left:hover .logo-collapsed {
+.vertical.narrow .sidebar-left:hover .logo-collapsed {
   display: none !important;
 }
+/* End sidebar logo hover switch */
 
-/* Make menu items left-aligned when expanded on hover */
-.vertical.collapsed .sidebar-left:hover .navbar-nav > .nav-item,
-.vertical.narrow .sidebar-left:hover .navbar-nav > .nav-item,
-body.collapsed-menu .sidebar-left:hover .navbar-nav > .nav-item,
-.sidebar-collapsed .sidebar-left:hover .navbar-nav > .nav-item {
-  text-align: left !important;
+/* End sidebar collapse fixes */
+
+/* Dashboard Metric Card Universal Styling - Applied to all metric cards */
+
+/* Base dashboard metric card style for all metric cards */
+.metric-card,
+.health-metric-card,
+.complaint-metric-card {
+  /* Dashboard styling */
+  background: #fff !important;
+  color: #2c3e50 !important;
+  border: none !important;
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(44, 62, 80, 0.08) !important;
+  border-radius: 10px !important;
+  transition: all 0.3s ease !important;
 }
 
-/* Remove the tooltip effect on hover since we're showing the full text */
-.sidebar-collapsed .sidebar-left:hover .nav-item:hover::after,
-.vertical.collapsed .sidebar-left:hover .nav-item:hover::after,
-body.collapsed-menu .sidebar-left:hover .nav-item:hover::after {
-  display: none !important;
+/* Dashboard hover effect for all metric cards */
+.metric-card:hover,
+.health-metric-card:hover,
+.complaint-metric-card:hover {
+  background: #f3f6fa !important;
+  color: #2c3e50 !important;
+  box-shadow: 0 8px 24px rgba(44, 62, 80, 0.12) !important;
+  transform: translateY(-2px) scale(1.03);
 }
 
-/* Reset hover styles for expanded view */
-.sidebar-collapsed .sidebar-left:hover .nav-link:hover,
-.vertical.collapsed .sidebar-left:hover .nav-link:hover,
-body.collapsed-menu .sidebar-left:hover .nav-link:hover {
-  background-color: rgba(26, 37, 47, 0.1) !important;
-  border-radius: 5px !important;
-  transform: translateX(2px) !important;
-  box-shadow: none !important;
+/* Dashboard card body styling */
+.metric-card .card-body,
+.health-metric-card .card-body,
+.complaint-metric-card .card-body {
+  color: #2c3e50 !important;
 }
 
-/* Fix for active state display when hovered */
-.sidebar-collapsed .sidebar-left:hover .nav-item.active .nav-link,
-body.collapsed-menu .sidebar-left:hover .nav-item.active .nav-link {
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
-  border-radius: 8px !important;
-  width: auto !important;
-  height: auto !important;
-  display: block !important;
-  margin: 2px 0 !important;
-  border-left: 4px solid #ffffff !important;
-  transform: translateX(5px) !important;
+/* Dashboard text styling */
+.metric-card .text-xs,
+.health-metric-card .text-xs,
+.complaint-metric-card .text-xs,
+.metric-card .small,
+.health-metric-card .small,
+.complaint-metric-card .small {
+  color: #2c3e50 !important;
 }
 
-/* Additional fixes for brand/site name visibility */
-.sidebar-collapsed .sidebar-left:hover .brand-text,
-.sidebar-collapsed .sidebar-left:hover .brand-name,
-.sidebar-collapsed .sidebar-left:hover .site-title,
-.sidebar-collapsed .sidebar-left:hover .site-name,
-.sidebar-collapsed .sidebar-left:hover .logo-text,
-.sidebar-collapsed .sidebar-left:hover .sidebar-brand-text,
-body.collapsed-menu .sidebar-left:hover .brand-text,
-body.collapsed-menu .sidebar-left:hover .brand-name,
-body.collapsed-menu .sidebar-left:hover .site-title,
-body.collapsed-menu .sidebar-left:hover .site-name,
-body.collapsed-menu .sidebar-left:hover .logo-text,
-body.collapsed-menu .sidebar-left:hover .sidebar-brand-text {
-  display: block !important;
-  visibility: visible !important;
+/* Dashboard metric counter styling */
+.metric-card .h5,
+.health-metric-card .h5,
+.complaint-metric-card .h5,
+.metric-card .h3,
+.health-metric-card .h3,
+.complaint-metric-card .h3 {
+  color: #2c3e50 !important;
 }
 
-/* Ensure nav menu items show text when sidebar is hovered */
-.sidebar-collapsed .sidebar-left:hover .nav-item .nav-link span,
-.sidebar-collapsed .sidebar-left:hover .sidebar-item .sidebar-link span,
-body.collapsed-menu .sidebar-left:hover .nav-item .nav-link span,
-body.collapsed-menu .sidebar-left:hover .sidebar-item .sidebar-link span {
-  display: inline-block !important;
+/* Dashboard icon styling */
+.metric-card .fa-2x,
+.health-metric-card .fa-2x,
+.complaint-metric-card .fa-2x,
+.metric-card .metric-icon,
+.health-metric-card .metric-icon,
+.complaint-metric-card .metric-icon {
+  font-size: 2em !important;
 }
 
-/* Make the main Approvals dropdown have the same solid styling as other active links */
-.nav-item.dropdown.active > .nav-link.dropdown-toggle {
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
-  color: #ffffff !important;
-  border-radius: 8px !important;
-  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3) !important;
-  transform: translateX(5px) !important;
-  border-left: 4px solid #ffffff !important;
-  margin: 2px 0 !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  animation: activeItemPulse 3s ease-in-out infinite !important;
-  font-weight: 600 !important;
+/* Dashboard border-left colors */
+.metric-card.border-left-primary,
+.health-metric-card.border-left-primary,
+.complaint-metric-card.border-left-primary {
+  border-left-color: #4e73df !important;
 }
 
-/* Keep the icon color white for the main Approvals dropdown */
-.nav-item.dropdown.active > .nav-link.dropdown-toggle i {
-  color: #ffffff !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+.metric-card.border-left-success,
+.health-metric-card.border-left-success,
+.complaint-metric-card.border-left-success {
+  border-left-color: #1cc88a !important;
 }
 
-/* Ensure this works in collapsed state too for main dropdown */
-.sidebar-collapsed .nav-item.dropdown.active > .nav-link.dropdown-toggle,
-body.collapsed-menu .nav-item.dropdown.active > .nav-link.dropdown-toggle {
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
+.metric-card.border-left-warning,
+.health-metric-card.border-left-warning,
+.complaint-metric-card.border-left-warning {
+  border-left-color: #f6c23e !important;
+}
+
+.metric-card.border-left-danger,
+.health-metric-card.border-left-danger,
+.complaint-metric-card.border-left-danger {
+  border-left-color: #e74a3b !important;
+}
+
+.metric-card.border-left-info,
+.health-metric-card.border-left-info,
+.complaint-metric-card.border-left-info {
+  border-left-color: #36b9cc !important;
+}
+
+/* Dashboard row alignment */
+.metric-card .row.no-gutters,
+.health-metric-card .row.no-gutters,
+.complaint-metric-card .row.no-gutters,
+.metric-card .row.align-items-center,
+.health-metric-card .row.align-items-center,
+.complaint-metric-card .row.align-items-center {
+  align-items: center !important;
+  margin: 0 !important;
+}
+
+.metric-card .col.mr-2,
+.health-metric-card .col.mr-2,
+.complaint-metric-card .col.mr-2,
+.metric-card .col-9,
+.health-metric-card .col-9,
+.complaint-metric-card .col-9 {
+  margin-right: 0.5rem !important;
+}
+
+.metric-card .col-auto,
+.health-metric-card .col-auto,
+.complaint-metric-card .col-auto,
+.metric-card .col-3,
+.health-metric-card .col-3,
+.complaint-metric-card .col-3 {
+  text-align: center !important;
+}
+
+/* Remove any conflicting health-metric specific styles */
+.health-metric-card {
+  background: #fff !important;
+  border: none !important;
+  border-left-width: 4px !important;
+  border-left-style: solid !important;
+  box-shadow: 0 0 0 5px rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Remove any conflicting complaint-metric specific styles */
+.complaint-metric-card {
+  background: #fff !important;
+  border: none !important;
+  border-left-width: 4px !important;
+  border-left-style: solid !important;
+  box-shadow: 0 0 0 5px rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Override any existing animations that conflict with dashboard style */
+.health-metric-card:hover,
+.complaint-metric-card:hover {
+  transform: none !important;
+  background: #fff !important;
+}
+
+/* Dashboard circle icon styling */
+.metric-card .circle,
+.health-metric-card .circle,
+.complaint-metric-card .circle {
+  width: 50px !important;
+  height: 50px !important;
   border-radius: 50% !important;
-  width: 45px !important;
-  height: 45px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  margin: 0 auto 10px auto !important;
-  transform: none !important;
-  border-left: none !important;
 }
 
-/* Fix for hovering over sidebar when collapsed for main dropdown */
-.sidebar-collapsed .sidebar-left:hover .nav-item.dropdown.active > .nav-link.dropdown-toggle,
-body.collapsed-menu .sidebar-left:hover .nav-item.dropdown.active > .nav-link.dropdown-toggle {
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
-  border-left: 4px solid #ffffff !important;
-  transform: translateX(5px) !important;
-  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3) !important;
-  border-radius: 8px !important;
-  width: auto !important;
-  height: auto !important;
-  display: block !important;
-  margin: 2px 0 !important;
+/* Ensure dashboard styling in dark mode */
+.dark .metric-card,
+.dark .health-metric-card,
+.dark .complaint-metric-card {
+  background: #fff !important;
+  color: #5a5c69 !important;
 }
 
-/* Remove active styling from ID Card Management menu item */
-.sidebar-left .nav-item a[href*="residents.id.pending"] {
-  background: transparent !important;
-  color: #2c3e50 !important;
-  border-radius: 0 !important;
+
+/* Override specific hover effects to maintain consistency */
+.metric-card.border-left-primary:hover,
+.metric-card.border-left-success:hover,
+.metric-card.border-left-warning:hover,
+.metric-card.border-left-danger:hover,
+.metric-card.border-left-info:hover,
+.health-metric-card.border-left-primary:hover,
+.health-metric-card.border-left-success:hover,
+.health-metric-card.border-left-warning:hover,
+.health-metric-card.border-left-danger:hover,
+.health-metric-card.border-left-info:hover,
+.complaint-metric-card.border-left-primary:hover,
+.complaint-metric-card.border-left-success:hover,
+.complaint-metric-card.border-left-warning:hover,
+.complaint-metric-card.border-left-danger:hover,
+.complaint-metric-card.border-left-info:hover {
+  box-shadow: 0 8px 20px rgba(52, 152, 219, 0.25) !important;
+}
+
+/* Custom dropdown component styles */
+.custom-dropdown {
+    position: relative;
+    display: inline-block;
+}
+.custom-dropdown-btn {
+    background: none;
+    border: none;
+    padding: 0.25rem 0.5rem;
+    border-radius: 50%;
+    color: #6c757d;
+    transition: background 0.15s, color 0.15s;
+    outline: none;
+}
+.custom-dropdown-btn:focus,
+.custom-dropdown-btn:hover {
+    background: #f3f6fa;
+    color: #1b68ff;
+}
+.custom-dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    min-width: 180px;
+    background: #fff;
+    border: 1px solid #e0e6ed;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08), 0 1.5px 4px rgba(0,0,0,0.03);
+    padding: 0.25rem 0;
+    z-index: 1051;
+}
+[x-cloak] { display: none !important; }
+.custom-dropdown-menu[x-show="open"] {
+    display: block;
+}
+.custom-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.92rem;
+    color: #212529;
+    background: none;
+    border: none;
+    width: 100%;
+    transition: background 0.15s, color 0.15s;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+.custom-dropdown-item:hover {
+    background: #f3f6fa;
+    color: #174bb1;
+    text-decoration: none !important;
+}
+
+/* Document-specific styles */
+
+/* Metric card styles for the document page */
+.document-metric-card {
+  background: #2c3e50 !important;
+  color: #fff !important;
+  border: none !important;
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(44, 62, 80, 0.15), 0 0 0 5px rgba(59, 130, 246, 0.2) !important;
+  border-radius: 10px !important;
+  transition: all 0.3s ease !important;
+}
+
+.document-metric-card .card-body {
+  color: #fff !important;
+}
+
+.document-metric-card .text-xs,
+.document-metric-card .small {
+  color: #fff !important;
+}
+
+.document-metric-card .h5,
+.document-metric-card .h3 {
+  color: #fff !important;
+}
+
+.document-metric-card:hover {
+  background: #34495e !important;
+  color: #fff !important;
+  box-shadow: 0 8px 24px rgba(44, 62, 80, 0.25) !important;
+  transform: translateY(-2px) scale(1.03);
+}
+
+/* Revert table style to match previous look from screenshot */
+.table {
+  background: #fff !important;
+  color: #232a36 !important;
+  border-collapse: separate !important;
+  border-spacing: 0;
+  width: 100% !important;
+  box-shadow: 0 2px 8px rgba(44,62,80,0.04);
+}
+.table thead th {
+  background: #232a36 !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+  border: none !important;
+  font-size: 1.05em;
+  letter-spacing: 0.02em;
+  padding-top: 14px !important;
+  padding-bottom: 14px !important;
+}
+.table td {
+  border: none !important;
+  border-bottom: 1.5px solid #e5e7eb !important;
+  background: none !important;
+  color: #232a36 !important;
+  font-size: 1em;
+  vertical-align: middle !important;
+  padding: 12px 16px !important;
+}
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: #f6f8fa !important;
+}
+.table-striped tbody tr:nth-of-type(even) {
+  background-color: #fff !important;
+}
+.table-hover tbody tr:hover {
+  background-color: #eaf3fb !important;
+  color: #174bb1 !important;
+}
+.table, .table-responsive {
+  border: none !important;
   box-shadow: none !important;
-  transform: none !important;
-  border-left: none !important;
-  margin: 0 !important;
-  animation: none !important;
 }
-
-.sidebar-left .nav-item a[href*="residents.id.pending"]:hover {
-  color: #1a252f !important;
-  background-color: rgba(26, 37, 47, 0.1) !important;
-  border-radius: 5px !important;
-  transform: translateX(2px) !important;
-}
-
-/* Override any active classes for ID Card Management */
-.sidebar-left .nav-item.active a[href*="residents.id.pending"],
-.sidebar-left .nav-item a[href*="residents.id.pending"].active {
-  background: transparent !important;
-  color: #2c3e50 !important;
-  border-radius: 0 !important;
+.table thead, .table thead th, .table tr, .table-striped tr {
+  border: none !important;
   box-shadow: none !important;
-  transform: none !important;
-  border-left: none !important;
-  margin: 0 !important;
-  animation: none !important;
+}
+/* End revert table style */
+
+/* Custom: Archive button in modal - keep background/text on hover, animate icon */
+.modal-footer .btn-warning#confirmDelete,
+.modal-footer .btn-warning#confirmDelete *,
+.modal-footer .btn-warning#confirmDelete span,
+.modal-footer .btn-warning#confirmDelete i {
+  color: #fff !important;
+}
+.modal-footer .btn-warning#confirmDelete:hover,
+.modal-footer .btn-warning#confirmDelete:focus {
+  color: #fff !important;
+  background-color: #ffc107 !important;
+  border-color: #ffc107 !important;
+}
+.modal-footer .btn-warning#confirmDelete i {
+  transition: transform 0.2s;
+  vertical-align: middle;
+  display: inline-block;
+  line-height: 1;
+  margin-right: 0;
+  position: relative;
+  top: 1px;
+}
+.modal-footer .btn-warning#confirmDelete:hover i,
+.modal-footer .btn-warning#confirmDelete:focus i {
+  transform: scale(1.3) !important;
 }
 
-/* Ensure icons in ID Card Management also use normal styling */
-.sidebar-left .nav-item a[href*="residents.id.pending"] i,
-.sidebar-left .nav-item.active a[href*="residents.id.pending"] i {
-  color: #2c3e50 !important;
+.modal-footer .btn-warning#confirmToggle {
+  color: #fff !important;
+  background-color: #ffc107 !important;
+  border-color: #ffc107 !important;
+  transition: background 0.2s, color 0.2s;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-footer .btn-warning#confirmToggle:hover,
+.modal-footer .btn-warning#confirmToggle:focus {
+  color: #fff !important;
+  background-color: #ffc107 !important;
+  border-color: #ffc107 !important;
+}
+.modal-footer .btn-warning#confirmToggle span,
+.modal-footer .btn-warning#confirmToggle strong,
+.modal-footer .btn-warning#confirmToggle {
+  transition: transform 0.2s;
+}
+.modal-footer .btn-warning#confirmToggle:hover span,
+.modal-footer .btn-warning#confirmToggle:focus span,
+.modal-footer .btn-warning#confirmToggle:hover strong,
+.modal-footer .btn-warning#confirmToggle:focus strong,
+.modal-footer .btn-warning#confirmToggle:hover,
+.modal-footer .btn-warning#confirmToggle:focus {
+  transform: scale(1.13);
 }
 
-/* SIDEBAR TOGGLE FIXES */
-/* Ensure the toggle button is always visible and clickable */
-.collapseSidebar,
-#sidebarToggle {
-  display: flex !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  pointer-events: auto !important;
-  z-index: 1051 !important;
+#residentTable td:nth-child(2) .d-flex {
+  min-width: 180px;
+  max-width: 320px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: normal;
+  flex-wrap: nowrap;
 }
-
-/* Override any media query that might hide the toggle button */
-@media (max-width: 991.98px) {
-  .collapseSidebar,
-  #sidebarToggle {
-    display: flex !important;
-  }
-}
-
-/* Ensure proper sidebar toggle classes work */
-.vertical.narrow .sidebar-left {
-  min-width: 5rem !important;
-  width: 5rem !important;
-  overflow: hidden !important;
-}
-
-.vertical:not(.narrow) .sidebar-left {
-  min-width: 16rem !important;
-  width: 16rem !important;
-}
-
-/* Smooth transitions for sidebar */
-.sidebar-left {
-  transition: width 0.3s ease-in-out, min-width 0.3s ease-in-out !important;
-}
-
-/* Adjust main content margin when sidebar is collapsed */
-.vertical.narrow .main-content,
-.vertical.narrow .topnav {
-  margin-left: 5rem !important;
-  transition: margin-left 0.3s ease-in-out !important;
-}
-
-.vertical:not(.narrow) .main-content,
-.vertical:not(.narrow) .topnav {
-  margin-left: 16rem !important;
-  transition: margin-left 0.3s ease-in-out !important;
-}
-
-/* Hide text elements when sidebar is narrow/collapsed */
-.vertical.narrow .sidebar-left .item-text,
-.vertical.narrow .sidebar-left .collapse-hide,
-.vertical.narrow .sidebar-left span:not(.fe):not(.material-icons) {
-  opacity: 0 !important;
-  visibility: hidden !important;
-  width: 0 !important;
-  overflow: hidden !important;
-  transition: opacity 0.2s ease, visibility 0.2s ease !important;
-}
-
-/* Show text elements when sidebar is expanded */
-.vertical:not(.narrow) .sidebar-left .item-text,
-.vertical:not(.narrow) .sidebar-left .collapse-hide,
-.vertical:not(.narrow) .sidebar-left span:not(.fe):not(.material-icons) {
-  opacity: 1 !important;
-  visibility: visible !important;
-  width: auto !important;
-  overflow: visible !important;
-  transition: opacity 0.2s ease, visibility 0.2s ease !important;
-}
-
-/* Hover effect for collapsed sidebar */
-.vertical.narrow .sidebar-left:hover {
-  min-width: 16rem !important;
-  width: 16rem !important;
-  z-index: 1050 !important;
-  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.15) !important;
-}
-
-.vertical.narrow .sidebar-left:hover .item-text,
-.vertical.narrow .sidebar-left:hover .collapse-hide,
-.vertical.narrow .sidebar-left:hover span:not(.fe):not(.material-icons) {
-  opacity: 1 !important;
-  visibility: visible !important;
-  width: auto !important;
-  overflow: visible !important;
-}
-
-/* Toggle button icon rotation */
-.vertical.narrow #sidebarToggle i,
-.vertical.narrow .collapseSidebar i {
-  transform: rotate(180deg) !important;
-  transition: transform 0.3s ease !important;
-}
-
-.vertical:not(.narrow) #sidebarToggle i,
-.vertical:not(.narrow) .collapseSidebar i {
-  transform: rotate(0deg) !important;
-  transition: transform 0.3s ease !important;
+#residentTable td:nth-child(2) div {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: normal;
 }
 

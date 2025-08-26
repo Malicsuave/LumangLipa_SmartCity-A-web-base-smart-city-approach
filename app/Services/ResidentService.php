@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Repositories\Contracts\ResidentRepositoryInterface;
 use App\Services\ErrorHandlingService;
+use App\Services\SecurityService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
@@ -14,18 +15,33 @@ class ResidentService
 {
     public function __construct(
         private ResidentRepositoryInterface $residentRepository,
-        private ErrorHandlingService $errorHandler
+        private ErrorHandlingService $errorHandler,
+        private SecurityService $securityService
     ) {}
 
     /**
-     * Get filtered and paginated residents
+     * Get filtered and paginated residents with security validation
      */
     public function getFilteredResidents(array $filters, int $perPage = 20): LengthAwarePaginator
     {
         try {
+            // Validate and sanitize filters for security
+            $filters = $this->securityService->validateAndSanitizeFilters($filters, [
+                'search' => 'string|max:255',
+                'type' => 'string|in:permanent,temporary,transient',
+                'civil_status' => 'string|in:single,married,divorced,widowed',
+                'gender' => 'string|in:Male,Female',
+                'age_group' => 'string|in:children,adults,seniors',
+                'status' => 'string|in:active,inactive'
+            ]);
+
             return $this->residentRepository->getFiltered($filters, $perPage);
         } catch (\Exception $e) {
-            Log::error('Error filtering residents: ' . $e->getMessage());
+            Log::error('Error filtering residents: ' . $e->getMessage(), [
+                'user_id' => auth()->id(),
+                'filters' => $filters,
+                'ip' => request()->ip()
+            ]);
             throw $e;
         }
     }
@@ -66,12 +82,29 @@ class ResidentService
     }
 
     /**
-     * Create or update resident with validation
+     * Create or update resident with enhanced security validation
      */
     public function createOrUpdateResident(array $data, ?int $residentId = null)
     {
         return DB::transaction(function () use ($data, $residentId) {
             try {
+                // Security validation for sensitive data
+                $this->securityService->validateSensitiveData($data, [
+                    'first_name' => 'required|string|max:255|regex:/^[a-zA-Z\s\.\-\']+$/',
+                    'last_name' => 'required|string|max:255|regex:/^[a-zA-Z\s\.\-\']+$/',
+                    'email_address' => 'nullable|email|max:255',
+                    'contact_number' => 'nullable|string|max:20|regex:/^[0-9\+\-\(\)\s]+$/',
+                    'address' => 'nullable|string|max:500',
+                ]);
+
+                // Log the operation for security audit
+                Log::info('Resident data operation initiated', [
+                    'operation' => $residentId ? 'update' : 'create',
+                    'user_id' => auth()->id(),
+                    'ip' => request()->ip(),
+                    'resident_id' => $residentId
+                ]);
+
                 if ($residentId) {
                     $resident = $this->residentRepository->update($residentId, $data);
                     Log::info('Resident updated', ['resident_id' => $residentId]);
@@ -86,7 +119,11 @@ class ResidentService
                 return $resident;
 
             } catch (\Exception $e) {
-                Log::error('Error creating/updating resident: ' . $e->getMessage());
+                Log::error('Error creating/updating resident: ' . $e->getMessage(), [
+                    'user_id' => auth()->id(),
+                    'resident_id' => $residentId,
+                    'ip' => request()->ip()
+                ]);
                 throw $e;
             }
         });
@@ -163,12 +200,10 @@ class ResidentService
     /**
      * Get recent registrations
      */
-    public function getRecentRegistrations(int $limit = 10): array
+    public function getRecentRegistrations(int $limit = 10)
     {
         return Cache::remember("resident.recent_{$limit}", 180, function () use ($limit) {
-            // This would need to be added to the repository interface if needed
-            // For now, let's use a simple approach
-            return [];
+            return $this->residentRepository->getRecentResidents($limit);
         });
     }
 

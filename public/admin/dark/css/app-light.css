@@ -2823,8 +2823,7 @@ input[type="button"].btn-block {
   vertical-align: middle;
   background: #ffffff url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5' viewBox='0 0 4 5'%3e%3cpath fill='%23343a40' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e") no-repeat right 0.75rem center/8px 10px;
   border: 1px solid #dee2e6;
-  border-radius: 0.25rem;
-  appearance: none; }
+  border-radius: 0.25rem; }
   .custom-select:focus {
     border-color: #9bbcff;
     outline: 0;
@@ -8135,7 +8134,7 @@ svg.navbar-brand-img {
     color: #f8f9fa; }
 
 .navbar-dark svg.navbar-brand-img {
-  fill: #fffffff; }
+  fill: #ffffff; }
 
 /* tabs */
 .nav-tabs .nav-link {
@@ -10490,11 +10489,7 @@ form.was-validated select:valid ~ .select2-container--bootstrap4 .select2-select
     .uppy-ProviderBrowser-viewType--list .uppy-ProviderBrowserItem-inner img {
       margin-right: 8px;
       max-width: 20px;
-      max-height: 20px; }
-    .uppy-ProviderBrowser-viewType--list .uppy-ProviderBrowserItem-inner svg {
-      margin-right: 8px;
-      max-width: 20px;
-      max-height: 20px; }
+      max-height: 20px;
 
 .uppy-ProviderBrowserItem-fakeCheckbox {
   position: relative;

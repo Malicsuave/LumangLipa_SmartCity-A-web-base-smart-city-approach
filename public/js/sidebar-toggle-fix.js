@@ -165,13 +165,7 @@
         });
         
         // Direct onclick override
-        newElement.onclick = function(e) {
-          e.preventDefault();
-          e.stopPropagation();
-          console.log('🎯 Direct onclick triggered');
-          definitiveToggleSidebar();
-          return false;
-        };
+     
       });
     });
     

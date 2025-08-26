@@ -310,6 +310,18 @@
             margin: 6px 0;
             font-size: 10px; /* Increased from 8px */
         }
+        .table-responsive,
+        .card-body,
+        .collapse,
+        #filterSection {
+            overflow: visible !important;
+        }
+        .dropdown-menu {
+            z-index: 9999 !important;
+        }
+        .table-responsive {
+            padding-bottom: 120px;
+        }
     </style>
 </head>
 <body>

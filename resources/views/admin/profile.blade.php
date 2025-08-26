@@ -137,6 +137,46 @@
                 <h4 class="mb-2">Security Settings</h4>
                 <p class="text-muted mb-4">These settings help you keep your account secure.</p>
 
+                <!-- Change Password Button -->
+                <button type="button" class="btn btn-primary btn-sm mb-3" data-toggle="modal" data-target="#changePasswordModal">
+                    Change Password
+                </button>
+
+                <!-- Change Password Modal -->
+                <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form method="POST" action="{{ route('admin.profile.password.update') }}">
+                                @csrf
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label for="current_password">Current Password</label>
+                                        <input type="password" class="form-control" id="current_password" name="current_password" required autocomplete="current-password">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="new_password">New Password</label>
+                                        <input type="password" class="form-control" id="new_password" name="new_password" required autocomplete="new-password">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="new_password_confirmation">Confirm New Password</label>
+                                        <input type="password" class="form-control" id="new_password_confirmation" name="new_password_confirmation" required autocomplete="new-password">
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary btn-sm">Change Password</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Flash Messages -->
                 @if (session('status') && (session('from_2fa') || session('security_error')))
                     <div class="alert alert-success">

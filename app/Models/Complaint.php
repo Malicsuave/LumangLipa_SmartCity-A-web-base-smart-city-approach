@@ -5,10 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Complaint extends Model
 {
-    use HasFactory;    protected $fillable = [
+    use HasFactory, LogsActivity;
+
+    protected $fillable = [
         'barangay_id',
         'complaint_type',
         'subject',
@@ -22,12 +26,22 @@ class Complaint extends Model
         'dismissal_reason',
         'resolution_notes',
         'admin_notes',
-    ];    protected $casts = [
+    ];
+    protected $casts = [
         'filed_at' => 'datetime',
         'approved_at' => 'datetime',
         'scheduled_at' => 'datetime',
         'resolved_at' => 'datetime',
     ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('complaint')
+            ->logAll()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }
 
     public function resident(): BelongsTo
     {
@@ -53,13 +67,14 @@ class Complaint extends Model
     public function getStatusBadgeAttribute()
     {
         $badges = [
-            'pending' => 'badge-warning',
-            'approved' => 'badge-info',
-            'scheduled' => 'badge-primary',
-            'resolved' => 'badge-success',
-            'dismissed' => 'badge-danger',
+            'pending' => ['badge-warning', 'Pending'],
+            'approved' => ['badge-info', 'Approved'],
+            'scheduled' => ['badge-primary', 'Scheduled'],
+            'resolved' => ['badge-success', 'Resolved'],
+            'dismissed' => ['badge-danger', 'Dismissed'],
         ];
-
-        return $badges[$this->status] ?? 'badge-secondary';
+        $status = $this->status;
+        $badge = $badges[$status] ?? ['badge-secondary', ucfirst($status)];
+        return '<span class="badge ' . $badge[0] . '">' . $badge[1] . '</span>';
     }
 }

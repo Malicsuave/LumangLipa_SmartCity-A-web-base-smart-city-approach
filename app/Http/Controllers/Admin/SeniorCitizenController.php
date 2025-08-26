@@ -25,19 +25,121 @@ class SeniorCitizenController extends Controller
         // Search functionality
         if ($request->has('search') && !empty($request->search)) {
             $search = $request->search;
-            $query->whereHas('resident', function ($q) use ($search) {
-                $q->where('first_name', 'like', "%{$search}%")
-                    ->orWhere('middle_name', 'like', "%{$search}%")
-                    ->orWhere('last_name', 'like', "%{$search}%")
-                    ->orWhere('barangay_id', 'like', "%{$search}%")
-                    ->orWhere('contact_number', 'like', "%{$search}%");
-            })->orWhere('senior_id_number', 'like', "%{$search}%");
+            $query->where(function($q) use ($search) {
+                $q->whereHas('resident', function ($residentQuery) use ($search) {
+                    $residentQuery->where('first_name', 'like', "%{$search}%")
+                        ->orWhere('middle_name', 'like', "%{$search}%")
+                        ->orWhere('last_name', 'like', "%{$search}%")
+                        ->orWhere('barangay_id', 'like', "%{$search}%")
+                        ->orWhere('contact_number', 'like', "%{$search}%");
+                })->orWhere('senior_id_number', 'like', "%{$search}%");
+            });
         }
 
-        // Order by resident's last name
+        // Gender filter
+        if ($request->has('gender') && !empty($request->gender)) {
+            $query->whereHas('resident', function ($q) use ($request) {
+                $q->where('sex', $request->gender);
+            });
+        }
+
+        // Age range filter
+        if ($request->has('age_range') && !empty($request->age_range)) {
+            $now = Carbon::now();
+            switch ($request->age_range) {
+                case '60-69':
+                    $query->whereHas('resident', function ($q) use ($now) {
+                        $q->whereDate('birthdate', '<=', $now->copy()->subYears(60))
+                          ->whereDate('birthdate', '>', $now->copy()->subYears(70));
+                    });
+                    break;
+                case '70-79':
+                    $query->whereHas('resident', function ($q) use ($now) {
+                        $q->whereDate('birthdate', '<=', $now->copy()->subYears(70))
+                          ->whereDate('birthdate', '>', $now->copy()->subYears(80));
+                    });
+                    break;
+                case '80+':
+                    $query->whereHas('resident', function ($q) use ($now) {
+                        $q->whereDate('birthdate', '<=', $now->copy()->subYears(80));
+                    });
+                    break;
+            }
+        }
+
+        // ID Status filter
+        if ($request->has('id_status') && !empty($request->id_status)) {
+            switch ($request->id_status) {
+                case 'issued':
+                    $query->where('senior_id_status', 'issued');
+                    break;
+                case 'not_issued':
+                    $query->whereNull('senior_id_status')
+                          ->orWhere('senior_id_status', '!=', 'issued');
+                    break;
+                case 'needs_renewal':
+                    $query->where('senior_id_status', 'needs_renewal');
+                    break;
+                case 'expired':
+                    $query->where('senior_id_status', 'expired');
+                    break;
+            }
+        }
+
+        // Pension Status filter
+        if ($request->has('pension_status') && !empty($request->pension_status)) {
+            if ($request->pension_status === 'yes') {
+                $query->where('receiving_pension', true);
+            } else {
+                $query->where('receiving_pension', false)
+                      ->orWhereNull('receiving_pension');
+            }
+        }
+
+        // Health Status filter
+        if ($request->has('health_status') && !empty($request->health_status)) {
+            if ($request->health_status === 'with_conditions') {
+                $query->whereNotNull('health_conditions')
+                      ->where('health_conditions', '!=', '');
+            } else {
+                $query->whereNull('health_conditions')
+                      ->orWhere('health_conditions', '');
+            }
+        }
+
+        // Sorting functionality
+        $sort = $request->get('sort', 'last_name');
+        $direction = $request->get('direction', 'asc');
+        
+        // Validate direction
+        if (!in_array($direction, ['asc', 'desc'])) {
+            $direction = 'asc';
+        }
+
+        // Join with residents table for sorting
         $query->join('residents', 'senior_citizens.resident_id', '=', 'residents.id')
-              ->orderBy('residents.last_name', 'asc')
               ->select('senior_citizens.*');
+
+        // Apply sorting based on the sort parameter
+        switch ($sort) {
+            case 'barangay_id':
+                $query->orderBy('residents.barangay_id', $direction);
+                break;
+            case 'last_name':
+                $query->orderBy('residents.last_name', $direction)
+                      ->orderBy('residents.first_name', $direction);
+                break;
+            case 'birthdate':
+                $query->orderBy('residents.birthdate', $direction);
+                break;
+            case 'senior_id_status':
+                $query->orderBy('senior_citizens.senior_id_status', $direction);
+                break;
+            default:
+                $query->orderBy('residents.last_name', 'asc')
+                      ->orderBy('residents.first_name', 'asc');
+                break;
+        }
 
         $seniorCitizens = $query->paginate(15);
         $seniorCitizens->appends($request->query());
@@ -514,7 +616,13 @@ class SeniorCitizenController extends Controller
     public function showIdManagement(SeniorCitizen $seniorCitizen)
     {
         $seniorCitizen->load('resident');
-        return view('admin.senior-citizens.id-management', compact('seniorCitizen'));
+        $suggestedSeniorId = \App\Models\SeniorCitizen::generateSeniorIdNumber();
+        $idHistory = \Spatie\Activitylog\Models\Activity::where('subject_type', get_class($seniorCitizen))
+            ->where('subject_id', $seniorCitizen->id)
+            ->whereIn('description', ['issued_senior_citizen_id_card', 'updated senior citizen ID information'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+        return view('admin.senior-citizens.id-management', compact('seniorCitizen', 'suggestedSeniorId', 'idHistory'));
     }
 
     /**

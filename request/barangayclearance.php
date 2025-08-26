@@ -333,37 +333,33 @@
                             <br>
                             <br>
                             <div class="officials-list">
-                                <div class="official-name">HON. NOVILITO M. MANALO</div>
-                                <div class="official-position">Barangay Captain</div><br>
-                                <br>
-                                <div class="official-name">HON. ROLDAN A. ROSITA</div>
-                                <div class="official-position">Councilor</div>
-                                <div class="official-committee">Committee on Agriculture, Cooperative, Trade, Commerce and Industry</div><br>
-                                <div class="official-name">HON. LEXTER D. MAQUINTO</div>
-                                <div class="official-position">Councilor</div>
-                                <div class="official-committee">Committee on Family & Human Rights</div><br>
-                                <div class="official-name">HON. RICHARD C. CANOSA</div>
-                                <div class="official-position">Councilor</div>
-                                <div class="official-committee">Committee on Peace & Order, Transportation and Communication</div><br>
-                                <div class="official-name">HON. RODOLFO U. MANALO JR</div>
-                                <div class="official-position">Councilor</div>
-                                <div class="official-committee">Committee on Public Works & Beautification and Environmental Protection</div><br>
-                                <div class="official-name">HON. ROSENDO T. BABADILLA</div>
-                                <div class="official-position">Councilor</div>
-                                <div class="official-committee">Committee on Finance, Ways and Means Laws, Rules and Ordinances</div><br>
-                                <div class="official-name">HON. JAIME C. LAQUI</div>
-                                <div class="official-position">Councilor</div>
-                                <div class="official-committee">Committee on Health and Social Welfare Services</div><br>
-                                <div class="official-name">HON. RECHEL R. CIRUELAS</div>
-                                <div class="official-position">Councilor</div>
-                                <div class="official-committee">Committee on Education and Culture</div><br>
-                                <div class="official-name">HON. JOHN MARCO C. ARRIOLA</div>
-                                <div class="official-position">SK Chairman</div>
-                                <div class="official-committee">Committee on Sports and Youth</div><br>
-                                <div class="official-name">APRIL JANE J. SISCAR</div>
-                                <div class="official-position">Secretary</div><br>
-                                <div class="official-name">JOSEPHINE R. QUISTO</div>
-                                <div class="official-position">Treasurer</div>
+                                <?php
+                                $officials = \App\Models\BarangayOfficial::first();
+                                echo '<div class="official-name">HON. ' . $officials->captain_name . '</div>';
+                                echo '<div class="official-position">Barangay Captain</div><br><br>';
+                                for ($i = 1; $i <= 7; $i++) {
+                                    $name = $officials->{'councilor'.$i.'_name'};
+                                    $committee = $officials->{'councilor'.$i.'_committee'};
+                                    echo '<div class="official-name">HON. ' . $name . '</div>';
+                                    echo '<div class="official-position">Councilor</div>';
+                                    if ($committee) {
+                                        echo '<div class="official-committee" style="color: #007bff;">' . $committee . '</div>';
+                                    }
+                                    echo '<br>';
+                                }
+                                echo '<div class="official-name">HON. ' . $officials->sk_chairperson_name . '</div>';
+                                echo '<div class="official-position">SK Chairman</div>';
+                                $sk_committee = $officials->sk_chairperson_committee;
+                                if ($sk_committee) {
+                                    echo '<div class="official-committee" style="color: #007bff;">' . $sk_committee . '</div>';
+                                }
+                                echo '<br>';
+                                echo '<div class="official-name">' . $officials->secretary_name . '</div>';
+                                echo '<div class="official-position">Secretary</div><br>';
+                                echo '<div class="official-name">' . $officials->treasurer_name . '</div>';
+                                echo '<div class="official-position">Treasurer</div>';
+                                echo '</div>';
+                                ?>
                             </div>
                         </div>
                         <div style="position: absolute; left: 0; right: 0; bottom: 220px;">

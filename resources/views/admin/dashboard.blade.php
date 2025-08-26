@@ -7,27 +7,30 @@
 @section('content')
 <div class="row">
     <!-- Welcome Widget -->
-    <div class="col-md-12 mb-4">
-        <div class="card shadow welcome-widget welcome-widget-outlined">
-            <div class="card-body">
-                <h5 class="card-title">Welcome to your Admin Dashboard</h5>
-                <p class="card-text">You are logged in as <strong>{{ Auth::user()->role->name }}</strong>.</p>
+    <div class="col-12 mb-4">
+        <div class="welcome-widget-outlined p-4 d-flex align-items-center">
+            <div>
+                <h2 class="card-title mb-1">Welcome to the Lumanglipa Barangay Management System!</h2>
+                <p class="card-text mb-0">Manage residents, requests, and barangay services efficiently. Have a great day, <strong>{{ Auth::user()->name }}</strong>!</p>
             </div>
         </div>
     </div>
 
     <!-- Quick Stats -->
     <div class="col-md-3 mb-4">
-        <div class="card border-left-primary shadow h-100 py-2" style="border-radius: 10px;">
+        <div class="document-metric-card">
             <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                            Total Residents</div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $metrics['total_residents'] }}</div>
+                <div class="row align-items-center">
+                    <div class="col-3 text-center">
+                        <span class="circle circle-sm bg-primary">
+                            <i class="fe fe-users text-white mb-0"></i>
+                        </span>
+                    </div>
+                    <div class="col pr-0">
+                        <p class="small mb-0">Total Residents</p>
                     </div>
                     <div class="col-auto">
-                        <i class="fe fe-users fa-2x text-primary"></i>
+                        <span class="h3 mb-0">{{ $metrics['total_residents'] }}</span>
                     </div>
                 </div>
             </div>
@@ -35,16 +38,19 @@
     </div>
 
     <div class="col-md-3 mb-4">
-        <div class="card border-left-success shadow h-100 py-2" style="border-radius: 10px;">
+        <div class="document-metric-card">
             <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                            Households</div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $metrics['households_count'] }}</div>
+                <div class="row align-items-center">
+                    <div class="col-3 text-center">
+                        <span class="circle circle-sm bg-success">
+                            <i class="fe fe-home text-white mb-0"></i>
+                        </span>
+                    </div>
+                    <div class="col pr-0">
+                        <p class="small mb-0">Households</p>
                     </div>
                     <div class="col-auto">
-                        <i class="fe fe-home fa-2x text-success"></i>
+                        <span class="h3 mb-0">{{ $metrics['households_count'] }}</span>
                     </div>
                 </div>
             </div>
@@ -52,16 +58,19 @@
     </div>
 
     <div class="col-md-3 mb-4">
-        <div class="card border-left-warning shadow h-100 py-2" style="border-radius: 10px;">
+        <div class="document-metric-card">
             <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                            Family Members</div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $metrics['family_members_count'] }}</div>
+                <div class="row align-items-center">
+                    <div class="col-3 text-center">
+                        <span class="circle circle-sm bg-warning">
+                            <i class="fe fe-user-check text-white mb-0"></i>
+                        </span>
+                    </div>
+                    <div class="col pr-0">
+                        <p class="small mb-0">Family Members</p>
                     </div>
                     <div class="col-auto">
-                        <i class="fe fe-user-check fa-2x text-warning"></i>
+                        <span class="h3 mb-0">{{ $metrics['family_members_count'] }}</span>
                     </div>
                 </div>
             </div>
@@ -69,16 +78,19 @@
     </div>
 
     <div class="col-md-3 mb-4">
-        <div class="card border-left-info shadow h-100 py-2" style="border-radius: 10px;">
+        <div class="document-metric-card">
             <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                            Total Population</div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $metrics['total_population'] }}</div>
+                <div class="row align-items-center">
+                    <div class="col-3 text-center">
+                        <span class="circle circle-sm bg-info">
+                            <i class="fe fe-users text-white mb-0"></i>
+                        </span>
+                    </div>
+                    <div class="col pr-0">
+                        <p class="small mb-0">Total Population</p>
                     </div>
                     <div class="col-auto">
-                        <i class="fe fe-users fa-2x text-info"></i>
+                        <span class="h3 mb-0">{{ $metrics['total_population'] }}</span>
                     </div>
                 </div>
             </div>

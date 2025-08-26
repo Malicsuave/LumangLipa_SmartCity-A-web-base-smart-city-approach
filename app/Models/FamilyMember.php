@@ -21,7 +21,7 @@ class FamilyMember extends Model
         'gender',
         'birthday',
         'work',
-        'phone',
+        'contact_number',
         'allergies',
         'medical_condition',
     ];

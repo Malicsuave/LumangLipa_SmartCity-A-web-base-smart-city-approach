@@ -11,18 +11,14 @@ class ComplaintRepository implements ComplaintRepositoryInterface
 {
     public function getFiltered(array $filters, int $perPage = 20)
     {
-        $query = Complaint::with(['user', 'resident']);
+        $query = Complaint::with(['approver', 'resident']);
 
         if (!empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
-        if (!empty($filters['category'])) {
-            $query->where('category', $filters['category']);
-        }
-
-        if (!empty($filters['priority'])) {
-            $query->where('priority', $filters['priority']);
+        if (!empty($filters['complaint_type'])) {
+            $query->where('complaint_type', $filters['complaint_type']);
         }
 
         if (!empty($filters['search'])) {
@@ -30,7 +26,7 @@ class ComplaintRepository implements ComplaintRepositoryInterface
             $query->where(function ($q) use ($search) {
                 $q->where('subject', 'like', "%{$search}%")
                   ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhere('category', 'like', "%{$search}%")
+                  ->orWhere('complaint_type', 'like', "%{$search}%")
                   ->orWhereHas('resident', function ($residentQuery) use ($search) {
                       $residentQuery->where('first_name', 'like', "%{$search}%")
                                    ->orWhere('last_name', 'like', "%{$search}%");
@@ -70,26 +66,25 @@ class ComplaintRepository implements ComplaintRepositoryInterface
     public function getByStatus(string $status)
     {
         return Complaint::where('status', $status)
-                       ->with(['user', 'resident'])
+                       ->with(['approver', 'resident'])
                        ->orderBy('created_at', 'desc')
                        ->get();
     }
 
     public function getByCategory(string $category)
     {
-        return Complaint::where('category', $category)
-                       ->with(['user', 'resident'])
+        return Complaint::where('complaint_type', $category)
+                       ->with(['approver', 'resident'])
                        ->orderBy('created_at', 'desc')
                        ->get();
     }
 
-    public function getRecentComplaints(int $limit = 10): array
+    public function getRecentComplaints(int $limit = 10)
     {
-        return Complaint::with(['user', 'resident'])
+        return Complaint::with(['approver', 'resident'])
                        ->orderBy('created_at', 'desc')
                        ->limit($limit)
-                       ->get()
-                       ->toArray();
+                       ->get();
     }
 
     public function getResolutionTimeMetrics(): array
@@ -156,8 +151,8 @@ class ComplaintRepository implements ComplaintRepositoryInterface
 
     public function getCategoryDistribution(): array
     {
-        return Complaint::select('category', DB::raw('COUNT(*) as count'))
-                       ->groupBy('category')
+        return Complaint::select('complaint_type', DB::raw('COUNT(*) as count'))
+                       ->groupBy('complaint_type')
                        ->orderBy('count', 'desc')
                        ->get()
                        ->toArray();
@@ -165,10 +160,6 @@ class ComplaintRepository implements ComplaintRepositoryInterface
 
     public function getPriorityDistribution(): array
     {
-        return Complaint::select('priority', DB::raw('COUNT(*) as count'))
-                       ->groupBy('priority')
-                       ->orderBy('count', 'desc')
-                       ->get()
-                       ->toArray();
+        return [];
     }
 }
