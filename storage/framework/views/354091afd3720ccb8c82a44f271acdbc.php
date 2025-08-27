@@ -444,17 +444,10 @@
       });
     }
   });
+  /* Hide sidebar on screens smaller than lg (992px) */ @media (max-width: 991.98px) { .sidebar-left { display: none !important; } } /* Remove open-on-hover for sidebar on all screens */ .sidebar-left:hover, .sidebar-left:focus, .sidebar-left:active { width: unset !important; }
+
 </script>
-  /* Hide sidebar on screens smaller than lg (992px) */
-  @media (max-width: 991.98px) {
-    .sidebar-left {
-      display: none !important;
-    }
-  }
-  /* Remove open-on-hover for sidebar on all screens */
-  .sidebar-left:hover, .sidebar-left:focus, .sidebar-left:active {
-    width: unset !important;
-  }
+  
 </style>
           <nav class="vertnav navbar navbar-light">
             <!-- nav bar -->
