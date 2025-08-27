@@ -396,6 +396,66 @@
           </ul>
         </nav>
         <aside class="sidebar-left border-right bg-white shadow" id="leftSidebar" data-simplebar>
+<style>
+  
+  @media (max-width: 991.98px) {
+    .sidebar-left {
+      display: none !important;
+    }
+    .sidebar-left.active {
+      display: block !important;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      z-index: 1050;
+      background: #fff;
+      width: 250px;
+      box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+      transition: left 0.3s;
+    }
+    .main-content, .container-fluid {
+      margin-left: 0 !important;
+    }
+  }
+  /* Prevent sidebar from opening on hover */
+  .sidebar-left:hover,
+  .sidebar-left:focus,
+  .sidebar-left:active {
+    width: unset !important;
+    left: unset !important;
+    box-shadow: unset !important;
+  }
+</style>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var sidebar = document.getElementById('leftSidebar');
+    var burger = document.getElementById('sidebarToggle');
+    if (sidebar && burger) {
+      burger.addEventListener('click', function(e) {
+        e.preventDefault();
+        sidebar.classList.toggle('active');
+      });
+      // Optional: close sidebar when clicking outside
+      document.addEventListener('click', function(e) {
+        if (sidebar.classList.contains('active') && !sidebar.contains(e.target) && !burger.contains(e.target)) {
+          sidebar.classList.remove('active');
+        }
+      });
+    }
+  });
+</script>
+  /* Hide sidebar on screens smaller than lg (992px) */
+  @media (max-width: 991.98px) {
+    .sidebar-left {
+      display: none !important;
+    }
+  }
+  /* Remove open-on-hover for sidebar on all screens */
+  .sidebar-left:hover, .sidebar-left:focus, .sidebar-left:active {
+    width: unset !important;
+  }
+</style>
           <nav class="vertnav navbar navbar-light">
             <!-- nav bar -->
             <div class="w-100 mb-4 d-flex flex-column">

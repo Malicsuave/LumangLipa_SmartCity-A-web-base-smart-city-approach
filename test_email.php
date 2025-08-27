@@ -9,8 +9,9 @@ $kernel->bootstrap();
 try {
     echo "Testing email functionality...\n";
     
-    // Get a document request with a resident that has an email
+    // Get a Certificate of Indigency document request with a resident that has an email
     $docRequest = App\Models\DocumentRequest::with('resident')
+        ->where('document_type', 'Certificate of Indigency')
         ->whereHas('resident', function($q) {
             $q->whereNotNull('email_address');
         })
