@@ -1,2 +1,0 @@
-<?php // This partial expects $pendingRenewal to be passed in ?>
-<?php echo $__env->make('admin.residents.pending-ids-filter-renewal-content', ['pendingRenewal' => $pendingRenewal], \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?> <?php /**PATH /var/www/html/lumanglipa/resources/views/admin/residents/pending-ids-filter-renewal.blade.php ENDPATH**/ ?>
