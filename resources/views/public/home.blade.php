@@ -4,14 +4,49 @@
 
 @push('styles')
 <style>
-    /* Hero Section (simplified clean look) */
+    /* Hero Section with Background Image and Overlay */
     .hero-section {
-        background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+        background: linear-gradient(135deg, rgba(74, 144, 226, 0.8), rgba(53, 122, 189, 0.8)), url('{{ asset('images/bglumanglipa.jpeg') }}');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
         position: relative;
         padding: 80px 0 60px 0;
         min-height: 85vh;
         display: flex;
         align-items: center;
+        color: white;
+    }
+    
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.2);
+        z-index: 1;
+    }
+    
+    .hero-section .container {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .hero-section .hero-title {
+        color: white !important;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .hero-section .hero-location {
+        color: #e3f2fd !important;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    }
+    
+    .hero-section .hero-description {
+        color: rgba(255,255,255,0.95) !important;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
     }
     
     /* Carousel Navigation Arrows */
@@ -167,11 +202,13 @@
     
     .service-item {
         transition: all 0.3s ease;
-        border: 1px solid #e2e8f0;
+        border: 1px solid rgba(255,255,255,0.3);
         min-height: 70px;
         display: flex;
         align-items: center;
         overflow: hidden;
+        background: rgba(255,255,255,0.95) !important;
+        backdrop-filter: blur(10px);
     }
     
     .service-item .d-flex {
@@ -183,14 +220,13 @@
         min-width: 0;
         flex: 1;
     }
-    
+
     .service-item:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        border-color: #3F9EDD;
-    }
-    
-    .services-preview .row {
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        border-color: rgba(255,255,255,0.6);
+        background: rgba(255,255,255,0.98) !important;
+    }    .services-preview .row {
         margin: 0 -8px;
     }
     
@@ -351,7 +387,6 @@
         .tree-name { font-size: 0.7rem; }
         .tree-role { font-size: 0.55rem; }
     }
-    }
     
     @media (max-width:820px){ 
         .kagawad-wrapper { padding:32px 10px 6px; } 
@@ -397,9 +432,133 @@
     }
     
     .officials-subnote { font-size:.65rem; letter-spacing:.5px; color:#94a3b8; margin-top:18px; text-align:center; }
-    @media (max-width: 576px){
-        .hero-title { font-size: 2.2rem; }
-        .hero-section { padding: 60px 0 30px 0; }
+    
+    /* Mobile Responsive Design for Hero Section */
+    @media (max-width: 991.98px) {
+        .hero-section {
+            min-height: 70vh;
+            padding: 60px 0 40px 0;
+            background-attachment: scroll; /* Remove fixed attachment on mobile for better performance */
+        }
+        
+        .hero-title {
+            font-size: 2.2rem !important;
+            line-height: 1.2 !important;
+            margin-bottom: 15px !important;
+        }
+        
+        .hero-location {
+            font-size: 0.85rem !important;
+            margin-bottom: 15px !important;
+        }
+        
+        .hero-description {
+            font-size: 1rem !important;
+            line-height: 1.5 !important;
+            margin-bottom: 25px !important;
+        }
+        
+        .services-preview {
+            margin-bottom: 25px !important;
+        }
+        
+        .service-item {
+            padding: 15px !important;
+            min-height: 65px;
+        }
+        
+        .service-icon-sm {
+            font-size: 1.4rem !important;
+            margin-right: 12px !important;
+        }
+        
+        .service-item .fw-bold {
+            font-size: 0.85rem !important;
+        }
+        
+        .service-item .text-muted {
+            font-size: 0.7rem !important;
+        }
+    }
+    
+    @media (max-width: 767.98px) {
+        .hero-section {
+            min-height: 60vh;
+            padding: 50px 0 30px 0;
+        }
+        
+        .hero-title {
+            font-size: 1.9rem !important;
+            text-align: center;
+        }
+        
+        .hero-location {
+            font-size: 0.8rem !important;
+            text-align: center;
+        }
+        
+        .hero-description {
+            font-size: 0.95rem !important;
+            text-align: center;
+            margin-bottom: 30px !important;
+        }
+        
+        .services-preview .row {
+            margin: 0 -5px;
+        }
+        
+        .services-preview .col-12,
+        .services-preview .col-sm-6 {
+            padding: 0 5px;
+            margin-bottom: 10px;
+        }
+        
+        .service-item {
+            padding: 12px !important;
+            min-height: 60px;
+        }
+        
+        .service-icon-sm {
+            font-size: 1.3rem !important;
+            margin-right: 10px !important;
+        }
+    }
+    
+    @media (max-width: 575.98px) {
+        .hero-section {
+            min-height: 55vh;
+            padding: 40px 0 25px 0;
+        }
+        
+        .hero-title {
+            font-size: 1.7rem !important;
+        }
+        
+        .hero-location {
+            font-size: 0.75rem !important;
+        }
+        
+        .hero-description {
+            font-size: 0.9rem !important;
+        }
+        
+        .service-item {
+            padding: 10px !important;
+            min-height: 55px;
+        }
+        
+        .service-icon-sm {
+            font-size: 1.2rem !important;
+            margin-right: 8px !important;
+        }
+        
+        .service-item .fw-bold {
+            font-size: 0.8rem !important;
+        }
+        
+        .service-item .text-muted {
+            font-size: 0.65rem !important;
+        }
     }
 
     /* Floating Chatbot Styles */
@@ -713,8 +872,8 @@
 <!-- Hero Section -->
 <section class="hero-section">
     <div class="container">
-        <div class="row align-items-center g-5">
-            <div class="col-lg-6">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-xl-7">
                 <div class="hero-content text-start">
                     <h1 class="hero-title mb-2" style="color:#1e293b; font-size: 2.8rem; font-weight: 800; line-height: 1.1;">
                         Barangay Lumanglipa
@@ -774,13 +933,6 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="hero-image-container position-relative">
-                    <div class="main-image" style="border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.1);">
-                        <img src="{{ asset('images/bglumanglipa.jpeg') }}" alt="Barangay Hall" style="width:100%; height:350px; object-fit:cover;">
                     </div>
                 </div>
             </div>
@@ -903,7 +1055,7 @@
                 @if($captain)
                     <div class="tree-card captain">
                         @if($captain->profile_pic)
-                            <div class="tree-initial has-image" style="background-image: url({{ asset('storage/officials/' . $captain->profile_pic) }});"></div>
+                            <div class="tree-initial has-image" style="background-image: url('{{ asset('storage/officials/' . $captain->profile_pic) }}');"></div>
                         @else
                             <div class="tree-initial">{{ $captain->initials }}</div>
                         @endif
@@ -928,7 +1080,7 @@
                         @foreach($councilors as $councilor)
                             <div class="tree-card">
                                 @if($councilor->profile_pic)
-                                    <div class="tree-initial has-image" style="background-image: url({{ asset('storage/officials/' . $councilor->profile_pic) }});"></div>
+                                    <div class="tree-initial has-image" style="background-image: url('{{ asset('storage/officials/' . $councilor->profile_pic) }}');"></div>
                                 @else
                                     <div class="tree-initial">{{ $councilor->initials }}</div>
                                 @endif
@@ -960,7 +1112,7 @@
                 @if($skChairman)
                     <div class="tree-card sk staff-branch">
                         @if($skChairman->profile_pic)
-                            <div class="tree-initial has-image" style="background-image: url({{ asset('storage/officials/' . $skChairman->profile_pic) }});"></div>
+                            <div class="tree-initial has-image" style="background-image: url('{{ asset('storage/officials/' . $skChairman->profile_pic) }}');"></div>
                         @else
                             <div class="tree-initial">{{ $skChairman->initials }}</div>
                         @endif
@@ -971,7 +1123,7 @@
                             @if($secretary)
                                 <div class="tree-card" style="min-width:150px;">
                                     @if($secretary->profile_pic)
-                                        <div class="tree-initial secretary treasurer has-image" style="background-image: url({{ asset('storage/officials/' . $secretary->profile_pic) }});"></div>
+                                        <div class="tree-initial secretary treasurer has-image" style="background-image: url('{{ asset('storage/officials/' . $secretary->profile_pic) }}');"></div>
                                     @else
                                         <div class="tree-initial secretary treasurer">{{ $secretary->initials }}</div>
                                     @endif
@@ -982,7 +1134,7 @@
                             @if($treasurer)
                                 <div class="tree-card" style="min-width:150px;">
                                     @if($treasurer->profile_pic)
-                                        <div class="tree-initial secretary treasurer has-image" style="background-image: url({{ asset('storage/officials/' . $treasurer->profile_pic) }});"></div>
+                                        <div class="tree-initial secretary treasurer has-image" style="background-image: url('{{ asset('storage/officials/' . $treasurer->profile_pic) }}');"></div>
                                     @else
                                         <div class="tree-initial secretary treasurer">{{ $treasurer->initials }}</div>
                                     @endif

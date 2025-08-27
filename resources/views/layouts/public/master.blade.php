@@ -584,25 +584,25 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-dark text-white py-5 mt-5">
+    <footer class="bg-white text-dark py-5 mt-5 border-top">
         <div class="container">
             <div class="row">
                 <div class="col-md-4 mb-4 mb-md-0">
                     <p>Providing essential services and improving the quality of life for our residents.</p>
                     <div class="d-flex gap-3 mt-4">
-                        <a href="#" class="text-white"><i class="fe fe-facebook"></i></a>
-                        <a href="#" class="text-white"><i class="fe fe-twitter"></i></a>
-                        <a href="#" class="text-white"><i class="fe fe-instagram"></i></a>
+                        <a href="#" class="text-primary"><i class="fe fe-facebook"></i></a>
+                        <a href="#" class="text-primary"><i class="fe fe-twitter"></i></a>
+                        <a href="#" class="text-primary"><i class="fe fe-instagram"></i></a>
                     </div>
                 </div>
                 
                 <div class="col-md-4 mb-4 mb-md-0">
                     <h5 class="text-uppercase mb-4">Quick Links</h5>
                     <ul class="list-unstyled">
-                        <li class="mb-2"><a href="{{ route('public.home') }}" class="text-white">Home</a></li>
-                        <li class="mb-2"><a href="{{ route('public.about') }}" class="text-white">About Us</a></li>
-                        <li class="mb-2"><a href="{{ route('public.services') }}" class="text-white">eServices</a></li>
-                        <li class="mb-2"><a href="{{ route('public.contact') }}" class="text-white">Contact Us</a></li>
+                        <li class="mb-2"><a href="{{ route('public.home') }}" class="text-dark">Home</a></li>
+                        <li class="mb-2"><a href="{{ route('public.about') }}" class="text-dark">About Us</a></li>
+                        <li class="mb-2"><a href="{{ route('public.services') }}" class="text-dark">eServices</a></li>
+                        <li class="mb-2"><a href="{{ route('public.contact') }}" class="text-dark">Contact Us</a></li>
                     </ul>
                 </div>
                 
@@ -619,9 +619,9 @@
         </div>
     </footer>
     
-    <div class="bg-dark py-3">
+    <div class="bg-light py-3 border-top">
         <div class="container">
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center text-white">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center text-dark">
                 <div>
                     <small>&copy; {{ date('Y') }} Barangay Lumanglipa. All rights reserved.</small>
                 </div>
