@@ -3,19 +3,19 @@
 @section('title', 'File a Complaint - Barangay Lumanglipa')
 
 @section('content')
-<div class="container py-5" style="min-height: 100vh;">
+<div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-8">
-            <div class="card shadow-lg">
-                <div class="card-header bg-primary text-white text-center py-4">
-                    <h2 class="mb-0">
+            <div class="card shadow-lg border-0" style="border-radius: 15px;">
+                <div class="card-header bg-primary text-white text-center" style="border-radius: 15px 15px 0 0;">
+                    <h3 class="mb-0">
                         <i class="fas fa-flag me-2"></i>
                         File a Complaint
-                    </h2>
+                    </h3>
                     <p class="mb-0 mt-2">Report issues and concerns to Barangay Lumanglipa</p>
                 </div>
                 
-                <div class="card-body p-5">
+                <div class="card-body p-4">
                     <!-- Success Alert -->
                     <div id="successAlert" class="alert alert-success alert-dismissible fade" role="alert" style="display: none;">
                         <i class="fas fa-check-circle me-2"></i>
@@ -220,6 +220,36 @@
                             </button>
                         </div>
                     </form>
+
+                    <!-- Information Section -->
+                    <div class="mt-5 p-4 bg-light rounded">
+                        <h5 class="text-primary mb-3">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Important Information
+                        </h5>
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2">
+                                <i class="fas fa-shield-alt text-primary me-2"></i>
+                                Email verification with OTP is required for all complaint submissions
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                All complaints will be reviewed by the Barangay Office
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Processing time is typically 1-3 business days
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                You will be notified once your complaint is reviewed
+                            </li>
+                            <li class="mb-0">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Make sure all information provided is accurate and complete
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
