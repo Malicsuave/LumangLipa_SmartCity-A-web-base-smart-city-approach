@@ -152,6 +152,7 @@ class HealthServiceController extends Controller
             'service_type' => $request->service_type,
             'purpose' => $request->purpose,
             'status' => 'pending',
+            'requested_at' => now(),
         ]);
 
         return response()->json([

@@ -153,7 +153,12 @@ class ComplaintController extends Controller
             'complaint_type' => $request->complaint_type,
             'subject' => $request->subject,
             'description' => $request->description,
+            'incident_details' => $request->incident_details,
+            'incident_date' => $request->incident_date,
+            'incident_location' => $request->incident_location,
+            'involved_parties' => $request->involved_parties ? array_filter(explode("\n", $request->involved_parties)) : null,
             'status' => 'pending',
+            'filed_at' => now(),
         ]);
 
         return response()->json([

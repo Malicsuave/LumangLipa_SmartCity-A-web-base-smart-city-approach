@@ -1,18 +1,18 @@
 @extends('layouts.public.master')
 
-@section('title', 'File a Complaint - Barangay Lumanglipa')
+@section('title', 'File a Complaint')
 
 @section('content')
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-8">
             <div class="card shadow-lg border-0" style="border-radius: 15px;">
-                <div class="card-header bg-primary text-white text-center" style="border-radius: 15px 15px 0 0;">
+                <div class="card-header bg-danger text-white text-center" style="border-radius: 15px 15px 0 0;">
                     <h3 class="mb-0">
-                        <i class="fas fa-flag me-2"></i>
+                        <i class="fas fa-exclamation-triangle me-2"></i>
                         File a Complaint
                     </h3>
-                    <p class="mb-0 mt-2">Report issues and concerns to Barangay Lumanglipa</p>
+                    <p class="mb-0 mt-2">Report concerns and issues to the Barangay Officials</p>
                 </div>
                 
                 <div class="card-body p-4">
@@ -30,12 +30,13 @@
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
 
-                    <form id="complaintForm" method="POST">
+                    <form id="complaintRequestForm">
                         @csrf
                         
-                        <!-- Barangay ID Section -->                        <div class="mb-4">
+                        <!-- Barangay ID Section -->
+                        <div class="mb-4">
                             <label for="barangay_id" class="form-label fw-bold">
-                                <i class="fas fa-id-card text-primary me-2"></i>
+                                <i class="fas fa-id-card text-danger me-2"></i>
                                 Barangay ID
                             </label>
                             <div class="input-group">
@@ -46,7 +47,7 @@
                                        placeholder="Enter your Barangay ID"
                                        required>
                                 <button type="button" 
-                                        class="btn btn-outline-primary" 
+                                        class="btn btn-outline-danger" 
                                         id="checkResidentBtn">
                                     <i class="fas fa-search"></i> Verify
                                 </button>
@@ -55,14 +56,17 @@
                                 <i class="fas fa-info-circle text-info"></i>
                                 Enter your registered Barangay ID to verify your information
                             </div>
-                        </div>                        <!-- Resident Information Display -->
-                        <div id="residentInfo" class="card border-success mb-4" style="display: none;">
+                        </div>
+
+                        <!-- Resident Information Display -->
+                        <div id="residentInfo" class="card border-danger mb-4" style="display: none;">
                             <div class="card-header bg-light">
-                                <h6 class="mb-0 text-success">
+                                <h6 class="mb-0 text-danger">
                                     <i class="fas fa-user-check me-2"></i>
                                     Verified Resident Information
                                 </h6>
-                            </div>                            <div class="card-body">
+                            </div>
+                            <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6">
                                         <p class="mb-1"><strong>Name:</strong></p>
@@ -96,7 +100,7 @@
                                 <div id="otpRequestStep">
                                     <p class="mb-3">
                                         <i class="fas fa-info-circle text-info me-2"></i>
-                                        To proceed with filing your complaint, we need to verify your identity. 
+                                        To proceed with your complaint, we need to verify your identity. 
                                         An OTP (One-Time Password) will be sent to your registered email address.
                                     </p>
                                     <button type="button" class="btn btn-warning" id="sendOtpBtn">
@@ -140,113 +144,199 @@
                                 <div id="otpVerifiedStep" style="display: none;">
                                     <div class="alert alert-success mb-0">
                                         <i class="fas fa-check-circle me-2"></i>
-                                        Email verified successfully! You can now proceed with filing your complaint.
+                                        Email verified successfully! You can now proceed with your complaint.
                                     </div>
                                 </div>
                             </div>
-                        </div>                        <!-- Complaint Form Section -->
-                        <div id="complaintFormSection" class="blurred-section">
+                        </div>
+
+                        <!-- Form Fields Section (Blurred until OTP verified) -->
+                        <div id="formFieldsSection" class="form-fields-blur">
                             <div class="blur-overlay">
-                                <div class="overlay-message">
-                                    <i class="fas fa-lock fa-2x mb-3"></i>
-                                    <h5>Verify Email to Continue</h5>
-                                    <p>Please complete email verification to access the form fields</p>
+                                <div class="blur-message">
+                                    <i class="fas fa-shield-alt fa-2x text-warning mb-2"></i>
+                                    <h5>Email Verification Required</h5>
+                                    <p class="mb-0">Please verify your email with OTP to access the form</p>
                                 </div>
                             </div>
-                            
+
                             <!-- Complaint Type Section -->
                             <div class="mb-4">
                                 <label for="complaint_type" class="form-label fw-bold">
-                                    <i class="fas fa-list-alt text-primary me-2"></i>
+                                    <i class="fas fa-list text-danger me-2"></i>
                                     Complaint Type
                                 </label>
                                 <select class="form-select form-select-lg" id="complaint_type" name="complaint_type" required disabled>
                                     <option value="">Select Complaint Type</option>
-                                    @foreach($complaintTypes as $key => $value)
-                                        <option value="{{ $key }}">{{ $value }}</option>
-                                    @endforeach
+                                    <option value="noise_complaint">Noise Complaint</option>
+                                    <option value="public_disturbance">Public Disturbance</option>
+                                    <option value="illegal_construction">Illegal Construction</option>
+                                    <option value="garbage_disposal">Improper Garbage Disposal</option>
+                                    <option value="boundary_dispute">Boundary Dispute</option>
+                                    <option value="harassment">Harassment</option>
+                                    <option value="property_damage">Property Damage</option>
+                                    <option value="public_safety">Public Safety Concern</option>
+                                    <option value="animal_complaint">Animal-Related Complaint</option>
+                                    <option value="other">Other</option>
                                 </select>
-                                <div class="form-text">                                    <i class="fas fa-info-circle text-info"></i>
-                                    Choose the category that best describes your complaint
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle text-info"></i>
+                                    Choose the type of complaint you want to file
                                 </div>
                             </div>
 
                             <!-- Subject Section -->
                             <div class="mb-4">
                                 <label for="subject" class="form-label fw-bold">
-                                    <i class="fas fa-tag text-primary me-2"></i>
+                                    <i class="fas fa-heading text-danger me-2"></i>
                                     Subject
                                 </label>
                                 <input type="text" 
-                                       class="form-control form-control-lg"
-                                       id="subject"
-                                       name="subject"
+                                       class="form-control form-control-lg" 
+                                       id="subject" 
+                                       name="subject" 
                                        placeholder="Brief summary of your complaint..."
-                                       maxlength="255"
                                        required
                                        disabled>
                                 <div class="form-text">
                                     <i class="fas fa-info-circle text-info"></i>
-                                    Provide a clear, concise subject line for your complaint
+                                    Provide a clear and concise subject for your complaint
                                 </div>
                             </div>
 
                             <!-- Description Section -->
-                            <div class="mb-4">                                <label for="description" class="form-label fw-bold">
-                                    <i class="fas fa-comment-alt text-primary me-2"></i>
-                                    Detailed Description
+                            <div class="mb-4">
+                                <label for="description" class="form-label fw-bold">
+                                    <i class="fas fa-file-alt text-danger me-2"></i>
+                                    Description
                                 </label>
                                 <textarea class="form-control" 
                                           id="description" 
                                           name="description" 
                                           rows="4" 
-                                          placeholder="Provide detailed information about your complaint..."
+                                          placeholder="Please provide a detailed description of your complaint..."
                                           required
-                                          disabled></textarea>                                <div class="form-text">
+                                          disabled></textarea>
+                                <div class="form-text">
                                     <i class="fas fa-info-circle text-info"></i>
-                                    Describe the issue in detail. Include what happened, when, where, and who was involved
+                                    Describe your complaint in detail
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Submit Button -->
-                        <div id="submitButtonSection" class="d-grid gap-2" style="display: none;">
-                            <button type="submit" 
-                                    class="btn btn-primary btn-lg" 
-                                    id="submitBtn" 
-                                    disabled>
-                                <i class="fas fa-paper-plane me-2"></i>
-                                Submit Complaint
-                            </button>
+                            <!-- Incident Details Section -->
+                            <div class="mb-4">
+                                <label for="incident_details" class="form-label fw-bold">
+                                    <i class="fas fa-clipboard-list text-danger me-2"></i>
+                                    Incident Details <small class="text-muted">(Optional)</small>
+                                </label>
+                                <textarea class="form-control" 
+                                          id="incident_details" 
+                                          name="incident_details" 
+                                          rows="3" 
+                                          placeholder="Additional details about the incident (optional)..."
+                                          disabled></textarea>
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle text-info"></i>
+                                    Provide any additional details about the incident
+                                </div>
+                            </div>
+
+                            <!-- Incident Date Section -->
+                            <div class="mb-4">
+                                <label for="incident_date" class="form-label fw-bold">
+                                    <i class="fas fa-calendar text-danger me-2"></i>
+                                    Incident Date <small class="text-muted">(Optional)</small>
+                                </label>
+                                <input type="date" 
+                                       class="form-control form-control-lg" 
+                                       id="incident_date" 
+                                       name="incident_date" 
+                                       disabled>
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle text-info"></i>
+                                    When did the incident occur?
+                                </div>
+                            </div>
+
+                            <!-- Incident Location Section -->
+                            <div class="mb-4">
+                                <label for="incident_location" class="form-label fw-bold">
+                                    <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                                    Incident Location <small class="text-muted">(Optional)</small>
+                                </label>
+                                <input type="text" 
+                                       class="form-control form-control-lg" 
+                                       id="incident_location" 
+                                       name="incident_location" 
+                                       placeholder="Where did the incident occur? (e.g., Street name, house number, etc.)"
+                                       disabled>
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle text-info"></i>
+                                    Specify the location where the incident occurred
+                                </div>
+                            </div>
+
+                            <!-- Involved Parties Section -->
+                            <div class="mb-4">
+                                <label for="involved_parties" class="form-label fw-bold">
+                                    <i class="fas fa-users text-danger me-2"></i>
+                                    Involved Parties <small class="text-muted">(Optional)</small>
+                                </label>
+                                <textarea class="form-control" 
+                                          id="involved_parties" 
+                                          name="involved_parties" 
+                                          rows="3" 
+                                          placeholder="Names or descriptions of people involved (if any)..."
+                                          disabled></textarea>
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle text-info"></i>
+                                    List any individuals involved in the incident
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="d-grid">
+                                <button type="submit" 
+                                        class="btn btn-danger btn-lg" 
+                                        id="submitBtn"
+                                        disabled>
+                                    <i class="fas fa-paper-plane me-2"></i>
+                                    Submit Complaint
+                                </button>
+                            </div>
                         </div>
                     </form>
 
                     <!-- Information Section -->
                     <div class="mt-5 p-4 bg-light rounded">
-                        <h5 class="text-primary mb-3">
+                        <h5 class="text-danger mb-3">
                             <i class="fas fa-info-circle me-2"></i>
                             Important Information
                         </h5>
                         <ul class="list-unstyled mb-0">
                             <li class="mb-2">
-                                <i class="fas fa-shield-alt text-primary me-2"></i>
+                                <i class="fas fa-shield-alt text-danger me-2"></i>
                                 Email verification with OTP is required for all complaint submissions
                             </li>
                             <li class="mb-2">
                                 <i class="fas fa-check text-success me-2"></i>
-                                All complaints will be reviewed by the Barangay Office
+                                All complaints will be reviewed by the appropriate Barangay Officials
                             </li>
                             <li class="mb-2">
                                 <i class="fas fa-check text-success me-2"></i>
-                                Processing time is typically 1-3 business days
+                                Response time varies by priority level and complexity of the issue
                             </li>
                             <li class="mb-2">
                                 <i class="fas fa-check text-success me-2"></i>
-                                You will be notified once your complaint is reviewed
+                                You will be notified once your complaint is reviewed and scheduled for action
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                For urgent matters requiring immediate attention, please contact barangay officials directly
                             </li>
                             <li class="mb-0">
                                 <i class="fas fa-check text-success me-2"></i>
-                                Make sure all information provided is accurate and complete
+                                Please provide accurate and complete information to help resolve your complaint effectively
                             </li>
                         </ul>
                     </div>
@@ -255,46 +345,177 @@
         </div>
     </div>
 </div>
-@endsection
 
-@push('scripts')
+<style>
+.card {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.btn-danger {
+    background: linear-gradient(45deg, #dc3545, #c82333);
+    border: none;
+}
+
+.btn-danger:hover {
+    background: linear-gradient(45deg, #c82333, #bd2130);
+    transform: translateY(-1px);
+}
+
+#submitBtn:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+}
+
+.alert {
+    border: none;
+    border-radius: 10px;
+}
+
+#otp_code {
+    font-size: 1.5rem;
+    letter-spacing: 0.5rem;
+    font-weight: bold;
+}
+
+#otp_code:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.card-header.bg-warning {
+    border-bottom: 2px solid #ffc107;
+}
+
+.btn-warning:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+}
+
+#otpTimer {
+    font-weight: 600;
+}
+
+/* Blur effect for form fields before OTP verification */
+.form-fields-blur {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.form-fields-blur.blurred {
+    filter: blur(5px);
+    pointer-events: none;
+    user-select: none;
+}
+
+.blur-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.form-fields-blur:not(.blurred) .blur-overlay {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.blur-message {
+    text-align: center;
+    padding: 2rem;
+    color: #6c757d;
+}
+
+.blur-message h5 {
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.blur-message p {
+    font-size: 0.9rem;
+}
+
+/* Animation for revealing form */
+.form-fields-reveal {
+    animation: formReveal 0.6s ease-out;
+}
+
+@keyframes formReveal {
+    from {
+        filter: blur(5px);
+        opacity: 0.7;
+        transform: translateY(10px);
+    }
+    to {
+        filter: blur(0);
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('complaintRequestForm');
     const barangayIdInput = document.getElementById('barangay_id');
     const checkResidentBtn = document.getElementById('checkResidentBtn');
     const residentInfo = document.getElementById('residentInfo');
     const otpSection = document.getElementById('otpSection');
+    const formFieldsSection = document.getElementById('formFieldsSection');
     const sendOtpBtn = document.getElementById('sendOtpBtn');
     const verifyOtpBtn = document.getElementById('verifyOtpBtn');
     const resendOtpBtn = document.getElementById('resendOtpBtn');
     const otpCodeInput = document.getElementById('otp_code');
-    const complaintForm = document.getElementById('complaintForm');
-    const submitBtn = document.getElementById('submitBtn');      
+    const complaintTypeSelect = document.getElementById('complaint_type');
+    const subjectInput = document.getElementById('subject');
+    const descriptionTextarea = document.getElementById('description');
+    const incidentDetailsTextarea = document.getElementById('incident_details');
+    const incidentDateInput = document.getElementById('incident_date');
+    const incidentLocationInput = document.getElementById('incident_location');
+    const involvedPartiesTextarea = document.getElementById('involved_parties');
+    const submitBtn = document.getElementById('submitBtn');
+    const successAlert = document.getElementById('successAlert');
+    const errorAlert = document.getElementById('errorAlert');
     
-    // Form fields to enable/disable
-    const formFields = [
-        'complaint_type', 'subject', 'description'
-    ];
-
     let residentVerified = false;
     let otpVerified = false;
     let otpTimer = null;
     let otpExpiryTime = null;
 
-    // Check resident functionality
+    // Initialize form with blur effect
+    formFieldsSection.classList.add('blurred');
+
+    // Check resident function
     checkResidentBtn.addEventListener('click', function() {
         const barangayId = barangayIdInput.value.trim();
-        
         if (!barangayId) {
             showError('Please enter a Barangay ID');
             return;
         }
 
-        // Disable button and show loading
         checkResidentBtn.disabled = true;
         checkResidentBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
 
-        fetch('/complaints/check-resident', {
+        fetch('{{ route("complaints.check-resident") }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -303,9 +524,8 @@ document.addEventListener('DOMContentLoaded', function() {
             body: JSON.stringify({ barangay_id: barangayId })
         })
         .then(response => response.json())
-        .then(data => {            
+        .then(data => {
             if (data.success) {
-                // Show resident information
                 document.getElementById('residentName').textContent = data.resident.name;
                 document.getElementById('residentAddress').textContent = data.resident.address;
                 document.getElementById('residentAge').textContent = data.resident.age;
@@ -315,10 +535,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 otpSection.style.display = 'block';
                 residentVerified = true;
                 
-                // Change button text
+                // Change button to show "Found" in red
                 checkResidentBtn.innerHTML = '<i class="fas fa-check"></i> Resident Found';
-                checkResidentBtn.classList.remove('btn-outline-primary');
-                checkResidentBtn.classList.add('btn-success');
+                checkResidentBtn.classList.remove('btn-outline-danger');
+                checkResidentBtn.classList.add('btn-danger');
                 checkResidentBtn.disabled = true;
                 
                 hideError();
@@ -347,7 +567,7 @@ document.addEventListener('DOMContentLoaded', function() {
         sendOtpBtn.disabled = true;
         sendOtpBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
 
-        fetch('/complaints/send-otp', {
+        fetch('{{ route("complaints.send-otp") }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -394,7 +614,7 @@ document.addEventListener('DOMContentLoaded', function() {
         verifyOtpBtn.disabled = true;
         verifyOtpBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
 
-        fetch('/complaints/verify-otp', {
+        fetch('{{ route("complaints.verify-otp") }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -411,24 +631,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 otpVerified = true;
                 document.getElementById('otpVerifyStep').style.display = 'none';
                 document.getElementById('otpVerifiedStep').style.display = 'block';
-                  // Enable form fields
-                formFields.forEach(fieldName => {
-                    document.getElementById(fieldName).disabled = false;
-                });
                 
-                // Remove blur effects
-                removeBlurEffects();
+                // Remove blur effect and enable form fields
+                formFieldsSection.classList.remove('blurred');
+                formFieldsSection.classList.add('form-fields-reveal');
                 
-                // Show submit button section
-                document.getElementById('submitButtonSection').style.display = 'block';
-                
-                checkFormValidity();
+                complaintTypeSelect.disabled = false;
+                subjectInput.disabled = false;
+                descriptionTextarea.disabled = false;
+                incidentDetailsTextarea.disabled = false;
+                incidentDateInput.disabled = false;
+                incidentLocationInput.disabled = false;
+                involvedPartiesTextarea.disabled = false;
                 
                 // Stop timer
                 if (otpTimer) {
                     clearInterval(otpTimer);
                 }
                 
+                checkFormValidity();
                 showSuccess(data.message);
             } else {
                 showError(data.message);
@@ -486,20 +707,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Form validation
     function checkFormValidity() {
-        const complaintType = document.getElementById('complaint_type').value;
-        const subject = document.getElementById('subject').value.trim();
-        const description = document.getElementById('description').value.trim();
-        const isValid = residentVerified && otpVerified && complaintType && subject && description;
+        const isValid = residentVerified && 
+                       otpVerified &&
+                       complaintTypeSelect.value && 
+                       subjectInput.value.trim() &&
+                       descriptionTextarea.value.trim();
         submitBtn.disabled = !isValid;
     }
 
-    // Add event listeners for form validation
-    document.getElementById('complaint_type').addEventListener('change', checkFormValidity);
-    document.getElementById('subject').addEventListener('input', checkFormValidity);
-    document.getElementById('description').addEventListener('input', checkFormValidity);
+    complaintTypeSelect.addEventListener('change', checkFormValidity);
+    subjectInput.addEventListener('input', checkFormValidity);
+    descriptionTextarea.addEventListener('input', checkFormValidity);
 
     // Form submission
-    complaintForm.addEventListener('submit', function(e) {
+    form.addEventListener('submit', function(e) {
         e.preventDefault();
         
         if (!residentVerified) {
@@ -511,93 +732,76 @@ document.addEventListener('DOMContentLoaded', function() {
             showError('Please verify your email with the OTP first');
             return;
         }
-        
-        const formData = new FormData(this);
-        const submitData = Object.fromEntries(formData.entries());
-        
+
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
-        
-        fetch('/complaints/file', {
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
+
+        const formData = new FormData();
+        formData.append('barangay_id', barangayIdInput.value);
+        formData.append('complaint_type', complaintTypeSelect.value);
+        formData.append('subject', subjectInput.value);
+        formData.append('description', descriptionTextarea.value);
+        formData.append('incident_details', incidentDetailsTextarea.value);
+        formData.append('incident_date', incidentDateInput.value);
+        formData.append('incident_location', incidentLocationInput.value);
+        formData.append('involved_parties', involvedPartiesTextarea.value);
+
+        fetch('{{ route("complaints.store") }}', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             },
-            body: JSON.stringify(submitData)
+            body: formData
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                showSuccess(`Complaint filed successfully! Reference ID: ${data.data.complaint_id}`);
-                complaintForm.reset();
+                showSuccess(data.message);
+                form.reset();
                 resetForm();
             } else {
-                let errorMessage = 'Please check the following errors:\n';
                 if (data.errors) {
-                    Object.values(data.errors).forEach(errors => {
-                        errors.forEach(error => {
-                            errorMessage += '• ' + error + '\n';
-                        });
-                    });
-                    showError(errorMessage);
+                    const errorMessages = Object.values(data.errors).flat().join(', ');
+                    showError(errorMessages);
                 } else {
-                    showError(data.message || 'An error occurred while filing the complaint.');
+                    showError(data.message || 'An error occurred');
                 }
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            showError('An error occurred while filing the complaint.');
+            showError('An error occurred while submitting the complaint');
         })
         .finally(() => {
             submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i> Submit Complaint';
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit Complaint';
         });
     });
-
-    function showSuccess(message) {
-        const successAlert = document.getElementById('successAlert');
-        const successMessage = document.getElementById('successMessage');
-        successMessage.textContent = message;
-        successAlert.style.display = 'block';
-        successAlert.classList.add('show');
-        
-        // Hide error if visible
-        hideError();
-        
-        // Scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function showError(message) {
-        const errorAlert = document.getElementById('errorAlert');
-        const errorMessage = document.getElementById('errorMessage');
-        errorMessage.textContent = message;
-        errorAlert.style.display = 'block';
-        errorAlert.classList.add('show');
-        
-        // Hide success if visible
-        const successAlert = document.getElementById('successAlert');
-        successAlert.style.display = 'none';
-        successAlert.classList.remove('show');
-        
-        // Scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function hideError() {
-        const errorAlert = document.getElementById('errorAlert');
-        errorAlert.style.display = 'none';
-        errorAlert.classList.remove('show');
-    }
 
     function resetForm() {
         residentInfo.style.display = 'none';
         otpSection.style.display = 'none';
-        document.getElementById('submitButtonSection').style.display = 'none';
+        complaintTypeSelect.disabled = true;
+        subjectInput.disabled = true;
+        descriptionTextarea.disabled = true;
+        incidentDetailsTextarea.disabled = true;
+        incidentDateInput.disabled = true;
+        incidentLocationInput.disabled = true;
+        involvedPartiesTextarea.disabled = true;
+        submitBtn.disabled = true;
         residentVerified = false;
         otpVerified = false;
+        complaintTypeSelect.value = '';
+        subjectInput.value = '';
+        descriptionTextarea.value = '';
+        incidentDetailsTextarea.value = '';
+        incidentDateInput.value = '';
+        incidentLocationInput.value = '';
+        involvedPartiesTextarea.value = '';
+        
+        // Add blur effect back
+        formFieldsSection.classList.add('blurred');
+        formFieldsSection.classList.remove('form-fields-reveal');
         
         // Reset OTP section
         document.getElementById('otpRequestStep').style.display = 'block';
@@ -608,149 +812,35 @@ document.addEventListener('DOMContentLoaded', function() {
         if (otpTimer) {
             clearInterval(otpTimer);
         }
-          // Disable form fields
-        formFields.forEach(fieldName => {
-            document.getElementById(fieldName).disabled = true;
-        });
         
-        // Add blur effects back
-        addBlurEffects();
-        
-        submitBtn.disabled = true;
-          
-        // Reset button
+        // Reset verification button to original state
         checkResidentBtn.innerHTML = '<i class="fas fa-search"></i> Verify';
-        checkResidentBtn.classList.remove('btn-success');        checkResidentBtn.classList.add('btn-outline-primary');
+        checkResidentBtn.classList.remove('btn-danger');
+        checkResidentBtn.classList.add('btn-outline-danger');
         checkResidentBtn.disabled = false;
     }
-    
-    function removeBlurEffects() {
-        const blurredSections = document.querySelectorAll('.blurred-section');
-        blurredSections.forEach(section => {
-            section.classList.remove('blurred');
-            // Remove the blur overlay completely
-            const blurOverlay = section.querySelector('.blur-overlay');
-            if (blurOverlay) {
-                blurOverlay.style.opacity = '0';
-                blurOverlay.style.pointerEvents = 'none';
-            }
-            // Ensure the section is interactive
-            section.style.pointerEvents = 'auto';
-            section.style.userSelect = 'auto';
-            section.style.filter = 'none';
-        });
+
+    function showSuccess(message) {
+        document.getElementById('successMessage').textContent = message;
+        successAlert.style.display = 'block';
+        successAlert.classList.add('show');
+        errorAlert.style.display = 'none';
+        errorAlert.classList.remove('show');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-    
-    function addBlurEffects() {
-        const blurredSections = document.querySelectorAll('.blurred-section');
-        blurredSections.forEach(section => {
-            section.classList.add('blurred');
-        });
+
+    function showError(message) {
+        document.getElementById('errorMessage').textContent = message;
+        errorAlert.style.display = 'block';
+        errorAlert.classList.add('show');
+        successAlert.style.display = 'none';
+        successAlert.classList.remove('show');
     }
-    
-    // Initialize blur effects on page load
-    addBlurEffects();
+
+    function hideError() {
+        errorAlert.style.display = 'none';
+        errorAlert.classList.remove('show');
+    }
 });
 </script>
-@endpush
-
-<style>
-.card {
-    transition: all 0.3s ease;
-}
-
-.card:hover {
-    transform: translateY(-2px);
-}
-
-.form-control:focus,
-.form-select:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-}
-
-.btn-primary {
-    background: linear-gradient(45deg, #0d6efd, #0a58ca);
-    border: none;
-}
-
-.btn-primary:hover {
-    background: linear-gradient(45deg, #0a58ca, #084298);
-    transform: translateY(-1px);
-}
-
-#otp_code {
-    font-size: 1.5rem;
-    letter-spacing: 0.5rem;
-    font-weight: bold;
-}
-
-#otp_code:focus {
-    border-color: #198754;
-    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
-}
-
-.card-header.bg-warning {
-    border-bottom: 2px solid #ffc107;
-}
-
-.btn-warning:hover {
-    background-color: #e0a800;
-    border-color: #d39e00;
-}
-
-#otpTimer {
-    font-weight: 600;
-}
-
-/* Blur effect styles */
-.blurred-section {
-    position: relative;
-    transition: filter 0.3s ease;
-}
-
-.blurred-section.blurred {
-    filter: blur(3px);
-    pointer-events: none;
-    user-select: none;
-}
-
-.blurred-section .blur-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(255, 255, 255, 0.9);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-    border-radius: 0.375rem;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.blurred-section.blurred .blur-overlay {
-    opacity: 1;
-}
-
-.overlay-message {
-    text-align: center;
-    color: #6c757d;
-}
-
-.overlay-message i {
-    color: #ffc107;
-}
-
-.overlay-message h5 {
-    color: #495057;
-    font-weight: 600;
-}
-
-.overlay-message p {
-    color: #6c757d;
-    margin: 0;
-}
-</style>
+@endsection

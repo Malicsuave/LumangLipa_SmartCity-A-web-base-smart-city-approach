@@ -1,18 +1,18 @@
 @extends('layouts.public.master')
 
-@section('title', 'Health Service Request - Barangay Lumanglipa')
+@section('title', 'Request Health Service')
 
 @section('content')
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-8">
             <div class="card shadow-lg border-0" style="border-radius: 15px;">
-                <div class="card-header bg-primary text-white text-center" style="border-radius: 15px 15px 0 0;">
+                <div class="card-header bg-success text-white text-center" style="border-radius: 15px 15px 0 0;">
                     <h3 class="mb-0">
                         <i class="fas fa-heartbeat me-2"></i>
                         Health Service Request
                     </h3>
-                    <p class="mb-0 mt-2">Request health services from Barangay Lumanglipa</p>
+                    <p class="mb-0 mt-2">Request health services from the Barangay Health Center</p>
                 </div>
                 
                 <div class="card-body p-4">
@@ -30,13 +30,13 @@
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
 
-                    <form id="healthRequestForm" method="POST">
+                    <form id="healthRequestForm">
                         @csrf
                         
                         <!-- Barangay ID Section -->
                         <div class="mb-4">
                             <label for="barangay_id" class="form-label fw-bold">
-                                <i class="fas fa-id-card text-primary me-2"></i>
+                                <i class="fas fa-id-card text-success me-2"></i>
                                 Barangay ID
                             </label>
                             <div class="input-group">
@@ -47,7 +47,7 @@
                                        placeholder="Enter your Barangay ID"
                                        required>
                                 <button type="button" 
-                                        class="btn btn-outline-primary" 
+                                        class="btn btn-outline-success" 
                                         id="checkResidentBtn">
                                     <i class="fas fa-search"></i> Verify
                                 </button>
@@ -56,7 +56,9 @@
                                 <i class="fas fa-info-circle text-info"></i>
                                 Enter your registered Barangay ID to verify your information
                             </div>
-                        </div>                        <!-- Resident Information Display -->
+                        </div>
+
+                        <!-- Resident Information Display -->
                         <div id="residentInfo" class="card border-success mb-4" style="display: none;">
                             <div class="card-header bg-light">
                                 <h6 class="mb-0 text-success">
@@ -146,27 +148,36 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>                        <!-- Service Request Form Section -->
-                        <div id="serviceFormSection" class="blurred-section">
+                        </div>
+
+                        <!-- Form Fields Section (Blurred until OTP verified) -->
+                        <div id="formFieldsSection" class="form-fields-blur">
                             <div class="blur-overlay">
-                                <div class="overlay-message">
-                                    <i class="fas fa-lock fa-2x mb-3"></i>
-                                    <h5>Verify Email to Continue</h5>
-                                    <p>Please complete email verification to access the form fields</p>
+                                <div class="blur-message">
+                                    <i class="fas fa-shield-alt fa-2x text-warning mb-2"></i>
+                                    <h5>Email Verification Required</h5>
+                                    <p class="mb-0">Please verify your email with OTP to access the form</p>
                                 </div>
                             </div>
-                            
+
                             <!-- Service Type Section -->
                             <div class="mb-4">
                                 <label for="service_type" class="form-label fw-bold">
-                                    <i class="fas fa-stethoscope text-primary me-2"></i>
-                                    Service Type
+                                    <i class="fas fa-stethoscope text-success me-2"></i>
+                                    Health Service Type
                                 </label>
                                 <select class="form-select form-select-lg" id="service_type" name="service_type" required disabled>
-                                    <option value="">Select Health Service</option>
-                                    @foreach($serviceTypes as $key => $value)
-                                        <option value="{{ $key }}">{{ $value }}</option>
-                                    @endforeach                                </select>
+                                    <option value="">Select Service Type</option>
+                                    <option value="medical_consultation">Medical Consultation</option>
+                                    <option value="blood_pressure_check">Blood Pressure Check</option>
+                                    <option value="vaccination">Vaccination</option>
+                                    <option value="prenatal_checkup">Prenatal Checkup</option>
+                                    <option value="health_certificate">Health Certificate</option>
+                                    <option value="medicine_distribution">Medicine Distribution</option>
+                                    <option value="first_aid">First Aid</option>
+                                    <option value="health_education">Health Education</option>
+                                    <option value="other">Other Health Service</option>
+                                </select>
                                 <div class="form-text">
                                     <i class="fas fa-info-circle text-info"></i>
                                     Choose the type of health service you need
@@ -176,61 +187,65 @@
                             <!-- Purpose Section -->
                             <div class="mb-4">
                                 <label for="purpose" class="form-label fw-bold">
-                                    <i class="fas fa-clipboard-list text-primary me-2"></i>
+                                    <i class="fas fa-notes-medical text-success me-2"></i>
                                     Purpose
                                 </label>
                                 <textarea class="form-control" 
                                           id="purpose" 
                                           name="purpose" 
-                                          rows="3" 
-                                          placeholder="Please specify the purpose for requesting this health service..."
+                                          rows="4" 
+                                          placeholder="Please describe the purpose for this health service request..."
                                           required
-                                          disabled></textarea>                                <div class="form-text">
+                                          disabled></textarea>
+                                <div class="form-text">
                                     <i class="fas fa-info-circle text-info"></i>
-                                    Provide detailed information about why you need this service
+                                    Provide detailed information about why you need this health service
                                 </div>
                             </div>
 
                             <!-- Submit Button -->
-                            <div class="d-grid gap-2">
+                            <div class="d-grid">
                                 <button type="submit" 
-                                        class="btn btn-primary btn-lg" 
-                                        id="submitBtn" 
+                                        class="btn btn-success btn-lg" 
+                                        id="submitBtn"
                                         disabled>
                                     <i class="fas fa-paper-plane me-2"></i>
                                     Submit Health Service Request
                                 </button>
                             </div>
                         </div>
-
                     </form>
 
                     <!-- Information Section -->
                     <div class="mt-5 p-4 bg-light rounded">
-                        <h5 class="text-primary mb-3">
+                        <h5 class="text-success mb-3">
                             <i class="fas fa-info-circle me-2"></i>
                             Important Information
                         </h5>
                         <ul class="list-unstyled mb-0">
                             <li class="mb-2">
-                                <i class="fas fa-shield-alt text-primary me-2"></i>
+                                <i class="fas fa-shield-alt text-success me-2"></i>
                                 Email verification with OTP is required for all health service requests
                             </li>
                             <li class="mb-2">
                                 <i class="fas fa-check text-success me-2"></i>
-                                All health service requests will be reviewed by the Barangay Health Office
+                                All health service requests will be reviewed by the Barangay Health Center
                             </li>
                             <li class="mb-2">
                                 <i class="fas fa-check text-success me-2"></i>
-                                Processing time is typically 1-3 business days
+                                Response time varies by priority level and service type
                             </li>
                             <li class="mb-2">
                                 <i class="fas fa-check text-success me-2"></i>
-                                You will be notified once your request is approved
+                                You will be notified once your request is approved and scheduled
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                For medical emergencies, please go directly to the nearest hospital
                             </li>
                             <li class="mb-0">
                                 <i class="fas fa-check text-success me-2"></i>
-                                Make sure all information provided is accurate and complete
+                                Make sure all health information provided is accurate and complete
                             </li>
                         </ul>
                     </div>
@@ -239,46 +254,172 @@
         </div>
     </div>
 </div>
-@endsection
 
-@push('scripts')
+<style>
+.card {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+}
+
+.btn-success {
+    background: linear-gradient(45deg, #198754, #157347);
+    border: none;
+}
+
+.btn-success:hover {
+    background: linear-gradient(45deg, #157347, #146c43);
+    transform: translateY(-1px);
+}
+
+#submitBtn:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+}
+
+.alert {
+    border: none;
+    border-radius: 10px;
+}
+
+#otp_code {
+    font-size: 1.5rem;
+    letter-spacing: 0.5rem;
+    font-weight: bold;
+}
+
+#otp_code:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+}
+
+.card-header.bg-warning {
+    border-bottom: 2px solid #ffc107;
+}
+
+.btn-warning:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+}
+
+#otpTimer {
+    font-weight: 600;
+}
+
+/* Blur effect for form fields before OTP verification */
+.form-fields-blur {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.form-fields-blur.blurred {
+    filter: blur(5px);
+    pointer-events: none;
+    user-select: none;
+}
+
+.blur-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.form-fields-blur:not(.blurred) .blur-overlay {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.blur-message {
+    text-align: center;
+    padding: 2rem;
+    color: #6c757d;
+}
+
+.blur-message h5 {
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.blur-message p {
+    font-size: 0.9rem;
+}
+
+/* Animation for revealing form */
+.form-fields-reveal {
+    animation: formReveal 0.6s ease-out;
+}
+
+@keyframes formReveal {
+    from {
+        filter: blur(5px);
+        opacity: 0.7;
+        transform: translateY(10px);
+    }
+    to {
+        filter: blur(0);
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('healthRequestForm');
     const barangayIdInput = document.getElementById('barangay_id');
     const checkResidentBtn = document.getElementById('checkResidentBtn');
     const residentInfo = document.getElementById('residentInfo');
     const otpSection = document.getElementById('otpSection');
+    const formFieldsSection = document.getElementById('formFieldsSection');
     const sendOtpBtn = document.getElementById('sendOtpBtn');
     const verifyOtpBtn = document.getElementById('verifyOtpBtn');
     const resendOtpBtn = document.getElementById('resendOtpBtn');
     const otpCodeInput = document.getElementById('otp_code');
-    const healthRequestForm = document.getElementById('healthRequestForm');
+    const serviceTypeSelect = document.getElementById('service_type');
+    const purposeTextarea = document.getElementById('purpose');
     const submitBtn = document.getElementById('submitBtn');
+    const successAlert = document.getElementById('successAlert');
+    const errorAlert = document.getElementById('errorAlert');
     
-    // Form fields to enable/disable
-    const formFields = [
-        'service_type', 'purpose'
-    ];
-
     let residentVerified = false;
     let otpVerified = false;
     let otpTimer = null;
     let otpExpiryTime = null;
 
-    // Check resident functionality
+    // Initialize form with blur effect
+    formFieldsSection.classList.add('blurred');
+
+    // Check resident function
     checkResidentBtn.addEventListener('click', function() {
         const barangayId = barangayIdInput.value.trim();
-        
         if (!barangayId) {
             showError('Please enter a Barangay ID');
             return;
         }
 
-        // Disable button and show loading
         checkResidentBtn.disabled = true;
         checkResidentBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
 
-        fetch('/health/check-resident', {
+        fetch('{{ route("health.check-resident") }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -289,7 +430,6 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Show resident information
                 document.getElementById('residentName').textContent = data.resident.name;
                 document.getElementById('residentAddress').textContent = data.resident.address;
                 document.getElementById('residentAge').textContent = data.resident.age;
@@ -299,9 +439,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 otpSection.style.display = 'block';
                 residentVerified = true;
                 
-                // Change button text
+                // Change button to show "Found" in green
                 checkResidentBtn.innerHTML = '<i class="fas fa-check"></i> Resident Found';
-                checkResidentBtn.classList.remove('btn-outline-primary');
+                checkResidentBtn.classList.remove('btn-outline-success');
                 checkResidentBtn.classList.add('btn-success');
                 checkResidentBtn.disabled = true;
                 
@@ -331,7 +471,7 @@ document.addEventListener('DOMContentLoaded', function() {
         sendOtpBtn.disabled = true;
         sendOtpBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
 
-        fetch('/health/send-otp', {
+        fetch('{{ route("health.send-otp") }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -378,7 +518,7 @@ document.addEventListener('DOMContentLoaded', function() {
         verifyOtpBtn.disabled = true;
         verifyOtpBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
 
-        fetch('/health/verify-otp', {
+        fetch('{{ route("health.verify-otp") }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -395,21 +535,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 otpVerified = true;
                 document.getElementById('otpVerifyStep').style.display = 'none';
                 document.getElementById('otpVerifiedStep').style.display = 'block';
-                  // Enable form fields
-                formFields.forEach(fieldName => {
-                    document.getElementById(fieldName).disabled = false;
-                });
                 
-                // Remove blur effects
-                removeBlurEffects();
+                // Remove blur effect and enable form fields
+                formFieldsSection.classList.remove('blurred');
+                formFieldsSection.classList.add('form-fields-reveal');
                 
-                checkFormValidity();
+                serviceTypeSelect.disabled = false;
+                purposeTextarea.disabled = false;
                 
                 // Stop timer
                 if (otpTimer) {
                     clearInterval(otpTimer);
                 }
                 
+                checkFormValidity();
                 showSuccess(data.message);
             } else {
                 showError(data.message);
@@ -467,18 +606,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Form validation
     function checkFormValidity() {
-        const serviceType = document.getElementById('service_type').value;
-        const purpose = document.getElementById('purpose').value.trim();
-        const isValid = residentVerified && otpVerified && serviceType && purpose;
+        const isValid = residentVerified && 
+                       otpVerified &&
+                       serviceTypeSelect.value && 
+                       purposeTextarea.value.trim();
         submitBtn.disabled = !isValid;
     }
 
-    // Add event listeners for form validation
-    document.getElementById('service_type').addEventListener('change', checkFormValidity);
-    document.getElementById('purpose').addEventListener('input', checkFormValidity);
+    serviceTypeSelect.addEventListener('change', checkFormValidity);
+    purposeTextarea.addEventListener('input', checkFormValidity);
 
     // Form submission
-    healthRequestForm.addEventListener('submit', function(e) {
+    form.addEventListener('submit', function(e) {
         e.preventDefault();
         
         if (!residentVerified) {
@@ -490,90 +629,61 @@ document.addEventListener('DOMContentLoaded', function() {
             showError('Please verify your email with the OTP first');
             return;
         }
-        
-        const formData = new FormData(this);
-        const submitData = Object.fromEntries(formData.entries());
-        
+
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
-        
-        fetch('/health/request', {
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
+
+        const formData = new FormData();
+        formData.append('barangay_id', barangayIdInput.value);
+        formData.append('service_type', serviceTypeSelect.value);
+        formData.append('purpose', purposeTextarea.value);
+
+        fetch('{{ route("health.store") }}', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             },
-            body: JSON.stringify(submitData)
+            body: formData
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                showSuccess(`Health service request submitted successfully! Reference ID: ${data.data.request_id}`);
-                healthRequestForm.reset();
+                showSuccess(data.message);
+                form.reset();
                 resetForm();
             } else {
-                let errorMessage = 'Please check the following errors:\n';
                 if (data.errors) {
-                    Object.values(data.errors).forEach(errors => {
-                        errors.forEach(error => {
-                            errorMessage += '• ' + error + '\n';
-                        });
-                    });
-                    showError(errorMessage);
+                    const errorMessages = Object.values(data.errors).flat().join(', ');
+                    showError(errorMessages);
                 } else {
-                    showError(data.message || 'An error occurred while submitting the request.');
+                    showError(data.message || 'An error occurred');
                 }
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            showError('An error occurred while submitting the request.');
+            showError('An error occurred while submitting the request');
         })
         .finally(() => {
             submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i> Submit Health Service Request';
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit Health Service Request';
         });
     });
 
-    function showSuccess(message) {
-        const successAlert = document.getElementById('successAlert');
-        const successMessage = document.getElementById('successMessage');
-        successMessage.textContent = message;
-        successAlert.style.display = 'block';
-        successAlert.classList.add('show');
-        
-        // Hide error if visible
-        hideError();
-        
-        // Scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function showError(message) {
-        const errorAlert = document.getElementById('errorAlert');
-        const errorMessage = document.getElementById('errorMessage');
-        errorMessage.textContent = message;
-        errorAlert.style.display = 'block';
-        errorAlert.classList.add('show');
-        
-        // Hide success if visible
-        const successAlert = document.getElementById('successAlert');
-        successAlert.style.display = 'none';
-        successAlert.classList.remove('show');
-        
-        // Scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function hideError() {
-        const errorAlert = document.getElementById('errorAlert');
-        errorAlert.style.display = 'none';
-        errorAlert.classList.remove('show');
-    }    function resetForm() {
+    function resetForm() {
         residentInfo.style.display = 'none';
         otpSection.style.display = 'none';
+        serviceTypeSelect.disabled = true;
+        purposeTextarea.disabled = true;
+        submitBtn.disabled = true;
         residentVerified = false;
         otpVerified = false;
+        serviceTypeSelect.value = '';
+        purposeTextarea.value = '';
+        
+        // Add blur effect back
+        formFieldsSection.classList.add('blurred');
+        formFieldsSection.classList.remove('form-fields-reveal');
         
         // Reset OTP section
         document.getElementById('otpRequestStep').style.display = 'block';
@@ -585,140 +695,34 @@ document.addEventListener('DOMContentLoaded', function() {
             clearInterval(otpTimer);
         }
         
-        // Disable form fields
-        formFields.forEach(fieldName => {
-            document.getElementById(fieldName).disabled = true;
-        });
-        
-        // Add blur effects back
-        addBlurEffects();
-        
-        submitBtn.disabled = true;
-        
-        // Reset button
+        // Reset verification button to original state
         checkResidentBtn.innerHTML = '<i class="fas fa-search"></i> Verify';
         checkResidentBtn.classList.remove('btn-success');
-        checkResidentBtn.classList.add('btn-outline-primary');
+        checkResidentBtn.classList.add('btn-outline-success');
         checkResidentBtn.disabled = false;
     }
-    
-    function removeBlurEffects() {
-        const blurredSections = document.querySelectorAll('.blurred-section');
-        blurredSections.forEach(section => {
-            section.classList.remove('blurred');
-        });
+
+    function showSuccess(message) {
+        document.getElementById('successMessage').textContent = message;
+        successAlert.style.display = 'block';
+        successAlert.classList.add('show');
+        errorAlert.style.display = 'none';
+        errorAlert.classList.remove('show');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-    
-    function addBlurEffects() {
-        const blurredSections = document.querySelectorAll('.blurred-section');
-        blurredSections.forEach(section => {
-            section.classList.add('blurred');
-        });
+
+    function showError(message) {
+        document.getElementById('errorMessage').textContent = message;
+        errorAlert.style.display = 'block';
+        errorAlert.classList.add('show');
+        successAlert.style.display = 'none';
+        successAlert.classList.remove('show');
     }
-    
-    // Initialize blur effects on page load
-    addBlurEffects();
+
+    function hideError() {
+        errorAlert.style.display = 'none';
+        errorAlert.classList.remove('show');
+    }
 });
 </script>
-@endpush
-
-<style>
-.card {
-    transition: all 0.3s ease;
-}
-
-.card:hover {
-    transform: translateY(-2px);
-}
-
-.form-control:focus,
-.form-select:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-}
-
-.btn-primary {
-    background: linear-gradient(45deg, #0d6efd, #0a58ca);
-    border: none;
-}
-
-.btn-primary:hover {
-    background: linear-gradient(45deg, #0a58ca, #084298);
-    transform: translateY(-1px);
-}
-
-#otp_code {
-    font-size: 1.5rem;
-    letter-spacing: 0.5rem;
-    font-weight: bold;
-}
-
-#otp_code:focus {
-    border-color: #198754;
-    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
-}
-
-.card-header.bg-warning {
-    border-bottom: 2px solid #ffc107;
-}
-
-.btn-warning:hover {
-    background-color: #e0a800;
-    border-color: #d39e00;
-}
-
-#otpTimer {
-    font-weight: 600;
-}
-
-/* Blur effect styles */
-.blurred-section {
-    position: relative;
-    transition: filter 0.3s ease;
-}
-
-.blurred-section.blurred {
-    filter: blur(3px);
-    pointer-events: none;
-    user-select: none;
-}
-
-.blurred-section .blur-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(255, 255, 255, 0.9);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-    border-radius: 0.375rem;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.blurred-section.blurred .blur-overlay {
-    opacity: 1;
-}
-
-.overlay-message {
-    text-align: center;
-    color: #6c757d;
-}
-
-.overlay-message i {
-    color: #ffc107;
-}
-
-.overlay-message h5 {
-    color: #495057;
-    font-weight: 600;
-}
-
-.overlay-message p {
-    color: #6c757d;
-    margin: 0;
-}
-</style>
+@endsection

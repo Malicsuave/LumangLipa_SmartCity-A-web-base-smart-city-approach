@@ -140,6 +140,8 @@ class DocumentRequestController extends Controller
             'purpose' => $request->purpose,
             'status' => 'pending',
             'resident_id' => $resident->id, // Set resident_id
+            'receipt_path' => $receiptPath,
+            'requested_at' => now(),
         ]);
 
         return response()->json([

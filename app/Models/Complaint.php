@@ -17,6 +17,10 @@ class Complaint extends Model
         'complaint_type',
         'subject',
         'description',
+        'incident_details',
+        'incident_date',
+        'incident_location',
+        'involved_parties',
         'status',
         'filed_at',
         'approved_at',
@@ -32,6 +36,8 @@ class Complaint extends Model
         'approved_at' => 'datetime',
         'scheduled_at' => 'datetime',
         'resolved_at' => 'datetime',
+        'incident_date' => 'date',
+        'involved_parties' => 'array',
     ];
 
     public function getActivitylogOptions(): LogOptions

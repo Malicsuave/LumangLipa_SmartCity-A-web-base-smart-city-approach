@@ -552,6 +552,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 documentTypeSelect.disabled = false;
                 purposeTextarea.disabled = false;
+                document.getElementById('receipt').disabled = false;
                 
                 // Stop timer
                 if (otpTimer) {
@@ -695,11 +696,17 @@ document.addEventListener('DOMContentLoaded', function() {
         otpSection.style.display = 'none';
         documentTypeSelect.disabled = true;
         purposeTextarea.disabled = true;
+        document.getElementById('receipt').disabled = true;
         submitBtn.disabled = true;
         residentVerified = false;
         otpVerified = false;
         documentTypeSelect.value = '';
         purposeTextarea.value = '';
+        document.getElementById('receipt').value = '';
+        
+        // Add blur effect back
+        formFieldsSection.classList.add('blurred');
+        formFieldsSection.classList.remove('form-fields-reveal');
         
         // Reset OTP section
         document.getElementById('otpRequestStep').style.display = 'block';
