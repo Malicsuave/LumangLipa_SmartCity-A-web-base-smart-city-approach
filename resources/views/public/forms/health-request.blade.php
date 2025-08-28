@@ -57,14 +57,7 @@
                                 Enter your registered Barangay ID to verify your information
                             </div>
                         </div>                        <!-- Resident Information Display -->
-                        <div id="residentInfo" class="card border-success mb-4 blurred-section" style="display: none;">
-                            <div class="blur-overlay">
-                                <div class="overlay-message">
-                                    <i class="fas fa-lock fa-2x mb-3"></i>
-                                    <h5>Verify Email to View</h5>
-                                    <p>Complete email verification to see your information</p>
-                                </div>
-                            </div>
+                        <div id="residentInfo" class="card border-success mb-4" style="display: none;">
                             <div class="card-header bg-light">
                                 <h6 class="mb-0 text-success">
                                     <i class="fas fa-user-check me-2"></i>
@@ -90,7 +83,8 @@
                                         <p id="residentContact" class="text-muted mb-2"></p>
                                     </div>
                                 </div>
-                            </div>                        </div>
+                            </div>
+                        </div>
 
                         <!-- OTP Verification Section -->
                         <div id="otpSection" class="card border-warning mb-4" style="display: none;">
