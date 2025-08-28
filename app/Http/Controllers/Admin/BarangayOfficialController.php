@@ -13,10 +13,24 @@ class BarangayOfficialController extends Controller
     {
         // Get all officials and organize them for the form
         $officials = Official::all();
-        
+
         // Create a simple object to hold the officials data like the old structure
         $officialsData = new \stdClass();
-        
+
+        // Initialize all expected properties to avoid undefined property errors
+        $officialsData->captain_name = '';
+        $officialsData->captain_photo = '';
+        $officialsData->secretary_name = '';
+        $officialsData->secretary_photo = '';
+        $officialsData->treasurer_name = '';
+        $officialsData->treasurer_photo = '';
+        $officialsData->sk_chairperson_name = '';
+        $officialsData->sk_chairperson_photo = '';
+        for ($i = 1; $i <= 7; $i++) {
+            $officialsData->{"councilor{$i}_name"} = '';
+            $officialsData->{"councilor{$i}_photo"} = '';
+        }
+
         // Map officials to old structure for the view
         foreach ($officials as $official) {
             switch ($official->position) {
@@ -39,7 +53,7 @@ class BarangayOfficialController extends Controller
                 case 'Councilor':
                     // Find the next available councilor slot
                     for ($i = 1; $i <= 7; $i++) {
-                        if (!isset($officialsData->{"councilor{$i}_name"})) {
+                        if (empty($officialsData->{"councilor{$i}_name"})) {
                             $officialsData->{"councilor{$i}_name"} = $official->name;
                             $officialsData->{"councilor{$i}_photo"} = $official->profile_pic;
                             break;
@@ -48,7 +62,7 @@ class BarangayOfficialController extends Controller
                     break;
             }
         }
-        
+
         return view('admin.officials.edit-single', ['officials' => $officialsData]);
     }
 
