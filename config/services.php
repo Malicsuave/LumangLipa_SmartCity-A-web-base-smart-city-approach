@@ -46,4 +46,11 @@ return [
         'smtp_password' => env('MAIL_PASSWORD'),
         'smtp_encryption' => env('MAIL_ENCRYPTION', 'tls'),
     ],
+
+    'huggingface' => [
+    'api_key' => env('HUGGINGFACE_API_KEY'),
+    // When true, the chatbot will NOT fall back to canned replies if AI fails.
+    // Auto-enable if no API key is provided.
+    'strict' => (bool) (env('CHATBOT_STRICT_AI', false) || !env('HUGGINGFACE_API_KEY')),
+    ],
 ];

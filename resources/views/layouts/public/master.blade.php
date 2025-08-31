@@ -10,7 +10,85 @@
     <link rel="icon" href="{{ asset('favicon.ico') }}">
     <title>@yield('title', 'Barangay Lumanglipa')</title>
     
-    <!-- Performance monitoring script -->
+    <!-- Performance    <!-- Time Display Script -->
+    <script>
+        function updateTime() {
+            const now = new Date();
+            const options = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            document.getElementById('philippineTime').textContent = now.toLocaleTimeString('en-US', options);
+            
+            const dateOptions = { weekday: 'long', year: 'numeric', month: 'numeric', day: 'numeric' };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', dateOptions);
+        }
+        
+        // Update time immediately and then every second
+        updateTime();
+        setInterval(updateTime, 1000);
+    </script>
+
+    <!-- Mobile Menu Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const mobileMenuClose = document.getElementById('mobileMenuClose');
+            const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+            const navbarCollapse = document.getElementById('navbarNav');
+            
+            // Open mobile menu
+            if (mobileMenuToggle) {
+                mobileMenuToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    navbarCollapse.classList.add('show');
+                    mobileMenuOverlay.classList.add('show');
+                    document.body.style.overflow = 'hidden';
+                });
+            }
+            
+            // Close mobile menu
+            function closeMobileMenu() {
+                navbarCollapse.classList.remove('show');
+                mobileMenuOverlay.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+            
+            if (mobileMenuClose) {
+                mobileMenuClose.addEventListener('click', closeMobileMenu);
+            }
+            
+            if (mobileMenuOverlay) {
+                mobileMenuOverlay.addEventListener('click', closeMobileMenu);
+            }
+            
+            // Close menu when clicking on nav links
+            const navLinks = document.querySelectorAll('#navbarNav .nav-link:not(.dropdown-toggle)');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth < 992) {
+                        closeMobileMenu();
+                    }
+                });
+            });
+            
+            // Close menu when clicking on dropdown items
+            const dropdownItems = document.querySelectorAll('#navbarNav .dropdown-item');
+            dropdownItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    if (window.innerWidth < 992) {
+                        closeMobileMenu();
+                    }
+                });
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 992) {
+                    closeMobileMenu();
+                }
+            });
+        });
+    </script>
+    
+    @stack('scripts')t -->
     <script src="{{ asset('js/performance-monitor.js') }}"></script>
     
     <!-- Simple bar CSS -->
@@ -48,488 +126,448 @@
     
     <!-- Navigation Styles -->
     <style>
-        .navbar-brand .logo-img {
-            max-width: 60px;
-            max-height: 60px;
-            object-fit: contain;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.3);
+        /* Navbar height reduction */
+        .navbar {
+            padding-top: 0.25rem !important;
+            padding-bottom: 0.25rem !important;
         }
         
-        .nav-link.active {
-            background: linear-gradient(135deg, #4A90E2, #357ABD) !important;
-            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4) !important;
-            color: white !important;
-        }
-        .nav-link:not(.active):hover {
-            background: rgba(74, 144, 226, 0.1) !important;
-            color: #4A90E2 !important;
+        .navbar-nav .nav-link {
+            padding-top: 0.25rem !important;
+            padding-bottom: 0.25rem !important;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+            margin-left: 0.25rem !important;
+            margin-right: 0.25rem !important;
         }
         
-        /* Mobile Responsiveness - Clean and simplified */
-        @media (max-width: 1200px) {
-            /* Custom burger icon positioning */
+        /* Right-aligned navbar items */
+        .navbar-nav.ms-auto {
+            margin-left: auto !important;
+        }
+        
+        /* Add gap between main nav and auth nav */
+        .navbar-nav.ms-auto .nav-item:first-child .nav-link {
+            margin-left: 2rem !important;
+        }
+        
+        /* Custom dropdown arrow */
+        .dropdown-toggle::after {
+            display: none !important;
+        }
+        
+        .dropdown-toggle {
+            position: relative;
+        }
+        
+        .dropdown-toggle::before {
+            content: "▼";
+            font-size: 0.6rem;
+            margin-left: 0.4rem;
+            color: inherit;
+            float: right;
+            margin-top: 0.1rem;
+        }
+
+        /* Mobile Sliding Drawer Styles */
+        @media (max-width: 991.98px) {
+            /* Override Bootstrap's navbar-expand-lg behavior on mobile */
+            .navbar-expand-lg .navbar-toggler {
+                display: block !important;
+            }
+
+            .navbar-expand-lg .navbar-collapse {
+                display: block !important;
+            }
+
+            /* Mobile toggle button - positioned on the right */
             .navbar-toggler {
                 display: block !important;
-                position: absolute !important;
-                left: 15px !important;
-                top: 50% !important;
-                transform: translateY(-50%) !important;
-                z-index: 1060 !important;
-                padding: 4px 6px !important;
-                width: 35px !important;
-                height: 35px !important;
-                border-radius: 6px !important;
-                border: none !important;
-                background: rgba(255,255,255,0.2) !important;
+                border: 1px solid rgba(0,0,0,0.1) !important;
+                padding: 0.25rem 0.5rem !important;
+                font-size: 1.25rem !important;
+                background: transparent !important;
+                margin-left: auto !important;
             }
-            
-            /* Hide the normal navigation on mobile */
-            .navbar-nav {
-                display: none !important;
-            }
-            
-            /* When sidebar container exists, always show nav items in sidebar layout */
-            .navbar-collapse .navbar-nav {
-                display: flex !important;
-            }
-            
+
             .navbar-toggler:focus {
-                box-shadow: none !important;
-                outline: none !important;
+                box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25) !important;
             }
-            
-            /* Custom burger icon */
+
             .navbar-toggler-icon {
-                background-image: none !important;
-                width: 20px !important;
-                height: 15px !important;
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%2833, 37, 41, 0.75%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='m4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+                width: 1.5em !important;
+                height: 1.5em !important;
+            }
+
+            /* Mobile navbar container layout */
+            .navbar .container {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: flex-start !important;
                 position: relative !important;
-                border: none !important;
+                flex-wrap: nowrap !important;
             }
-            
-            /* Create burger lines */
-            .navbar-toggler-icon,
-            .navbar-toggler-icon::before,
-            .navbar-toggler-icon::after {
-                display: block !important;
-                height: 3px !important;
-                background-color: white !important;
-                border-radius: 2px !important;
-                transition: all 0.3s ease !important;
+
+            /* Mobile logo - fixed on left */
+            .navbar-brand {
+                order: 1 !important;
+                flex-shrink: 0 !important;
             }
-            
-            .navbar-toggler-icon::before,
-            .navbar-toggler-icon::after {
-                content: '' !important;
+
+            /* Mobile barangay title - centered between logo and hamburger */
+            .mobile-barangay-title {
                 position: absolute !important;
+                left: 50% !important;
+                top: 50% !important;
+                transform: translate(-50%, -50%) !important;
+                text-align: center !important;
+                pointer-events: none !important;
+                z-index: 1 !important;
+            }
+
+            .mobile-barangay-title .barangay-name {
+                font-size: 0.8rem !important;
+                font-weight: 700 !important;
+                color: #2c5530 !important;
+                line-height: 1.1 !important;
+                margin-bottom: 1px !important;
+                letter-spacing: 0.3px !important;
+                white-space: nowrap !important;
+            }
+
+            .mobile-barangay-title .barangay-location {
+                font-size: 0.55rem !important;
+                font-weight: 500 !important;
+                color: #6c757d !important;
+                line-height: 1 !important;
+                letter-spacing: 0.2px !important;
+                white-space: nowrap !important;
+            }
+
+            /* Mobile overlay */
+            .mobile-menu-overlay {
+                position: fixed !important;
+                top: 0 !important;
                 left: 0 !important;
                 width: 100% !important;
+                height: 100vh !important;
+                background: rgba(0,0,0,0.5) !important;
+                z-index: 9998 !important;
+                opacity: 0 !important;
+                visibility: hidden !important;
+                transition: all 0.3s ease !important;
             }
-            
-            .navbar-toggler-icon::before {
-                top: -7px !important;
+
+            .mobile-menu-overlay.show {
+                opacity: 1 !important;
+                visibility: visible !important;
             }
-            
-            .navbar-toggler-icon::after {
-                bottom: -7px !important;
-            }
-            
-            /* Animated burger to X transformation */
-            .navbar-toggler[aria-expanded="true"] .navbar-toggler-icon {
-                background-color: transparent !important;
-            }
-            
-            .navbar-toggler[aria-expanded="true"] .navbar-toggler-icon::before {
-                transform: rotate(45deg) translate(5px, 5px) !important;
-                top: 0 !important;
-            }
-            
-            .navbar-toggler[aria-expanded="true"] .navbar-toggler-icon::after {
-                transform: rotate(-45deg) translate(5px, -5px) !important;
-                bottom: 0 !important;
-            }
-            
-            /* Enhanced mobile navigation sidebar */
+
+            /* Right sliding drawer */
             .navbar-collapse {
                 position: fixed !important;
                 top: 0 !important;
-                left: -320px !important;
+                right: -100% !important;
                 width: 320px !important;
+                max-width: 85vw !important;
                 height: 100vh !important;
-                z-index: 1055 !important;
-                transition: left 0.3s ease !important;
-                overflow-y: auto !important;
-                background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%) !important;
-            }
-            
-            .navbar-collapse.show {
-                left: 0 !important;
-            }
-            
-            /* Ensure navbar-nav takes full width and height when sidebar is open */
-            .navbar-collapse .navbar-nav {
-                width: 100% !important;
-                height: 100vh !important;
-                padding: 80px 0 20px 0 !important;
-                margin: 0 !important;
-                border-radius: 0 !important;
-                border: none !important;
-                box-shadow: none !important;
-                background: transparent !important;
-                flex-direction: column !important;
-                align-items: flex-start !important;
-                text-align: left !important;
-                display: flex !important;
-            }
-            
-            /* Sidebar overlay */
-            .navbar-collapse::before {
-                content: '';
-                position: fixed;
-                top: 0;
-                left: 320px;
-                width: calc(100vw - 320px);
-                height: 100vh;
-                background: rgba(0, 0, 0, 0.5);
-                opacity: 0;
-                visibility: hidden;
-                transition: all 0.3s ease;
-                z-index: -1;
-            }
-            
-            .navbar-collapse.show::before {
-                opacity: 1;
-                visibility: visible;
-            }
-            
-            /* Sidebar header */
-            .navbar-nav::before {
-                content: 'MENU';
-                color: #2c3e50;
-                font-weight: bold;
-                font-size: 18px;
-                text-align: left;
-                padding: 20px 0 20px 40px;
-                border-bottom: 1px solid rgba(44, 62, 80, 0.1);
-                margin-bottom: 20px;
-                width: 100%;
-            }
-            
-            .nav-link {
-                margin: 2px 20px 2px 20px !important;
-                color: #2c3e50 !important;
-                background: transparent !important;
-                border-radius: 8px !important;
-                font-weight: 500 !important;
-                padding: 12px 20px !important;
-                text-align: left !important;
-                transition: all 0.3s ease !important;
-                font-size: 14px !important;
-                border-left: 3px solid transparent !important;
-                display: flex !important;
-                align-items: center !important;
-                justify-content: flex-start !important;
-                width: calc(100% - 40px) !important;
-                box-sizing: border-box !important;
-            }
-            
-            .nav-link:hover {
-                background: rgba(74, 144, 226, 0.1) !important;
-                color: #4A90E2 !important;
-                transform: translateX(5px) !important;
-                border-left-color: #4A90E2 !important;
-            }
-            
-            .nav-link.active {
-                background: rgba(74, 144, 226, 0.15) !important;
-                color: #4A90E2 !important;
-                border-left-color: #4A90E2 !important;
-                font-weight: 600 !important;
-                margin: 2px 2px 2px 20px !important;
-                width: calc(100% - 22px) !important;
-                box-sizing: border-box !important;
-            }
-            
-            /* Mobile login button styling */
-            .login-btn {
-                background: linear-gradient(135deg, #4A90E2, #357ABD) !important;
-                color: white !important;
-                border: 2px solid #4A90E2 !important;
-                font-weight: 600 !important;
-                margin: 20px 20px 0 20px !important;
-                border-radius: 8px !important;
-                text-align: center !important;
-                width: calc(100% - 40px) !important;
-                padding: 12px 20px !important;
-                box-sizing: border-box !important;
-            }
-            
-            .login-btn:hover {
-                background: linear-gradient(135deg, #357ABD, #2E5F8A) !important;
-                color: white !important;
-                transform: translateX(5px) !important;
-                border-left-color: #4A90E2 !important;
-            }
-            
-            /* Dropdown menu mobile styling - Keep card design */
-            .dropdown-menu {
-                background: rgba(248, 249, 250, 0.98) !important;
-                border: 1px solid rgba(44, 62, 80, 0.1) !important;
-                border-radius: 8px !important;
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
-                margin: 5px 20px !important;
-                backdrop-filter: blur(10px) !important;
-                width: calc(100% - 40px) !important;
-                padding: 10px !important;
-                position: static !important;
-                left: 0 !important;
-                display: block !important;
-            }
-            
-            /* Show dropdown when parent is hovered or active */
-            .nav-item.dropdown:hover .dropdown-menu,
-            .nav-item.dropdown.show .dropdown-menu {
-                display: block !important;
-            }
-            
-            .dropdown-item {
-                color: #2c3e50 !important;
-                padding: 8px 10px !important;
-                border-radius: 6px !important;
-                margin-bottom: 2px !important;
-                transition: all 0.3s ease !important;
                 background: white !important;
-                border: 1px solid rgba(44, 62, 80, 0.1) !important;
+                box-shadow: -3px 0 15px rgba(0,0,0,0.2) !important;
+                z-index: 9999 !important;
+                transition: right 0.3s ease !important;
+                overflow-y: auto !important;
+                padding: 0 !important;
+                border: none !important;
+                margin: 0 !important;
+            }
+
+            .navbar-collapse.show {
+                right: 0 !important;
+            }
+
+            /* Mobile menu header with blue background */
+            .mobile-menu-header {
                 display: flex !important;
+                justify-content: space-between !important;
                 align-items: center !important;
-                text-decoration: none !important;
-                font-size: 13px !important;
-                justify-content: flex-start !important;
+                padding: 1.5rem 1rem !important;
+                background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%) !important;
+                color: white !important;
+                border-bottom: none !important;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
             }
-            
-            .dropdown-item:hover {
-                transform: translateX(3px) !important;
-                background: rgba(74, 144, 226, 0.1) !important;
-                border-color: #4A90E2 !important;
-                color: #4A90E2 !important;
+
+            .mobile-menu-header .mobile-barangay-info {
+                text-align: center !important;
+                flex-grow: 1 !important;
             }
-            
-            /* Mobile navbar brand adjustments */
-            .navbar-brand {
-                font-size: 14px !important;
-            }
-            .navbar-brand .logo-img {
-                width: 40px !important;
-                height: 40px !important;
-            }
-            .navbar-brand div {
-                padding-left: 8px !important;
-            }
-            .navbar-brand .text-white {
-                font-size: 16px !important;
-            }
-            .navbar-brand .text-white-50 {
-                font-size: 11px !important;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            /* Extra small devices */
-            .navbar-brand .text-white {
-                font-size: 16px !important;
+
+            .mobile-menu-header .mobile-barangay-info .barangay-name {
+                color: white !important;
+                font-size: 1.1rem !important;
+                font-weight: 700 !important;
+                margin-bottom: 3px !important;
                 letter-spacing: 0.5px !important;
             }
-            .navbar-brand .text-white-50 {
-                font-size: 11px !important;
-            }
-            
-            /* Footer mobile adjustments */
-            .footer-social-icons {
-                gap: 20px !important;
-                justify-content: center !important;
-                margin-top: 20px !important;
-            }
-            
-            /* General mobile text sizing */
-            h1 { font-size: 1.8rem !important; }
-            h2 { font-size: 1.6rem !important; }
-            h3 { font-size: 1.4rem !important; }
-            h4 { font-size: 1.2rem !important; }
-            h5 { font-size: 1.1rem !important; }
-            
-            /* Card mobile adjustments */
-            .card-body {
-                padding: 1rem !important;
-            }
-            
-            /* Button mobile adjustments */
-            .btn {
-                padding: 10px 20px !important;
-                font-size: 14px !important;
-            }
-        }
-        
-        @media (max-width: 576px) {
-            /* Small devices */
-            .container {
-                padding-left: 15px !important;
-                padding-right: 15px !important;
-            }
-            
-            .navbar-brand .text-white {
-                font-size: 14px !important;
+
+            .mobile-menu-header .mobile-barangay-info .barangay-location {
+                color: rgba(255,255,255,0.9) !important;
+                font-size: 0.75rem !important;
+                font-weight: 500 !important;
                 letter-spacing: 0.3px !important;
             }
-            .navbar-brand .text-white-50 {
-                font-size: 10px !important;
+
+            .mobile-menu-close {
+                background: none !important;
+                border: none !important;
+                font-size: 1.8rem !important;
+                color: white !important;
+                cursor: pointer !important;
+                padding: 0.25rem !important;
+                line-height: 1 !important;
+                border-radius: 50% !important;
+                width: 35px !important;
+                height: 35px !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                transition: background-color 0.2s ease !important;
             }
-            
-            /* Footer adjustments for very small screens */
-            .footer-social-icons {
-                gap: 15px !important;
+
+            .mobile-menu-close:hover {
+                background: rgba(255,255,255,0.2) !important;
             }
-            
-            /* Even smaller text for tiny screens */
-            h1 { font-size: 1.5rem !important; }
-            h2 { font-size: 1.3rem !important; }
-            h3 { font-size: 1.2rem !important; }
-            
-            /* Navigation adjustments for small screens */
-            .nav-link {
-                font-size: 13px !important;
-                padding: 8px 12px !important;
+
+            /* Mobile navigation items */
+            .navbar-nav {
+                flex-direction: column !important;
+                padding: 0 !important;
+                width: 100% !important;
+                margin: 0 !important;
             }
-        }
-        /* Always apply sidebar styles when .force-sidebar is present */
-        .navbar-collapse.force-sidebar {
-            position: fixed !important;
-            top: 0 !important;
-            left: -320px !important;
-            width: 320px !important;
-            height: 100vh !important;
-            z-index: 1055 !important;
-            transition: left 0.3s ease !important;
-            overflow-y: auto !important;
-        }
-        .navbar-collapse.force-sidebar.show {
-            left: 0 !important;
-        }
-        .navbar-collapse.force-sidebar .navbar-nav {
-            flex-direction: column !important;
-            align-items: flex-start !important;
-            width: 100% !important;
-            height: 100vh !important;
-        }
-        
-        /* Desktop navigation - hide burger on large screens */
-        @media (min-width: 1201px) {
-            .navbar-toggler {
+
+            .navbar-nav .nav-item {
+                border-bottom: 1px solid #f1f3f4 !important;
+                width: 100% !important;
+                margin: 0 !important;
+            }
+
+            .navbar-nav .nav-item:last-child {
+                border-bottom: none !important;
+            }
+
+            .navbar-nav .nav-link {
+                padding: 1.2rem 1.5rem !important;
+                margin: 0 !important;
+                color: #333 !important;
+                width: 100% !important;
+                text-align: left !important;
+                font-weight: 500 !important;
+                display: flex !important;
+                align-items: center !important;
+                transition: all 0.2s ease !important;
+                font-size: 1rem !important;
+            }
+
+            .navbar-nav .nav-link:hover,
+            .navbar-nav .nav-link.active {
+                background-color: #f8f9fa !important;
+                color: #4a90e2 !important;
+                padding-left: 2rem !important;
+            }
+
+            .navbar-nav .nav-link img {
                 display: none !important;
             }
-            .navbar-nav {
-                display: flex !important;
+
+            /* Mobile dropdown menu */
+            .navbar-nav .dropdown-menu {
+                position: static !important;
+                box-shadow: none !important;
+                border: none !important;
+                background: #f8f9fa !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                border-radius: 0 !important;
             }
+
+            .navbar-nav .dropdown-item {
+                padding: 1rem 2.5rem !important;
+                color: #666 !important;
+                border-bottom: 1px solid #e9ecef !important;
+                font-size: 0.9rem !important;
+                transition: all 0.2s ease !important;
+            }
+
+            .navbar-nav .dropdown-item:hover {
+                background-color: #e9ecef !important;
+                color: #4a90e2 !important;
+                padding-left: 3rem !important;
+            }
+
+            .navbar-nav .dropdown-item:last-child {
+                border-bottom: none !important;
+            }
+
+            /* Login section at bottom */
+            .navbar-nav.ms-auto {
+                margin-left: 0 !important;
+                border-top: 2px solid #f1f3f4 !important;
+                margin-top: 1rem !important;
+                padding-top: 0 !important;
+            }
+
+            .navbar-nav.ms-auto .nav-link {
+                text-align: center !important;
+                background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%) !important;
+                color: white !important;
+                margin: 1.5rem !important;
+                border-radius: 8px !important;
+                font-weight: 600 !important;
+                padding: 1rem !important;
+                box-shadow: 0 2px 4px rgba(74, 144, 226, 0.3) !important;
+            }
+
+            .navbar-nav.ms-auto .nav-link:hover {
+                background: linear-gradient(135deg, #357abd 0%, #2968a3 100%) !important;
+                color: white !important;
+                transform: translateY(-1px) !important;
+                box-shadow: 0 4px 8px rgba(74, 144, 226, 0.4) !important;
+                padding-left: 1rem !important;
+            }
+        }
+        
+        /* Chat widget positioning and visibility fixes */
+        .chat-widget,
+        .chat-container,
+        .chat-popup,
+        [class*="chat-widget"],
+        [id*="chat-widget"] {
+            position: fixed !important;
+            bottom: 30px !important;
+            right: 20px !important;
+            z-index: 99999 !important;
+            max-width: 400px !important;
+            width: auto !important;
+            height: auto !important;
+            overflow: visible !important;
+        }
+        
+        /* Chat buttons container */
+        .chat-buttons,
+        .chat-choices,
+        [class*="chat-button"],
+        [class*="chat-choice"] {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            gap: 10px !important;
+            padding: 15px !important;
+            margin: 0 !important;
+            overflow: visible !important;
+            z-index: 99999 !important;
+            justify-content: center !important;
+        }
+        
+        /* Individual chat buttons */
+        .chat-widget button,
+        .chat-container button,
+        [class*="chat"] button {
+            min-height: 40px !important;
+            padding: 10px 16px !important;
+            border-radius: 20px !important;
+            white-space: nowrap !important;
+            z-index: 99999 !important;
+            position: relative !important;
+            display: inline-block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+        }
+        
+        /* Chat widget shadow and background */
+        .chat-widget,
+        [class*="chat-widget"] {
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
+            border-radius: 12px !important;
+            background: white !important;
         }
     </style>
 </head>
-<body>
+<body data-chatbot-strict="{{ config('services.huggingface.strict') ? '1' : '0' }}" data-chatbot-has-key="{{ config('services.huggingface.api_key') ? '1' : '0' }}">
     <!-- Top Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background: linear-gradient(135deg, #4A90E2 0%, #357ABD 50%, #2E5F8A 100%); padding: 8px 0; box-shadow: 0 4px 20px rgba(74, 144, 226, 0.3); backdrop-filter: blur(10px); transition: all 0.3s ease;">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
         <div class="container">
-            <a href="{{ route('public.home') }}" class="navbar-brand d-flex align-items-center me-auto pe-4 text-decoration-none" style="margin-right: auto;">
-                <img src="{{ asset('/images/logo.png') }}" alt="Barangay Lumanglipa Logo" class="me-3 logo-img" style="width: 60px; height: 60px; border-radius: 12px; box-shadow: 0 4px 12px rgba(255,255,255,0.2); transition: transform 0.3s ease; object-fit: contain; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3);" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" onerror="console.error('Logo failed to load'); this.style.display='none'; this.nextElementSibling.style.paddingLeft='0';">
-                <div style="padding-left: 10px;">
-                    <div class="text-white fw-bold" style="font-size: 22px; letter-spacing: 0.8px; line-height: 1.2;">BARANGAY LUMANGLIPA</div>
-                    <div class="text-white-50" style="font-size: 14px; margin-top: 2px; letter-spacing: 0.5px;">MATAAS NA KAHOY, BATANGAS</div>
-                </div>
+            <!-- Mobile Logo (visible only on mobile) -->
+            <a class="navbar-brand d-lg-none" href="{{ route('public.home') }}">
+                <img src="{{ asset('images/logo.png') }}" alt="Logo" width="45" height="45">
             </a>
-            
-            <button class="navbar-toggler border-0 shadow-sm" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"
-                    style="padding: 8px; border-radius: 8px; background: rgba(255,255,255,0.2); transition: all 0.3s ease; position: absolute; left: 15px; top: 50%; transform: translateY(-50%); width: 40px; height: 40px;"
-                    onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+
+            <!-- Mobile Barangay Title (centered on mobile only) -->
+            <div class="mobile-barangay-title d-lg-none">
+                <div class="barangay-name">BARANGAY LUMANGLIPA</div>
+                <div class="barangay-location">MATAAS NA KAHOY, BATANGAS</div>
+            </div>
+
+            <button class="navbar-toggler" type="button" id="mobileMenuToggle">
                 <span class="navbar-toggler-icon"></span>
             </button>
             
+            <!-- Mobile menu overlay -->
+            <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+            
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto align-items-center" style="gap: 6px; padding: 8px 16px; background: rgba(255, 255, 255, 0.9); border-radius: 50px; margin-top: 0; box-shadow: inset 0 2px 10px rgba(0,0,0,0.1);">
-                    <li class="nav-item">
-                        <a class="nav-link text-dark px-4 py-2 rounded-pill modern-nav-link {{ Route::currentRouteName() == 'public.home' ? 'active' : '' }}" 
-                           href="{{ route('public.home') }}"
-                           style="font-weight: 500; letter-spacing: 0.5px; font-size: 14px; transition: all 0.3s ease; position: relative;">
-                           HOME
+                <!-- Mobile menu header -->
+                <div class="mobile-menu-header d-lg-none">
+                    <div class="mobile-barangay-info">
+                        <div class="barangay-name">BARANGAY LUMANGLIPA</div>
+                        <div class="barangay-location">MATAAS NA KAHOY, BATANGAS</div>
+                    </div>
+                    <button class="mobile-menu-close" id="mobileMenuClose">&times;</button>
+                </div>
+
+                <ul class="navbar-nav">
+                    <!-- Desktop Logo (inside nav items, original position) -->
+                    <li class="nav-item d-none d-lg-block">
+                        <a class="nav-link" href="{{ route('public.home') }}">
+                            <img src="{{ asset('images/logo.png') }}" alt="Logo" width="60" height="60">
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-dark px-4 py-2 rounded-pill modern-nav-link {{ Route::currentRouteName() == 'public.about' ? 'active' : '' }}" 
-                           href="{{ route('public.about') }}"
-                           style="font-weight: 500; letter-spacing: 0.5px; font-size: 14px; transition: all 0.3s ease;">
-                           ABOUT
-                        </a>
+                        <a class="nav-link {{ Route::currentRouteName() == 'public.home' ? 'active text-primary fw-bold' : '' }}" href="{{ route('public.home') }}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Route::currentRouteName() == 'public.about' ? 'active text-primary fw-bold' : '' }}" href="{{ route('public.about') }}">About</a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle text-dark px-4 py-2 rounded-pill modern-nav-link {{ in_array(Route::currentRouteName(), ['public.services', 'documents.request', 'complaints.create', 'health.request']) ? 'active' : '' }}" 
-                           href="#" id="navbarDropdownServices" role="button" 
-                           data-bs-toggle="dropdown" aria-expanded="false"
-                           style="font-weight: 500; letter-spacing: 0.5px; font-size: 14px; transition: all 0.3s ease;">
-                           E-SERVICES
+                        <a class="nav-link dropdown-toggle {{ in_array(Route::currentRouteName(), ['public.services', 'documents.request', 'complaints.create', 'health.request']) ? 'active text-primary fw-bold' : '' }}" 
+                           href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                           Services
                         </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownServices">
-                            <li>
-                                <a class="dropdown-item {{ Route::currentRouteName() == 'health.request' ? 'active' : '' }}" 
-                                   href="{{ route('health.request') }}">
-                                    <i class="fas fa-heartbeat me-2"></i>
-                                    Health Services
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item {{ Route::currentRouteName() == 'documents.request' ? 'active' : '' }}" 
-                                   href="{{ route('documents.request') }}">
-                                    <i class="fas fa-file-alt me-2"></i>
-                                    Document Request
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item {{ Route::currentRouteName() == 'complaints.create' ? 'active' : '' }}" 
-                                   href="{{ route('complaints.create') }}">
-                                    <i class="fas fa-flag me-2"></i>
-                                    File a Complaint
-                                </a>
-                            </li>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ route('health.request') }}">Health Services</a></li>
+                            <li><a class="dropdown-item" href="{{ route('documents.request') }}">Document Request</a></li>
+                            <li><a class="dropdown-item" href="{{ route('complaints.create') }}">File a Complaint</a></li>
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-dark px-4 py-2 rounded-pill modern-nav-link {{ Route::currentRouteName() == 'public.contact' ? 'active' : '' }}" 
-                           href="{{ route('public.contact') }}"
-                           style="font-weight: 500; letter-spacing: 0.5px; font-size: 14px; transition: all 0.3s ease;">
-                           CONTACT
-                        </a>
+                        <a class="nav-link {{ Route::currentRouteName() == 'public.contact' ? 'active text-primary fw-bold' : '' }}" href="{{ route('public.contact') }}">Contact</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-dark px-4 py-2 rounded-pill modern-nav-link {{ str_contains(Route::currentRouteName(), 'public.pre-registration') ? 'active' : '' }}" 
-                           href="{{ route('public.pre-registration.step1') }}"
-                           style="font-weight: 500; letter-spacing: 0.5px; font-size: 14px; transition: all 0.3s ease;">
-                           REGISTER
-                        </a>
+                        <a class="nav-link {{ str_contains(Route::currentRouteName(), 'public.pre-registration') ? 'active text-primary fw-bold' : '' }}" href="{{ route('public.pre-registration.step1') }}">Register</a>
                     </li>
+                </ul>
+                
+                <!-- Right-aligned Dashboard/Login -->
+                <ul class="navbar-nav ms-auto">
                     @auth
                         <li class="nav-item">
-                            <a class="nav-link text-dark px-4 py-2 rounded-pill modern-nav-link" 
-                               href="{{ route('dashboard') }}"
-                               style="font-weight: 500; letter-spacing: 0.5px; font-size: 14px; transition: all 0.3s ease;">
-                               DASHBOARD
-                            </a>
+                            <a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a>
                         </li>
                     @else
-                        <li class="nav-item ms-3">
-                            <a class="nav-link btn px-5 py-2 rounded-pill login-btn" 
-                               href="{{ route('login') }}"
-                               style="font-weight: 600; letter-spacing: 0.8px; font-size: 14px; background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; border: 2px solid rgba(255,255,255,0.2); transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);"
-                               onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(74, 144, 226, 0.4)'"
-                               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(74, 144, 226, 0.3)'">
-                               LOGIN
-                            </a>
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-primary btn-sm text-white" href="{{ route('login') }}">Login</a>
                         </li>
                     @endauth
                 </ul>
@@ -538,7 +576,7 @@
     </nav>
 
     <!-- Spacer for fixed navbar -->
-    <div style="height: 90px;"></div>
+    <div style="height: 45px;"></div>
 
     <!-- Main Content -->
     <main>
@@ -546,32 +584,25 @@
     </main>
 
     <!-- Footer -->
-    <footer class="py-5 mt-5" style="background: white; box-shadow: 0 -4px 20px rgba(0,0,0,0.1);">
+    <footer class="bg-white text-dark py-5 mt-5 border-top">
         <div class="container">
             <div class="row">
                 <div class="col-md-4 mb-4 mb-md-0">
-                    <div class="d-flex align-items-center mb-3">
-                        <img src="{{ asset('/images/logo.png') }}" alt="Barangay Lumanglipa Logo" class="me-3" style="width: 50px; height: 50px; border-radius: 10px; object-fit: contain;">
-                        <div>
-                            <h5 class="text-dark fw-bold mb-0" style="font-size: 20px;">BARANGAY LUMANGLIPA</h5>
-                            <small class="text-muted" style="font-size: 14px;">Mataas na Kahoy, Batangas</small>
-                        </div>
-                    </div>
-                    <p class="text-secondary mb-3" style="font-size: 16px; line-height: 1.6;">Providing essential services and improving the quality of life for our residents.</p>
-                    <div class="d-flex footer-social-icons" style="gap: 30px;">
-                        <a href="#" class="text-primary" style="font-size: 28px; transition: all 0.3s ease;" onmouseover="this.style.color='#4A90E2'; this.style.transform='scale(1.1)'" onmouseout="this.style.color='#6c757d'; this.style.transform='scale(1)'"><i class="fab fa-facebook"></i></a>
-                        <a href="#" class="text-primary" style="font-size: 28px; transition: all 0.3s ease;" onmouseover="this.style.color='#4A90E2'; this.style.transform='scale(1.1)'" onmouseout="this.style.color='#6c757d'; this.style.transform='scale(1)'"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="text-primary" style="font-size: 28px; transition: all 0.3s ease;" onmouseover="this.style.color='#4A90E2'; this.style.transform='scale(1.1)'" onmouseout="this.style.color='#6c757d'; this.style.transform='scale(1)'"><i class="fab fa-instagram"></i></a>
+                    <p>Providing essential services and improving the quality of life for our residents.</p>
+                    <div class="d-flex gap-3 mt-4">
+                        <a href="#" class="text-primary"><i class="fe fe-facebook"></i></a>
+                        <a href="#" class="text-primary"><i class="fe fe-twitter"></i></a>
+                        <a href="#" class="text-primary"><i class="fe fe-instagram"></i></a>
                     </div>
                 </div>
                 
                 <div class="col-md-4 mb-4 mb-md-0">
                     <h5 class="text-dark fw-bold mb-4" style="font-size: 20px;">Quick Links</h5>
                     <ul class="list-unstyled">
-                        <li class="mb-2"><a href="{{ route('public.home') }}" class="text-secondary text-decoration-none" style="font-size: 16px; transition: all 0.3s ease;" onmouseover="this.style.color='#4A90E2'; this.style.paddingLeft='8px'" onmouseout="this.style.color='#6c757d'; this.style.paddingLeft='0'">Home</a></li>
-                        <li class="mb-2"><a href="{{ route('public.about') }}" class="text-secondary text-decoration-none" style="font-size: 16px; transition: all 0.3s ease;" onmouseover="this.style.color='#4A90E2'; this.style.paddingLeft='8px'" onmouseout="this.style.color='#6c757d'; this.style.paddingLeft='0'">About Us</a></li>
-                        <li class="mb-2"><a href="{{ route('documents.request') }}" class="text-secondary text-decoration-none" style="font-size: 16px; transition: all 0.3s ease;" onmouseover="this.style.color='#4A90E2'; this.style.paddingLeft='8px'" onmouseout="this.style.color='#6c757d'; this.style.paddingLeft='0'">eServices</a></li>
-                        <li class="mb-2"><a href="{{ route('public.contact') }}" class="text-secondary text-decoration-none" style="font-size: 16px; transition: all 0.3s ease;" onmouseover="this.style.color='#4A90E2'; this.style.paddingLeft='8px'" onmouseout="this.style.color='#6c757d'; this.style.paddingLeft='0'">Contact Us</a></li>
+                        <li class="mb-2"><a href="{{ route('public.home') }}" class="text-dark">Home</a></li>
+                        <li class="mb-2"><a href="{{ route('public.about') }}" class="text-dark">About Us</a></li>
+                        <li class="mb-2"><a href="{{ route('public.services') }}" class="text-dark">eServices</a></li>
+                        <li class="mb-2"><a href="{{ route('public.contact') }}" class="text-dark">Contact Us</a></li>
                     </ul>
                 </div>
                 
@@ -600,9 +631,9 @@
         </div>
     </footer>
     
-    <div class="py-3" style="background: linear-gradient(135deg, #357ABD 0%, #2E5F8A 50%, #1E4A6F 100%); border-top: 1px solid rgba(255,255,255,0.1);">
+    <div class="bg-light py-3 border-top">
         <div class="container">
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center text-white">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center text-dark">
                 <div>
                     <small style="color: rgba(255,255,255,0.9);">&copy; {{ date('Y') }} Barangay Lumanglipa. All rights reserved.</small>
                 </div>

@@ -19,11 +19,24 @@ return [
     | Home Path
     |--------------------------------------------------------------------------
     |
-    | Must be a static value for config caching to work.
-    | Dynamic redirect logic should be handled in a service provider.
+    | Here you may configure the path where users will get redirected during
+    | authentication or password reset when the operations are successful
+    | and the user is authenticated. You are free to change this value.
     |
     */
+
     'home' => '/dashboard',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Fortify Routes Prefix / Subdomain
+    |--------------------------------------------------------------------------
+    |
+    | Here you may specify which prefix Fortify will assign to all the routes
+    | that it registers with the application. If necessary, you may change
+    | subdomain under which all of the Fortify routes will be available.
+    |
+    */
 
     'prefix' => '',
 

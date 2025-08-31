@@ -148,7 +148,21 @@
 
 <!-- Direct Chart.js script insertion -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+
+<!-- Data injection using proper JSON escaping -->
+<script type="application/json" id="dashboard-data">
+@json([
+    'metrics' => $metrics ?? [],
+    'chartData' => $chartData ?? ['monthly_registrations' => ['labels' => [], 'data' => []]]
+])
+</script>
+
 <script>
+// Parse the JSON data
+const dashboardData = JSON.parse(document.getElementById('dashboard-data').textContent);
+const metrics = dashboardData.metrics;
+const chartData = dashboardData.chartData;
+
 // Counter animation for stats is no longer needed since we're using CSS animations
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Using CSS-based metric card animations');
@@ -168,7 +182,11 @@ document.addEventListener('DOMContentLoaded', function() {
             data: {
                 labels: ['Non-Migrant', 'Migrant', 'Transient'],
                 datasets: [{
-                    data: [{{ $metrics['non_migrant_count'] }}, {{ $metrics['migrant_count'] }}, {{ $metrics['transient_count'] }}],
+                    data: [
+                        metrics.non_migrant_count || 0, 
+                        metrics.migrant_count || 0, 
+                        metrics.transient_count || 0
+                    ],
                     backgroundColor: ['#3B82F6', '#F59E0B', '#EF4444'],
                     borderWidth: 2,
                     borderColor: 'white'
@@ -233,7 +251,7 @@ document.addEventListener('DOMContentLoaded', function() {
             data: {
                 labels: ['Male', 'Female'],
                 datasets: [{
-                    data: [{{ $metrics['male_residents'] }}, {{ $metrics['female_residents'] }}],
+                    data: [metrics.male_residents || 0, metrics.female_residents || 0],
                     backgroundColor: ['#3B82F6', '#EC4899'],
                     borderWidth: 2,
                     borderColor: 'white'
@@ -286,7 +304,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 labels: ['Children (0-17)', 'Adults (18-59)', 'Senior Citizens (60+)'],
                 datasets: [{
                     label: 'Residents by Age Group',
-                    data: [{{ $metrics['children'] }}, {{ $metrics['adults'] }}, {{ $metrics['senior_citizens'] }}],
+                    data: [
+                        metrics.children || 0, 
+                        metrics.adults || 0, 
+                        metrics.senior_citizens || 0
+                    ],
                     backgroundColor: ['#10B981', '#6366F1', '#F59E0B'],
                     borderWidth: 0,
                     barPercentage: 0.7,
@@ -364,10 +386,10 @@ document.addEventListener('DOMContentLoaded', function() {
         var mrChart = new Chart(mrCtx, {
             type: 'line',
             data: {
-                labels: {!! json_encode($chartData['monthly_registrations']['labels']) !!},
+                labels: chartData.monthly_registrations ? chartData.monthly_registrations.labels : [],
                 datasets: [{
                     label: 'New Registrations',
-                    data: {!! json_encode($chartData['monthly_registrations']['data']) !!},
+                    data: chartData.monthly_registrations ? chartData.monthly_registrations.data : [],
                     backgroundColor: gradient,
                     borderColor: '#3B82F6',
                     borderWidth: 3,
