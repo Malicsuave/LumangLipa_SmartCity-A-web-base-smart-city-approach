@@ -1,0 +1,511 @@
+class BarangayChatbot {
+    constructor() {
+        this.isOpen = false;
+        this.isTyping = false;
+        this.init();
+        this.knowledgeBase = this.initKnowledgeBase();
+    }
+
+    init() {
+        this.toggle = document.getElementById('chatbotToggle');
+        this.window = document.getElementById('chatbotWindow');
+        this.close = document.getElementById('chatbotClose');
+        this.input = document.getElementById('chatbotInput');
+        this.send = document.getElementById('chatbotSend');
+        this.messages = document.getElementById('chatbotMessages');
+
+        this.bindEvents();
+    }
+
+    bindEvents() {
+        this.toggle.addEventListener('click', () => this.toggleChat());
+        this.close.addEventListener('click', () => this.closeChat());
+        this.send.addEventListener('click', () => this.sendMessage());
+        this.input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                this.sendMessage();
+            }
+        });
+    }
+
+    toggleChat() {
+        if (this.isOpen) {
+            this.closeChat();
+        } else {
+            this.openChat();
+        }
+    }
+
+    openChat() {
+        this.window.classList.add('active');
+        this.isOpen = true;
+        this.input.focus();
+        
+        // Hide pulse animation when opened
+        const pulse = this.toggle.querySelector('.chatbot-pulse');
+        if (pulse) pulse.style.display = 'none';
+
+        // If strict mode and no AI key, show unavailable message once
+        const body = document.body;
+        const strict = body.getAttribute('data-chatbot-strict') === '1';
+        const hasKey = body.getAttribute('data-chatbot-has-key') === '1';
+        if (strict && !hasKey && !this._notifiedNoAI) {
+            this.addMessage('AI is unavailable right now. Please try again later or contact the barangay.', 'bot');
+            this._notifiedNoAI = true;
+        }
+    }
+
+    closeChat() {
+        this.window.classList.remove('active');
+        this.isOpen = false;
+        
+        // Show pulse animation when closed
+        const pulse = this.toggle.querySelector('.chatbot-pulse');
+        if (pulse) pulse.style.display = 'block';
+    }
+
+    sendMessage() {
+        const message = this.input.value.trim();
+        if (!message || this.isTyping) return;
+
+        const body = document.body;
+        const strict = body.getAttribute('data-chatbot-strict') === '1';
+        const hasKey = body.getAttribute('data-chatbot-has-key') === '1';
+        if (strict && !hasKey) {
+            this.addMessage('AI is unavailable right now. Please try again later or contact the barangay.', 'bot');
+            return;
+        }
+
+        this.addMessage(message, 'user');
+        this.input.value = '';
+        this.send.disabled = true;
+        
+        this.showTyping();
+        // Try real AI via backend first; on failure, fall back to local rule-based responses
+        this.askAI(message)
+            .then(aiText => {
+                this.hideTyping();
+                if (aiText) {
+                    // Check if backend wants to trigger frontend service options
+                    if (aiText.startsWith('TRIGGER_SERVICE_OPTIONS:')) {
+                        const serviceType = aiText.replace('TRIGGER_SERVICE_OPTIONS:', '');
+                        this.addMessage(this.getServiceOptions(serviceType), 'bot');
+                    } else if (aiText === 'TRIGGER_BARANGAY_ID_OPTIONS') {
+                        // Show specific Barangay ID options
+                        const barangayIdResponse = `What would you like to know about Barangay ID?\n\n<div class="quick-actions" style="margin-top: 15px;">\n    <button class="quick-action-btn" data-action="what-is-barangay-id">❓ What is Barangay ID?</button>\n    <button class="quick-action-btn" data-action="get-barangay-id">📋 Get Barangay ID</button>\n</div>`;
+                        this.addMessage(barangayIdResponse, 'bot');
+                    } else {
+                        this.addMessage(aiText, 'bot');
+                    }
+                } else {
+                    this.processMessage(message);
+                }
+            })
+            .catch((err) => {
+                this.hideTyping();
+                
+                // Handle different error types with appropriate messages
+                if (err && err.message === 'strict_mode_active') {
+                    this.addMessage('AI is unavailable right now. Please try again later or contact the barangay.', 'bot');
+                } else if (err && err.message && err.message.includes('AI service')) {
+                    this.addMessage(err.message, 'bot');
+                } else if (err && err.message === 'I can only help with barangay-related questions.') {
+                    this.addMessage('I can only help with barangay-related questions. Please ask about documents, office hours, complaints, or other barangay services.', 'bot');
+                } else if (err && err.message && err.message.length > 10) {
+                    // If we have a meaningful error message from the server
+                    this.addMessage(err.message, 'bot');
+                } else {
+                    // Fallback to local processing for other errors
+                    this.processMessage(message);
+                }
+            })
+            .finally(() => {
+                this.send.disabled = false;
+            });
+    }
+
+    // Call backend Hugging Face proxy
+    async askAI(message) {
+        try {
+            const payload = {
+                message: message,
+                language: this.detectLanguage(message),
+                context: 'public'
+            };
+            
+            const res = await fetch('/api/chatbot/chat', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(payload)
+            });
+            
+            // Always try to parse JSON response
+            let data = null;
+            try {
+                data = await res.json();
+            } catch (parseError) {
+                console.error('Failed to parse response:', parseError);
+                throw new Error('Invalid response format');
+            }
+            
+            if (res.ok && data && data.success && data.response) {
+                return data.response;
+            }
+            
+            // Handle error responses with proper messages
+            if (data && data.strict) {
+                throw new Error('strict_mode_active');
+            }
+            
+            if (data && data.message) {
+                throw new Error(data.message);
+            }
+            
+            // Handle HTTP error status
+            if (!res.ok) {
+                const errorMsg = data?.error || `Server error (${res.status})`;
+                throw new Error(errorMsg);
+            }
+            
+            return '';
+        } catch (e) {
+            console.error('AI request failed:', e.message);
+            throw e;
+        }
+    }
+
+    detectLanguage(text) {
+        const t = (text || '').toLowerCase();
+        const filipinoHints = ['po', 'opo', 'barangay', 'dokumento', 'serbisyo', 'oras', 'reklamo', 'saan', 'nasaan'];
+        return filipinoHints.some(w => t.includes(w)) ? 'tl' : 'en';
+    }
+
+    addMessage(content, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}`;
+        
+        const avatar = document.createElement('div');
+        avatar.className = 'message-avatar';
+        avatar.innerHTML = sender === 'bot' ? '<i class="fas fa-robot"></i>' : '<i class="fas fa-user"></i>';
+        
+        const messageContent = document.createElement('div');
+        messageContent.className = 'message-content';
+        messageContent.innerHTML = content;
+        
+        messageDiv.appendChild(avatar);
+        messageDiv.appendChild(messageContent);
+        
+        this.messages.appendChild(messageDiv);
+        
+        // Add event listeners to any buttons in the message
+        this.attachButtonListeners(messageDiv);
+        
+        this.scrollToBottom();
+    }
+
+    attachButtonListeners(messageElement) {
+        const buttons = messageElement.querySelectorAll('.quick-action-btn');
+        buttons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                // Block quick actions if strict mode and no AI key
+                const body = document.body;
+                const strict = body.getAttribute('data-chatbot-strict') === '1';
+                const hasKey = body.getAttribute('data-chatbot-has-key') === '1';
+                if (strict && !hasKey) {
+                    this.addMessage('AI is unavailable right now. Please try again later or contact the barangay.', 'bot');
+                    return;
+                }
+                
+                const buttonText = button.textContent.trim();
+                
+                // Add user message for the button clicked
+                this.addMessage(buttonText, 'user');
+                
+                // Handle service choice buttons
+                const service = button.getAttribute('data-service');
+                const method = button.getAttribute('data-method');
+                const action = button.getAttribute('data-action');
+                
+                if (service && method) {
+                    this.showTyping();
+                    setTimeout(() => {
+                        this.hideTyping();
+                        const response = this.handleServiceChoice(service, method);
+                        this.addMessage(response, 'bot');
+                    }, 1000);
+                    return;
+                }
+
+                // Handle specific actions
+                if (action) {
+                    this.showTyping();
+                    setTimeout(() => {
+                        this.hideTyping();
+                        let response = '';
+                        switch(action) {
+                            case 'barangay-id':
+                                response = this.generateResponse('barangay id requirements');
+                                break;
+                            case 'what-is-barangay-id':
+                                response = this.getBarangayIdInfo();
+                                break;
+                            case 'get-barangay-id':
+                                response = this.getBarangayIdOptions();
+                                break;
+                            case 'document-types':
+                                response = this.getDocumentTypesInfo();
+                                break;
+                            case 'emergency':
+                                response = this.generateResponse('emergency');
+                                break;
+                            case 'complaint-types':
+                                response = this.generateResponse('complaint types');
+                                break;
+                            case 'requirements':
+                                response = this.getGeneralRequirements();
+                                break;
+                            default:
+                                response = this.generateResponse(action);
+                        }
+                        this.addMessage(response, 'bot');
+                    }, 1000);
+                    return;
+                }
+                
+                // Handle other button actions
+                const onclickAttr = button.getAttribute('onclick');
+                if (onclickAttr) {
+                    try {
+                        if (onclickAttr.includes('window.open')) {
+                            const urlMatch = onclickAttr.match(/window\.open\('([^']+)'/);
+                            if (urlMatch) {
+                                window.open(urlMatch[1], '_blank');
+                                this.addMessage('Opening the document request system for you! You can now proceed with your online application.', 'bot');
+                            }
+                        } else if (onclickAttr.includes('addMessage')) {
+                            const messageMatch = onclickAttr.match(/addMessage\('([^']+)',\s*'user'\)/);
+                            const processMatch = onclickAttr.match(/processMessage\('([^']+)'\)/);
+                            if (messageMatch && processMatch) {
+                                const processMsg = processMatch[1];
+                                this.showTyping();
+                                setTimeout(() => {
+                                    this.hideTyping();
+                                    this.processMessage(processMsg);
+                                }, 1000);
+                            }
+                        } else if (onclickAttr.includes('sendQuickMessage')) {
+                            const messageMatch = onclickAttr.match(/sendQuickMessage\('([^']+)'\)/);
+                            if (messageMatch) {
+                                const message = messageMatch[1];
+                                this.showTyping();
+                                setTimeout(() => {
+                                    this.hideTyping();
+                                    this.processMessage(message.toLowerCase());
+                                }, 1000);
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error executing button action:', error);
+                        this.addMessage('Sorry, there was an error processing your request. Please try again or contact our office directly.', 'bot');
+                    }
+                }
+            });
+        });
+    }
+
+    getGeneralRequirements() {
+        return `📋 **General Requirements for All Documents:**\n\n**Basic Requirements:**\n• Valid Barangay ID\n• Government-issued ID (Driver's License, Passport, etc.)\n• Cedula (Community Tax Certificate)\n• Proof of residency (Utility bill, lease contract)\n\n**For Specific Documents:**\n• **Indigency:** Income certification, Medical needs\n• **Business:** Business plan, Location clearance\n• **Good Moral:** Character references\n\n**Important Notes:**\n• All documents must be clear copies\n• Photos/scans should be readable\n• Bring originals for verification\n\n<div class="quick-actions" style="margin-top: 15px;">\n    <button class="quick-action-btn" onclick="window.open('${window.location.origin}/request-document', '_blank')">📋 Apply Now</button>\n</div>`;
+    }
+
+    getBarangayIdInfo() {
+        return `🆔 What is Barangay ID?\n\n        <br><br>    \n\nBarangay ID is your official identification as a resident of Barangay Lumanglipa.\n\n<br><br>\n\nPurpose:\n<br> <br>\n• Proof of residency in Lumanglipa Barangay\n<br>\n• Required for all barangay services and concerns\n<br>\n• Access to documents, health services, and complaints\n\n<div class="quick-actions" style="margin-top: 15px;">\n    <button class="quick-action-btn" data-action="get-barangay-id">📋 Get Barangay ID</button>\n</div>`;
+    }
+
+    getBarangayIdOptions() {
+        return `🆔 Get Barangay ID\n        <br>\n\nHow would you like to get your Barangay ID?\n\n<div class="quick-actions" style="margin-top: 15px;">\n    <button class="quick-action-btn" data-service="barangay-id" data-method="online">📱 Online Application</button>\n    <button class="quick-action-btn" data-service="barangay-id" data-method="walkin">🚶 Walk-in Application</button>\n</div>`;
+    }
+
+    showTyping() {
+        this.isTyping = true;
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'typing-indicator';
+        typingDiv.id = 'typingIndicator';
+        typingDiv.innerHTML = `\n            <div class="typing-dots">\n                <div class="typing-dot"></div>\n                <div class="typing-dot"></div>\n                <div class="typing-dot"></div>\n            </div>\n        `;
+        this.messages.appendChild(typingDiv);
+        this.scrollToBottom();
+    }
+
+    hideTyping() {
+        this.isTyping = false;
+        const typingIndicator = document.getElementById('typingIndicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+    }
+
+    processMessage(message) {
+        const response = this.generateResponse(message.toLowerCase());
+        this.addMessage(response, 'bot');
+    }
+
+    generateResponse(message) {
+        // Check for greetings
+        if (message.match(/^(hi|hello|hey|good morning|good afternoon|good evening)/i)) {
+            return "Hello! Welcome to Barangay Lumanglipa. I'm here to help you with information about our services. What would you like to know about?";
+        }
+
+        // Check knowledge base
+        for (const [keywords, response] of this.knowledgeBase) {
+            if (keywords.some(keyword => message.includes(keyword))) {
+                return response;
+            }
+        }
+
+        // Check if inquiry is related to barangay services
+        const barangayRelatedKeywords = [
+            'barangay', 'document', 'clearance', 'certificate', 'residency', 'indigency',
+            'health', 'medical', 'clinic', 'doctor', 'medicine', 'complaint', 'problem',
+            'issue', 'concern', 'report', 'captain', 'councilor', 'official', 'office',
+            'hours', 'schedule', 'contact', 'address', 'location', 'phone', 'email',
+            'registration', 'register', 'resident', 'id', 'identification', 'service',
+            'assistance', 'help', 'application', 'request', 'file', 'submit', 'process',
+            'emergency', 'urgent', 'mediation', 'conciliation', 'dispute', 'lumanglipa',
+            'mataas na kahoy', 'batangas', 'purok', 'secretary', 'requirements'
+        ];
+
+        const isBarangayRelated = barangayRelatedKeywords.some(keyword => 
+            message.toLowerCase().includes(keyword.toLowerCase())
+        );
+
+        if (!isBarangayRelated) {
+            return `Thank you for reaching out! 😊\n<br><br>\nUnfortunately, the inquiry you've made is outside the scope of our current services.\n<br><br>\nIf there's anything else we can help you with or if you have questions related to our services offerings, feel free to ask!\n<br><br>\nWe're here to assist you the best we can.`;
+        }
+
+        // Default response for barangay-related but unmatched queries
+        return `I understand you're asking about \"${message}\". For specific inquiries about barangay services, you can:\n        \n        📞 Call us at (043) 123-4567\n        📧 Email: info@lumanglipa.gov.ph\n        🏢 Visit our office: Mon-Fri, 8:00 AM - 5:00 PM\n        \n        Is there anything else about our standard services I can help you with?`;
+    }
+
+    // Enhanced method to handle service choices
+    handleServiceChoice(service, method) {
+        if (method === 'online') {
+            return this.getOnlineGuide(service);
+        } else if (method === 'walkin') {
+            return this.getWalkInGuide(service);
+        }
+        return this.getServiceOptions(service);
+    }
+
+    getServiceOptions(service) {
+        const serviceKey = service.toLowerCase().replace(' services', '').replace(' filing', '').replace('document services', 'document').trim();
+        
+        return `How would you like to proceed with <strong>${service}</strong>?\n        \n        <div class="quick-actions" style="margin-top: 15px;">\n            <button class="quick-action-btn" data-service="${serviceKey}" data-method="online">📱 Online Service</button>\n            <button class="quick-action-btn" data-service="${serviceKey}" data-method="walkin">🚶 Walk-in Service</button>\n        </div>`;
+    }
+
+    getOnlineGuide(service) {
+        const guides = {
+            'document': `Online Document Request\n            <br><br>\n\nWhat you need:\n<br><br>\n\n• Barangay ID\n<br><br>\n\n1-3 Business Days for Processing\n<br><br>\n\n\n<div class="quick-actions" style="margin-top: 15px;">\n    <button class="quick-action-btn" onclick="window.open('${window.location.origin}/request-document', '_blank')">🚀 Request Document Now</button>\n    <button class="quick-action-btn" data-action="barangay-id">❓ Barangay ID</button>\n</div>`,
+
+            'barangay-id': `📱 Online Barangay ID Application\n            <br><br>\n\nWhat you need:\n<br><br>\n\n\n• Any ID\n<br>\n• Proof of Residency\n<br><br>\n\nProcessing: 1-3 business days after admin approval\n<br><br>\n\nClick \"Register Now\" to submit your pre-application\n\n<div class="quick-actions" style="margin-top: 15px;">\n    <button class="quick-action-btn" onclick="window.open('/pre-registration', '_blank')">📝 Register Now</button>\n    <button class="quick-action-btn" data-action="what-is-barangay-id">❓ What is Barangay ID?</button>\n</div>`,
+
+            'health': `Online Health Services\n            <br><br>\n\nWhat you need:\n<br><br>\n\n• Barangay ID\n<br><br>\n\nAvailable Services: Medical consultation, Health certificates, BP monitoring\n<br><br>\n\n<div class="quick-actions" style="margin-top: 15px;">\n    <button class="quick-action-btn" onclick="window.open('${window.location.origin}/health/request', '_blank')">🩺 Request Health Service</button>\n    <button class="quick-action-btn" onclick="chatbot.addMessage('How to get Barangay ID?', 'user'); chatbot.processMessage('barangay id requirements')">🆔 Barangay ID</button>\n</div>`,
+
+            'complaint': `Online Complaint Filing\n            <br><br>\n\nWhat you need:\n<br><br>\n\n• Barangay ID\n<br><br>\n\n1-3 Business Days for Processing\n\n<br><br>\n\n<div class="quick-actions" style="margin-top: 15px;">\n    <button class="quick-action-btn" onclick="window.open('${window.location.origin}/complaints/file', '_blank')">📋 File Complaint Now</button>\n    <button class="quick-action-btn" onclick="chatbot.addMessage('How to get Barangay ID?', 'user'); chatbot.processMessage('barangay id requirements')">🆔 Barangay ID</button>\n</div>`
+        };
+
+        return guides[service] || this.getServiceOptions(service);
+    }
+
+    getWalkInGuide(service) {
+        const guides = {
+            'document': `🚶 Walk-in Document Request\n\n            <br>\n            <br>\n\nLocation: Barangay Hall of Lumanglipa, located in Purok 1\n\n<br>\n<br>\n\nWhat to Bring:\n<br>\n• ✅ Barangay ID (or any valid ID if you don't have Barangay ID yet)\n\n<br>\n<br>\nProcess:\n\n1. Go to Barangay Hall in Purok 1\n<br>\n2. Find the Secretary\n<br>\n3. Tell them what document you need\n<br>\n4. Fill up the form\n<br>\n5. Pay ₱50 for the document\n<br>\n6. Get your document same day\n<br>\n<br>\n\nOffice Hours: Mon-Fri 8AM-5PM, Sat 8AM-12PM\n<br>\nProcessing: Same day\n\n<div class="quick-actions" style="margin-top: 15px;">\n    <button class="quick-action-btn" onclick="chatbot.addMessage('office location', 'user'); chatbot.processMessage('contact location')">📍 Office Location</button>\n    <button class="quick-action-btn" onclick="chatbot.addMessage('How to get Barangay ID?', 'user'); chatbot.processMessage('barangay id requirements')">🆔 Barangay ID</button>\n</div>`,
+
+            'health': `🚶 Walk-in Health Services\n\n            <br>\n            <br>\n\nLocation: Barangay Hall, Purok 1\n\n<br>\n<br>\n\nWhat to Bring:\n<br>\n• ✅ Barangay ID (or any valid ID if you don't have Barangay ID yet)\n\n<br>\n<br>\nProcess:\n\n1. Go to Health Center in Purok 1\n<br>\n2. Tell the barangay health workers what service you need\n\n<br>\n<br>\n\nOffice Hours: Mon-Fri 8AM-5PM, Sat 8AM-12PM\n\n<div class="quick-actions" style="margin-top: 15px;">\n    <button class="quick-action-btn" onclick="chatbot.addMessage('How to get Barangay ID?', 'user'); chatbot.processMessage('barangay id requirements')">🆔 Barangay ID</button>\n</div>`,
+
+            'complaint': `� Walk-in Complaint Filing\n\n            <br>\n            <br>\n\nLocation: Barangay Hall of Lumanglipa, Purok 1\n\n<br>\n<br>\n\nWhat to Bring:\n<br>\n• ✅ Barangay ID (or any valid ID if you don't have Barangay ID yet)\n\n<br>\n<br>\nProcess:\n\n1. Go to Barangay Hall in Purok 1\n<br>\n2. Find the secretary or Barangay Captain\n<br>\n3. Explain your complaint\n<br>\n4. Fill up the complaint form\n<br>\n5. Submit any evidence you have\n<br>\n<br>\n\nOffice Hours: Mon-Fri 8AM-5PM, Sat 8AM-12PM\n<br>\nResponse: 1-3 business days\n\n<div class="quick-actions" style="margin-top: 15px;">\n    <button class="quick-action-btn" onclick="chatbot.addMessage('How to get Barangay ID?', 'user'); chatbot.processMessage('barangay id requirements')">🆔 Barangay ID</button>\n</div>`,
+
+            'barangay-id': `🚶 Walk-in Barangay ID Application\n<br>\n<br>\n\nWhat to Bring:\n<br>\n\n• ✅ Any ID  \n<br>\n• ✅ Proof of Residency \n\n<br>\n<br>\nProcess:\n<br>\n<br>\n1. Go to secretary and ask for registration of barangay ID\n<br>\n2. Submit the ID and proof of residency\n<br>\n\n3. Wait for the processing of your barangay ID\n\n\n<br>\n<br>\nOffice Hours: Mon-Fri 8AM-5PM, Sat 8AM-12PM\n\n<br>\n<br>\n\n<div class="quick-actions" style="margin-top: 15px;">\n    <button class="quick-action-btn" onclick="chatbot.addMessage('office location', 'user'); chatbot.processMessage('contact location')">📍 Office Location</button>\n    <button class="quick-action-btn" data-action="what-is-barangay-id">❓ What is Barangay ID?</button>\n</div>`
+        };
+
+        return guides[service] || this.getServiceOptions(service);
+    }
+
+    initKnowledgeBase() {
+        return new Map([
+            [['document', 'document request', 'documents', 'clearance', 'certificate', 'residency', 'indigency', 'request', 'filing', 'services', 'service', 'dokumento', 'documento', 'sertipiko', 'clearanse', 'patunay', 'papeles', 'papel', 'barangay clearance', 'certificate of residency'], 
+             this.getServiceOptions('Document Services')],
+            
+            [['health', 'health services', 'medical', 'clinic', 'medicine', 'doctor', 'kalusugan', 'medisina', 'doktor'],
+             this.getServiceOptions('Health Services')],
+            
+            [['complaint', 'file complaint', 'problem', 'issue', 'concern', 'report', 'reklamo', 'problema', 'hinaing'],
+             this.getServiceOptions('Complaint Filing')],
+
+            [['barangay id', 'id card', 'resident id', 'identification'],
+             `What would you like to know about Barangay ID?\n\n<div class="quick-actions" style="margin-top: 15px;">\n    <button class="quick-action-btn" data-action="what-is-barangay-id">❓ What is Barangay ID?</button>\n    <button class="quick-action-btn" data-action="get-barangay-id">📋 Get Barangay ID</button>\n</div>`],
+
+            [['lost id', 'replace id', 'id replacement'],
+             `🔄 **Lost/Damaged Barangay ID Replacement:**\n             \n             **Requirements:**\n             • Affidavit of Loss (if lost)\n             • Valid government ID\n             • 2x2 ID picture (2 pieces)\n             • Police report (for lost ID)\n             • Replacement fee: ₱150\n             \n             **Processing Time:** 3-5 business days\n             **Temporary ID:** Available for urgent needs (₱20)\n             \n             <div class="quick-actions" style="margin-top: 15px;">\n                 <button class="quick-action-btn" onclick="chatbot.addMessage('temporary id', 'user'); chatbot.processMessage('temporary id')">⚡ Temporary ID Info</button>\n             </div>`],
+
+            [['emergency', 'urgent', '911', 'emergency contact'],
+             `🚨 **Emergency Contacts:**\n             \n             **Barangay Emergency Hotline:** (043) 123-4567\n             **Police:** 117 or (043) 456-7890\n             **Fire Department:** 116 or (043) 456-7891\n             **Medical Emergency:** 911 or (043) 456-7892\n             \n             **Barangay Emergency Response:**\n             • Available 24/7\n             • First aid response\n             • Disaster coordination\n             • Security concerns\n             \n             **For non-life threatening health issues:**\n             Walk-in to Barangay Health Center during office hours.`],
+
+            [['track complaint', 'complaint status', 'follow up'],
+             `📊 **Track Your Complaint:**\n             \n             **Online Tracking:**\n             • Use your tracking number at our complaint portal\n             • Receive SMS/email updates automatically\n             \n             **Walk-in Inquiry:**\n             • Bring your claim stub to the office\n             • Ask for status update at Complaints desk\n             \n             **Response Timeline:**\n             • Acknowledgment: Within 24 hours\n             • Initial action: 3-5 business days\n             • Resolution: 7-14 business days (depending on complexity)\n             \n             <div class="quick-actions" style="margin-top: 15px;">\n                 <button class="quick-action-btn" onclick="window.open('${window.location.origin}/complaints/track', '_blank')">🔍 Track Online</button>\n             </div>`],
+
+            [['mediation', 'conciliation', 'dispute resolution'],
+             `⚖️ **Barangay Mediation Services:**\n             \n             **Free Conciliation Services:**\n             • Neighbor disputes\n             • Property boundary issues\n             • Minor civil conflicts\n             • Family disputes\n             \n             **Process:**\n             1. File complaint\n             2. Summon both parties\n             3. Mediation session\n             4. Agreement drafting\n             5. Legal documentation\n             \n             **Benefits:**\n             • Free service\n             • Faster resolution\n             • Preserve relationships\n             • Avoid court proceedings\n             \n             **Schedule:** Every Tuesday and Thursday, 2:00 PM - 5:00 PM`],
+
+            [['complaint types', 'what complaints'],
+             `📋 **Types of Complaints We Handle:**\n             \n             **Public Order & Safety:**\n             • Noise disturbance\n             • Public nuisance\n             • Illegal activities\n             • Safety hazards\n             \n             **Property & Civil Issues:**\n             • Boundary disputes\n             • Right of way issues\n             • Property damage\n             • Rental disputes\n             \n             **Infrastructure:**\n             • Poor road conditions\n             • Drainage problems\n             • Street lighting\n             • Water supply issues\n             \n             **Environmental:**\n             • Improper waste disposal\n             • Water pollution\n             • Air quality concerns\n             \n             **Note:** Criminal cases should be reported directly to police.`],
+            
+            [['contact', 'phone', 'address', 'location', 'office'],
+             `📍 Office Location:\n             <br>\n             \n             Purok 1, Lumanglipa, Mataas na Kahoy, Batangas\n             <br>\n             <br>\n             \n             \n             Office Hours:\n             <br>\n            <br>\n             Monday-Friday: 8:00 AM - 5:00 PM\n             <br>\n             Saturday: 8:00 AM - 12:00 PM\n             <br>\n             Sunday: Closed`],
+            
+            [['schedule', 'hours', 'time', 'open', 'closed'],
+             `🕐 **Office Schedule:**\n             \n             **Regular Hours:**\n             • Monday-Friday: 8:00 AM - 5:00 PM\n             • Saturday: 8:00 AM - 12:00 PM\n             • Sunday: Closed\n             \n             **Lunch Break:** 12:00 PM - 1:00 PM\n             **Emergency Services:** 24/7 available`],
+            
+            [['officials', 'captain', 'councilor', 'barangay official'],
+             `👥 **Barangay Officials:**\n             \n             Our dedicated officials serve the community. You can learn more about them on our <a href="${window.location.origin}/about" target="_blank">About Page</a>.\n             \n             **How to reach officials:**\n             • Schedule appointment at the office\n             • Attend monthly barangay assembly\n             • Submit written concerns`],
+            
+            [['registration', 'register', 'new resident', 'move'],
+             `📋 **New Resident Registration:**\n             \n             Welcome to Barangay Lumanglipa! To register as a new resident:\n             \n             **Requirements:**\n             • Transfer Certificate/Clearance from previous barangay\n             • Valid ID\n             • Proof of address\n             \n             **Start here:** <a href="${window.location.origin}/pre-registration" target="_blank">Registration Form</a>`],
+            
+            [['thank', 'thanks', 'salamat'],
+             `You're welcome! Is there anything else you'd like to know about Barangay Lumanglipa services? I'm here to help! 😊`],
+            
+            [['bye', 'goodbye', 'see you'],
+             `Thank you for contacting Barangay Lumanglipa! Have a great day and feel free to reach out anytime you need assistance. 👋`]
+        ]);
+    }
+
+    scrollToBottom() {
+        this.messages.scrollTop = this.messages.scrollHeight;
+    }
+}
+
+// Quick message function for action buttons
+function sendQuickMessage(message) {
+    const chatbot = window.barangayChatbot;
+    if (chatbot) {
+        chatbot.addMessage(message, 'user');
+        chatbot.showTyping();
+        setTimeout(() => {
+            chatbot.hideTyping();
+            chatbot.processMessage(message.toLowerCase());
+        }, 1000);
+    }
+}
+
+// Initialize chatbot when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    window.barangayChatbot = new BarangayChatbot();
+    // Make chatbot globally accessible for button callbacks
+    window.chatbot = window.barangayChatbot;
+});

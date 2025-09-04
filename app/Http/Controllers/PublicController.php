@@ -42,4 +42,22 @@ class PublicController extends Controller
     {
         return view('public.contact');
     }
+
+    /**
+     * Display the officials page
+     */
+    public function officials()
+    {
+        // You can fetch officials data here if needed
+        return view('public.officials');
+    }
+
+    /**
+     * Display the announcements page
+     */
+    public function announcements()
+    {
+        // You can fetch announcements data here if needed
+        return view('public.announcements');
+    }
 }

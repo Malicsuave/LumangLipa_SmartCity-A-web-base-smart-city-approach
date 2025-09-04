@@ -35,16 +35,17 @@ use App\Http\Controllers\TestController;
 |
 */
 
-// Test route
-Route::get('/test', function () {
-    return 'Laravel is working!';
-});
+
 
 // Public routes
 Route::get('/', [PublicController::class, 'home'])->name('public.home');
 Route::get('/about', [PublicController::class, 'about'])->name('public.about');
 Route::get('/services', [PublicController::class, 'services'])->name('public.services');
 Route::get('/contact', [PublicController::class, 'contact'])->name('public.contact');
+
+// Officials and Announcements routes
+Route::get('/officials', [PublicController::class, 'officials'])->name('public.officials');
+Route::get('/announcements', [PublicController::class, 'announcements'])->name('public.announcements');
 
 // Chatbot API routes
 Route::post('/chatbot', [App\Http\Controllers\ChatbotController::class, 'chat'])->name('chatbot.chat');
