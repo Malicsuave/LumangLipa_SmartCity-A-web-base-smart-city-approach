@@ -1,4 +1,4 @@
-@extends('layouts.admin.master')
+ @extends('layouts.admin.master')
 
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/admin/modern-dashboard.css') }}">

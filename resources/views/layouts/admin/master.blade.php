@@ -1,795 +1,455 @@
 <!doctype html>
 <html lang="en" data-theme="{{ session('theme', 'dark') }}">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Lumanglipa Barangay Management System">
-    <meta name="author" content="">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="icon" href="{{ asset('images/logo-bg.jpg') }}">
-    <title>@yield('page-title', 'Lumanglipa Barangay Management System')</title>
-    
-    <!-- Performance monitoring script -->
-    <script src="{{ asset('js/performance-monitor.js') }}"></script>
-    
-    
-    <!-- Simple bar CSS -->
-    <link rel="stylesheet" href="{{ asset('admin/dark/css/simplebar.css') }}">
-    <!-- Fonts CSS -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <!-- Material Icons -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <!-- Icons CSS -->
-    <link rel="stylesheet" href="{{ asset('admin/dark/css/feather.css') }}">
-    <link rel="stylesheet" href="{{ asset('admin/dark/css/select2.css') }}">
-    <link rel="stylesheet" href="{{ asset('admin/dark/css/dropzone.css') }}">
-    <link rel="stylesheet" href="{{ asset('admin/dark/css/uppy.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('admin/dark/css/jquery.steps.css') }}">
-    <link rel="stylesheet" href="{{ asset('admin/dark/css/jquery.timepicker.css') }}">
-    <link rel="stylesheet" href="{{ asset('admin/dark/css/quill.snow.css') }}">
-    <!-- Date Range Picker CSS -->
-    <link rel="stylesheet" href="{{ asset('admin/dark/css/daterangepicker.css') }}">
-    <!-- DataTables CSS -->
-    <link rel="stylesheet" href="{{ asset('admin/dark/css/dataTables.bootstrap4.css') }}">
-    
-    <!-- CSS Validation Fixes - Suppresses browser console warnings -->
-    <link rel="stylesheet" href="{{ asset('css/css-validation-fixes.css') }}">
-    
-    <!-- App CSS -->
-    <link rel="stylesheet" href="{{ asset('admin/dark/css/app-light.css') }}" id="lightTheme">
-   <link rel="stylesheet" href="{{ asset('css/admin-layout.css') }}">
-    <!-- Search icon CSS - works in both themes -->
-    <link rel="stylesheet" href="{{ asset('css/search-icon.css') }}">
-    <!-- UI Enhancements CSS - works in both themes -->
-    <link rel="stylesheet" href="{{ asset('css/ui-enhancements.css') }}">
-    <!-- Complaint metrics CSS - specifically for complaint cards -->
-    <link rel="stylesheet" href="{{ asset('css/complaint-metrics.css') }}">
-    <!-- Health metrics CSS - specifically for health service cards -->
-    <link rel="stylesheet" href="{{ asset('css/health-metrics.css') }}">
-    <!-- Complaint table styling - for improved table appearance -->
-    <link rel="stylesheet" href="{{ asset('css/complaint-table.css') }}">
-    <!-- Metric cards fix - overrides other styles -->
-    
-    <!-- Hover card effects - prevents loss of styling on hover -->
-    <link rel="stylesheet" href="{{ asset('css/hover-card.css') }}">
-    <!-- Light mode cards - forces proper background color in light mode -->
-    <link rel="stylesheet" href="{{ asset('css/light-mode-cards.css') }}">
-    <!-- Form validation styling - consistent validation error messages -->
-    <link rel="stylesheet" href="{{ asset('css/validation.css') }}">
-    <!-- Metric card animations - consistent animations across all admin pages -->
-    <link rel="stylesheet" href="{{ asset('css/admin/metric-card-animations.css') }}">
-    <!-- Custom Admin CSS -->
-    <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/admin-layout.css') }}">
-    
-    <!-- Admin Layout Styles - contains all layout-specific CSS -->
-    <link rel="stylesheet" href="{{ asset('css/admin-common.css') }}">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>@yield('page-title', 'Lumanglipa Barangay Management System')</title>
+        <!--begin::Accessibility Meta Tags-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+        <meta name="color-scheme" content="light dark" />
+        <meta name="theme-color" content="#007bff" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#1a1a1a" media="(prefers-color-scheme: dark)" />
+        <!--end::Accessibility Meta Tags-->
+        <!--begin::Primary Meta Tags-->
+        <meta name="title" content="Lumanglipa Barangay Management System" />
+        <meta name="author" content="Lumanglipa" />
+        <meta name="description" content="Lumanglipa Barangay Management System Admin Panel" />
+        <meta name="keywords" content="barangay, admin, dashboard, lumanglipa, management, system" />
+        <!--end::Primary Meta Tags-->
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+        <link rel="icon" href="{{ asset('images/logo-bg.jpg') }}">
+        <!--begin::Accessibility Features-->
+        <meta name="supported-color-schemes" content="light dark" />
+        <link rel="preload" href="{{ asset('adminlte/css/adminlte.css') }}" as="style" />
+        <!--end::Accessibility Features-->
+        <!--begin::Fonts-->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/source-sans-3@5.0.12/index.css" crossorigin="anonymous" media="print" onload="this.media='all'" />
+        <!--end::Fonts-->
+        <!--begin::Third Party Plugin(OverlayScrollbars)-->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.11.0/styles/overlayscrollbars.min.css" crossorigin="anonymous" />
+        <!--end::Third Party Plugin(OverlayScrollbars)-->
+        <!--begin::Third Party Plugin(Bootstrap Icons)-->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" crossorigin="anonymous" />
+        <!--end::Third Party Plugin(Bootstrap Icons)-->
+        <!--begin::Required Plugin(AdminLTE)-->
+        <link rel="stylesheet" href="{{ asset('adminlte/css/adminlte.css') }}" />
+        <!--end::Required Plugin(AdminLTE)--></div>
+        <!-- apexcharts -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.css" crossorigin="anonymous" />
+        
+        
+     
+    </head>
+  <body class="layout-fixed sidebar-expand-lg sidebar-open bg-body-tertiary">
+    <!--begin::App Wrapper-->
+    <div class="app-wrapper">
+      <!--begin::Header-->
+      <nav class="app-header navbar navbar-expand bg-body">
+        <div class="container-fluid">
+          <!--begin::Start Navbar Links-->
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
+                <i class="bi bi-list"></i>
+              </a>
+            </li>
+            <li class="nav-item d-none d-md-block"><a href="{{ route('admin.dashboard') }}" class="nav-link">Home</a></li>
+            <li class="nav-item d-none d-md-block"><a href="#" class="nav-link">Contact</a></li>
+          </ul>
+          <!--end::Start Navbar Links-->
 
-    <!-- Alpine.js for custom dropdowns -->
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+          <!--begin::End Navbar Links-->
+          <ul class="navbar-nav ms-auto">
+            <!--begin::Navbar Search-->
+            <li class="nav-item">
+              <a class="nav-link" data-widget="navbar-search" href="#" role="button">
+                <i class="bi bi-search"></i>
+              </a>
+            </li>
+            <!--end::Navbar Search-->
 
-    @stack('styles')
-    @push('styles')
-    <style>
-    .glassmorph-card {
-        background: #2d3748 !important;
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
-        backdrop-filter: blur(18px) saturate(180%);
-        -webkit-backdrop-filter: blur(18px) saturate(180%);
-        border-radius: 18px;
-        border: 1.5px solid rgba(0,0,0,0.18);
-    }
-    
-    /* Global button hover effects - lighter colors instead of movement */
-    .btn:hover {
-        transform: none !important;
-        transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease !important;
-    }
-    
-    /* Primary button hover - lighter blue */
-    .btn-primary:hover {
-        background-color: #4a90e2 !important;
-        border-color: #4a90e2 !important;
-        color: #ffffff !important;
-    }
-    
-    /* Secondary button hover - lighter gray */
-    .btn-secondary:hover {
-        background-color: #95a5a6 !important;
-        border-color: #95a5a6 !important;
-        color: #ffffff !important;
-    }
-    
-    /* Success button hover - lighter green */
-    .btn-success:hover {
-        background-color: #5cb85c !important;
-        border-color: #5cb85c !important;
-        color: #ffffff !important;
-    }
-    
-    /* Info button hover - lighter blue */
-    .btn-info:hover {
-        background-color: #5bc0de !important;
-        border-color: #5bc0de !important;
-        color: #ffffff !important;
-    }
-    
-    /* Warning button hover - lighter orange */
-    .btn-warning:hover {
-        background-color: #f0ad4e !important;
-        border-color: #f0ad4e !important;
-        color: #212529 !important;
-    }
-    
-    /* Danger button hover - lighter red */
-    .btn-danger:hover {
-        background-color: #e74c3c !important;
-        border-color: #e74c3c !important;
-        color: #ffffff !important;
-    }
-    
-    /* Light button hover - lighter gray */
-    .btn-light:hover {
-        background-color: #ecf0f1 !important;
-        border-color: #ecf0f1 !important;
-        color: #212529 !important;
-    }
-    
-    /* Dark button hover - lighter dark */
-    .btn-dark:hover {
-        background-color: #5a6268 !important;
-        border-color: #5a6268 !important;
-        color: #ffffff !important;
-    }
-    
-    /* Outline buttons - keep their existing hover behavior but remove movement */
-    .btn-outline-primary:hover,
-    .btn-outline-secondary:hover,
-    .btn-outline-success:hover,
-    .btn-outline-info:hover,
-    .btn-outline-warning:hover,
-    .btn-outline-danger:hover,
-    .btn-outline-light:hover,
-    .btn-outline-dark:hover {
-        transform: none !important;
-        transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease !important;
-    }
-    
-    /* Link button hover - lighter color */
-    .btn-link:hover {
-        color: #4a90e2 !important;
-        text-decoration: none !important;
-        transform: none !important;
-    }
-    
-    /* Force all buttons to never move on hover or focus, overriding all other CSS */
-    .btn:hover,
-    .btn:focus,
-    .btn-primary:hover,
-    .btn-primary:focus,
-    .btn-secondary:hover,
-    .btn-secondary:focus,
-    .btn-success:hover,
-    .btn-success:focus,
-    .btn-info:hover,
-    .btn-info:focus,
-    .btn-warning:hover,
-    .btn-warning:focus,
-    .btn-danger:hover,
-    .btn-danger:focus,
-    .btn-light:hover,
-    .btn-light:focus,
-    .btn-dark:hover,
-    .btn-dark:focus,
-    .btn-outline-primary:hover,
-    .btn-outline-secondary:hover,
-    .btn-outline-success:hover,
-    .btn-outline-info:hover,
-    .btn-outline-warning:hover,
-    .btn-outline-danger:hover,
-    .btn-outline-light:hover,
-    .btn-outline-dark:hover {
-        transform: none !important;
-        transition: background-color 0.2s, border-color 0.2s, color 0.2s !important;
-    }
-    </style>
-    @endpush
-  </head>
-  <body style="display: flex; flex-direction: column; min-height: 100vh;">
-    <div class="vertical {{ session('theme', 'dark') }}" style="flex: 1 0 auto; display: flex; flex-direction: column; min-height: 100vh;">
-      <div class="wrapper" style="flex: 1 0 auto; display: flex; flex-direction: column; min-height: 100vh;">
-        <nav class="topnav navbar navbar-light">
-          <!-- Sidebar Toggle Button - moved to top left -->
-          <button type="button" class="btn btn-link text-muted collapseSidebar p-0 mr-3" id="sidebarToggle">
-            <i class="fe fe-menu fe-20"></i>
-            <i class="fe fe-x fe-20"></i>
-          </button>
-          
-          <div class="mr-auto d-flex align-items-center">
-            <div>
-              <h5 class="mb-0 text-dark">
-                @if(Request::routeIs('admin.dashboard'))
-                  Dashboard
-                @elseif(Request::routeIs('admin.residents.*'))
-                  Residents Management
-                @elseif(Request::routeIs('admin.pre-registrations.*'))
-                  Pre-Registration Management
-                @elseif(Request::routeIs('admin.documents'))
-                  Document Requests
-                @elseif(Request::routeIs('admin.health'))
-                  Health Services
-                @elseif(Request::routeIs('admin.complaints'))
-                  Complaints Management
-                @elseif(Request::routeIs('admin.analytics'))
-                  Analytics & Reports
-                @elseif(Request::routeIs('admin.security.*'))
-                  Security Dashboard
-                @else
-                  Admin Panel
-                @endif
-              </h5>
-              <small class="text-muted">{{ Auth::user()->role->name }} • {{ \Carbon\Carbon::now()->format('M d, Y • g:i A') }}</small>
+            <!--begin::Messages Dropdown Menu-->
+            <li class="nav-item dropdown">
+              <a class="nav-link" data-bs-toggle="dropdown" href="#">
+                <i class="bi bi-chat-text"></i>
+                <span class="navbar-badge badge text-bg-danger">3</span>
+              </a>
+              <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
+                <a href="#" class="dropdown-item">
+                  <div class="d-flex">
+                    <div class="flex-shrink-0">
+                      <img src="{{ asset('images/logo.png') }}" alt="User Avatar" class="img-size-50 rounded-circle me-3" />
+                    </div>
+                    <div class="flex-grow-1">
+                      <h3 class="dropdown-item-title">System</h3>
+                      <p class="fs-7">You have a new message</p>
+                      <p class="fs-7 text-secondary"><i class="bi bi-clock-fill me-1"></i> 4 Hours Ago</p>
+                    </div>
+                  </div>
+                </a>
+                <div class="dropdown-divider"></div>
+                <a href="#" class="dropdown-item dropdown-footer">See All Messages</a>
+              </div>
+            </li>
+            <!--end::Messages Dropdown Menu-->
+
+            <!--begin::Notifications Dropdown Menu-->
+            <li class="nav-item dropdown">
+              <a class="nav-link" data-bs-toggle="dropdown" href="#">
+                <i class="bi bi-bell-fill"></i>
+                <span class="navbar-badge badge text-bg-warning">{{ $totalNotifications ?? 0 }}</span>
+              </a>
+              <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
+                <span class="dropdown-item dropdown-header">{{ $totalNotifications ?? 0 }} Notifications</span>
+                <div class="dropdown-divider"></div>
+                <a href="{{ route('admin.documents') }}" class="dropdown-item">
+                  <i class="bi bi-envelope me-2"></i> Document Requests
+                  <span class="float-end text-secondary fs-7">Now</span>
+                </a>
+                <div class="dropdown-divider"></div>
+                <a href="{{ route('admin.pre-registrations.index') }}" class="dropdown-item">
+                  <i class="bi bi-people-fill me-2"></i> Pre-Registrations
+                  <span class="float-end text-secondary fs-7">1 hr</span>
+                </a>
+                <div class="dropdown-divider"></div>
+                <a href="{{ route('admin.complaints') }}" class="dropdown-item">
+                  <i class="bi bi-exclamation-triangle me-2"></i> Complaints
+                  <span class="float-end text-secondary fs-7">2 hrs</span>
+                </a>
+                <div class="dropdown-divider"></div>
+                <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
+              </div>
+            </li>
+            <!--end::Notifications Dropdown Menu-->
+
+            <!--begin::Color Mode Toggler-->
+            <li class="nav-item dropdown">
+              <button
+                class="btn btn-link nav-link py-2 px-0 px-lg-2 dropdown-toggle d-flex align-items-center"
+                id="bd-theme"
+                type="button"
+                aria-expanded="false"
+                data-bs-toggle="dropdown"
+                data-bs-display="static"
+              >
+                <span class="theme-icon-active">
+                  <i class="my-1"></i>
+                </span>
+                <span class="d-lg-none ms-2" id="bd-theme-text">Toggle theme</span>
+              </button>
+              <ul
+                class="dropdown-menu dropdown-menu-end"
+                aria-labelledby="bd-theme-text"
+                style="--bs-dropdown-min-width: 8rem;"
+              >
+                <li>
+                  <button
+                    type="button"
+                    class="dropdown-item d-flex align-items-center active"
+                    data-bs-theme-value="light"
+                    aria-pressed="false"
+                  >
+                    <i class="bi bi-sun-fill me-2"></i>
+                    Light
+                    <i class="bi bi-check-lg ms-auto d-none"></i>
+                  </button>
+                </li>
+                <li>
+                  <button
+                    type="button"
+                    class="dropdown-item d-flex align-items-center"
+                    data-bs-theme-value="dark"
+                    aria-pressed="false"
+                  >
+                    <i class="bi bi-moon-fill me-2"></i>
+                    Dark
+                    <i class="bi bi-check-lg ms-auto d-none"></i>
+                  </button>
+                </li>
+                <li>
+                  <button
+                    type="button"
+                    class="dropdown-item d-flex align-items-center"
+                    data-bs-theme-value="auto"
+                    aria-pressed="true"
+                  >
+                    <i class="bi bi-circle-fill-half-stroke me-2"></i>
+                    Auto
+                    <i class="bi bi-check-lg ms-auto d-none"></i>
+                  </button>
+                </li>
+              </ul>
+            </li>
+            <!--end::Color Mode Toggler-->
+
+            <!--begin::Fullscreen Toggle-->
+            <li class="nav-item">
+              <a class="nav-link" href="#" id="fullscreen-btn" role="button">
+                <i class="bi bi-arrows-fullscreen"></i>
+              </a>
+            </li>
+            <!--end::Fullscreen Toggle-->
+
+            <!--begin::User Menu Dropdown-->
+            <li class="nav-item dropdown user-menu">
+              <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                <img src="{{ Auth::user()->profile_photo_url ?? asset('images/logo.png') }}" class="user-image rounded-circle shadow" alt="User Image" style="width:32px;height:32px;" />
+                <span class="d-none d-md-inline">{{ Auth::user()->name ?? 'Admin' }}</span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
+                <li class="user-header text-bg-primary">
+                  <img src="{{ Auth::user()->profile_photo_url ?? asset('images/logo.png') }}" class="rounded-circle shadow" alt="User Image" />
+                  <p>
+                    {{ Auth::user()->name ?? 'Admin' }}
+                    <small>Member since {{ Auth::user()->created_at?->format('M Y') ?? '' }}</small>
+                  </p>
+                </li>
+                <li class="user-body">
+                  <div class="row">
+                    <div class="col-4 text-center"><a href="#">Followers</a></div>
+                    <div class="col-4 text-center"><a href="#">Sales</a></div>
+                    <div class="col-4 text-center"><a href="#">Friends</a></div>
+                  </div>
+                </li>
+                <li class="user-footer">
+                  <a href="{{ route('admin.profile') }}" class="btn btn-default btn-flat">Profile</a>
+                  <form method="POST" action="{{ route('logout') }}" class="d-inline">
+                    @csrf
+                    <button type="submit" class="btn btn-default btn-flat float-end">Sign out</button>
+                  </form>
+                </li>
+              </ul>
+            </li>
+            <!--end::User Menu Dropdown-->
+          </ul>
+          <!--end::End Navbar Links-->
+        </div>
+      </nav>
+      <!--end::Header-->
+
+      <!--begin::Sidebar-->
+      <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
+        <!--begin::Sidebar Brand-->
+        <div class="sidebar-brand">
+          <a href="{{ route('admin.dashboard') }}" class="brand-link">
+            <img src="{{ asset('images/logo.png') }}" alt="Lumanglipa Logo" class="brand-image opacity-75 shadow" />
+            <span class="brand-text fw-light">LumangLipa Admin</span>
+          </a>
+        </div>
+        <!--end::Sidebar Brand-->
+        <!--begin::Sidebar Wrapper-->
+        <div class="sidebar-wrapper">
+          <nav class="mt-2">
+            <!--begin::Sidebar Menu-->
+            <ul
+              class="nav sidebar-menu flex-column"
+              data-lte-toggle="treeview"
+              role="navigation"
+              aria-label="Main navigation"
+              data-accordion="false"
+              id="navigation"
+            >
+              <li class="nav-item">
+                <a href="{{ route('admin.dashboard') }}" class="nav-link  {{ Request::routeIs('admin.dashboard') ? 'active' : '' }}">
+                  <i class="nav-icon bi bi-speedometer"></i>
+                  <p>
+                    Dashboard
+                  </p>
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a href="{{ route('admin.documents') }}" class="nav-link {{ Request::routeIs('admin.documents') ? 'active' : '' }}">
+                  <i class="nav-icon bi bi-file-earmark-fill"></i>
+                  <p>Document Requests</p>
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a href="{{ route('admin.pre-registrations.index') }}" class="nav-link {{ Request::routeIs('admin.pre-registrations.*') ? 'active' : '' }}">
+                  <i class="nav-icon bi bi-user-plus"></i>
+                  <p>Pre-Registrations</p>
+                </a>
+              </li>
+
+              <!-- Replace simple Residents link with treeview dropdown -->
+              <li class="nav-item has-treeview {{ Request::routeIs('admin.residents.*') || Request::routeIs('admin.gad.*') || Request::routeIs('admin.senior-citizens.*') ? 'menu-open' : '' }}">
+                <a href="#" class="nav-link {{ Request::routeIs('admin.residents.*') || Request::routeIs('admin.gad.*') || Request::routeIs('admin.senior-citizens.*') ? 'active' : '' }}">
+                  <i class="nav-icon bi bi-people-fill"></i>
+                  <p>
+                    Residents
+                    <i class="nav-arrow bi bi-chevron-right"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item"><a class="nav-link {{ Request::routeIs('admin.residents.index') ? 'active' : '' }}" href="{{ route('admin.residents.index') }}"><i class="{{ Request::routeIs('admin.residents.index') ? 'nav-icon bi bi-circle-fill' : 'nav-icon bi bi-circle' }}"></i><p>All Residents</p></a></li>
+                  <li class="nav-item"><a class="nav-link {{ Request::routeIs('admin.residents.census-data') ? 'active' : '' }}" href="{{ route('admin.residents.census-data') }}"><i class="{{ Request::routeIs('admin.residents.census-data') ? 'nav-icon bi bi-circle-fill' : 'nav-icon bi bi-circle' }}"></i><p>Census Data</p></a></li>
+                  <li class="nav-item"><a class="nav-link {{ Request::routeIs('admin.residents.id.pending') ? 'active' : '' }}" href="{{ route('admin.residents.id.pending') }}"><i class="{{ Request::routeIs('admin.residents.id.pending') ? 'nav-icon bi bi-circle-fill' : 'nav-icon bi bi-circle' }}"></i><p>ID Card Management</p></a></li>
+                  <li class="nav-item"><a class="nav-link {{ Request::routeIs('admin.gad.*') ? 'active' : '' }}" href="{{ route('admin.gad.index') }}"><i class="{{ Request::routeIs('admin.gad.*') ? 'nav-icon bi bi-circle-fill' : 'nav-icon bi bi-circle' }}"></i><p>Gender &amp; Development</p></a></li>
+                  <li class="nav-item"><a class="nav-link {{ Request::routeIs('admin.senior-citizens.*') ? 'active' : '' }}" href="{{ route('admin.senior-citizens.index') }}"><i class="{{ Request::routeIs('admin.senior-citizens.*') ? 'nav-icon bi bi-circle-fill' : 'nav-icon bi bi-circle' }}"></i><p>Senior Citizens</p></a></li>
+                </ul>
+              </li>
+
+              <li class="nav-item">
+                <a href="{{ route('admin.health') }}" class="nav-link {{ Request::routeIs('admin.health') ? 'active' : '' }}">
+                  <i class="nav-icon bi bi-heart-pulse"></i>
+                  <p>Health Services</p>
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a href="{{ route('admin.complaints') }}" class="nav-link {{ Request::routeIs('admin.complaints') ? 'active' : '' }}">
+                  <i class="nav-icon bi bi-exclamation-triangle"></i>
+                  <p>Complaints</p>
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a href="{{ route('admin.analytics') }}" class="nav-link {{ Request::routeIs('admin.analytics') ? 'active' : '' }}">
+                  <i class="nav-icon bi bi-bar-chart"></i>
+                  <p>Analytics</p>
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a href="{{ route('admin.profile') }}" class="nav-link {{ Request::routeIs('admin.profile') ? 'active' : '' }}">
+                  <i class="nav-icon bi bi-person"></i>
+                  <p>Profile</p>
+                </a>
+              </li>
+            </ul>
+            <!--end::Sidebar Menu-->
+          </nav>
+        </div>
+        <!--end::Sidebar Wrapper-->
+      </aside>
+      <!--end::Sidebar-->
+      <!--begin::App Main-->
+      <main class="app-main">
+        <div class="app-content-header">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-sm-6"><h3 class="mb-0">Dashboard</h3></div>
+              <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-end">
+                  <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Home</a></li>
+                  <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+                </ol>
+              </div>
             </div>
           </div>
-          
-          <ul class="nav">
-            <!-- Notifications Bell -->
-            @php
-              // Fetch actual records with timestamps instead of just counts
-              $pendingDocuments = collect();
-              $pendingPreRegistrations = collect();
-              $pendingComplaints = collect();
-              $pendingHealthRequests = collect();
-              $pendingApprovals = collect();
-              
-              // Check if models exist and user has permission to see them
-              if (class_exists('\App\Models\DocumentRequest') && in_array(Auth::user()->role->name, ['Barangay Captain', 'Barangay Secretary'])) {
-                $pendingDocuments = \App\Models\DocumentRequest::where('status', 'pending')
-                  ->orderBy('created_at', 'desc')
-                  ->limit(5)
-                  ->get();
-              }
-              
-              if (class_exists('\App\Models\PreRegistration') && in_array(Auth::user()->role->name, ['Barangay Captain', 'Barangay Secretary'])) {
-                $pendingPreRegistrations = \App\Models\PreRegistration::where('status', 'pending')
-                  ->orderBy('created_at', 'desc')
-                  ->limit(5)
-                  ->get();
-              }
-              
-              if (class_exists('\App\Models\Complaint') && in_array(Auth::user()->role->name, ['Barangay Captain', 'Complaint Manager'])) {
-                $pendingComplaints = \App\Models\Complaint::where('status', 'pending')
-                  ->orderBy('created_at', 'desc')
-                  ->limit(5)
-                  ->get();
-              }
-              
-              if (class_exists('\App\Models\HealthService') && in_array(Auth::user()->role->name, ['Barangay Captain', 'Health Worker'])) {
-                $pendingHealthRequests = \App\Models\HealthService::where('status', 'pending')
-                  ->orderBy('created_at', 'desc')
-                  ->limit(5)
-                  ->get();
-              }
-              
-              if (in_array(Auth::user()->role->name, ['Barangay Captain', 'Barangay Secretary', 'Admin'])) {
-                // Add any other pending approvals here
-                $pendingApprovals = collect(); // Placeholder for approval system
-              }
-              
-              $totalNotifications = $pendingDocuments->count() + $pendingPreRegistrations->count() + $pendingComplaints->count() + $pendingHealthRequests->count() + $pendingApprovals->count();
-            @endphp
-            
-            <li class="nav-item nav-notif mr-3">
-              <a class="nav-link text-muted my-2" href="#" id="notificationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <span class="fe fe-bell fe-16"></span>
-                @if($totalNotifications > 0)
-                  <span class="dot dot-md bg-success"></span>
-                @endif
-              </a>
-              <div class="dropdown-menu dropdown-menu-right notification-dropdown" aria-labelledby="notificationDropdown">
-                <div class="notification-header">
-                  <i class="fe fe-bell mr-2"></i>Notifications
-                  @if($totalNotifications > 0)
-                    <span class="float-right badge badge-light">{{ $totalNotifications }}</span>
-                  @endif
-                </div>
-                
-                @if($totalNotifications > 0)
-                  <!-- Document Requests -->
-                  @if($pendingDocuments->count() > 0)
-                    @php
-                      $latestDocument = $pendingDocuments->first();
-                    @endphp
-                    <a href="{{ route('admin.documents') }}" class="notification-item d-flex">
-                      <div class="notification-icon document">
-                        <i class="fe fe-file"></i>
-                      </div>
-                      <div class="notification-content">
-                        <div class="notification-title">Document Requests</div>
-                        <div class="notification-text">{{ $pendingDocuments->count() }} pending document{{ $pendingDocuments->count() > 1 ? 's' : '' }} need{{ $pendingDocuments->count() > 1 ? '' : 's' }} review</div>
-                        <div class="notification-time">{{ $latestDocument ? $latestDocument->created_at->diffForHumans() : 'Just now' }}</div>
-                      </div>
-                    </a>
-                  @endif
-                  
-                  <!-- Pre-Registrations -->
-                  @if($pendingPreRegistrations->count() > 0)
-                    @php
-                      $latestPreReg = $pendingPreRegistrations->first();
-                    @endphp
-                    <a href="{{ route('admin.pre-registrations.index') }}" class="notification-item d-flex">
-                      <div class="notification-icon resident">
-                        <i class="fe fe-user-plus"></i>
-                      </div>
-                      <div class="notification-content">
-                        <div class="notification-title">Pre-Registrations</div>
-                        <div class="notification-text">{{ $pendingPreRegistrations->count() }} new registration{{ $pendingPreRegistrations->count() > 1 ? 's' : '' }} awaiting approval</div>
-                        <div class="notification-time">{{ $latestPreReg ? $latestPreReg->created_at->diffForHumans() : 'Just now' }}</div>
-                      </div>
-                    </a>
-                  @endif
-                  
-                  <!-- Complaints -->
-                  @if($pendingComplaints->count() > 0)
-                    @php
-                      $latestComplaint = $pendingComplaints->first();
-                    @endphp
-                    <a href="{{ route('admin.complaints') }}" class="notification-item d-flex">
-                      <div class="notification-icon complaint">
-                        <i class="fe fe-alert-triangle"></i>
-                      </div>
-                      <div class="notification-content">
-                        <div class="notification-title">Complaints</div>
-                        <div class="notification-text">{{ $pendingComplaints->count() }} unresolved complaint{{ $pendingComplaints->count() > 1 ? 's' : '' }} require{{ $pendingComplaints->count() > 1 ? '' : 's' }} attention</div>
-                        <div class="notification-time">{{ $latestComplaint ? $latestComplaint->created_at->diffForHumans() : 'Just now' }}</div>
-                      </div>
-                    </a>
-                  @endif
-                  
-                  <!-- Health Services -->
-                  @if($pendingHealthRequests->count() > 0)
-                    @php
-                      $latestHealth = $pendingHealthRequests->first();
-                    @endphp
-                    <a href="{{ route('admin.health') }}" class="notification-item d-flex">
-                      <div class="notification-icon health">
-                        <i class="fe fe-heart"></i>
-                      </div>
-                      <div class="notification-content">
-                        <div class="notification-title">Health Services</div>
-                        <div class="notification-text">{{ $pendingHealthRequests->count() }} health request{{ $pendingHealthRequests->count() > 1 ? 's' : '' }} pending review</div>
-                        <div class="notification-time">{{ $latestHealth ? $latestHealth->created_at->diffForHumans() : 'Just now' }}</div>
-                      </div>
-                    </a>
-                  @endif
-                  
-                  <div class="notification-footer">
-                    <a href="{{ route('admin.dashboard') }}">View All Notifications</a>
-                  </div>
-                @else
-                  <div class="empty-notifications">
-                    <i class="fe fe-check-circle"></i>
-                    <div><strong>All caught up!</strong></div>
-                    <div>No pending notifications</div>
-                  </div>
-                @endif
-              </div>
-            </li>
-            
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle text-muted pr-0" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <span class="avatar avatar-sm mt-2">
-                  <img src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" class="avatar-img rounded-circle">
-                </span>
-              </a>
-              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-                <a class="dropdown-item" href="{{ route('admin.profile') }}">Settings</a>
-                <form method="POST" action="{{ route('logout') }}">
-                  @csrf
-                  <button type="submit" class="dropdown-item">Logout</button>
-                </form>
-              </div>
-            </li>
-          </ul>
-        </nav>
-        <aside class="sidebar-left border-right bg-white shadow" id="leftSidebar" data-simplebar>
-<style>
-  
-  @media (max-width: 991.98px) {
-    .sidebar-left {
-      display: none !important;
-    }
-    .sidebar-left.active {
-      display: block !important;
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 100vh;
-      z-index: 1050;
-      background: #fff;
-      width: 250px;
-      box-shadow: 2px 0 8px rgba(0,0,0,0.15);
-      transition: left 0.3s;
-    }
-    .main-content, .container-fluid {
-      margin-left: 0 !important;
-    }
-  }
-  /* Prevent sidebar from opening on hover */
-  .sidebar-left:hover,
-  .sidebar-left:focus,
-  .sidebar-left:active {
-    width: unset !important;
-    left: unset !important;
-    box-shadow: unset !important;
-  }
-</style>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    var sidebar = document.getElementById('leftSidebar');
-    var burger = document.getElementById('sidebarToggle');
-    if (sidebar && burger) {
-      burger.addEventListener('click', function(e) {
-        e.preventDefault();
-        sidebar.classList.toggle('active');
+        </div>
+        <div class="app-content">
+          <div class="container-fluid pt-3">
+            @yield('content')
+          </div>
+        </div>
+      </main>
+      <!--end::App Main-->
+      <footer class="app-footer text-center">
+        <strong>&copy; {{ date('Y') }} Lumanglipa Barangay Management System.</strong> All rights reserved.
+      </footer>
+    </div>
+    <!--end::App Wrapper-->
+    <!-- Core JavaScript (loaded immediately) -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.11.0/browser/overlayscrollbars.browser.es.min.js"></script>
+    <script src="{{ asset('adminlte/js/adminlte.min.js') }}"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        OverlayScrollbars(document.querySelectorAll('.sidebar-wrapper'), {});
+        // Fullscreen toggle
+        document.getElementById('fullscreen-btn').addEventListener('click', function() {
+          if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+          } else {
+            document.exitFullscreen();
+          }
+        });
       });
-      // Optional: close sidebar when clicking outside
-      document.addEventListener('click', function(e) {
-        if (sidebar.classList.contains('active') && !sidebar.contains(e.target) && !burger.contains(e.target)) {
-          sidebar.classList.remove('active');
-        }
+    </script>
+    <!-- Color Mode toggler script -->
+    <script>
+(() => {
+  "use strict";
+
+  const storedTheme = localStorage.getItem("theme");
+
+  const getPreferredTheme = () => {
+    if (storedTheme) {
+      return storedTheme;
+    }
+
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+  };
+
+  const setTheme = function (theme) {
+    if (
+      theme === "auto" &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+    ) {
+      document.documentElement.setAttribute("data-bs-theme", "dark");
+    } else {
+      document.documentElement.setAttribute("data-bs-theme", theme);
+    }
+  };
+
+  setTheme(getPreferredTheme());
+
+  const showActiveTheme = (theme, focus = false) => {
+    const themeSwitcher = document.querySelector("#bd-theme");
+
+    if (!themeSwitcher) {
+      return;
+    }
+
+    const themeSwitcherText = document.querySelector("#bd-theme-text");
+    const activeThemeIcon = document.querySelector(".theme-icon-active i");
+    const btnToActive = document.querySelector(
+      `[data-bs-theme-value="${theme}"]`
+    );
+    const svgOfActiveBtn = btnToActive.querySelector("i").getAttribute("class");
+
+    for (const element of document.querySelectorAll("[data-bs-theme-value]")) {
+      element.classList.remove("active");
+      element.setAttribute("aria-pressed", "false");
+    }
+
+    btnToActive.classList.add("active");
+    btnToActive.setAttribute("aria-pressed", "true");
+    activeThemeIcon.setAttribute("class", svgOfActiveBtn);
+    const themeSwitcherLabel = `${themeSwitcherText.textContent} (${btnToActive.dataset.bsThemeValue})`;
+    themeSwitcher.setAttribute("aria-label", themeSwitcherLabel);
+
+    if (focus) {
+      themeSwitcher.focus();
+    }
+  };
+
+  window
+    .matchMedia("(prefers-color-scheme: dark)")
+    .addEventListener("change", () => {
+      if (storedTheme !== "light" || storedTheme !== "dark") {
+        setTheme(getPreferredTheme());
+      }
+    });
+
+  window.addEventListener("DOMContentLoaded", () => {
+    showActiveTheme(getPreferredTheme());
+
+    for (const toggle of document.querySelectorAll("[data-bs-theme-value]")) {
+      toggle.addEventListener("click", () => {
+        const theme = toggle.getAttribute("data-bs-theme-value");
+        localStorage.setItem("theme", theme);
+        setTheme(theme);
+        showActiveTheme(theme, true);
       });
     }
   });
-  /* Hide sidebar on screens smaller than lg (992px) */ @media (max-width: 991.98px) { .sidebar-left { display: none !important; } } /* Remove open-on-hover for sidebar on all screens */ .sidebar-left:hover, .sidebar-left:focus, .sidebar-left:active { width: unset !important; }
-
+})();
 </script>
-  
-</style>
-          <nav class="vertnav navbar navbar-light">
-            <!-- nav bar -->
-            <div class="w-100 mb-4 d-flex flex-column">
-              <a class="navbar-brand mx-auto mt-2 flex-fill text-center" href="{{ route('admin.dashboard') }}">
-                <!-- Only one logo visible at a time based on sidebar state -->
-                <img src="{{ asset('images/logo.png') }}" alt="Lumanglipa Logo" class="navbar-brand-img logo-expanded">
-                
-                <img src="{{ asset('images/logo-small.png') }}" alt="Lumanglipa Logo" class="navbar-brand-img logo-collapsed">
-              </a>
-              <!-- Modified text div with collapse-hide class -->
-              <div class="text-center mb-3 collapse-hide">
-                <h6 class="text-uppercase font-weight-bold">LumangLipa Admin</h6>
-              </div>
-            </div>
-
-            <!-- Sidebar Navigation Menu -->
-            <ul class="navbar-nav flex-fill w-100 mb-2">
-              <li class="nav-item {{ Request::routeIs('admin.dashboard') ? 'active' : '' }}">
-                <a href="{{ route('admin.dashboard') }}" class="nav-link {{ Request::routeIs('admin.dashboard') ? 'active' : '' }}">
-                  <i class="fe fe-home fe-16"></i>
-                  <span class="ml-3 item-text">Dashboard</span>
-                </a>
-              </li>
-
-              @if(in_array(Auth::user()->role->name, ['Barangay Captain', 'Barangay Secretary']))
-              <li class="nav-item {{ Request::routeIs('admin.documents') ? 'active' : '' }}">
-                <a href="{{ route('admin.documents') }}" class="nav-link {{ Request::routeIs('admin.documents') ? 'active' : '' }}">
-                  <i class="fe fe-file fe-16"></i>
-                  <span class="ml-3 item-text">Document Requests</span>
-                </a>
-              </li>
-
-              <li class="nav-item {{ Request::routeIs('admin.pre-registrations.*') ? 'active' : '' }}">
-                <a href="{{ route('admin.pre-registrations.index') }}" class="nav-link {{ Request::routeIs('admin.pre-registrations.*') ? 'active' : '' }}">
-                  <i class="fe fe-user-plus fe-16"></i>
-                  <span class="ml-3 item-text">Pre-Registrations</span>
-                </a>
-              </li>
-              
-              <li class="nav-item dropdown {{ Request::routeIs('admin.residents.*') || Request::routeIs('admin.gad.*') || Request::routeIs('admin.senior-citizens.*') ? 'active' : '' }}">
-                <a href="#residents" data-toggle="collapse" aria-expanded="{{ Request::routeIs('admin.residents.*') || Request::routeIs('admin.gad.*') || Request::routeIs('admin.senior-citizens.*') ? 'true' : 'false' }}" 
-                  class="dropdown-toggle nav-link {{ Request::routeIs('admin.residents.*') || Request::routeIs('admin.gad.*') || Request::routeIs('admin.senior-citizens.*') ? 'active' : '' }}">
-                  <i class="fe fe-users fe-16"></i>
-                  <span class="ml-3 item-text">Residents</span>
-                </a>
-                <ul class="collapse list-unstyled pl-4 w-100 {{ Request::routeIs('admin.residents.*') || Request::routeIs('admin.gad.*') || Request::routeIs('admin.senior-citizens.*') ? 'show' : '' }}" id="residents">
-                  <li class="nav-item {{ Request::routeIs('admin.residents.index') ? 'active' : '' }}">
-                    <a class="nav-link pl-3" href="{{ route('admin.residents.index') }}">
-                      <span class="ml-1 item-text">All Residents</span>
-                    </a>
-                  </li>
-                  <li class="nav-item {{ Request::routeIs('admin.residents.census-data') ? 'active' : '' }}">
-                    <a class="nav-link pl-3" href="{{ route('admin.residents.census-data') }}">
-                      <span class="ml-1 item-text">Census Data</span>
-                    </a>
-                  </li>
-                  <li class="nav-item {{ Request::routeIs('admin.residents.id.pending') ? 'active' : '' }}">
-                    <a class="nav-link pl-3" href="{{ route('admin.residents.id.pending') }}">
-                      <span class="ml-1 item-text">ID Card Management</span>
-                    </a>
-                  </li>
-                  <li class="nav-item {{ Request::routeIs('admin.gad.*') ? 'active' : '' }}">
-                    <a class="nav-link pl-3" href="{{ route('admin.gad.index') }}">
-                      <span class="ml-1 item-text">Gender & Development</span>
-                    </a>
-                  </li>
-                  <li class="nav-item {{ Request::routeIs('admin.senior-citizens.*') ? 'active' : '' }}">
-                    <a class="nav-link pl-3" href="{{ route('admin.senior-citizens.index') }}">
-                      <span class="ml-1 item-text">Senior Citizens</span>
-                    </a>
-                  </li>
-                
-                </ul>
-              </li>
-              @endif
-
-              @if(in_array(Auth::user()->role->name, ['Barangay Captain', 'Barangay Secretary']))
-              <!-- Officials Management Link -->
-              <li class="nav-item {{ Request::routeIs('admin.officials.edit-single') ? 'active' : '' }}">
-                <a href="{{ route('admin.officials.edit-single') }}" class="nav-link {{ Request::routeIs('admin.officials.edit-single') ? 'active' : '' }}">
-                  <i class="fe fe-user-check fe-16"></i>
-                  <span class="ml-3 item-text">Officials</span>
-                </a>
-              </li>
-              @endif
-
-              @if(in_array(Auth::user()->role->name, ['Barangay Captain', 'Barangay Secretary', 'Admin']))
-              <li class="nav-item dropdown {{ Request::routeIs('admin.approvals*') || Request::routeIs('admin.access-requests*') ? 'active' : '' }}">
-                <a href="#approvals" data-toggle="collapse" aria-expanded="{{ Request::routeIs('admin.approvals*') || Request::routeIs('admin.access-requests*') ? 'true' : 'false' }}" 
-                  class="dropdown-toggle nav-link {{ Request::routeIs('admin.approvals*') || Request::routeIs('admin.access-requests*') ? 'active' : '' }}">
-                  <i class="fe fe-check-circle fe-16"></i>
-                  <span class="ml-3 item-text">Approvals</span>
-                </a>
-                <ul class="collapse list-unstyled pl-4 w-100 {{ Request::routeIs('admin.approvals*') || Request::routeIs('admin.access-requests*') ? 'show' : '' }}" id="approvals">
-                  <li class="nav-item approval-menu-item {{ Request::routeIs('admin.approvals.index') ? 'active' : '' }}">
-                    <a class="nav-link pl-3" href="{{ route('admin.approvals.index') }}">
-                      <span class="ml-1 item-text">All Approvals</span>
-                    </a>
-                  </li>
-                  <li class="nav-item access-request-menu-item {{ Request::routeIs('admin.access-requests.*') ? 'active' : '' }}">
-                    <a class="nav-link pl-3" href="{{ route('admin.access-requests.index') }}">
-                      <span class="ml-1 item-text">Access Requests</span>
-                    </a>
-                  </li>
-                </ul>
-              </li>
-              @endif
-
-              @if(in_array(Auth::user()->role->name, ['Barangay Captain', 'Health Worker', 'Barangay Secretary']))
-              <li class="nav-item {{ Request::routeIs('admin.health') || Request::routeIs('admin.health-services.*') ? 'active' : '' }}">
-                <a href="{{ route('admin.health') }}" class="nav-link {{ Request::routeIs('admin.health') || Request::routeIs('admin.health-services.*') ? 'active' : '' }}">
-                  <i class="fe fe-heart fe-16"></i>
-                  <span class="ml-3 item-text">Health Services</span>
-                </a>
-              </li>
-              @endif
-
-              @if(in_array(Auth::user()->role->name, ['Barangay Captain', 'Complaint Manager']))
-              <li class="nav-item {{ Request::routeIs('admin.complaints') || Request::routeIs('admin.complaint-management') ? 'active' : '' }}">
-                <a href="{{ route('admin.complaints') }}" class="nav-link {{ Request::routeIs('admin.complaints') || Request::routeIs('admin.complaint-management') ? 'active' : '' }}">
-                  <i class="fe fe-alert-triangle fe-16"></i>
-                  <span class="ml-3 item-text">Complaints</span>
-                </a>
-              </li>
-              @endif
-
-              @if(in_array(Auth::user()->role->name, ['Barangay Captain', 'Barangay Secretary']))
-              <li class="nav-item {{ Request::routeIs('admin.analytics') ? 'active' : '' }}">
-                <a href="{{ route('admin.analytics') }}" class="nav-link {{ Request::routeIs('admin.analytics') ? 'active' : '' }}">
-                  <i class="fe fe-bar-chart-2 fe-16"></i>
-                  <span class="ml-3 item-text">Analytics</span>
-                </a>
-              </li>
-              
-              @if(in_array(Auth::user()->role->name, ['Barangay Captain', 'Barangay Secretary', 'Admin']))
-              <li class="nav-item dropdown {{ Request::routeIs('admin.security.dashboard') || Request::routeIs('admin.security.audit-logs') ? 'active' : '' }}">
-                <a href="#security" data-toggle="collapse" aria-expanded="{{ Request::routeIs('admin.security.dashboard') || Request::routeIs('admin.security.audit-logs') ? 'true' : 'false' }}" 
-                  class="dropdown-toggle nav-link {{ Request::routeIs('admin.security.dashboard') || Request::routeIs('admin.security.audit-logs') ? 'active' : '' }}">
-                  <i class="fe fe-shield fe-16"></i>
-                  <span class="ml-3 item-text">Security</span>
-                </a>
-                <ul class="collapse list-unstyled pl-4 w-100 {{ Request::routeIs('admin.security.dashboard') || Request::routeIs('admin.security.audit-logs') ? 'show' : '' }}" id="security">
-                  <li class="nav-item {{ Request::routeIs('admin.security.dashboard') ? 'active' : '' }}">
-                    <a class="nav-link pl-3" href="{{ route('admin.security.dashboard') }}">
-                      <span class="ml-1 item-text">Security Dashboard</span>
-                    </a>
-                  </li>
-                  <li class="nav-item {{ Request::routeIs('admin.security.audit-logs') ? 'active' : '' }}">
-                    <a class="nav-link pl-3" href="{{ route('admin.security.audit-logs') }}">
-                      <span class="ml-1 item-text">Audit Logs</span>
-                    </a>
-                  </li>
-                </ul>
-              </li>
-              @endif
-              @endif
-            </ul>
-          </nav>
-        </aside>
-
-        <main role="main" class="main-content" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); flex: 1 0 auto; display: flex; flex-direction: column; min-height: 0;">
-          <div class="container-fluid" style="flex: 1 1 auto; padding-bottom: 0; display: flex; flex-direction: column; min-height: 0;">
-            <div class="row justify-content-center" style="flex: 1 1 auto;">
-              <div class="col-12" style="flex: 1 1 auto; display: flex; flex-direction: column;">
-                <div class="card shadow rounded-lg border-0 glassmorph-card" style="padding: 2rem 1.5rem; margin-bottom: 0; flex: 1 1 auto;">
-                  
-                  @yield('content')
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Modal shortcut -->
-          <div class="modal fade modal-shortcut modal-slide" tabindex="-1" role="dialog" aria-labelledby="defaultModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="defaultModalLabel">Shortcuts</h5>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                  </button>
-                </div>
-                <div class="modal-body px-5">
-                  <div class="row align-items-center">
-                    <div class="col-6 text-center">
-                      <div class="squircle bg-primary justify-content-center">
-                        <i class="fe fe-home fe-32 align-self-center text-white"></i>
-                      </div>
-                      <p>Dashboard</p>
-                    </div>
-                    <div class="col-6 text-center">
-                      <div class="squircle bg-primary justify-content-center">
-                        <i class="fe fe-user fe-32 align-self-center text-white"></i>
-                      </div>
-                      <p>Settings</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </main>
-        <footer class="admin-footer text-center py-3" style="background: #f8f9fa; border-top: 1px solid #e0e0e0; flex-shrink: 0; margin-top: 0;">
-          <span class="text-muted">&copy; {{ date('Y') }} Lumanglipa Barangay Management System. All rights reserved.</span>
-        </footer>
-      </div>
-
-      <!-- Core JavaScript (loaded immediately) -->
-
-      <script src="{{ asset('admin/dark/js/jquery.min.js') }}"></script>
-      <script src="{{ asset('js/sidebar-fix.js') }}"></script>
-      <script src="{{ asset('admin/dark/js/popper.min.js') }}"></script>
-      <script src="{{ asset('admin/dark/js/bootstrap.min.js') }}"></script>
-
-      <!-- DataTables JavaScript -->
-      <script src="{{ asset('admin/dark/js/jquery.dataTables.min.js') }}"></script>
-      <script src="{{ asset('admin/dark/js/dataTables.bootstrap4.min.js') }}"></script>
-      <script src="{{ asset('js/table-init.js') }}"></script>
-
-      <!-- Theme and sidebar management - with error handling -->
-      <script>
-        // Error handling wrapper for script loading
-        function loadScriptSafely(url, callback) {
-          var script = document.createElement('script');
-          script.src = url;
-          
-          script.onload = function() {
-            if (callback) callback(true);
-          };
-          
-          script.onerror = function() {
-            console.error('Failed to load script: ' + url);
-            if (callback) callback(false);
-          };
-          
-          document.body.appendChild(script);
-        }
-        
-        // NOTE: Sidebar toggle functionality is now handled by sidebar-toggle-fix.js
-        // This prevents conflicts between multiple toggle implementations
-        console.log('Master layout loaded - sidebar toggle handled by external script');
-      </script>
-      
-      <!-- Deferred JavaScript (loaded after page renders) -->
-      <script>
-        // Performance-optimized script loading
-        document.addEventListener('DOMContentLoaded', function() {
-          // Scripts to load in order, but without blocking page rendering
-          const deferredScripts = [
-      
-            '{{ asset("admin/dark/js/simplebar.min.js") }}',
-            '{{ asset("admin/dark/js/daterangepicker.js") }}',
-            '{{ asset("admin/dark/js/jquery.stickOnScroll.js") }}',
-            '{{ asset("admin/dark/js/tinycolor-min.js") }}',
-            '{{ asset("js/admin-custom.js") }}'
-          ];
-          
-          // Function to load a script with error handling
-          function loadScript(src, callback) {
-            const script = document.createElement('script');
-            script.src = src;
-            
-            // When script loads, run callback
-            script.onload = callback;
-            
-            // If script fails, still try to continue
-            script.onerror = function() {
-              console.error('Failed to load script: ' + src);
-              callback(); // Continue despite error
-            };
-            
-            // Add script to document
-            document.body.appendChild(script);
-          }
-          
-          // Load scripts in sequence
-          function loadNextScript(index) {
-            if (index >= deferredScripts.length) {
-              return;
-            }
-            
-            loadScript(deferredScripts[index], function() {
-              loadNextScript(index + 1);
-            });
-          }
-          
-          // Start loading scripts
-          loadNextScript(0);
-        });
-      </script>
-
-      @stack('scripts')
-      <style>
-      html, body, .vertical, .wrapper {
-        height: 100%;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-      }
-      .main-content, .container-fluid {
-        flex: 1 0 auto;
-        min-height: 0;
-        display: flex;
-        flex-direction: column;
-      }
-      .admin-footer {
-        flex-shrink: 0;
-        margin-top: 0 !important;
-      }
-      body .btn:hover,
-      body .btn:focus,
-      body .btn-primary:hover,
-      body .btn-primary:focus,
-      body .btn-secondary:hover,
-      body .btn-secondary:focus,
-      body .btn-success:hover,
-      body .btn-success:focus,
-      body .btn-info:hover,
-      body .btn-info:focus,
-      body .btn-warning:hover,
-      body .btn-warning:focus,
-      body .btn-danger:hover,
-      body .btn-danger:focus,
-      body .btn-light:hover,
-      body .btn-light:focus,
-      body .btn-dark:hover,
-      body .btn-dark:focus,
-      body .btn-outline-primary:hover,
-      body .btn-outline-secondary:hover,
-      body .btn-outline-success:hover,
-      body .btn-outline-info:hover,
-      body .btn-outline-warning:hover,
-      body .btn-outline-danger:hover,
-      body .btn-outline-light:hover,
-      body .btn-outline-dark:hover {
-          transform: none !important;
-          transition: background-color 0.2s, border-color 0.2s, color 0.2s !important;
-      }
-      </style>
-      <!-- Sidebar behavior from template's app.js -->
-      
-      </body>
-    </div>
+    @stack('scripts')
+  </body>
 </html>
