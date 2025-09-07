@@ -16,18 +16,22 @@ class GoogleController extends Controller
     /**
      * Redirect the user to the Google authentication page.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function redirectToGoogle()
     {
+        // Clear any existing Google OAuth session data
+        session()->forget(['google_oauth_state', 'google_user']);
+        
         // Force Google to show the account chooser every time
-        return Socialite::driver('google')->with(['prompt' => 'select_account'])->redirect();
+        return Socialite::driver('google')
+            ->redirect();
     }
 
     /**
      * Obtain the user information from Google.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function handleGoogleCallback()
     {
@@ -142,7 +146,7 @@ class GoogleController extends Controller
     /**
      * Get the role of the currently authenticated user.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getUserRole()
     {

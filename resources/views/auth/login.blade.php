@@ -145,28 +145,49 @@
   <script src="{{ asset('template/assets/js/material-kit.min.js?v=3.1.0') }}" type="text/javascript"></script>
 
   <script>
-    // Clear Google cookies when Google sign-in button is clicked
+    // Enhanced Google cookie clearing when Google sign-in button is clicked
     document.getElementById('google-signin-btn').addEventListener('click', function(e) {
-      // Clear Google-related cookies
+      // Clear all Google-related cookies more thoroughly
+      const googleDomains = ['google.com', '.google.com', 'accounts.google.com', '.accounts.google.com', 'googleapis.com', '.googleapis.com'];
       const cookies = document.cookie.split(';');
+      
       for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i];
+        const cookie = cookies[i].trim();
         const eqPos = cookie.indexOf('=');
         const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-        if (name.includes('google') || name.includes('accounts.google')) {
-          document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';
-          document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=.google.com';
-          document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=.accounts.google.com';
+        
+        // Clear Google-related cookies
+        if (name.toLowerCase().includes('google') || name.toLowerCase().includes('oauth') || name.toLowerCase().includes('auth')) {
+          googleDomains.forEach(domain => {
+            document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=${domain}`;
+            document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+          });
         }
       }
       
-      // Clear localStorage and sessionStorage for Google domains
+      // Clear storage
       try {
         localStorage.clear();
         sessionStorage.clear();
+        
+        // Clear Google-specific storage keys
+        Object.keys(localStorage).forEach(key => {
+          if (key.toLowerCase().includes('google') || key.toLowerCase().includes('oauth')) {
+            localStorage.removeItem(key);
+          }
+        });
       } catch (e) {
-        // Ignore errors if storage is not available
+        console.log('Storage clearing error:', e);
       }
+      
+      // Add a small delay to ensure clearing completes
+      setTimeout(() => {
+        window.location.href = e.target.closest('a').href;
+      }, 100);
+      
+      // Prevent default navigation
+      e.preventDefault();
+      return false;
     });
   </script>
 </body>
