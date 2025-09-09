@@ -23,10 +23,16 @@
 
 <body class="sign-in-basic">
   
-  <div class="page-header align-items-start min-vh-100" style="background-color: #e5e7eb;">>
+  <div class="page-header align-items-start min-vh-100" style="background-color: #e5e7eb;">
     <div class="container my-auto">
       <div class="row">
         <div class="col-lg-4 col-md-8 col-12 mx-auto">
+          <!-- Logo for smaller screens - shows above the card -->
+          <div class="text-center mb-5 d-md-none">
+            <img src="{{ asset('images/logo.png') }}" alt="Barangay Lumanglipa Logo" style="width: 80px; height: 80px; object-fit: contain;">
+            <h5 class="mt-0 mb-0" style="color: #000000; font-weight: 600;">Barangay Lumanglipa</h5>
+          </div>
+          
           <div class="card z-index-0 fadeIn3 fadeInBottom">
             <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
               <div class="border-radius-lg py-3 pe-1" style="background: #2A7BC4; box-shadow: 0 4px 6px rgba(42, 123, 196, 0.3);">
