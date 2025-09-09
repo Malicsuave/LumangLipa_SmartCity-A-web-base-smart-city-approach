@@ -271,13 +271,6 @@
                 </a>
               </li>
 
-              <li class="nav-item">
-                <a href="{{ route('admin.access-requests.index') }}" class="nav-link {{ Request::routeIs('admin.access-requests.*') ? 'active' : '' }}">
-                  <i class="nav-icon bi bi-key-fill"></i>
-                  <p>Access Requests</p>
-                </a>
-              </li>
-
               <!-- Replace simple Residents link with treeview dropdown -->
               <li class="nav-item has-treeview {{ Request::routeIs('admin.residents.*') || Request::routeIs('admin.gad.*') || Request::routeIs('admin.senior-citizens.*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::routeIs('admin.residents.*') || Request::routeIs('admin.gad.*') || Request::routeIs('admin.senior-citizens.*') ? 'active' : '' }}">

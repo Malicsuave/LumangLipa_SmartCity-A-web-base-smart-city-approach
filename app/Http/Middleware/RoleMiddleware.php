@@ -19,14 +19,14 @@ class RoleMiddleware
     {
         $user = Auth::user();
 
-        // Log the user's role for debugging
-        Log::info('RoleMiddleware: Checking user role', [
-            'user_id' => $user ? $user->id : null,
-            'role_name' => $user && $user->role ? $user->role->name : null,
-            'allowed_roles' => $roles
-        ]);
-
+        // Only log role issues, not every successful check
         if (!$user || !$user->role || !in_array($user->role->name, $roles)) {
+            Log::warning('RoleMiddleware: Access denied', [
+                'user_id' => $user ? $user->id : null,
+                'role_name' => $user && $user->role ? $user->role->name : null,
+                'allowed_roles' => $roles,
+                'route' => $request->route() ? $request->route()->getName() : null
+            ]);
             abort(403, 'Unauthorized action.');
         }
 
