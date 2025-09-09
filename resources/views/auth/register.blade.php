@@ -37,7 +37,7 @@
             <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
               <div class="border-radius-lg py-3 pe-1" style="background: #2A7BC4; box-shadow: 0 4px 6px rgba(42, 123, 196, 0.3);">
                 <h4 class="text-white font-weight-bolder text-center mt-2 mb-0">Create Account</h4>
-                <p class="text-white text-center mt-2 mb-0">Join the Barangay Lumanglipa community</p>
+                
               </div>
             </div>
             <div class="card-body">
