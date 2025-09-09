@@ -19,3 +19,5 @@ yarn-error.log
 /.vscode
 /bootstrap/cache/*
 storage/framework/views/
+/storage/logs/
+storage/logs/*.log
