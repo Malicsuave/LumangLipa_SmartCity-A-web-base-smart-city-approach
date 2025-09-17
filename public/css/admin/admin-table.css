@@ -1,0 +1,33 @@
+/* Section header (card-title) - Resident page style */
+.card-header, .admin-section-header {
+    background: #2196f3 !important;
+    color: #fff !important;
+    border-radius: 0.75rem 0.75rem 0 0 !important;
+    padding: 1rem 1.5rem !important;
+    font-size: 1.25rem !important;
+    font-weight: 600 !important;
+    border: none !important;
+}
+.card-header .card-title, .admin-section-header .card-title {
+    color: #fff !important;
+    font-size: 1.25rem !important;
+    font-weight: 600 !important;
+}
+
+/* DataTable export buttons - Resident page style (flat dark gray) */
+.dt-buttons .btn, .dt-buttons .btn.btn-default {
+    background-color: #5a6268 !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 0.25rem !important;
+    font-size: 1rem !important;
+    font-weight: 500 !important;
+    padding: 0.45rem 1.1rem !important;
+    margin-right: 0.25rem !important;
+    box-shadow: none !important;
+    transition: background 0.2s;
+}
+.dt-buttons .btn:hover, .dt-buttons .btn:focus {
+    background-color: #343a40 !important;
+    color: #fff !important;
+}
