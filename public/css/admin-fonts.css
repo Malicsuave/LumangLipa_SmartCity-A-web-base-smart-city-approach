@@ -1,0 +1,142 @@
+/* AdminLTE 3.2 Font Family - Source Sans Pro */
+:root {
+    --bs-font-sans-serif: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+body, 
+.app-wrapper,
+.navbar,
+.sidebar,
+.content-wrapper,
+.card,
+.table,
+.btn,
+.form-control,
+.form-select,
+.nav-link,
+.dropdown-item,
+.badge,
+.alert,
+.modal,
+h1, h2, h3, h4, h5, h6,
+p, span, div, a, li, td, th,
+.dataTables_wrapper {
+    font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+    font-weight: 400;
+    line-height: 1.6;
+}
+
+/* DataTables specific font override */
+.dataTables_wrapper,
+.dataTables_wrapper * {
+    font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+    font-weight: 400;
+}
+
+/* AdminLTE 3.2 specific font weights */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 500;
+}
+
+.navbar-brand,
+.nav-link {
+    font-weight: 400;
+}
+
+.btn {
+    font-weight: 400;
+    font-size: 0.875rem;
+}
+
+.table {
+    font-size: 0.875rem;
+}
+
+.dropdown-item {
+    font-size: 0.875rem;
+    font-weight: 400;
+}
+
+.badge {
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* Card and content font sizes */
+.card-title {
+    font-weight: 500;
+    font-size: 1.1rem;
+}
+
+.card-header {
+    font-weight: 500;
+}
+
+.form-control,
+.form-select {
+    font-size: 0.875rem;
+}
+
+/* Modal font consistency */
+.modal-title {
+    font-weight: 500;
+}
+
+.modal-body {
+    font-size: 0.875rem;
+}
+
+/* Control Sidebar Customization */
+.control-sidebar {
+    font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+}
+
+.control-sidebar .control-sidebar-content {
+    max-height: none;
+    overflow-y: auto;
+}
+
+.control-sidebar h5 {
+    color: #fff;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+.control-sidebar h6 {
+    color: #adb5bd;
+    font-weight: 500;
+    font-size: 0.875rem;
+    margin: 15px 0 10px 0;
+}
+
+.control-sidebar .elevation-2 {
+    cursor: pointer;
+    margin: 2px;
+    border-radius: 3px;
+    transition: all 0.2s ease-in-out;
+}
+
+.control-sidebar .elevation-2:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+.control-sidebar input[type="checkbox"] {
+    margin-right: 8px !important;
+}
+
+.control-sidebar span {
+    color: #adb5bd;
+    font-size: 0.875rem;
+}
+
+.control-sidebar .custom-select {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.control-sidebar .custom-select option {
+    background-color: #343a40;
+    color: #fff;
+}

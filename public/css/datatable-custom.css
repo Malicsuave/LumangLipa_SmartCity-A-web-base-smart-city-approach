@@ -1,0 +1,412 @@
+/* Custom DataTable Styles */
+
+/* Custom header font */
+.card-header h3.card-title {
+    font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* DataTable header and footer styling */
+table.dataTable thead th,
+table.dataTable tfoot th {
+    font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.3px;
+}
+
+/* Table border styling */
+table.dataTable {
+    border: 1px solid #dee2e6;
+    border-collapse: collapse;
+}
+
+table.dataTable thead th,
+table.dataTable tbody td,
+table.dataTable tfoot th {
+    border: 1px solid #dee2e6;
+    border-left: 1px solid #dee2e6;
+    border-right: 1px solid #dee2e6;
+    vertical-align: middle !important;
+}
+
+/* Ensure ID column is always visible */
+table.dataTable thead th:first-child,
+table.dataTable tbody td:first-child,
+table.dataTable tfoot th:first-child {
+    display: table-cell !important;
+    visibility: visible !important;
+    width: auto !important;
+    min-width: 50px !important;
+}
+
+table.dataTable thead th {
+    border-bottom: 2px solid #dee2e6;
+    background-color: #f8f9fa;
+}
+
+table.dataTable tbody tr {
+    border-bottom: 1px solid #dee2e6;
+}
+
+table.dataTable tbody tr:hover {
+    background-color: #f5f5f5;
+}
+
+/* Actions column alignment */
+table.dataTable thead th:last-child,
+table.dataTable tbody td:last-child,
+table.dataTable tfoot th:last-child {
+    text-align: center !important;
+    vertical-align: middle !important;
+    padding: 8px 12px !important;
+}
+
+/* Ensure action buttons/dropdowns are centered */
+table.dataTable tbody td:last-child .btn,
+table.dataTable tbody td:last-child .custom-dropdown,
+table.dataTable tbody td:last-child .dropdown {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 auto !important;
+}
+
+/* Custom Pagination Styling - Bootstrap Style */
+.dataTables_wrapper .dataTables_paginate .pagination {
+    margin: 0 !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .page-link {
+    border-radius: 0 !important;
+    border: 1px solid #ddd !important;
+    background: #fff !important;
+    color: #333 !important;
+    padding: 8px 12px !important;
+    font-size: 14px !important;
+    transition: all 0.2s ease !important;
+    margin: 0 !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .page-link:hover {
+    background: #e9ecef !important;
+    border-color: #adb5bd !important;
+    color: #333 !important;
+    text-decoration: none !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .page-item.active .page-link {
+    background: #007bff !important;
+    border-color: #007bff !important;
+    color: #fff !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .page-item.active .page-link:hover {
+    background: #0056b3 !important;
+    border-color: #0056b3 !important;
+    color: #fff !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .page-item.disabled .page-link {
+    background: #f8f9fa !important;
+    border-color: #dee2e6 !important;
+    color: #6c757d !important;
+    cursor: not-allowed !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .page-item.disabled .page-link:hover {
+    background: #f8f9fa !important;
+    border-color: #dee2e6 !important;
+    color: #6c757d !important;
+}
+
+/* Remove spacing between pagination buttons */
+.dataTables_wrapper .dataTables_paginate .page-item:not(:first-child) .page-link {
+    margin-left: -1px !important;
+}
+
+/* First and last button styling */
+.dataTables_wrapper .dataTables_paginate .page-item:first-child .page-link {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .page-item:last-child .page-link {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+/* Pagination container styling */
+.dataTables_wrapper .dataTables_paginate {
+    float: right !important;
+    margin: 10px 0 !important;
+}
+
+.dataTables_wrapper .dataTables_info {
+    float: left !important;
+    margin: 10px 0 !important;
+    padding-top: 8px !important;
+    font-size: 14px !important;
+    color: #6c757d !important;
+}
+
+/* Mobile Responsive Styling */
+@media (max-width: 768px) {
+    /* Prevent horizontal scrolling */
+    body {
+        overflow-x: hidden !important;
+    }
+    
+    /* Fix card and container sizing */
+    .card {
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+        position: relative !important;
+        z-index: 1 !important;
+    }
+    
+    .card-header {
+        padding: 0.5rem !important;
+        overflow: hidden !important;
+    }
+    
+    .card-header h3.card-title {
+        font-size: 16px !important;
+        margin: 0 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    
+    .card-body {
+        padding: 0.5rem !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    /* Fix DataTable wrapper */
+    .dataTables_wrapper {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+    
+    /* Table responsive adjustments */
+    table.dataTable {
+        width: 100% !important;
+        max-width: none !important;
+        table-layout: auto !important;
+        font-size: 12px !important;
+    }
+    
+    table.dataTable thead th,
+    table.dataTable tbody td,
+    table.dataTable tfoot th {
+        padding: 4px 6px !important;
+        white-space: nowrap !important;
+        font-size: 11px !important;
+    }
+    
+    /* Fix button container for mobile */
+    .dt-buttons {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 2px !important;
+        margin-bottom: 10px !important;
+        width: 100% !important;
+    }
+    
+    .dt-buttons .btn {
+        padding: 4px 6px !important;
+        font-size: 10px !important;
+        margin: 1px !important;
+        flex: 1 !important;
+        min-width: 0 !important;
+        white-space: nowrap !important;
+    }
+    
+    /* Search and info adjustments */
+    .dataTables_wrapper .dataTables_filter {
+        text-align: left !important;
+        margin-bottom: 10px !important;
+        width: 100% !important;
+    }
+    
+    .dataTables_wrapper .dataTables_filter input {
+        width: 100% !important;
+        max-width: 200px !important;
+        margin-left: 0 !important;
+        font-size: 12px !important;
+    }
+    
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_paginate {
+        float: none !important;
+        text-align: center !important;
+        margin: 5px 0 !important;
+        width: 100% !important;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate .pagination {
+        justify-content: center !important;
+        flex-wrap: wrap !important;
+        margin: 0 !important;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate .page-link {
+        padding: 4px 8px !important;
+        font-size: 11px !important;
+        margin: 1px !important;
+    }
+    
+    /* Mobile Actions column fix */
+    table.dataTable thead th:last-child,
+    table.dataTable tbody td:last-child {
+        text-align: center !important;
+        padding: 6px 4px !important;
+        width: 60px !important;
+        max-width: 60px !important;
+        min-width: 50px !important;
+    }
+    
+    table.dataTable tbody td:last-child .btn,
+    table.dataTable tbody td:last-child .custom-dropdown,
+    table.dataTable tbody td:last-child .dropdown {
+        margin: 0 auto !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+}
+
+/* Responsive Controls - Clean Implementation */
+table.dataTable.dtr-inline.collapsed > tbody > tr > td.control,
+table.dataTable.dtr-inline.collapsed > tbody > tr > th.control {
+    position: relative;
+    padding-left: 30px;
+    cursor: pointer;
+}
+
+table.dataTable.dtr-inline.collapsed > tbody > tr > td.control:before,
+table.dataTable.dtr-inline.collapsed > tbody > tr > th.control:before {
+    position: absolute;
+    top: 50%;
+    left: 8px;
+    width: 18px;
+    height: 18px;
+    margin-top: -9px;
+    display: block;
+    text-align: center;
+    line-height: 16px;
+    font-family: 'Arial', sans-serif;
+    cursor: pointer;
+    color: #007bff;
+    border: 2px solid #007bff;
+    border-radius: 2px;
+    background-color: #007bff;
+    font-size: 12px;
+    content: '+';
+    color: white;
+    transition: all 0.2s ease;
+}
+
+table.dataTable.dtr-inline.collapsed > tbody > tr.parent > td.control:before,
+table.dataTable.dtr-inline.collapsed > tbody > tr.parent > th.control:before {
+    content: '−';
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+/* Responsive details styling */
+table.dataTable.dtr-inline.collapsed > tbody > tr > td.child,
+table.dataTable.dtr-inline.collapsed > tbody > tr > th.child,
+table.dataTable.dtr-inline.collapsed > tbody > tr > td.dataTables_empty {
+    padding: 0.75rem;
+    border-top: none;
+}
+
+table.dataTable.dtr-inline.collapsed > tbody > tr.child ul.dtr-details {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+table.dataTable.dtr-inline.collapsed > tbody > tr.child ul.dtr-details > li {
+    border-bottom: 1px solid #dee2e6;
+    padding: 0.5rem 0;
+}
+
+table.dataTable.dtr-inline.collapsed > tbody > tr.child ul.dtr-details > li:last-child {
+    border-bottom: none;
+}
+
+table.dataTable.dtr-inline.collapsed > tbody > tr.child span.dtr-title {
+    display: inline-block;
+    min-width: 120px;
+    font-weight: 600;
+    color: #495057;
+}
+
+table.dataTable.dtr-inline.collapsed > tbody > tr.child span.dtr-data {
+    color: #6c757d;
+}
+
+/* Ensure responsive class is applied */
+table.dataTable.dtr-inline.collapsed {
+    width: 100% !important;
+}
+
+/* Force ID column to always be visible on all screen sizes */
+table.dataTable thead th:first-child,
+table.dataTable tbody td:first-child {
+    display: table-cell !important;
+    visibility: visible !important;
+}
+
+/* Prevent DataTables responsive from hiding ID column */
+table.dataTable.dtr-inline.collapsed thead th:first-child,
+table.dataTable.dtr-inline.collapsed tbody td:first-child {
+    display: table-cell !important;
+    visibility: visible !important;
+}
+
+/* Never hide class for critical columns */
+table.dataTable .never-hide,
+table.dataTable .dtr-never-hide {
+    display: table-cell !important;
+    visibility: visible !important;
+}
+
+/* Status column styling without badges */
+.status-text {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+}
+
+.status-pending {
+    color: #f39c12;
+}
+
+.status-approved {
+    color: #27ae60;
+}
+
+.status-claimed {
+    color: #3498db;
+}
+
+.status-rejected {
+    color: #e74c3c;
+}
+
+.status-unknown {
+    color: #95a5a6;
+}
