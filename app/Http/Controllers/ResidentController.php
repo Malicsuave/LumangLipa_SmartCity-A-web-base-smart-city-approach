@@ -1091,4 +1091,13 @@ class ResidentController extends Controller
         
         return view('admin.residents.services', compact('resident'));
     }
+
+    /**
+     * Show census data page.
+     */
+    public function censusData()
+    {
+        // You can add logic to fetch census data here
+        return view('admin.residents.census-data');
+    }
 }

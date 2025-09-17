@@ -8,12 +8,12 @@
             <div class="col-12">
                 <div class="row align-items-center mb-4">
                     <div class="col">
-                        <h2 class="h5 page-title">Access Request Management</h2>
-                        <p class="text-muted">Review and process user access requests for system roles</p>
+                        <h1 class="h3 mb-0 text-gray-800">Access Request Management</h1>
+                        <p class="text-muted mb-0">Review and process user access requests for system roles</p>
                     </div>
                     <div class="col-auto">
                         <button type="button" class="btn btn-primary" onclick="refreshPage()">
-                            <i class="fe fe-refresh-cw fe-16 mr-2"></i>
+                            <i class="fas fa-sync-alt mr-2"></i>
                             Refresh List
                         </button>
                     </div>
@@ -39,14 +39,14 @@
                 @endif
 
                 <!-- Pending Requests Card -->
-                <div class="card shadow-lg border-0 mb-4" style="box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.15) !important;">
+                <div class="card shadow-lg border-0 mb-4 admin-card-shadow">
                     <div class="card-header">
                         <strong class="card-title">Pending Access Requests</strong>
                     </div>
                     <div class="card-body">
                         @if($pendingRequests->count() > 0)
                             <div class="table-responsive">
-                                <table class="table table-borderless table-striped table-hover">
+                                <table id="accessPendingTable" class="table table-bordered table-striped">
                                     <thead>
                                         <tr>
                                             <th>Name</th>
@@ -106,7 +106,23 @@
                                                     @endif
                                                 </td>
                                                 <td class="text-center table-actions-col">
-                                                    @include('components.custom-dropdown', ['items' => $dropdownItems, 'dropup' => $isLastTwo])
+                                                    <div class="btn-group">
+                                                        <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                            Actions
+                                                        </button>
+                                                        <div class="dropdown-menu dropdown-menu-right">
+                                                            <a class="dropdown-item" href="{{ route('admin.access-requests.show', $request) }}">
+                                                                <i class="fas fa-eye mr-2"></i>Review Details
+                                                            </a>
+                                                            <div class="dropdown-divider"></div>
+                                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#approveModal{{ $request->id }}">
+                                                                <i class="fas fa-check-circle text-success mr-2"></i>Approve Request
+                                                            </a>
+                                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#denyModal{{ $request->id }}">
+                                                                <i class="fas fa-times-circle text-danger mr-2"></i>Deny Request
+                                                            </a>
+                                                        </div>
+                                                    </div>
                                                     <!-- Approve Modal -->
                                                     <div class="modal fade" id="approveModal{{ $request->id }}" tabindex="-1" role="dialog" aria-labelledby="approveModalLabel" aria-hidden="true">
                                                         <div class="modal-dialog" role="document">
@@ -168,6 +184,17 @@
                                             </tr>
                                         @endforeach
                                     </tbody>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>User</th>
+                                            <th>Role Requested</th>
+                                            <th>Requested On</th>
+                                            <th>Reason</th>
+                                            <th class="text-center">Actions</th>
+                                        </tr>
+                                    </tfoot>
                                 </table>
                             </div>
                         @else
@@ -191,14 +218,14 @@
                 </div>
 
                 <!-- Recent Activity Card -->
-                <div class="card shadow-lg border-0" style="box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.15) !important;">
+                <div class="card shadow-lg border-0 admin-card-shadow">
                     <div class="card-header">
                         <strong class="card-title">Recently Processed Requests</strong>
                     </div>
                     <div class="card-body">
                         @if($processedRequests->count() > 0)
                             <div class="table-responsive">
-                                <table class="table table-borderless table-striped table-hover">
+                                <table id="accessProcessedTable" class="table table-bordered table-striped">
                                     <thead>
                                         <tr>
                                             <th>Name</th>
@@ -248,6 +275,17 @@
                                             </tr>
                                         @endforeach
                                     </tbody>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>User</th>
+                                            <th>Role</th>
+                                            <th>Status</th>
+                                            <th>Processed By</th>
+                                            <th>Processed On</th>
+                                        </tr>
+                                    </tfoot>
                                 </table>
                             </div>
                         @else
@@ -299,9 +337,26 @@
     </div>
 
     <script>
-        function refreshPage() {
-            window.location.reload();
-        }
+        function refreshPage() { window.location.reload(); }
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.DataTableHelpers) {
+                if (document.getElementById('accessPendingTable')) {
+                    DataTableHelpers.initDataTable('#accessPendingTable', {
+                        buttons: ["copy", "csv", "excel", "pdf", "print", "colvis"],
+                        order: [[ 3, "desc" ]],
+                        columnDefs: [
+                            { "orderable": false, "targets": -1 }
+                        ]
+                    });
+                }
+                if (document.getElementById('accessProcessedTable')) {
+                    DataTableHelpers.initDataTable('#accessProcessedTable', {
+                        buttons: ["copy", "csv", "excel", "pdf", "print", "colvis"],
+                        order: [[ 5, "desc" ]]
+                    });
+                }
+            }
+        });
     </script>
 
     <style>

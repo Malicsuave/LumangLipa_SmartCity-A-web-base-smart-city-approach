@@ -172,7 +172,7 @@ Route::middleware([
         return redirect()->route('unauthorized.access');
     })->name('dashboard');
 
-    // Admin-only routes (Barangay Captain, Secretary)
+    // Admin-only routes (Super Admin, Barangay Captain, Secretary)
     Route::middleware('role:Barangay Captain,Barangay Secretary')->group(function () {
         Route::get('/admin/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('admin.dashboard');
         
@@ -200,7 +200,7 @@ Route::middleware([
             Route::get('/create', [ResidentController::class, 'create'])->name('create');
             // Barangay ID Registration page for admin
             Route::get('/barangay-id-registration', [ResidentController::class, 'barangayIdRegistration'])->name('barangay-id-registration');
-            
+            Route::get('census-data', [App\Http\Controllers\ResidentController::class, 'censusData'])->name('admin.residents.census-data');
             // Multi-step resident creation routes
             Route::get('/create/step1', [ResidentController::class, 'createStep1'])->name('create.step1');
             Route::post('/create/step1', [ResidentController::class, 'storeStep1'])->name('create.step1.store');
@@ -342,7 +342,7 @@ Route::middleware([
         // Senior Citizens Management
         Route::prefix('admin/senior-citizens')->name('admin.senior-citizens.')->group(function() {
             Route::get('/', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'index'])->name('index');
-           Route::get('/{seniorCitizen}', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'showIdManagement'])->name('show');
+            Route::get('/{seniorCitizen}', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'showIdManagement'])->name('show');
             Route::put('/{seniorCitizen}', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'update'])->name('update');
             Route::delete('/{seniorCitizen}', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'destroy'])->name('destroy');
             Route::post('/{seniorCitizen}/upload-photo', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'uploadPhoto'])->name('upload-photo');
@@ -660,21 +660,6 @@ Route::middleware(['role:Barangay Captain,Barangay Secretary'])->prefix('admin')
     Route::get('officials/edit-single', [App\Http\Controllers\Admin\BarangayOfficialController::class, 'edit'])->name('officials.edit-single');
     Route::post('officials/edit-single', [App\Http\Controllers\Admin\BarangayOfficialController::class, 'update'])->name('officials.update-single');
     Route::delete('officials/photo/{field}', [App\Http\Controllers\Admin\BarangayOfficialController::class, 'deletePhoto'])->name('officials.delete-photo');
+    
+   
 });
-
-
-
-// Add census-data route to the main admin.residents group
-// ...existing code...
-Route::prefix('admin/residents')->name('admin.residents.')->group(function() {
-    // ...existing resident routes...
-    Route::get('/census-data', function () {
-        return view('admin.residents.census-data');
-    })->name('census-data');
-    // ...existing resident routes...
-});
-
-
-
-// Test route for debugging
-Route::get("/test", function() { return "Hello World - Laravel is working"; });

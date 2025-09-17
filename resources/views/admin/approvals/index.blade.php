@@ -8,16 +8,16 @@
             <div class="col-12">
                 <div class="row align-items-center mb-4">
                     <div class="col">
-                        <h2 class="h5 page-title">Admin Approvals Management</h2>
-                        <p class="text-muted">Manage Gmail accounts authorized for admin access</p>
+                        <h1 class="h3 mb-0 text-gray-800">Admin Approvals Management</h1>
+                        <p class="text-muted mb-0">Manage Gmail accounts authorized for admin access</p>
                     </div>
                     <div class="col-auto">
                         <a href="{{ route('admin.approvals.create') }}" class="btn btn-primary">
-                            <i class="fe fe-plus fe-16 mr-2"></i>
+                            <i class="fas fa-user-plus mr-2"></i>
                             Add New Admin
                         </a>
                         <a href="{{ route('admin.access-requests.index') }}" class="btn btn-outline-secondary ml-2">
-                            <i class="fe fe-clock fe-16 mr-2"></i>
+                            <i class="fas fa-clock mr-2"></i>
                             Pending Requests
                         </a>
                     </div>
@@ -43,13 +43,13 @@
                 @endif
 
                 <!-- Admin Approvals Table -->
-                <div class="card shadow-lg border-0" style="box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.15) !important;">
+                <div class="card shadow-lg border-0 admin-card-shadow">
                     <div class="card-header">
                         <strong class="card-title">Approved Admin Accounts</strong>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-borderless table-striped table-hover">
+                            <table id="approvalsTable" class="table table-bordered table-striped">
                                 <thead>
                                     <tr>
                                         <th style="min-width: 180px;">Email</th>
@@ -94,34 +94,27 @@
                                                 @endif
                                             </td>
                                             <td class="text-center">
-                                                @php
-                                                    $dropdownItems = [];
-                                                    $dropdownItems[] = [
-                                                        'label' => 'Edit',
-                                                        'icon' => 'fe fe-edit-2 fe-16 text-primary',
-                                                        'class' => 'edit-approval',
-                                                        'attrs' => 'data-id="' . $approval->id . '" data-email="' . $approval->email . '" data-role="' . ($approval->role->name ?? 'No Role') . '"',
-                                                    ];
-                                                    
-                                                    $dropdownItems[] = [
-                                                        'label' => $approval->is_active ? 'Deactivate' : 'Activate',
-                                                        'icon' => $approval->is_active ? 'fe fe-slash fe-16 text-warning' : 'fe fe-check-circle fe-16 text-success',
-                                                        'class' => 'toggle-approval',
-                                                        'attrs' => 'data-id="' . $approval->id . '" data-email="' . $approval->email . '" data-active="' . ($approval->is_active ? 'true' : 'false') . '"',
-                                                    ];
-                                                    
-                                                    $dropdownItems[] = [
-                                                        'divider' => true
-                                                    ];
-                                                    
-                                                    $dropdownItems[] = [
-                                                        'label' => 'Delete',
-                                                        'icon' => 'fe fe-trash-2 fe-16 text-danger',
-                                                        'class' => 'delete-approval',
-                                                        'attrs' => 'data-id="' . $approval->id . '" data-email="' . $approval->email . '" data-role="' . ($approval->role->name ?? 'No Role') . '"',
-                                                    ];
-                                                @endphp
-                                                @include('components.custom-dropdown', ['items' => $dropdownItems, 'dropup' => $isLastTwo])
+                                                <div class="btn-group">
+                                                    <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        Actions
+                                                    </button>
+                                                    <div class="dropdown-menu dropdown-menu-right">
+                                                        <a class="dropdown-item edit-approval" href="javascript:void(0)" data-id="{{ $approval->id }}" data-email="{{ $approval->email }}" data-role="{{ $approval->role->name ?? 'No Role' }}">
+                                                            <i class="fas fa-edit mr-2"></i>Edit
+                                                        </a>
+                                                        <a class="dropdown-item toggle-approval" href="javascript:void(0)" data-id="{{ $approval->id }}" data-email="{{ $approval->email }}" data-active="{{ $approval->is_active ? 'true' : 'false' }}">
+                                                            @if($approval->is_active)
+                                                                <i class="fas fa-ban text-warning mr-2"></i>Deactivate
+                                                            @else
+                                                                <i class="fas fa-check-circle text-success mr-2"></i>Activate
+                                                            @endif
+                                                        </a>
+                                                        <div class="dropdown-divider"></div>
+                                                        <a class="dropdown-item delete-approval" href="javascript:void(0)" data-id="{{ $approval->id }}" data-email="{{ $approval->email }}" data-role="{{ $approval->role->name ?? 'No Role' }}">
+                                                            <i class="fas fa-trash-alt text-danger mr-2"></i>Delete
+                                                        </a>
+                                                    </div>
+                                                </div>
                                             </td>
                                         </tr>
                                     @empty
@@ -146,6 +139,17 @@
                                         </tr>
                                     @endforelse
                                 </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th>Email</th>
+                                        <th>Role</th>
+                                        <th>Status</th>
+                                        <th>Approved By</th>
+                                        <th>Approved Date</th>
+                                        <th class="text-center">User Created</th>
+                                        <th class="text-center">Actions</th>
+                                    </tr>
+                                </tfoot>
                             </table>
                         </div>
                     </div>
@@ -240,6 +244,17 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize DataTable with shared helpers to match Residents/Documents
+            if (window.DataTableHelpers && document.getElementById('approvalsTable')) {
+                DataTableHelpers.initDataTable('#approvalsTable', {
+                    buttons: ["copy", "csv", "excel", "pdf", "print", "colvis"],
+                    order: [[ 4, "desc" ]],
+                    columnDefs: [
+                        { "orderable": false, "targets": -1 },
+                        { "orderable": false, "targets": -2 }
+                    ]
+                });
+            }
             let currentAction = null;
             let currentId = null;
 

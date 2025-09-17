@@ -66,34 +66,29 @@
         </td>
         <td>{{ $resident->id_expires_at ? $resident->id_expires_at->format('M d, Y') : 'N/A' }}</td>
         <td>
-            @php
-                $dropdownItems = [];
-                $dropdownItems[] = [
-                    'label' => 'Manage ID',
-                    'icon' => 'fe fe-credit-card fe-16 text-primary',
-                    'href' => route('admin.residents.id.show', $resident->id),
-                ];
-                $dropdownItems[] = [
-                    'label' => 'Preview ID',
-                    'icon' => 'fe fe-image fe-16 text-info',
-                    'href' => route('admin.residents.id.preview', $resident->id),
-                ];
-                $dropdownItems[] = [
-                    'label' => 'Download ID',
-                    'icon' => 'fe fe-download fe-16 text-success',
-                    'href' => route('admin.residents.id.download', $resident->id),
-                ];
-                $dropdownItems[] = ['divider' => true];
-                $dropdownItems[] = [
-                    'label' => 'Revoke ID',
-                    'icon' => 'fe fe-x-circle fe-16 text-danger',
-                    'attrs' => 'onclick="return confirm(\'Are you sure you want to revoke this resident\\\'s ID? This action cannot be undone.\')"',
-                    'href' => '',
-                    'is_form' => true,
-                    'form_action' => route('admin.residents.id.revoke', $resident->id),
-                ];
-            @endphp
-            @include('components.custom-dropdown', ['items' => $dropdownItems, 'dropup' => $isLast])
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Actions
+                </button>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a class="dropdown-item" href="{{ route('admin.residents.id.show', $resident->id) }}">
+                        <i class="fas fa-id-card mr-2"></i>Manage ID
+                    </a>
+                    <a class="dropdown-item" href="{{ route('admin.residents.id.preview', $resident->id) }}">
+                        <i class="fas fa-image text-info mr-2"></i>Preview ID
+                    </a>
+                    <a class="dropdown-item" href="{{ route('admin.residents.id.download', $resident->id) }}">
+                        <i class="fas fa-download text-success mr-2"></i>Download ID
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="#" onclick="event.preventDefault(); if(confirm('Are you sure you want to revoke this resident\'s ID? This action cannot be undone.')){ document.getElementById('revoke-expiring-{{ $resident->id }}').submit(); }">
+                        <i class="fas fa-times-circle text-danger mr-2"></i>Revoke ID
+                    </a>
+                    <form id="revoke-expiring-{{ $resident->id }}" action="{{ route('admin.residents.id.revoke', $resident->id) }}" method="POST" style="display:none;">
+                        @csrf
+                    </form>
+                </div>
+            </div>
         </td>
     </tr>
 @endforeach

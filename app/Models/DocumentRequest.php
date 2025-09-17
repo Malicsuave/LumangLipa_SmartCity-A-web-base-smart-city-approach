@@ -43,6 +43,7 @@ class DocumentRequest extends Model
         'rejection_reason',
         'uuid', // Add uuid to fillable
         'resident_id', // <-- Add this line!
+        'receipt_path', // <-- Add receipt path
     ];
 
     protected $casts = [

@@ -1,455 +1,729 @@
-<!doctype html>
-<html lang="en" data-theme="{{ session('theme', 'dark') }}">
-  <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <title>@yield('page-title', 'Lumanglipa Barangay Management System')</title>
-        <!--begin::Accessibility Meta Tags-->
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-        <meta name="color-scheme" content="light dark" />
-        <meta name="theme-color" content="#007bff" media="(prefers-color-scheme: light)" />
-        <meta name="theme-color" content="#1a1a1a" media="(prefers-color-scheme: dark)" />
-        <!--end::Accessibility Meta Tags-->
-        <!--begin::Primary Meta Tags-->
-        <meta name="title" content="Lumanglipa Barangay Management System" />
-        <meta name="author" content="Lumanglipa" />
-        <meta name="description" content="Lumanglipa Barangay Management System Admin Panel" />
-        <meta name="keywords" content="barangay, admin, dashboard, lumanglipa, management, system" />
-        <!--end::Primary Meta Tags-->
-        <meta name="csrf-token" content="{{ csrf_token() }}">
-        <link rel="icon" href="{{ asset('images/logo-bg.jpg') }}">
-        <!--begin::Accessibility Features-->
-        <meta name="supported-color-schemes" content="light dark" />
-        <link rel="preload" href="{{ asset('adminlte/css/adminlte.css') }}" as="style" />
-        <!--end::Accessibility Features-->
-        <!--begin::Fonts-->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/source-sans-3@5.0.12/index.css" crossorigin="anonymous" media="print" onload="this.media='all'" />
-        <!--end::Fonts-->
-        <!--begin::Third Party Plugin(OverlayScrollbars)-->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.11.0/styles/overlayscrollbars.min.css" crossorigin="anonymous" />
-        <!--end::Third Party Plugin(OverlayScrollbars)-->
-        <!--begin::Third Party Plugin(Bootstrap Icons)-->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" crossorigin="anonymous" />
-        <!--end::Third Party Plugin(Bootstrap Icons)-->
-        <!--begin::Required Plugin(AdminLTE)-->
-        <link rel="stylesheet" href="{{ asset('adminlte/css/adminlte.css') }}" />
-        <!--end::Required Plugin(AdminLTE)--></div>
-        <!-- apexcharts -->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.css" crossorigin="anonymous" />
-        
-        
-     
-    </head>
-  <body class="layout-fixed sidebar-expand-lg sidebar-open bg-body-tertiary">
-    <!--begin::App Wrapper-->
-    <div class="app-wrapper">
-      <!--begin::Header-->
-      <nav class="app-header navbar navbar-expand bg-body">
-        <div class="container-fluid">
-          <!--begin::Start Navbar Links-->
-          <ul class="navbar-nav">
-            <li class="nav-item">
-              <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
-                <i class="bi bi-list"></i>
-              </a>
-            </li>
-            <li class="nav-item d-none d-md-block"><a href="{{ route('admin.dashboard') }}" class="nav-link">Home</a></li>
-            <li class="nav-item d-none d-md-block"><a href="#" class="nav-link">Contact</a></li>
-          </ul>
-          <!--end::Start Navbar Links-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>@yield('page-title', 'Lumanglipa Barangay Management System')</title>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <link rel="icon" href="{{ asset('images/logo-bg.jpg') }}">
 
-          <!--begin::End Navbar Links-->
-          <ul class="navbar-nav ms-auto">
-            <!--begin::Navbar Search-->
-            <li class="nav-item">
-              <a class="nav-link" data-widget="navbar-search" href="#" role="button">
-                <i class="bi bi-search"></i>
-              </a>
-            </li>
-            <!--end::Navbar Search-->
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=swap">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="{{ asset('adminlte/plugins/fontawesome-free/css/all.min.css') }}">
+  <!-- icheck bootstrap -->
+  <link rel="stylesheet" href="{{ asset('adminlte/plugins/icheck-bootstrap/icheck-bootstrap.min.css') }}">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="{{ asset('adminlte/css/adminlte.min.css') }}">
+  <!-- overlayScrollbars -->
+  <link rel="stylesheet" href="{{ asset('adminlte/plugins/overlayScrollbars/css/OverlayScrollbars.min.css') }}">
+  <!-- Custom Admin Fonts -->
+  <link rel="stylesheet" href="{{ asset('css/admin-fonts.css') }}" />
+  {{-- DataTables and shared admin table styles --}}
+  @include('admin.components.datatable-styles')
+  
+  <!-- Custom Control Sidebar Styles -->
+  <style>
+    .control-sidebar {
+      scrollbar-width: thin;
+      scrollbar-color: #6c757d #495057;
+    }
+    .control-sidebar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .control-sidebar::-webkit-scrollbar-track {
+      background: #495057;
+    }
+    .control-sidebar::-webkit-scrollbar-thumb {
+      background: #6c757d;
+      border-radius: 3px;
+    }
+    .control-sidebar::-webkit-scrollbar-thumb:hover {
+      background: #adb5bd;
+    }
+    .control-sidebar .p-3 {
+      padding-bottom: 2rem !important;
+    }
+    .control-sidebar input[type="checkbox"]:checked + span,
+    .control-sidebar input[type="radio"]:checked + span {
+      color: #28a745;
+      font-weight: 500;
+    }
+    .text-success {
+      transition: color 0.3s ease;
+    }
+  </style>
+  
+  @stack('styles')
+</head>
+<body class="sidebar-mini layout-fixed layout-navbar-fixed">
+<div class="wrapper">
 
-            <!--begin::Messages Dropdown Menu-->
-            <li class="nav-item dropdown">
-              <a class="nav-link" data-bs-toggle="dropdown" href="#">
-                <i class="bi bi-chat-text"></i>
-                <span class="navbar-badge badge text-bg-danger">3</span>
-              </a>
-              <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
-                <a href="#" class="dropdown-item">
-                  <div class="d-flex">
-                    <div class="flex-shrink-0">
-                      <img src="{{ asset('images/logo.png') }}" alt="User Avatar" class="img-size-50 rounded-circle me-3" />
-                    </div>
-                    <div class="flex-grow-1">
-                      <h3 class="dropdown-item-title">System</h3>
-                      <p class="fs-7">You have a new message</p>
-                      <p class="fs-7 text-secondary"><i class="bi bi-clock-fill me-1"></i> 4 Hours Ago</p>
-                    </div>
-                  </div>
-                </a>
-                <div class="dropdown-divider"></div>
-                <a href="#" class="dropdown-item dropdown-footer">See All Messages</a>
+  <!-- Navbar -->
+  <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+    <!-- Left navbar links -->
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+      </li>
+      <li class="nav-item d-none d-sm-inline-block">
+        <a href="{{ route('admin.dashboard') }}" class="nav-link">Home</a>
+      </li>
+      <li class="nav-item d-none d-sm-inline-block">
+        <a href="#" class="nav-link">Contact</a>
+      </li>
+    </ul>
+
+    <!-- Right navbar links -->
+    <ul class="navbar-nav ml-auto">
+      <!-- Navbar Search -->
+      <li class="nav-item">
+        <a class="nav-link" data-widget="navbar-search" href="#" role="button">
+          <i class="fas fa-search"></i>
+        </a>
+        <div class="navbar-search-block">
+          <form class="form-inline">
+            <div class="input-group input-group-sm">
+              <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search">
+              <div class="input-group-append">
+                <button class="btn btn-navbar" type="submit">
+                  <i class="fas fa-search"></i>
+                </button>
+                <button class="btn btn-navbar" type="button" data-widget="navbar-search">
+                  <i class="fas fa-times"></i>
+                </button>
               </div>
-            </li>
-            <!--end::Messages Dropdown Menu-->
-
-            <!--begin::Notifications Dropdown Menu-->
-            <li class="nav-item dropdown">
-              <a class="nav-link" data-bs-toggle="dropdown" href="#">
-                <i class="bi bi-bell-fill"></i>
-                <span class="navbar-badge badge text-bg-warning">{{ $totalNotifications ?? 0 }}</span>
-              </a>
-              <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
-                <span class="dropdown-item dropdown-header">{{ $totalNotifications ?? 0 }} Notifications</span>
-                <div class="dropdown-divider"></div>
-                <a href="{{ route('admin.documents') }}" class="dropdown-item">
-                  <i class="bi bi-envelope me-2"></i> Document Requests
-                  <span class="float-end text-secondary fs-7">Now</span>
-                </a>
-                <div class="dropdown-divider"></div>
-                <a href="{{ route('admin.pre-registrations.index') }}" class="dropdown-item">
-                  <i class="bi bi-people-fill me-2"></i> Pre-Registrations
-                  <span class="float-end text-secondary fs-7">1 hr</span>
-                </a>
-                <div class="dropdown-divider"></div>
-                <a href="{{ route('admin.complaints') }}" class="dropdown-item">
-                  <i class="bi bi-exclamation-triangle me-2"></i> Complaints
-                  <span class="float-end text-secondary fs-7">2 hrs</span>
-                </a>
-                <div class="dropdown-divider"></div>
-                <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
-              </div>
-            </li>
-            <!--end::Notifications Dropdown Menu-->
-
-            <!--begin::Color Mode Toggler-->
-            <li class="nav-item dropdown">
-              <button
-                class="btn btn-link nav-link py-2 px-0 px-lg-2 dropdown-toggle d-flex align-items-center"
-                id="bd-theme"
-                type="button"
-                aria-expanded="false"
-                data-bs-toggle="dropdown"
-                data-bs-display="static"
-              >
-                <span class="theme-icon-active">
-                  <i class="my-1"></i>
-                </span>
-                <span class="d-lg-none ms-2" id="bd-theme-text">Toggle theme</span>
-              </button>
-              <ul
-                class="dropdown-menu dropdown-menu-end"
-                aria-labelledby="bd-theme-text"
-                style="--bs-dropdown-min-width: 8rem;"
-              >
-                <li>
-                  <button
-                    type="button"
-                    class="dropdown-item d-flex align-items-center active"
-                    data-bs-theme-value="light"
-                    aria-pressed="false"
-                  >
-                    <i class="bi bi-sun-fill me-2"></i>
-                    Light
-                    <i class="bi bi-check-lg ms-auto d-none"></i>
-                  </button>
-                </li>
-                <li>
-                  <button
-                    type="button"
-                    class="dropdown-item d-flex align-items-center"
-                    data-bs-theme-value="dark"
-                    aria-pressed="false"
-                  >
-                    <i class="bi bi-moon-fill me-2"></i>
-                    Dark
-                    <i class="bi bi-check-lg ms-auto d-none"></i>
-                  </button>
-                </li>
-                <li>
-                  <button
-                    type="button"
-                    class="dropdown-item d-flex align-items-center"
-                    data-bs-theme-value="auto"
-                    aria-pressed="true"
-                  >
-                    <i class="bi bi-circle-fill-half-stroke me-2"></i>
-                    Auto
-                    <i class="bi bi-check-lg ms-auto d-none"></i>
-                  </button>
-                </li>
-              </ul>
-            </li>
-            <!--end::Color Mode Toggler-->
-
-            <!--begin::Fullscreen Toggle-->
-            <li class="nav-item">
-              <a class="nav-link" href="#" id="fullscreen-btn" role="button">
-                <i class="bi bi-arrows-fullscreen"></i>
-              </a>
-            </li>
-            <!--end::Fullscreen Toggle-->
-
-            <!--begin::User Menu Dropdown-->
-            <li class="nav-item dropdown user-menu">
-              <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                <img src="{{ Auth::user()->profile_photo_url ?? asset('images/logo.png') }}" class="user-image rounded-circle shadow" alt="User Image" style="width:32px;height:32px;" />
-                <span class="d-none d-md-inline">{{ Auth::user()->name ?? 'Admin' }}</span>
-              </a>
-              <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
-                <li class="user-header text-bg-primary">
-                  <img src="{{ Auth::user()->profile_photo_url ?? asset('images/logo.png') }}" class="rounded-circle shadow" alt="User Image" />
-                  <p>
-                    {{ Auth::user()->name ?? 'Admin' }}
-                    <small>Member since {{ Auth::user()->created_at?->format('M Y') ?? '' }}</small>
-                  </p>
-                </li>
-                <li class="user-body">
-                  <div class="row">
-                    <div class="col-4 text-center"><a href="#">Followers</a></div>
-                    <div class="col-4 text-center"><a href="#">Sales</a></div>
-                    <div class="col-4 text-center"><a href="#">Friends</a></div>
-                  </div>
-                </li>
-                <li class="user-footer">
-                  <a href="{{ route('admin.profile') }}" class="btn btn-default btn-flat">Profile</a>
-                  <form method="POST" action="{{ route('logout') }}" class="d-inline">
-                    @csrf
-                    <button type="submit" class="btn btn-default btn-flat float-end">Sign out</button>
-                  </form>
-                </li>
-              </ul>
-            </li>
-            <!--end::User Menu Dropdown-->
-          </ul>
-          <!--end::End Navbar Links-->
+            </div>
+          </form>
         </div>
-      </nav>
-      <!--end::Header-->
+      </li>
 
-      <!--begin::Sidebar-->
-      <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
-        <!--begin::Sidebar Brand-->
-        <div class="sidebar-brand">
-          <a href="{{ route('admin.dashboard') }}" class="brand-link">
-            <img src="{{ asset('images/logo.png') }}" alt="Lumanglipa Logo" class="brand-image opacity-75 shadow" />
-            <span class="brand-text fw-light">LumangLipa Admin</span>
+      <!-- Messages Dropdown Menu -->
+      <li class="nav-item dropdown">
+        <a class="nav-link" data-toggle="dropdown" href="#">
+          <i class="far fa-comments"></i>
+          <span class="badge badge-danger navbar-badge">3</span>
+        </a>
+        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+          <a href="#" class="dropdown-item">
+            <!-- Message start -->
+            <div class="media">
+              <img src="{{ asset('images/logo.png') }}" alt="User Avatar" class="img-size-50 mr-3 img-circle">
+              <div class="media-body">
+                <h3 class="dropdown-item-title">System
+                  <span class="float-right text-sm text-danger"><i class="fas fa-star"></i></span>
+                </h3>
+                <p class="text-sm">You have a new message</p>
+                <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>
+              </div>
+            </div>
+            <!-- Message end -->
           </a>
+          <div class="dropdown-divider"></div>
+          <a href="#" class="dropdown-item dropdown-footer">See All Messages</a>
         </div>
-        <!--end::Sidebar Brand-->
-        <!--begin::Sidebar Wrapper-->
-        <div class="sidebar-wrapper">
-          <nav class="mt-2">
-            <!--begin::Sidebar Menu-->
-            <ul
-              class="nav sidebar-menu flex-column"
-              data-lte-toggle="treeview"
-              role="navigation"
-              aria-label="Main navigation"
-              data-accordion="false"
-              id="navigation"
-            >
+      </li>
+      <!-- Notifications Dropdown Menu -->
+      <li class="nav-item dropdown">
+        <a class="nav-link" data-toggle="dropdown" href="#">
+          <i class="far fa-bell"></i>
+          <span class="badge badge-warning navbar-badge">{{ $totalNotifications ?? 0 }}</span>
+        </a>
+        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+          <span class="dropdown-item dropdown-header">{{ $totalNotifications ?? 0 }} Notifications</span>
+          <div class="dropdown-divider"></div>
+          <a href="{{ route('admin.documents') }}" class="dropdown-item">
+            <i class="fas fa-envelope mr-2"></i> Document Requests
+            <span class="float-right text-muted text-sm">now</span>
+          </a>
+          <div class="dropdown-divider"></div>
+          <a href="{{ route('admin.pre-registrations.index') }}" class="dropdown-item">
+            <i class="fas fa-users mr-2"></i> Pre-Registrations
+            <span class="float-right text-muted text-sm">1 hr</span>
+          </a>
+          <div class="dropdown-divider"></div>
+          <a href="{{ route('admin.complaints') }}" class="dropdown-item">
+            <i class="fas fa-exclamation-triangle mr-2"></i> Complaints
+            <span class="float-right text-muted text-sm">2 hrs</span>
+          </a>
+          <div class="dropdown-divider"></div>
+          <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
+        </div>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" data-widget="fullscreen" href="#" role="button">
+          <i class="fas fa-expand-arrows-alt"></i>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button">
+          <i class="fas fa-th-large"></i>
+        </a>
+      </li>
+      <!-- User Dropdown -->
+      <li class="nav-item dropdown user-menu">
+        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+          <img src="{{ Auth::user()->profile_photo_url ?? asset('images/logo.png') }}" class="user-image img-circle elevation-2" alt="User Image">
+          <span class="d-none d-md-inline">{{ Auth::user()->name ?? 'Admin' }}</span>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+          <!-- User image -->
+          <li class="user-header bg-primary">
+            <img src="{{ Auth::user()->profile_photo_url ?? asset('images/logo.png') }}" class="img-circle elevation-2" alt="User Image">
+            <p>
+              {{ Auth::user()->name ?? 'Admin' }}
+              <small>{{ Auth::user()->role->name ?? 'Administrator' }}</small>
+            </p>
+          </li>
+          <!-- Menu Footer-->
+          <li class="user-footer">
+            <a href="{{ route('admin.profile') }}" class="btn btn-default btn-flat">Profile</a>
+            <form method="POST" action="{{ route('logout') }}" class="float-right">
+              @csrf
+              <button type="submit" class="btn btn-default btn-flat">Sign out</button>
+            </form>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+  <!-- /.navbar -->
+
+  <!-- Main Sidebar Container -->
+  <aside class="main-sidebar sidebar-light-lightblue elevation-4">
+    <!-- Brand Logo -->
+    <a href="{{ route('admin.dashboard') }}" class="brand-link navbar-white">
+      <img src="{{ asset('images/logo.png') }}" alt="Lumanglipa Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+      <span class="brand-text font-weight-light">LumangLipa Admin</span>
+    </a>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <!-- Sidebar user panel (optional) -->
+      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+        <div class="image">
+          <img src="{{ Auth::user()->profile_photo_url ?? asset('images/logo.png') }}" class="img-circle elevation-2" alt="User Image">
+        </div>
+        <div class="info">
+          <a href="{{ route('admin.profile') }}" class="d-block">{{ Auth::user()->name ?? 'Admin' }}</a>
+        </div>
+      </div>
+
+      <!-- SidebarSearch Form -->
+      <div class="form-inline">
+        <div class="input-group" data-widget="sidebar-search">
+          <input class="form-control form-control-sidebar" type="search" placeholder="Search" aria-label="Search">
+          <div class="input-group-append">
+            <button class="btn btn-sidebar">
+              <i class="fas fa-search fa-fw"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar Menu -->
+      <nav class="mt-2">
+        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+          <li class="nav-item">
+            <a href="{{ route('admin.dashboard') }}" class="nav-link {{ Request::routeIs('admin.dashboard') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-tachometer-alt"></i>
+              <p>Dashboard</p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a href="{{ route('admin.documents') }}" class="nav-link {{ Request::routeIs('admin.documents') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-file-alt"></i>
+              <p>Document Requests</p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a href="{{ route('admin.pre-registrations.index') }}" class="nav-link {{ Request::routeIs('admin.pre-registrations.*') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-user-plus"></i>
+              <p>Pre-Registrations</p>
+            </a>
+          </li>
+
+          <!-- Approvals dropdown menu -->
+          <li class="nav-item {{ Request::routeIs('admin.approvals*') || Request::routeIs('admin.access-requests*') ? 'menu-open' : '' }}">
+            <a href="#" class="nav-link {{ Request::routeIs('admin.approvals*') || Request::routeIs('admin.access-requests*') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-check-circle"></i>
+              <p>
+                Approvals
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a href="{{ route('admin.dashboard') }}" class="nav-link  {{ Request::routeIs('admin.dashboard') ? 'active' : '' }}">
-                  <i class="nav-icon bi bi-speedometer"></i>
-                  <p>
-                    Dashboard
-                  </p>
+                <a class="nav-link {{ Request::routeIs('admin.approvals.index') ? 'active' : '' }}" href="{{ route('admin.approvals.index') }}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>All Approvals</p>
                 </a>
               </li>
-
               <li class="nav-item">
-                <a href="{{ route('admin.documents') }}" class="nav-link {{ Request::routeIs('admin.documents') ? 'active' : '' }}">
-                  <i class="nav-icon bi bi-file-earmark-fill"></i>
-                  <p>Document Requests</p>
-                </a>
-              </li>
-
-              <li class="nav-item">
-                <a href="{{ route('admin.pre-registrations.index') }}" class="nav-link {{ Request::routeIs('admin.pre-registrations.*') ? 'active' : '' }}">
-                  <i class="nav-icon bi bi-user-plus"></i>
-                  <p>Pre-Registrations</p>
-                </a>
-              </li>
-
-              <!-- Replace simple Residents link with treeview dropdown -->
-              <li class="nav-item has-treeview {{ Request::routeIs('admin.residents.*') || Request::routeIs('admin.gad.*') || Request::routeIs('admin.senior-citizens.*') ? 'menu-open' : '' }}">
-                <a href="#" class="nav-link {{ Request::routeIs('admin.residents.*') || Request::routeIs('admin.gad.*') || Request::routeIs('admin.senior-citizens.*') ? 'active' : '' }}">
-                  <i class="nav-icon bi bi-people-fill"></i>
-                  <p>
-                    Residents
-                    <i class="nav-arrow bi bi-chevron-right"></i>
-                  </p>
-                </a>
-                <ul class="nav nav-treeview">
-                  <li class="nav-item"><a class="nav-link {{ Request::routeIs('admin.residents.index') ? 'active' : '' }}" href="{{ route('admin.residents.index') }}"><i class="{{ Request::routeIs('admin.residents.index') ? 'nav-icon bi bi-circle-fill' : 'nav-icon bi bi-circle' }}"></i><p>All Residents</p></a></li>
-                  <li class="nav-item"><a class="nav-link {{ Request::routeIs('admin.residents.census-data') ? 'active' : '' }}" href="{{ route('admin.residents.census-data') }}"><i class="{{ Request::routeIs('admin.residents.census-data') ? 'nav-icon bi bi-circle-fill' : 'nav-icon bi bi-circle' }}"></i><p>Census Data</p></a></li>
-                  <li class="nav-item"><a class="nav-link {{ Request::routeIs('admin.residents.id.pending') ? 'active' : '' }}" href="{{ route('admin.residents.id.pending') }}"><i class="{{ Request::routeIs('admin.residents.id.pending') ? 'nav-icon bi bi-circle-fill' : 'nav-icon bi bi-circle' }}"></i><p>ID Card Management</p></a></li>
-                  <li class="nav-item"><a class="nav-link {{ Request::routeIs('admin.gad.*') ? 'active' : '' }}" href="{{ route('admin.gad.index') }}"><i class="{{ Request::routeIs('admin.gad.*') ? 'nav-icon bi bi-circle-fill' : 'nav-icon bi bi-circle' }}"></i><p>Gender &amp; Development</p></a></li>
-                  <li class="nav-item"><a class="nav-link {{ Request::routeIs('admin.senior-citizens.*') ? 'active' : '' }}" href="{{ route('admin.senior-citizens.index') }}"><i class="{{ Request::routeIs('admin.senior-citizens.*') ? 'nav-icon bi bi-circle-fill' : 'nav-icon bi bi-circle' }}"></i><p>Senior Citizens</p></a></li>
-                </ul>
-              </li>
-
-              <li class="nav-item">
-                <a href="{{ route('admin.health') }}" class="nav-link {{ Request::routeIs('admin.health') ? 'active' : '' }}">
-                  <i class="nav-icon bi bi-heart-pulse"></i>
-                  <p>Health Services</p>
-                </a>
-              </li>
-
-              <li class="nav-item">
-                <a href="{{ route('admin.complaints') }}" class="nav-link {{ Request::routeIs('admin.complaints') ? 'active' : '' }}">
-                  <i class="nav-icon bi bi-exclamation-triangle"></i>
-                  <p>Complaints</p>
-                </a>
-              </li>
-
-              <li class="nav-item">
-                <a href="{{ route('admin.analytics') }}" class="nav-link {{ Request::routeIs('admin.analytics') ? 'active' : '' }}">
-                  <i class="nav-icon bi bi-bar-chart"></i>
-                  <p>Analytics</p>
-                </a>
-              </li>
-
-              <li class="nav-item">
-                <a href="{{ route('admin.profile') }}" class="nav-link {{ Request::routeIs('admin.profile') ? 'active' : '' }}">
-                  <i class="nav-icon bi bi-person"></i>
-                  <p>Profile</p>
+                <a class="nav-link {{ Request::routeIs('admin.access-requests.*') ? 'active' : '' }}" href="{{ route('admin.access-requests.index') }}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Access Requests</p>
                 </a>
               </li>
             </ul>
-            <!--end::Sidebar Menu-->
-          </nav>
-        </div>
-        <!--end::Sidebar Wrapper-->
-      </aside>
-      <!--end::Sidebar-->
-      <!--begin::App Main-->
-      <main class="app-main">
-        <div class="app-content-header">
-          <div class="container-fluid">
-            <div class="row">
-              <div class="col-sm-6"><h3 class="mb-0">Dashboard</h3></div>
-              <div class="col-sm-6">
-                <ol class="breadcrumb float-sm-end">
-                  <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Home</a></li>
-                  <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
-                </ol>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="app-content">
-          <div class="container-fluid pt-3">
-            @yield('content')
-          </div>
-        </div>
-      </main>
-      <!--end::App Main-->
-      <footer class="app-footer text-center">
-        <strong>&copy; {{ date('Y') }} Lumanglipa Barangay Management System.</strong> All rights reserved.
-      </footer>
+          </li>
+
+          <!-- Residents dropdown menu -->
+          <li class="nav-item {{ Request::routeIs('admin.residents.*') || Request::routeIs('admin.gad.*') || Request::routeIs('admin.senior-citizens.*') ? 'menu-open' : '' }}">
+            <a href="#" class="nav-link {{ Request::routeIs('admin.residents.*') || Request::routeIs('admin.gad.*') || Request::routeIs('admin.senior-citizens.*') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-users"></i>
+              <p>
+                Residents
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a class="nav-link {{ Request::routeIs('admin.residents.index') ? 'active' : '' }}" href="{{ route('admin.residents.index') }}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>All Residents</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {{ Request::routeIs('admin.residents.census-data') ? 'active' : '' }}" href="{{ route('admin.residents.census-data') }}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Census Data</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {{ Request::routeIs('admin.residents.id.pending') ? 'active' : '' }}" href="{{ route('admin.residents.id.pending') }}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>ID Card Management</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {{ Request::routeIs('admin.gad.*') ? 'active' : '' }}" href="{{ route('admin.gad.index') }}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Gender & Development</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {{ Request::routeIs('admin.senior-citizens.*') ? 'active' : '' }}" href="{{ route('admin.senior-citizens.index') }}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Senior Citizens</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+
+          <li class="nav-item">
+            <a href="{{ route('admin.health') }}" class="nav-link {{ Request::routeIs('admin.health') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-heartbeat"></i>
+              <p>Health Services</p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a href="{{ route('admin.complaints') }}" class="nav-link {{ Request::routeIs('admin.complaints') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-exclamation-triangle"></i>
+              <p>Complaints</p>
+            </a>
+          </li>
+
+          @if(Auth::user()->role->name === 'Barangay Captain')
+          <li class="nav-item {{ Request::routeIs('admin.analytics*') || Request::routeIs('admin.security.*') ? 'menu-open' : '' }}">
+            <a href="#" class="nav-link {{ Request::routeIs('admin.analytics*') || Request::routeIs('admin.security.*') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-chart-bar"></i>
+              <p>
+                Analytics
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a class="nav-link {{ Request::routeIs('admin.analytics') ? 'active' : '' }}" href="{{ route('admin.analytics') }}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Analytics</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {{ Request::routeIs('admin.security.*') ? 'active' : '' }}" href="{{ route('admin.security.dashboard') }}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Security</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          @endif
+
+          <li class="nav-item">
+            <a href="{{ route('admin.profile') }}" class="nav-link {{ Request::routeIs('admin.profile') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-user"></i>
+              <p>Profile</p>
+            </a>
+          </li>
+
+        </ul>
+      </nav>
+      <!-- /.sidebar-menu -->
     </div>
-    <!--end::App Wrapper-->
-    <!-- Core JavaScript (loaded immediately) -->
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.11.0/browser/overlayscrollbars.browser.es.min.js"></script>
-    <script src="{{ asset('adminlte/js/adminlte.min.js') }}"></script>
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        OverlayScrollbars(document.querySelectorAll('.sidebar-wrapper'), {});
-        // Fullscreen toggle
-        document.getElementById('fullscreen-btn').addEventListener('click', function() {
-          if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen();
-          } else {
-            document.exitFullscreen();
-          }
-        });
-      });
-    </script>
-    <!-- Color Mode toggler script -->
-    <script>
-(() => {
-  "use strict";
+    <!-- /.sidebar -->
+  </aside>
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            @hasSection('page-header')
+              <h1 class="m-0">@yield('page-header')</h1>
+              @hasSection('page-header-extra')
+                <div class="mt-1">@yield('page-header-extra')</div>
+              @endif
+            @endif
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              @hasSection('breadcrumbs')
+                @yield('breadcrumbs')
+              @else
+                @hasSection('page-header')
+                  <li class="breadcrumb-item active">@yield('page-header')</li>
+                @endif
+              @endif
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
 
-  const storedTheme = localStorage.getItem("theme");
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        @yield('content')
+      </div><!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+  
+  <footer class="main-footer">
+    <strong>&copy; {{ date('Y') }} <a href="#">Lumanglipa Smart System</a>.</strong>
+    All rights reserved.
+    <div class="float-right d-none d-sm-inline-block">
+    
+    </div>
+  </footer>
 
-  const getPreferredTheme = () => {
-    if (storedTheme) {
-      return storedTheme;
-    }
+  <!-- Control Sidebar -->
+  <aside class="control-sidebar control-sidebar-dark" style="overflow-y: auto; max-height: 100vh;">
+    <!-- Control sidebar content goes here -->
+    <div class="p-3" style="height: auto; min-height: 100vh;">
+      <h5>Customize AdminLTE</h5>
+      <hr class="mb-2">
+      
+      <h6>Layout Options</h6>
+      <div class="mb-1">
+        <input type="checkbox" value="1" data-widget="pushmenu" class="mr-1">
+        <span>Toggle Sidebar</span>
+      </div>
+      <div class="mb-1">
+        <input type="checkbox" value="1" data-layout="layout-fixed" class="mr-1">
+        <span>Fixed Layout</span>
+      </div>
+      <div class="mb-1">
+        <input type="checkbox" value="1" data-layout="layout-navbar-fixed" class="mr-1">
+        <span>Fixed Navbar</span>
+      </div>
+      <div class="mb-1">
+        <input type="checkbox" value="1" data-layout="layout-footer-fixed" class="mr-1">
+        <span>Fixed Footer</span>
+      </div>
+      <div class="mb-1">
+        <input type="checkbox" value="1" data-layout="layout-top-nav" class="mr-1">
+        <span>Top Navigation</span>
+      </div>
+      
+      <h6>Header Options</h6>
+      <div class="mb-1">
+        <input type="checkbox" value="1" data-layout="layout-navbar-fixed" class="mr-1">
+        <span>Fixed Navbar</span>
+      </div>
+      <div class="mb-1">
+        <input type="checkbox" value="1" data-layout="layout-sm-navbar-fixed" class="mr-1">
+        <span>SM+ Fixed Navbar</span>
+      </div>
+      
+      <h6>Sidebar Options</h6>
+      <div class="mb-1">
+        <input type="checkbox" value="1" data-sidebar="sidebar-collapse" class="mr-1">
+        <span>Collapsed</span>
+      </div>
+      <div class="mb-1">
+        <input type="checkbox" value="1" data-sidebar="sidebar-mini" class="mr-1">
+        <span>Mini Sidebar</span>
+      </div>
+      <div class="mb-1">
+        <input type="checkbox" value="1" data-sidebar="sidebar-mini-md" class="mr-1">
+        <span>Sidebar Mini MD</span>
+      </div>
+      <div class="mb-1">
+        <input type="checkbox" value="1" data-sidebar="sidebar-mini-xs" class="mr-1">
+        <span>Sidebar Mini XS</span>
+      </div>
+      <div class="mb-1">
+        <input type="checkbox" value="1" data-sidebar="nav-flat" class="mr-1">
+        <span>Nav Flat Style</span>
+      </div>
+      <div class="mb-1">
+        <input type="checkbox" value="1" data-sidebar="nav-legacy" class="mr-1">
+        <span>Nav Legacy Style</span>
+      </div>
+      <div class="mb-1">
+        <input type="checkbox" value="1" data-sidebar="nav-compact" class="mr-1">
+        <span>Nav Compact</span>
+      </div>
+      <div class="mb-1">
+        <input type="checkbox" value="1" data-sidebar="nav-child-indent" class="mr-1">
+        <span>Nav Child Indent</span>
+      </div>
+      <div class="mb-1">
+        <input type="checkbox" value="1" data-sidebar="nav-collapse-hide-child" class="mr-1">
+        <span>Nav Collapse Hide Child</span>
+      </div>
+      <div class="mb-1">
+        <input type="checkbox" value="1" data-sidebar="sidebar-no-expand" class="mr-1">
+        <span>Disable Hover/Focus Auto-Expand</span>
+      </div>
+      
+      <h6>Footer Options</h6>
+      <div class="mb-1">
+        <input type="checkbox" value="1" data-layout="layout-footer-fixed" class="mr-1">
+        <span>Fixed Footer</span>
+      </div>
+      <div class="mb-1">
+        <input type="checkbox" value="1" data-layout="layout-sm-footer-fixed" class="mr-1">
+        <span>SM+ Fixed Footer</span>
+      </div>
+      
+      <h6>Sidebar Theme</h6>
+      <div class="mb-1">
+        <input type="radio" name="sidebar-theme" value="light" data-sidebar-theme="sidebar-light-lightblue" class="mr-1" checked>
+        <span>Light Blue (Default)</span>
+      </div>
+      <div class="mb-1">
+        <input type="radio" name="sidebar-theme" value="dark" data-sidebar-theme="sidebar-dark-primary" class="mr-1">
+        <span>Dark Primary</span>
+      </div>
+      <div class="mb-1">
+        <input type="radio" name="sidebar-theme" value="light-primary" data-sidebar-theme="sidebar-light-primary" class="mr-1">
+        <span>Light Primary</span>
+      </div>
+      <div class="mb-1">
+        <input type="radio" name="sidebar-theme" value="dark-info" data-sidebar-theme="sidebar-dark-info" class="mr-1">
+        <span>Dark Info</span>
+      </div>
+    </div>
+  </aside>
+  <!-- /.control-sidebar -->
+</div>
+<!-- ./wrapper -->
 
-    return window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light";
-  };
-
-  const setTheme = function (theme) {
-    if (
-      theme === "auto" &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches
-    ) {
-      document.documentElement.setAttribute("data-bs-theme", "dark");
-    } else {
-      document.documentElement.setAttribute("data-bs-theme", theme);
-    }
-  };
-
-  setTheme(getPreferredTheme());
-
-  const showActiveTheme = (theme, focus = false) => {
-    const themeSwitcher = document.querySelector("#bd-theme");
-
-    if (!themeSwitcher) {
-      return;
-    }
-
-    const themeSwitcherText = document.querySelector("#bd-theme-text");
-    const activeThemeIcon = document.querySelector(".theme-icon-active i");
-    const btnToActive = document.querySelector(
-      `[data-bs-theme-value="${theme}"]`
-    );
-    const svgOfActiveBtn = btnToActive.querySelector("i").getAttribute("class");
-
-    for (const element of document.querySelectorAll("[data-bs-theme-value]")) {
-      element.classList.remove("active");
-      element.setAttribute("aria-pressed", "false");
-    }
-
-    btnToActive.classList.add("active");
-    btnToActive.setAttribute("aria-pressed", "true");
-    activeThemeIcon.setAttribute("class", svgOfActiveBtn);
-    const themeSwitcherLabel = `${themeSwitcherText.textContent} (${btnToActive.dataset.bsThemeValue})`;
-    themeSwitcher.setAttribute("aria-label", themeSwitcherLabel);
-
-    if (focus) {
-      themeSwitcher.focus();
-    }
-  };
-
-  window
-    .matchMedia("(prefers-color-scheme: dark)")
-    .addEventListener("change", () => {
-      if (storedTheme !== "light" || storedTheme !== "dark") {
-        setTheme(getPreferredTheme());
-      }
-    });
-
-  window.addEventListener("DOMContentLoaded", () => {
-    showActiveTheme(getPreferredTheme());
-
-    for (const toggle of document.querySelectorAll("[data-bs-theme-value]")) {
-      toggle.addEventListener("click", () => {
-        const theme = toggle.getAttribute("data-bs-theme-value");
-        localStorage.setItem("theme", theme);
-        setTheme(theme);
-        showActiveTheme(theme, true);
-      });
-    }
-  });
-})();
+<!-- jQuery -->
+<script src="{{ asset('adminlte/plugins/jquery/jquery.min.js') }}"></script>
+<!-- jQuery UI 1.11.4 -->
+<script src="{{ asset('adminlte/plugins/jquery-ui/jquery-ui.min.js') }}"></script>
+<!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+<script>
+  $.widget.bridge('uibutton', $.ui.button)
 </script>
-    @stack('scripts')
-  </body>
+<!-- Bootstrap 4 -->
+<script src="{{ asset('adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<!-- overlayScrollbars -->
+<script src="{{ asset('adminlte/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js') }}"></script>
+<!-- AdminLTE App -->
+<script src="{{ asset('adminlte/js/adminlte.min.js') }}"></script>
+{{-- DataTables and shared admin table scripts --}}
+@include('admin.components.datatable-scripts')
+
+<!-- Custom AdminLTE Customization Script -->
+<script>
+$(document).ready(function() {
+    // Handle layout changes
+    $('[data-layout]').on('change', function() {
+        var layout = $(this).data('layout');
+        if ($(this).is(':checked')) {
+            // Handle conflicting layouts
+            if (layout === 'layout-top-nav') {
+                $('body').removeClass('layout-fixed layout-navbar-fixed');
+                $('[data-layout="layout-fixed"], [data-layout="layout-navbar-fixed"]').prop('checked', false);
+            }
+            $('body').addClass(layout);
+        } else {
+            $('body').removeClass(layout);
+        }
+    });
+    
+    // Handle sidebar changes
+    $('[data-sidebar]').on('change', function() {
+        var sidebar = $(this).data('sidebar');
+        var $sidebar = $('.main-sidebar');
+        var $nav = $('.nav-sidebar');
+        var $body = $('body');
+        
+        if ($(this).is(':checked')) {
+            if (sidebar.startsWith('nav-')) {
+                $nav.addClass(sidebar);
+            } else {
+                // Handle conflicting sidebar options
+                if (sidebar === 'sidebar-mini') {
+                    $body.removeClass('sidebar-mini-md sidebar-mini-xs');
+                    $('[data-sidebar="sidebar-mini-md"], [data-sidebar="sidebar-mini-xs"]').prop('checked', false);
+                } else if (sidebar === 'sidebar-mini-md') {
+                    $body.removeClass('sidebar-mini sidebar-mini-xs');
+                    $('[data-sidebar="sidebar-mini"], [data-sidebar="sidebar-mini-xs"]').prop('checked', false);
+                } else if (sidebar === 'sidebar-mini-xs') {
+                    $body.removeClass('sidebar-mini sidebar-mini-md');
+                    $('[data-sidebar="sidebar-mini"], [data-sidebar="sidebar-mini-md"]').prop('checked', false);
+                }
+                $body.addClass(sidebar);
+            }
+        } else {
+            if (sidebar.startsWith('nav-')) {
+                $nav.removeClass(sidebar);
+            } else {
+                $body.removeClass(sidebar);
+            }
+        }
+    });
+    
+    // Handle sidebar theme changes
+    $('[data-sidebar-theme]').on('change', function() {
+        if ($(this).is(':checked')) {
+            var newTheme = $(this).data('sidebar-theme');
+            var $sidebar = $('.main-sidebar');
+            var $brandLink = $('.brand-link');
+            
+            // Remove existing sidebar theme classes
+            $sidebar.removeClass('sidebar-dark-primary sidebar-light-lightblue sidebar-dark-info sidebar-light-primary');
+            $brandLink.removeClass('navbar-primary navbar-lightblue navbar-info navbar-light navbar-white');
+            
+            // Add new theme class
+            $sidebar.addClass(newTheme);
+            
+            // Update brand link color based on theme
+            if (newTheme.includes('light')) {
+                $brandLink.addClass('navbar-white');
+            } else {
+                if (newTheme.includes('primary')) {
+                    $brandLink.addClass('navbar-primary');
+                } else if (newTheme.includes('info')) {
+                    $brandLink.addClass('navbar-info');
+                } else {
+                    $brandLink.addClass('navbar-primary');
+                }
+            }
+        }
+    });
+    
+    // Handle pushmenu toggle
+    $('[data-widget="pushmenu"]').on('change', function() {
+        if ($(this).is(':checked')) {
+            $('body').addClass('sidebar-collapse');
+        } else {
+            $('body').removeClass('sidebar-collapse');
+        }
+    });
+    
+    // Set initial state based on current body classes
+    var bodyClasses = $('body').attr('class');
+    if (bodyClasses) {
+        // Layout options
+        if (bodyClasses.includes('layout-navbar-fixed')) {
+            $('[data-layout="layout-navbar-fixed"]').prop('checked', true);
+        }
+        if (bodyClasses.includes('layout-footer-fixed')) {
+            $('[data-layout="layout-footer-fixed"]').prop('checked', true);
+        }
+        if (bodyClasses.includes('layout-fixed')) {
+            $('[data-layout="layout-fixed"]').prop('checked', true);
+        }
+        if (bodyClasses.includes('layout-top-nav')) {
+            $('[data-layout="layout-top-nav"]').prop('checked', true);
+        }
+        if (bodyClasses.includes('layout-sm-navbar-fixed')) {
+            $('[data-layout="layout-sm-navbar-fixed"]').prop('checked', true);
+        }
+        if (bodyClasses.includes('layout-sm-footer-fixed')) {
+            $('[data-layout="layout-sm-footer-fixed"]').prop('checked', true);
+        }
+        
+        // Sidebar options
+        if (bodyClasses.includes('sidebar-collapse')) {
+            $('[data-sidebar="sidebar-collapse"]').prop('checked', true);
+            $('[data-widget="pushmenu"]').prop('checked', true);
+        }
+        if (bodyClasses.includes('sidebar-mini') && !bodyClasses.includes('sidebar-mini-md') && !bodyClasses.includes('sidebar-mini-xs')) {
+            $('[data-sidebar="sidebar-mini"]').prop('checked', true);
+        }
+        if (bodyClasses.includes('sidebar-mini-md')) {
+            $('[data-sidebar="sidebar-mini-md"]').prop('checked', true);
+        }
+        if (bodyClasses.includes('sidebar-mini-xs')) {
+            $('[data-sidebar="sidebar-mini-xs"]').prop('checked', true);
+        }
+        if (bodyClasses.includes('sidebar-no-expand')) {
+            $('[data-sidebar="sidebar-no-expand"]').prop('checked', true);
+        }
+    }
+    
+    // Check nav classes
+    var navClasses = $('.nav-sidebar').attr('class');
+    if (navClasses) {
+        if (navClasses.includes('nav-flat')) {
+            $('[data-sidebar="nav-flat"]').prop('checked', true);
+        }
+        if (navClasses.includes('nav-legacy')) {
+            $('[data-sidebar="nav-legacy"]').prop('checked', true);
+        }
+        if (navClasses.includes('nav-compact')) {
+            $('[data-sidebar="nav-compact"]').prop('checked', true);
+        }
+        if (navClasses.includes('nav-child-indent')) {
+            $('[data-sidebar="nav-child-indent"]').prop('checked', true);
+        }
+        if (navClasses.includes('nav-collapse-hide-child')) {
+            $('[data-sidebar="nav-collapse-hide-child"]').prop('checked', true);
+        }
+    }
+    
+    // Set initial sidebar theme radio button based on current sidebar class
+    var $sidebar = $('.main-sidebar');
+    if ($sidebar.hasClass('sidebar-light-lightblue')) {
+        $('[data-sidebar-theme="sidebar-light-lightblue"]').prop('checked', true);
+    } else if ($sidebar.hasClass('sidebar-dark-primary')) {
+        $('[data-sidebar-theme="sidebar-dark-primary"]').prop('checked', true);
+    } else if ($sidebar.hasClass('sidebar-light-primary')) {
+        $('[data-sidebar-theme="sidebar-light-primary"]').prop('checked', true);
+    } else if ($sidebar.hasClass('sidebar-dark-info')) {
+        $('[data-sidebar-theme="sidebar-dark-info"]').prop('checked', true);
+    }
+    
+    // Add visual feedback for changes
+    $('.control-sidebar input[type="checkbox"], .control-sidebar input[type="radio"]').on('change', function() {
+        var $this = $(this);
+        $this.closest('div').addClass('text-success');
+        setTimeout(function() {
+            $this.closest('div').removeClass('text-success');
+        }, 300);
+    });
+    
+    // Debug logging (remove in production)
+    console.log('AdminLTE Customization Panel initialized successfully');
+});
+</script>
+
+@stack('scripts')
+</body>
 </html>

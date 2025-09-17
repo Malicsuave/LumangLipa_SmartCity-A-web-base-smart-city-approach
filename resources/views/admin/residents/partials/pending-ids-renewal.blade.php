@@ -1,14 +1,15 @@
 @php
 // This partial expects $pendingRenewal to be passed in
 @endphp
-<div class="card-header">
-    <div class="d-flex justify-content-between align-items-center">
-        <div>
-            <h4 class="mb-0"><i class="fe fe-refresh-cw fe-16 mr-2"></i>IDs Pending Renewal</h4>
-            <p class="text-muted mb-0">Residents with IDs marked for renewal</p>
+<div class="card shadow-lg border-0 admin-card-shadow mb-4">
+    <div class="card-header" style="background: #3498db; color: white; border-radius: 12px 12px 0 0 !important; border: none;">
+        <strong class="card-title">Pending ID Renewal</strong>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <!-- Table content here -->
+            </table>
         </div>
     </div>
 </div>
-<div class="card-body">
-    @include('admin.residents.pending-ids-filter-renewal', ['pendingRenewal' => $pendingRenewal])
-</div> 

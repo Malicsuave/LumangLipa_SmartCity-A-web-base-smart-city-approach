@@ -157,7 +157,41 @@
                 'form_action' => route('admin.residents.id.remove-renewal', $resident->id),
             ];
         @endphp
-        @include('components.custom-dropdown', ['items' => $dropdownItems, 'dropup' => $isLast])
+        <div class="btn-group">
+            <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Actions
+            </button>
+            <div class="dropdown-menu dropdown-menu-right">
+                <a class="dropdown-item" href="{{ route('admin.residents.id.show', $resident->id) }}">
+                    <i class="fas fa-id-card mr-2"></i>Manage ID
+                </a>
+                <a class="dropdown-item" href="#" onclick="event.preventDefault(); if(confirm('Are you sure you want to issue a new ID for this resident?')){ document.getElementById('renew-{{ $resident->id }}').submit(); }">
+                    <i class="fas fa-check-circle text-success mr-2"></i>Issue New ID (Renew)
+                </a>
+                <form id="renew-{{ $resident->id }}" action="{{ route('admin.residents.id.issue', $resident->id) }}" method="POST" style="display:none;">
+                    @csrf
+                </form>
+                <a class="dropdown-item" href="{{ route('admin.residents.id.preview', $resident->id) }}">
+                    <i class="fas fa-image text-info mr-2"></i>Preview ID
+                </a>
+                <a class="dropdown-item" href="{{ route('admin.residents.id.download', $resident->id) }}">
+                    <i class="fas fa-download text-success mr-2"></i>Download ID
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="#" onclick="event.preventDefault(); if(confirm('Are you sure you want to revoke this resident\'s ID? This action cannot be undone.')){ document.getElementById('revoke-{{ $resident->id }}').submit(); }">
+                    <i class="fas fa-times-circle text-danger mr-2"></i>Revoke ID
+                </a>
+                <form id="revoke-{{ $resident->id }}" action="{{ route('admin.residents.id.revoke', $resident->id) }}" method="POST" style="display:none;">
+                    @csrf
+                </form>
+                <a class="dropdown-item" href="#" onclick="event.preventDefault(); if(confirm('Remove this resident from the renewal queue?')){ document.getElementById('remove-renewal-{{ $resident->id }}').submit(); }">
+                    <i class="fas fa-minus-circle text-warning mr-2"></i>Remove from Renewal Queue
+                </a>
+                <form id="remove-renewal-{{ $resident->id }}" action="{{ route('admin.residents.id.remove-renewal', $resident->id) }}" method="POST" style="display:none;">
+                    @csrf
+                </form>
+            </div>
+        </div>
     </td>
 </tr>
 @endforeach
