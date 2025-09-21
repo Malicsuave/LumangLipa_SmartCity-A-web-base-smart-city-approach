@@ -56,6 +56,9 @@
     }
   </style>
   
+  <!-- Toastr CSS for global notifications -->
+  <link rel="stylesheet" href="{{ asset('adminlte/plugins/toastr/toastr.min.css') }}">
+  
   @stack('styles')
 </head>
 <body class="sidebar-mini layout-fixed layout-navbar-fixed">
@@ -314,6 +317,12 @@
               </li>
             </ul>
           </li>
+             <li class="nav-item">
+            <a href="{{ route('admin.officials.edit-single') }}" class="nav-link {{ Request::routeIs('admin.officials.edit-single') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-user-tie"></i>
+              <p>Officials</p>
+            </a>
+          </li>
 
           <li class="nav-item">
             <a href="{{ route('admin.health') }}" class="nav-link {{ Request::routeIs('admin.health') ? 'active' : '' }}">
@@ -355,12 +364,8 @@
           </li>
           @endif
 
-          <li class="nav-item">
-            <a href="{{ route('admin.profile') }}" class="nav-link {{ Request::routeIs('admin.profile') ? 'active' : '' }}">
-              <i class="nav-icon fas fa-user"></i>
-              <p>Profile</p>
-            </a>
-          </li>
+
+       
 
         </ul>
       </nav>
@@ -544,6 +549,84 @@
 <script src="{{ asset('adminlte/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js') }}"></script>
 <!-- AdminLTE App -->
 <script src="{{ asset('adminlte/js/adminlte.min.js') }}"></script>
+<!-- Toastr JS for global notifications -->
+<script src="{{ asset('adminlte/plugins/toastr/toastr.min.js') }}"></script>
+<!-- Global Toastr Configuration -->
+<script>
+// Configure Toastr globally
+toastr.options = {
+    "closeButton": true,
+    "debug": false,
+    "newestOnTop": true,
+    "progressBar": true,
+    "positionClass": "toast-top-right",
+    "preventDuplicates": false,
+    "onclick": null,
+    "showDuration": "300",
+    "hideDuration": "1000",
+    "timeOut": "5000",
+    "extendedTimeOut": "1000",
+    "showEasing": "swing",
+    "hideEasing": "linear",
+    "showMethod": "fadeIn",
+    "hideMethod": "fadeOut"
+};
+
+// Global notification helper functions
+window.showSuccess = function(message, title) {
+    toastr.success(message, title || 'Success');
+};
+
+window.showError = function(message, title) {
+    toastr.error(message, title || 'Error');
+};
+
+window.showWarning = function(message, title) {
+    toastr.warning(message, title || 'Warning');
+};
+
+window.showInfo = function(message, title) {
+    toastr.info(message, title || 'Info');
+};
+
+// Helper function for handling AJAX responses
+window.handleAjaxResponse = function(response, successCallback, errorCallback) {
+    if (response.success) {
+        showSuccess(response.message);
+        if (successCallback && typeof successCallback === 'function') {
+            successCallback(response);
+        }
+    } else {
+        showError(response.message || 'An error occurred');
+        if (errorCallback && typeof errorCallback === 'function') {
+            errorCallback(response);
+        }
+    }
+};
+
+// Helper function for handling AJAX errors
+window.handleAjaxError = function(xhr, status, error, customMessage) {
+    let errorMessage = customMessage || 'An unexpected error occurred';
+    
+    if (xhr.responseJSON && xhr.responseJSON.message) {
+        errorMessage = xhr.responseJSON.message;
+    } else if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+        // Laravel validation errors
+        const errors = xhr.responseJSON.errors;
+        const firstError = Object.values(errors)[0];
+        errorMessage = Array.isArray(firstError) ? firstError[0] : firstError;
+    } else if (xhr.status === 403) {
+        errorMessage = 'You do not have permission to perform this action';
+    } else if (xhr.status === 404) {
+        errorMessage = 'The requested resource was not found';
+    } else if (xhr.status === 500) {
+        errorMessage = 'Internal server error. Please try again later';
+    }
+    
+    showError(errorMessage);
+    console.error('AJAX Error:', error, xhr);
+};
+</script>
 {{-- DataTables and shared admin table scripts --}}
 @include('admin.components.datatable-scripts')
 

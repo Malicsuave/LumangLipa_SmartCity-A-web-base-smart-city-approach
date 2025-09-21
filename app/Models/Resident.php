@@ -51,7 +51,6 @@ class Resident extends Model
         'id_status',
         'id_issued_at',
         'id_expires_at',
-        'id_number', // <-- Added for Issue ID / Reference Number
     ];
 
     protected $casts = [
@@ -222,15 +221,18 @@ class Resident extends Model
     public function getPhotoUrlAttribute(): string
     {
         if ($this->photo) {
-            return asset('storage/residents/photos/' . $this->photo);
+            $photoPath = storage_path('app/public/residents/photos/' . $this->photo);
+            if (file_exists($photoPath)) {
+                return asset('storage/residents/photos/' . $this->photo);
+            }
         }
         
-        // Default avatar based on gender
+        // Default avatar based on gender - return data URL as fallback
         if ($this->sex === 'Female') {
-            return asset('images/avatars/female-avatar.png');
+            return 'data:image/svg+xml;base64,' . base64_encode('<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><rect width="40" height="40" fill="#e91e63"/><text x="20" y="25" text-anchor="middle" fill="white" font-family="Arial" font-size="16" font-weight="bold">F</text></svg>');
         }
         
-        return asset('images/avatars/male-avatar.png');
+        return 'data:image/svg+xml;base64,' . base64_encode('<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><rect width="40" height="40" fill="#2196f3"/><text x="20" y="25" text-anchor="middle" fill="white" font-family="Arial" font-size="16" font-weight="bold">M</text></svg>');
     }
     
     /**
@@ -254,6 +256,51 @@ class Resident extends Model
             'needs_renewal' => 'Needs Renewal',
             default => 'Not Issued'
         };
+    }
+    
+    /**
+     * Get the renewal date - when the ID was marked for renewal or expires
+     */
+    public function getRenewalDateAttribute(): ?\Carbon\Carbon
+    {
+        // If ID status is needs_renewal, check when it was marked for renewal
+        if ($this->id_status === 'needs_renewal') {
+            // Check activity log for when it was marked for renewal
+            $renewalActivity = \Spatie\Activitylog\Models\Activity::where('subject_type', get_class($this))
+                ->where('subject_id', $this->id)
+                ->where('description', 'marked_id_for_renewal')
+                ->latest()
+                ->first();
+                
+            if ($renewalActivity) {
+                return $renewalActivity->created_at;
+            }
+            
+            // Fallback: use expiry date if available
+            if ($this->id_expires_at) {
+                return $this->id_expires_at;
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Get the expected renewal date (for display purposes)
+     */
+    public function getExpectedRenewalDateAttribute(): ?\Carbon\Carbon
+    {
+        // For needs_renewal status, show the expiry date or when it was marked
+        if ($this->id_status === 'needs_renewal') {
+            return $this->renewal_date ?? $this->id_expires_at ?? $this->updated_at;
+        }
+        
+        // For issued IDs, show when they will need renewal (expiry date)
+        if ($this->id_status === 'issued' && $this->id_expires_at) {
+            return $this->id_expires_at;
+        }
+        
+        return null;
     }
     
     /**

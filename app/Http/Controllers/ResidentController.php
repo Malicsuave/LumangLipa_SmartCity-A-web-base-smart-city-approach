@@ -122,10 +122,8 @@ class ResidentController extends Controller
             $query->orderBy('last_name')->orderBy('first_name');
         }
 
-        $residents = $query->paginate(10);
-
-        // Preserve query parameters in pagination links
-        $residents->appends($request->query());
+        // Get all residents and let DataTables handle pagination
+        $residents = $query->get();
 
         return view('admin.residents', compact('residents'));
     }
@@ -138,7 +136,7 @@ class ResidentController extends Controller
         // Clear any previous session data
         Session::forget('registration');
         
-        return view('admin.residents.create.step1');
+        return view('admin.residents.registration.step1');
     }
 
     /**
@@ -148,7 +146,7 @@ class ResidentController extends Controller
     {
         // If navigating back to step 1, we preserve existing session data
         // This allows users to edit step 1 without losing data from other steps
-        return view('admin.residents.create.step1');
+        return view('admin.residents.registration.step1');
     }
 
     /**
@@ -202,7 +200,7 @@ class ResidentController extends Controller
         }
 
         // We're allowing the user to go back and edit, so we don't reset any subsequent steps
-        return view('admin.residents.create.step2');
+        return view('admin.residents.registration.step2');
     }
 
     /**
@@ -211,39 +209,25 @@ class ResidentController extends Controller
     public function storeStep2(Request $request)
     {
         $validated = $request->validate([
-            'citizenship_type' => 'required|string|in:FILIPINO,Dual Citizen,Foreigner',
-            'citizenship_country' => 'nullable|required_if:citizenship_type,Dual Citizen,Foreigner|string|max:100',
-            'profession_occupation' => 'required|string|max:100',
-            'monthly_income' => 'nullable|numeric|min:0',
             'contact_number' => 'required|numeric|digits:11',
-            'email_address' => 'required|email|max:255',
-            'religion' => 'nullable|string|max:100',
-            'educational_attainment' => 'required|string|max:100',
-            'education_status' => 'nullable|string|max:100',
-            'address' => 'required|string|max:255',
-            'philsys_id' => 'nullable|string|max:100',
-            'population_sectors' => 'nullable|array',
-            'population_sectors.*' => 'string',
-            'mother_first_name' => 'nullable|string|max:100',
-            'mother_middle_name' => 'nullable|string|max:100',
-            'mother_last_name' => 'nullable|string|max:100',
+            'email_address' => 'nullable|email|max:255',
+            'current_address' => 'required|string|max:500',
+            'emergency_contact_name' => 'required|string|max:255',
+            'emergency_contact_relationship' => 'required|string|max:100',
+            'emergency_contact_number' => 'required|numeric|digits:11',
+            'emergency_contact_address' => 'nullable|string|max:500',
         ], 
         [
-            'citizenship_type.required' => 'Please select your citizenship type.',
-            'citizenship_type.in' => 'Please select a valid citizenship type.',
-            'citizenship_country.required_if' => 'Please specify the country for dual citizenship or foreign citizenship.',
-            'profession_occupation.required' => 'The profession/occupation field is required.',
-            'monthly_income.numeric' => 'Monthly income must be a valid number.',
-            'monthly_income.min' => 'Monthly income cannot be negative.',
             'contact_number.required' => 'The contact number field is required.',
             'contact_number.numeric' => 'The contact number must contain only numbers.',
             'contact_number.digits' => 'The contact number must be exactly 11 digits.',
-            'email_address.required' => 'The email address field is required.',
             'email_address.email' => 'Please enter a valid email address.',
-            'email_address.max' => 'The email address must not exceed 255 characters.',
-            'educational_attainment.required' => 'Please specify your highest educational attainment.',
-            'address.required' => 'The address field is required.',
-            'address.max' => 'The address must not exceed 255 characters.',
+            'current_address.required' => 'The current address field is required.',
+            'emergency_contact_name.required' => 'The emergency contact name is required.',
+            'emergency_contact_relationship.required' => 'Please select the relationship to emergency contact.',
+            'emergency_contact_number.required' => 'The emergency contact number is required.',
+            'emergency_contact_number.numeric' => 'The emergency contact number must contain only numbers.',
+            'emergency_contact_number.digits' => 'The emergency contact number must be exactly 11 digits.',
         ]);
 
         // Store validated data in session
@@ -264,7 +248,7 @@ class ResidentController extends Controller
         }
 
         // We're allowing the user to go back and edit, so we don't reset any subsequent steps
-        return view('admin.residents.create.step3');
+        return view('admin.residents.registration.step3');
     }
 
     /**
@@ -430,10 +414,9 @@ class ResidentController extends Controller
             'confirmation' => 'required|accepted'
         ]);
 
-        // Check if all session data exists
+        // Check if all session data exists (step3 is optional for basic registration)
         if (!Session::has('registration.step1') || 
-            !Session::has('registration.step2') || 
-            !Session::has('registration.step3')) {
+            !Session::has('registration.step2')) {
             return redirect()->route('admin.residents.create')
                 ->with('error', 'Registration data is incomplete. Please start again.');
         }
@@ -456,41 +439,26 @@ class ResidentController extends Controller
             $resident->sex = Session::get('registration.step1.sex');
             $resident->civil_status = Session::get('registration.step1.civil_status');
             
-            // Citizenship & Education (Step 2)
-            $resident->citizenship_type = Session::get('registration.step2.citizenship_type');
-            $resident->citizenship_country = Session::get('registration.step2.citizenship_country');
-            $resident->profession_occupation = Session::get('registration.step2.profession_occupation');
-            $resident->monthly_income = Session::get('registration.step2.monthly_income');
+            // Contact info (Step 2)
             $resident->contact_number = Session::get('registration.step2.contact_number');
             $resident->email_address = Session::get('registration.step2.email_address');
-            $resident->religion = Session::get('registration.step2.religion');
-            $resident->educational_attainment = Session::get('registration.step2.educational_attainment');
-            $resident->education_status = Session::get('registration.step2.education_status');
-            $resident->address = Session::get('registration.step2.address');
-            $resident->philsys_id = Session::get('registration.step2.philsys_id');
+            $resident->address = Session::get('registration.step2.current_address'); // Note: session stores as 'current_address'
             
-            if (Session::has('registration.step2.population_sectors')) {
-                $sectors = Session::get('registration.step2.population_sectors');
-                
-                // If Senior Citizen is not already in population sectors but resident is 60+, add it
-                $birthdate = \Carbon\Carbon::parse($resident->birthdate);
-                $age = $birthdate->age;
-                
-                if ($age >= 60 && !in_array('Senior Citizen', $sectors)) {
-                    $sectors[] = 'Senior Citizen';
-                }
-                
-                $resident->population_sectors = $sectors;
-            }
+            // Required fields with default values (since our form only covers basic info)
+            $resident->citizenship_type = 'FILIPINO'; // Default to Filipino citizenship
+            $resident->citizenship_country = null;
+            $resident->profession_occupation = null;
+            $resident->monthly_income = null;
+            $resident->religion = null;
+            $resident->educational_attainment = 'not applicable';
+            $resident->education_status = 'not applicable';
+            $resident->philsys_id = null;
             
-            // Mother's maiden name if provided
-            if (Session::get('registration.step2.mother_first_name') || 
-                Session::get('registration.step2.mother_middle_name') || 
-                Session::get('registration.step2.mother_last_name')) {
-                
-                $resident->mother_first_name = Session::get('registration.step2.mother_first_name');
-                $resident->mother_middle_name = Session::get('registration.step2.mother_middle_name');
-                $resident->mother_last_name = Session::get('registration.step2.mother_last_name');
+            // Auto-assign Senior Citizen if applicable (60+ years old)
+            $birthdate = \Carbon\Carbon::parse($resident->birthdate);
+            $age = $birthdate->age;
+            if ($age >= 60) {
+                $resident->population_sectors = ['Senior Citizen'];
             }
             
             // Generate a unique barangay ID using the model's method
@@ -499,54 +467,56 @@ class ResidentController extends Controller
             // Save the resident
             $resident->save();
 
-            // Create household record
-            $household = new Household();
-            $household->address = $resident->address;
-            $household->primary_name = Session::get('registration.step3.primary_name');
-            $household->primary_birthday = Session::get('registration.step3.primary_birthday');
-            $household->primary_gender = Session::get('registration.step3.primary_gender');
-            $household->primary_phone = Session::get('registration.step3.primary_phone');
-            $household->primary_work = Session::get('registration.step3.primary_work');
-            $household->primary_allergies = Session::get('registration.step3.primary_allergies');
-            $household->primary_medical_condition = Session::get('registration.step3.primary_medical_condition');
-            
-            if (Session::get('registration.step3.secondary_name')) {
-                $household->secondary_name = Session::get('registration.step3.secondary_name');
-                $household->secondary_birthday = Session::get('registration.step3.secondary_birthday');
-                $household->secondary_gender = Session::get('registration.step3.secondary_gender');
-                $household->secondary_phone = Session::get('registration.step3.secondary_phone');
-                $household->secondary_work = Session::get('registration.step3.secondary_work');
-                $household->secondary_allergies = Session::get('registration.step3.secondary_allergies');
-                $household->secondary_medical_condition = Session::get('registration.step3.secondary_medical_condition');
-            }
-            
-            if (Session::get('registration.step3.emergency_contact_name')) {
-                $household->emergency_contact_name = Session::get('registration.step3.emergency_contact_name');
-                $household->emergency_relationship = Session::get('registration.step3.emergency_relationship');
-                $household->emergency_work = Session::get('registration.step3.emergency_work');
-                $household->emergency_phone = Session::get('registration.step3.emergency_phone');
-            }
-            
-            $household->resident_id = $resident->id;
-            $household->save();
-
-            // Create family members if any
-            if (Session::has('registration.step4.family_members')) {
-                $familyMembers = Session::get('registration.step4.family_members');
+            // Create household record (only if step3 contains actual household data)
+            if (Session::has('registration.step3.primary_name')) {
+                $household = new Household();
+                $household->address = $resident->address;
+                $household->primary_name = Session::get('registration.step3.primary_name');
+                $household->primary_birthday = Session::get('registration.step3.primary_birthday');
+                $household->primary_gender = Session::get('registration.step3.primary_gender');
+                $household->primary_phone = Session::get('registration.step3.primary_phone');
+                $household->primary_work = Session::get('registration.step3.primary_work');
+                $household->primary_allergies = Session::get('registration.step3.primary_allergies');
+                $household->primary_medical_condition = Session::get('registration.step3.primary_medical_condition');
                 
-                foreach ($familyMembers as $member) {
-                    $familyMember = new FamilyMember();
-                    $familyMember->name = $member['name'];
-                    $familyMember->relationship = $member['relationship'];
-                    $familyMember->related_to = $member['related_to'] ?? null;
-                    $familyMember->birthday = $member['birthday'];
-                    $familyMember->gender = $member['gender'];
-                    $familyMember->work = $member['work'] ?? null;
-                    $familyMember->medical_condition = $member['medical_condition'] ?? null;
-                    $familyMember->allergies = $member['allergies'] ?? null;
-                    $familyMember->household_id = $household->id;
-                    $familyMember->resident_id = $resident->id;
-                    $familyMember->save();
+                if (Session::get('registration.step3.secondary_name')) {
+                    $household->secondary_name = Session::get('registration.step3.secondary_name');
+                    $household->secondary_birthday = Session::get('registration.step3.secondary_birthday');
+                    $household->secondary_gender = Session::get('registration.step3.secondary_gender');
+                    $household->secondary_phone = Session::get('registration.step3.secondary_phone');
+                    $household->secondary_work = Session::get('registration.step3.secondary_work');
+                    $household->secondary_allergies = Session::get('registration.step3.secondary_allergies');
+                    $household->secondary_medical_condition = Session::get('registration.step3.secondary_medical_condition');
+                }
+                
+                if (Session::get('registration.step3.emergency_contact_name')) {
+                    $household->emergency_contact_name = Session::get('registration.step3.emergency_contact_name');
+                    $household->emergency_relationship = Session::get('registration.step3.emergency_relationship');
+                    $household->emergency_work = Session::get('registration.step3.emergency_work');
+                    $household->emergency_phone = Session::get('registration.step3.emergency_phone');
+                }
+                
+                $household->resident_id = $resident->id;
+                $household->save();
+                
+                // Create family members if any (only if household exists)
+                if (Session::has('registration.step4.family_members')) {
+                    $familyMembers = Session::get('registration.step4.family_members');
+                    
+                    foreach ($familyMembers as $member) {
+                        $familyMember = new FamilyMember();
+                        $familyMember->name = $member['name'];
+                        $familyMember->relationship = $member['relationship'];
+                        $familyMember->related_to = $member['related_to'] ?? null;
+                        $familyMember->birthday = $member['birthday'];
+                        $familyMember->gender = $member['gender'];
+                        $familyMember->work = $member['work'] ?? null;
+                        $familyMember->medical_condition = $member['medical_condition'] ?? null;
+                        $familyMember->allergies = $member['allergies'] ?? null;
+                        $familyMember->household_id = $household->id;
+                        $familyMember->resident_id = $resident->id;
+                        $familyMember->save();
+                    }
                 }
             }
 
@@ -614,7 +584,7 @@ class ResidentController extends Controller
             Session::forget('registration');
             
             return redirect()->route('admin.residents.index')
-                ->with('success', 'Resident registered successfully!');
+                ->with('success', "Resident registration completed successfully! Barangay ID: {$resident->barangay_id}");
         } catch (\Exception $e) {
             // Roll back the transaction in case of error
             DB::rollBack();
@@ -969,8 +939,8 @@ class ResidentController extends Controller
             $query->whereDate('deleted_at', '<=', $request->date_to);
         }
         $query->orderBy('deleted_at', 'desc');
-        $archivedResidents = $query->paginate(10);
-        $archivedResidents->appends($request->query());
+        // Get all archived residents and let DataTables handle pagination
+        $archivedResidents = $query->get();
         return view('admin.residents.archived', compact('archivedResidents'));
     }
 
@@ -1099,5 +1069,31 @@ class ResidentController extends Controller
     {
         // You can add logic to fetch census data here
         return view('admin.residents.census-data');
+    }
+
+    /**
+     * Generate residents report.
+     */
+    public function reports()
+    {
+        $residents = Resident::with('household', 'familyMembers')
+            ->whereDoesntHave('seniorCitizen')
+            ->orderBy('created_at', 'desc')
+            ->get();
+            
+        return view('admin.reports.residents', compact('residents'));
+    }
+
+    /**
+     * Generate archived residents report.
+     */
+    public function archivedReports()
+    {
+        $archivedResidents = Resident::onlyTrashed()
+            ->whereDoesntHave('seniorCitizen')
+            ->orderBy('deleted_at', 'desc')
+            ->get();
+            
+        return view('admin.reports.archived-residents', compact('archivedResidents'));
     }
 }

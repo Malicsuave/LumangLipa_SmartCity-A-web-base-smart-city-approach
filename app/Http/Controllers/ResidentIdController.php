@@ -28,7 +28,7 @@ class ResidentIdController extends Controller
         if ($resident->seniorCitizen) {
             // Automatically redirect to senior citizen ID management
             return redirect()->route('admin.senior-citizens.id-management', $resident->seniorCitizen)
-                ->with('info', 'Redirected to Senior Citizen ID Management - this resident has both Resident ID and Senior Citizen ID available.');
+                ->with('info', 'This resident is a senior citizen and is managed through the Senior Citizen ID system.');
         }
         
         // Get suggested issue ID for new cards
@@ -426,8 +426,9 @@ class ResidentIdController extends Controller
      */
     public function pendingIds(Request $request)
     {
-        // Base query for residents
-        $baseQuery = Resident::query();
+        // Base query for residents - exclude senior citizens as they have their own management
+        $baseQuery = Resident::query()
+            ->whereDoesntHave('seniorCitizen'); // Exclude residents who are senior citizens
 
         // Search filters
         if ($request->has('search') && !empty($request->search)) {

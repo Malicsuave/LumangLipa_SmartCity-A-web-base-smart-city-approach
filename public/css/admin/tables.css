@@ -147,6 +147,101 @@
     margin: 0 auto 1rem;
 }
 
+/* ========================================
+   PAGINATION STYLES - AdminLTE 3 Responsive
+   ======================================== */
+
+/* Remove all outer box, border, and background from pagination container and parent */
+.dataTables_wrapper .dataTables_paginate,
+.dataTables_wrapper .dataTables_paginate .pagination,
+.dataTables_wrapper .dataTables_paginate .pagination-wrapper,
+.dataTables_wrapper .dataTables_paginate .pagination-container,
+.dataTables_wrapper .row > div:last-child {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Remove border/background from any parent .row or .card-footer that might wrap pagination */
+.dataTables_wrapper .row,
+.dataTables_wrapper .card-footer {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Remove double border between page links */
+.dataTables_wrapper .dataTables_paginate .page-link {
+    border-radius: 0 !important;
+    margin-left: -1px !important;
+    border: 1px solid #dee2e6 !important;
+    background: #fff !important;
+    color: #007bff !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+.dataTables_wrapper .dataTables_paginate .page-item:first-child .page-link {
+    border-top-left-radius: 0.25rem !important;
+    border-bottom-left-radius: 0.25rem !important;
+    margin-left: 0 !important;
+}
+.dataTables_wrapper .dataTables_paginate .page-item:last-child .page-link {
+    border-top-right-radius: 0.25rem !important;
+    border-bottom-right-radius: 0.25rem !important;
+}
+.dataTables_wrapper .dataTables_paginate .page-item.active .page-link {
+    background: #007bff !important;
+    color: #fff !important;
+    border-color: #007bff !important;
+    z-index: 2;
+}
+.dataTables_wrapper .dataTables_paginate .page-link:hover {
+    background: #e9ecef !important;
+    color: #0056b3 !important;
+    border-color: #dee2e6 !important;
+}
+.dataTables_wrapper .dataTables_paginate .page-item.disabled .page-link {
+    color: #6c757d !important;
+    background: #fff !important;
+    border-color: #dee2e6 !important;
+}
+
+/* Remove any extra margin/padding around pagination */
+.dataTables_wrapper .dataTables_paginate .pagination {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Remove Bootstrap .pagination border and background to eliminate outer box */
+.dataTables_wrapper .dataTables_paginate .pagination {
+    border: none !important;
+    background: none !important;
+    box-shadow: none !important;
+}
+
+/* Remove border/background from .dataTables_paginate itself */
+.dataTables_wrapper .dataTables_paginate {
+    border: none !important;
+    background: none !important;
+    box-shadow: none !important;
+}
+
+@media (max-width: 576px) {
+    .dataTables_wrapper .dataTables_paginate .pagination {
+        justify-content: center;
+    }
+    .dataTables_wrapper .dataTables_paginate .page-link {
+        padding: 4px 8px !important;
+        font-size: 11px !important;
+        min-width: 28px !important;
+    }
+}
+/* END AdminLTE 3 Pagination Fix */
+
 /* DataTable enhancements */
 .dataTables_length {
     margin-bottom: 1rem;
@@ -162,27 +257,6 @@
 
 .dataTables_paginate {
     padding-top: 1rem;
-}
-
-/* Pagination improvements */
-.pagination {
-    margin-bottom: 0;
-}
-
-.page-link {
-    color: #007bff;
-    border-color: #dee2e6;
-}
-
-.page-link:hover {
-    color: #0056b3;
-    background-color: #e9ecef;
-    border-color: #dee2e6;
-}
-
-.page-item.active .page-link {
-    background-color: #007bff;
-    border-color: #007bff;
 }
 
 /* Loading states */
@@ -319,6 +393,17 @@
     .dt-button {
         margin: 0.25rem;
         font-size: 0.875rem;
+    }
+    
+    /* Keep mobile pagination simple - no custom sizing */
+    .dataTables_wrapper .dataTables_paginate .pagination {
+        justify-content: center;
+    }
+    
+    /* Hide first/last buttons on mobile to save space */
+    .dataTables_wrapper .dataTables_paginate .paginate_button.first,
+    .dataTables_wrapper .dataTables_paginate .paginate_button.last {
+        display: none !important;
     }
 }
 

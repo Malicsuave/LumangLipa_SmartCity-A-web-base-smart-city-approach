@@ -1,24 +1,33 @@
 @extends('layouts.admin.master')
 
-@push('styles')
-@include('admin.components.datatable-styles')
-@endpush
 
 @section('content')
 <div class="row">
     <div class="col-md-12 mb-4">
-        <div class="row align-items-center">
+        <div class="row align-items-center mb-4">
             <div class="col">
                 <h1 class="h3 mb-0 text-gray-800">ID Card Management</h1>
                 <p class="text-muted mb-0">Manage resident ID card issuance and renewals</p>
             </div>
             <div class="col-auto">
-                <button type="button" class="btn btn-outline-primary mr-2" onclick="window.location.href='{{ route('admin.residents.bulk-upload') }}'">
-                    <i class="fas fa-upload mr-2"></i>Bulk Upload
-                </button>
-                <a href="{{ route('admin.residents.add') }}" class="btn btn-success">
-                    <i class="fas fa-plus mr-2"></i>Add New
+                <a href="{{ route('admin.residents.index') }}" class="btn btn-primary">
+                    <i class="fas fa-users mr-2"></i>
+                    All Residents
                 </a>
+                <a href="{{ route('admin.residents.bulk-upload') }}" class="btn btn-outline-secondary ml-2">
+                    <i class="fas fa-upload mr-2"></i>
+                    Bulk Upload
+                </a>
+            </div>
+        </div>
+
+        <!-- Information Alert about Senior Citizens -->
+        <div class="alert alert-info d-flex align-items-center mb-4">
+            <i class="fas fa-info-circle mr-3"></i>
+            <div>
+                <strong>Note:</strong> Senior citizens (60+ years old) have their own dedicated ID management system. 
+                You can manage senior citizen IDs through the 
+                <a href="{{ route('admin.senior-citizens.index') }}" class="alert-link">Senior Citizens section</a>.
             </div>
         </div>
     </div>
@@ -53,25 +62,25 @@
 
 @push('scripts')
 @include('admin.components.datatable-scripts')
-<script src="{{ asset('js/admin/datatable-helpers.js') }}"></script>
+
 <script>
 $(function () {
     // DataTables for each tab
-    DataTableHelpers.initDataTable('#issuance .table-responsive table', {
+    DataTableHelpers.initDataTable('#issuanceTable', {
         buttons: ["copy", "csv", "excel", "pdf", "print", "colvis"],
         order: [[ 0, "desc" ]],
         columnDefs: [
             { "orderable": false, "targets": -1 }
         ]
     });
-    DataTableHelpers.initDataTable('#renewal .table-responsive table', {
+    DataTableHelpers.initDataTable('#renewalTable', {
         buttons: ["copy", "csv", "excel", "pdf", "print", "colvis"],
         order: [[ 0, "desc" ]],
         columnDefs: [
             { "orderable": false, "targets": -1 }
         ]
     });
-    DataTableHelpers.initDataTable('#expiring .table-responsive table', {
+    DataTableHelpers.initDataTable('#expiringTable', {
         buttons: ["copy", "csv", "excel", "pdf", "print", "colvis"],
         order: [[ 0, "desc" ]],
         columnDefs: [
@@ -80,23 +89,23 @@ $(function () {
     });
     // Search bar for each tab
     $('#searchIssuanceInput').on('keyup', function() {
-        $('#issuance .table-responsive table').DataTable().search($(this).val()).draw();
+        $('#issuanceTable').DataTable().search($(this).val()).draw();
     });
     $('#searchRenewalInput').on('keyup', function() {
-        $('#renewal .table-responsive table').DataTable().search($(this).val()).draw();
+        $('#renewalTable').DataTable().search($(this).val()).draw();
     });
     $('#searchExpiringInput').on('keyup', function() {
-        $('#expiring .table-responsive table').DataTable().search($(this).val()).draw();
+        $('#expiringTable').DataTable().search($(this).val()).draw();
     });
     // Export buttons for each tab
     $('#exportIssuanceBtn').on('click', function() {
-        $('#issuance .table-responsive table').DataTable().button('.buttons-csv').trigger();
+        $('#issuanceTable').DataTable().button('.buttons-csv').trigger();
     });
     $('#exportRenewalBtn').on('click', function() {
-        $('#renewal .table-responsive table').DataTable().button('.buttons-csv').trigger();
+        $('#renewalTable').DataTable().button('.buttons-csv').trigger();
     });
     $('#exportExpiringBtn').on('click', function() {
-        $('#expiring .table-responsive table').DataTable().button('.buttons-csv').trigger();
+        $('#expiringTable').DataTable().button('.buttons-csv').trigger();
     });
 });
 </script>

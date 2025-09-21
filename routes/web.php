@@ -37,6 +37,18 @@ use App\Http\Controllers\TestController;
 
 
 
+// Officials Management Routes
+Route::middleware(['role:Barangay Captain,Barangay Secretary'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('officials/edit-single', [App\Http\Controllers\Admin\BarangayOfficialController::class, 'edit'])->name('officials.edit-single');
+    Route::post('officials/edit-single', [App\Http\Controllers\Admin\BarangayOfficialController::class, 'update'])->name('officials.update-single');
+    Route::delete('officials/photo/{field}', [App\Http\Controllers\Admin\BarangayOfficialController::class, 'deletePhoto'])->name('officials.delete-photo');
+    
+   
+});
+
+// Resident Management Routes
+// Removed duplicate: Route::get('/admin/residents', [ResidentController::class, 'index'])->name('admin.residents');
+
 // Public routes
 Route::get('/', [PublicController::class, 'home'])->name('public.home');
 Route::get('/about', [PublicController::class, 'about'])->name('public.about');
@@ -349,6 +361,14 @@ Route::middleware([
             Route::post('/{seniorCitizen}/upload-signature', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'uploadSignature'])->name('upload-signature');
             Route::put('/{seniorCitizen}/update-id-info', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'updateIdInfo'])->name('update-id-info');
         });
+        
+        // Reports Management Routes
+        Route::prefix('admin/reports')->name('admin.reports.')->group(function() {
+            Route::get('/residents', [ResidentController::class, 'reports'])->name('residents');
+            Route::get('/senior-citizens', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'reports'])->name('senior-citizens');
+            Route::get('/archived-residents', [ResidentController::class, 'archivedReports'])->name('archived-residents');
+            Route::get('/documents', [App\Http\Controllers\DocumentRequestController::class, 'reports'])->name('documents');
+        });
     });
 
     // Complaint Manager routes
@@ -628,7 +648,7 @@ Route::get('/test-chat-layout', function () {
 });
 
 // Resident ID Bulk Upload Management
-Route::get('/admin/residents/id/bulk-upload', [ResidentIdController::class, 'bulkUpload'])->name('admin.residents.id.bulk-upload');
+Route::get('/admin/residents/id/bulk-upload', [ResidentIdController::class, 'bulkUpload'])->name('admin.residents.bulk-upload');
 Route::post('/admin/residents/id/bulk-upload', [ResidentIdController::class, 'processBulkUpload'])->name('admin.residents.id.bulk-upload.process');
 Route::post('/admin/residents/id/bulk-signature-upload', [ResidentIdController::class, 'processBulkSignatureUpload'])->name('admin.residents.id.bulk-signature-upload');
 Route::post('/admin/residents/id/bulk-issue', [ResidentIdController::class, 'bulkIssue'])->name('admin.residents.id.bulk-issue');
@@ -654,12 +674,3 @@ Route::post('/admin/senior-citizens/{seniorCitizen}/issue-id', [App\Http\Control
 Route::post('/admin/residents/{resident}/restore', [ResidentController::class, 'restore'])->name('admin.residents.restore');
 Route::post('/admin/residents/id/{resident}/upload-photo', [ResidentIdController::class, 'uploadPhoto'])->name('admin.residents.id.upload-photo');
 Route::post('/admin/residents/id/{resident}/upload-signature', [ResidentIdController::class, 'uploadSignature'])->name('admin.residents.id.upload-signature');
-
-// Single-form Barangay Officials Management
-Route::middleware(['role:Barangay Captain,Barangay Secretary'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('officials/edit-single', [App\Http\Controllers\Admin\BarangayOfficialController::class, 'edit'])->name('officials.edit-single');
-    Route::post('officials/edit-single', [App\Http\Controllers\Admin\BarangayOfficialController::class, 'update'])->name('officials.update-single');
-    Route::delete('officials/photo/{field}', [App\Http\Controllers\Admin\BarangayOfficialController::class, 'deletePhoto'])->name('officials.delete-photo');
-    
-   
-});

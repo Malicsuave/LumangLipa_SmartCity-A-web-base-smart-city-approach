@@ -73,83 +73,7 @@ table.dataTable tbody td:last-child .dropdown {
     margin: 0 auto !important;
 }
 
-/* Custom Pagination Styling - Bootstrap Style */
-.dataTables_wrapper .dataTables_paginate .pagination {
-    margin: 0 !important;
-}
-
-.dataTables_wrapper .dataTables_paginate .page-link {
-    border-radius: 0 !important;
-    border: 1px solid #ddd !important;
-    background: #fff !important;
-    color: #333 !important;
-    padding: 8px 12px !important;
-    font-size: 14px !important;
-    transition: all 0.2s ease !important;
-    margin: 0 !important;
-}
-
-.dataTables_wrapper .dataTables_paginate .page-link:hover {
-    background: #e9ecef !important;
-    border-color: #adb5bd !important;
-    color: #333 !important;
-    text-decoration: none !important;
-}
-
-.dataTables_wrapper .dataTables_paginate .page-item.active .page-link {
-    background: #007bff !important;
-    border-color: #007bff !important;
-    color: #fff !important;
-}
-
-.dataTables_wrapper .dataTables_paginate .page-item.active .page-link:hover {
-    background: #0056b3 !important;
-    border-color: #0056b3 !important;
-    color: #fff !important;
-}
-
-.dataTables_wrapper .dataTables_paginate .page-item.disabled .page-link {
-    background: #f8f9fa !important;
-    border-color: #dee2e6 !important;
-    color: #6c757d !important;
-    cursor: not-allowed !important;
-}
-
-.dataTables_wrapper .dataTables_paginate .page-item.disabled .page-link:hover {
-    background: #f8f9fa !important;
-    border-color: #dee2e6 !important;
-    color: #6c757d !important;
-}
-
-/* Remove spacing between pagination buttons */
-.dataTables_wrapper .dataTables_paginate .page-item:not(:first-child) .page-link {
-    margin-left: -1px !important;
-}
-
-/* First and last button styling */
-.dataTables_wrapper .dataTables_paginate .page-item:first-child .page-link {
-    border-top-left-radius: 0 !important;
-    border-bottom-left-radius: 0 !important;
-}
-
-.dataTables_wrapper .dataTables_paginate .page-item:last-child .page-link {
-    border-top-right-radius: 0 !important;
-    border-bottom-right-radius: 0 !important;
-}
-
-/* Pagination container styling */
-.dataTables_wrapper .dataTables_paginate {
-    float: right !important;
-    margin: 10px 0 !important;
-}
-
-.dataTables_wrapper .dataTables_info {
-    float: left !important;
-    margin: 10px 0 !important;
-    padding-top: 8px !important;
-    font-size: 14px !important;
-    color: #6c757d !important;
-}
+/* Pagination styles now handled in tables.css */
 
 /* Mobile Responsive Styling */
 @media (max-width: 768px) {
@@ -245,24 +169,11 @@ table.dataTable tbody td:last-child .dropdown {
         font-size: 12px !important;
     }
     
-    .dataTables_wrapper .dataTables_info,
-    .dataTables_wrapper .dataTables_paginate {
+    .dataTables_wrapper .dataTables_info {
         float: none !important;
         text-align: center !important;
         margin: 5px 0 !important;
         width: 100% !important;
-    }
-    
-    .dataTables_wrapper .dataTables_paginate .pagination {
-        justify-content: center !important;
-        flex-wrap: wrap !important;
-        margin: 0 !important;
-    }
-    
-    .dataTables_wrapper .dataTables_paginate .page-link {
-        padding: 4px 8px !important;
-        font-size: 11px !important;
-        margin: 1px !important;
     }
     
     /* Mobile Actions column fix */

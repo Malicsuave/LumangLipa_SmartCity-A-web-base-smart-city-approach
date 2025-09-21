@@ -2,9 +2,26 @@
 
 @push('styles')
 @include('admin.components.datatable-styles')
+<link rel="stylesheet" href="{{ asset('adminlte/plugins/sweetalert2/sweetalert2.min.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 @endpush
 
 @section('content')
+<!-- Debug Information (only show if session data is missing) -->
+@if(session('error'))
+<div class="row mb-3">
+    <div class="col-md-12">
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle mr-2"></i>
+            {{ session('error') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+</div>
+@endif
+
 <div class="row">
     <div class="col-md-12 mb-4">
         <div class="row align-items-center">
@@ -13,6 +30,9 @@
                 <p class="text-muted mb-0">Manage all registered residents in your barangay</p>
             </div>
             <div class="col-auto">
+                <a href="{{ route('admin.reports.residents') }}" class="btn btn-info mr-2">
+                    <i class="fas fa-file-alt mr-2"></i>Generate Report
+                </a>
                 <button type="button" class="btn btn-outline-secondary mr-2" onclick="window.location.href='{{ route('admin.residents.archived') }}'">
                     <i class="fas fa-archive mr-2"></i>View Archived
                 </button>
@@ -38,7 +58,7 @@
                             <th>Resident Name</th>
                             <th>Type</th>
                             <th>Age/Gender</th>
-                            <th>Civil Status</th>
+                            <th>Date Created</th>
                             <th>Contact</th>
                             <th>Actions</th>
                         </tr>
@@ -50,7 +70,7 @@
                             <td><strong>{{ $resident->last_name }}, {{ $resident->first_name }}{{ $resident->middle_name ? ' ' . $resident->middle_name : '' }}{{ $resident->suffix ? ' ' . $resident->suffix : '' }}</strong></td>
                             <td>{{ $resident->type_of_resident }}</td>
                             <td>{{ \Carbon\Carbon::parse($resident->birthdate)->age }}<br><small class="text-muted">{{ $resident->sex }}</small></td>
-                            <td>{{ $resident->civil_status }}</td>
+                            <td>{{ $resident->created_at->format('M d, Y') }}<br><small class="text-muted">{{ $resident->created_at->format('h:i A') }}</small></td>
                             <td>{{ $resident->contact_number }}</td>
                             <td>
                                 <div class="btn-group">
@@ -88,7 +108,7 @@
                             <th>Resident Name</th>
                             <th>Type</th>
                             <th>Age/Gender</th>
-                            <th>Civil Status</th>
+                            <th>Date Created</th>
                             <th>Contact</th>
                             <th>Actions</th>
                         </tr>
@@ -141,8 +161,8 @@
                             <span class="info-value" id="modal-address"></span>
                         </div>
                         <div class="info-row">
-                            <span class="info-label">Civil Status:</span>
-                            <span class="info-value" id="modal-civil-status"></span>
+                            <span class="info-label">Date Created:</span>
+                            <span class="info-value" id="modal-date-created"></span>
                         </div>
                     </div>
                 </div>
@@ -182,17 +202,99 @@
 @include('admin.components.datatable-scripts')
 <!-- Common DataTable Helpers -->
 <script src="{{ asset('js/admin/datatable-helpers.js') }}"></script>
+<script src="{{ asset('adminlte/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
 
 <script>
 $(function () {
+    // Show success message with SweetAlert2 for registration completion
+    @if(session('success'))
+        @php
+            $successMessage = session('success');
+            $hasBarangayId = strpos($successMessage, 'Barangay ID:') !== false;
+        @endphp
+        
+        @if($hasBarangayId)
+            @php
+                // Extract the Barangay ID for highlighting
+                preg_match('/Barangay ID: ([A-Z0-9-]+)/', $successMessage, $matches);
+                $barangayId = $matches[1] ?? '';
+                $message = str_replace("Barangay ID: {$barangayId}", '', $successMessage);
+            @endphp
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'Registration Completed!',
+                html: `
+                    <div style="text-align: center;">
+                        <p style="font-size: 16px; margin-bottom: 20px;">{{ trim($message) }}</p>
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #28a745;">
+                            <strong style="font-size: 18px; color: #28a745;">Barangay ID: {{ $barangayId }}</strong>
+                        </div>
+                        <p style="font-size: 14px; color: #6c757d; margin-top: 15px;">
+                            <i class="fas fa-info-circle"></i> This ID can be used for barangay services and ID card generation.
+                        </p>
+                    </div>
+                `,
+                confirmButtonText: 'View Resident Records',
+                confirmButtonColor: '#28a745',
+                allowOutsideClick: false,
+                customClass: {
+                    popup: 'animate__animated animate__zoomIn'
+                },
+                timer: null
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Refresh the page to show the updated table with the new resident
+                    window.location.reload();
+                }
+            });
+        @else
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: '{{ $successMessage }}',
+                confirmButtonText: 'Great!',
+                confirmButtonColor: '#28a745',
+                showClass: {
+                    popup: 'animate__animated animate__zoomIn'
+                }
+            });
+        @endif
+    @endif
+    
+    // Show error message with SweetAlert2
+    @if(session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: '{{ session('error') }}',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#dc3545',
+            showClass: {
+                popup: 'animate__animated animate__shakeX'
+            }
+        });
+    @endif
+
     // Initialize DataTable with custom configuration for residents
     const residentTable = DataTableHelpers.initDataTable("#residentTable", {
         buttons: ["copy", "csv", "excel", "pdf", "print", "colvis"],
         order: [[ 0, "desc" ]],
+        pageLength: 10,
+        lengthChange: true,
+        lengthMenu: [ [10, 25, 50, 100, -1], [10, 25, 50, 100, "All"] ],
         columnDefs: [
             { "orderable": false, "targets": -1 }
-        ]
+        ],
+        dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+             '<"row"<"col-sm-12"tr>>' +
+             '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
     });
+    
+    // Auto-hide success alerts after 10 seconds (for fallback alerts only)
+    setTimeout(function() {
+        $('.alert-success').fadeOut('slow');
+    }, 10000);
     
     // Enhanced Font Awesome icon fix for dropdowns
     function fixDropdownIcons() {
@@ -262,13 +364,19 @@ function viewResidentDetails(id) {
             $('#modal-age-gender').text(response.age + ' / ' + response.sex);
             $('#modal-contact').text(response.contact_number);
             $('#modal-address').text(response.address);
-            $('#modal-civil-status').text(response.civil_status);
+            $('#modal-date-created').text(response.date_created);
             
             // Show modal
             $('#viewDetailsModal').modal('show');
         },
         error: function() {
-            alert('Error loading resident details');
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Error loading resident details. Please try again.',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#dc3545'
+            });
         }
     });
 }

@@ -794,4 +794,16 @@ class SeniorCitizenController extends Controller
                 ->withInput();
         }
     }
+
+    /**
+     * Generate senior citizens report.
+     */
+    public function reports()
+    {
+        $seniorCitizens = \App\Models\SeniorCitizen::with('resident')
+            ->orderBy('created_at', 'desc')
+            ->get();
+            
+        return view('admin.reports.senior-citizens', compact('seniorCitizens'));
+    }
 }

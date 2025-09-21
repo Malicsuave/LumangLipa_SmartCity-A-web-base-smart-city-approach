@@ -26,9 +26,7 @@
                                 <i class="fe fe-download fe-16 mr-2"></i>Download ID
                             </a>
                         @endif
-                        <a href="{{ route('admin.residents.id.pending') }}" class="btn btn-outline-secondary">
-                            <i class="fe fe-arrow-left fe-16 mr-2"></i>Back to ID Management
-                        </a>
+                       
                     </div>
                 </div>
             </div>
@@ -46,15 +44,13 @@
                                     <img src="{{ asset('images/logo.png') }}" alt="Barangay Logo">
                                 </div>
                                 <div class="id-card-header">
-                                    <div class="d-flex align-items-center">
                                         <img src="{{ asset('images/logo.png') }}" alt="Barangay Logo" class="barangay-logo-left">
-                                        <div class="id-card-title text-primary">
+                                        <div class="id-card-title">
                                             <h6 class="mb-0">Barangay Lumanglipa</h6>
                                             <h6 class="small mb-0">Mataasnakahoy, Batangas</h6>
                                             <h6 class="mb-0">Residence Card</h6>
                                         </div>
-                                        <img src="{{ asset('images/citylogo.png') }}" alt="City Logo" class="barangay-logo-right ml-auto">
-                                    </div>
+                                        <img src="{{ asset('images/citylogo.png') }}" alt="City Logo" class="barangay-logo-right">
                                 </div>
                                 <div class="id-card-body">
                                     <div class="row no-gutters">
@@ -167,6 +163,7 @@
 
 @push('styles')
 <style>
+    /* ID card styling with blue theme - matching PDF exactly */
     .id-card-container {
         max-width: 450px;
         margin: 0 auto;
@@ -180,9 +177,10 @@
         position: relative;
         background: white;
         height: 250px;
+        margin-bottom: 20px;
     }
     
-    /* Updated background logo CSS to match PDF version exactly */
+    /* Transparent background logo for front side - match PDF exactly */
     .id-card-front-bg {
         position: absolute;
         top: 60%;
@@ -202,9 +200,11 @@
     }
     
     .id-card-header {
-        background: linear-gradient(to right, #e3f2fd, #bbdefb);
+        background: linear-gradient(to right, #e3f2fd, #90caf9); /* Blue gradient instead of yellow */
         padding: 5px;
-        border-bottom: 1px solid #ccc;
+        border-bottom: 1px solid #1976d2; /* Blue border */
+        display: flex;
+        align-items: center;
         position: relative;
         z-index: 2;
     }
@@ -224,20 +224,23 @@
         margin-right: 5px;
         margin-top: 2px;
         margin-bottom: 2px;
+        margin-left: auto;
     }
     
     .id-card-title {
         text-align: center;
         flex: 1;
-        color: #1565c0;
+        color: #001a4e !important; /* Same dark navy as PDF */
     }
     .id-card-title h6 {
         margin: 0;
         font-weight: bold;
         font-size: 12px;
+        color: #001a4e !important; /* Same dark navy as PDF */
     }
     .id-card-title h6.small {
         font-size: 10px;
+        color: #001a4e !important; /* Same dark navy as PDF */
     }
     .id-card-body {
         padding: 15px;
@@ -274,18 +277,21 @@
     }
     .idno {
         font-weight: bold;
-        color: #333;
+        color: #001a4e !important; /* Same dark navy as PDF */
+        font-size: 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
-    .id-signature {
-        margin-top: 5px;
-        text-align: center;
+    .text-uppercase {
+        text-transform: uppercase;
     }
-    .signature-line {
-        width: 100px;
-        height: 1px;
-        background: #333;
-        margin: 5px auto;
+    .font-weight-bold {
+        font-weight: bold !important;
+        color: #001a4e !important; /* Same dark navy as PDF */
     }
+    
+    /* Back side styles */
     .id-card-back {
         background: #f5f5f5;
     }
@@ -304,6 +310,16 @@
     .qr-code-container img {
         width: 150px;
         height: 150px;
+    }
+    .id-signature {
+        margin-top: 5px;
+        text-align: center;
+    }
+    .signature-line {
+        width: 100px;
+        height: 1px;
+        background: #333;
+        margin: 5px auto;
     }
     .no-signature {
         width: 100px;

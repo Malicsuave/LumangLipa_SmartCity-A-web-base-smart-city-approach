@@ -19,6 +19,9 @@
                         <p class="text-muted mb-0">Manage senior citizen residents (60 years and above)</p>
                     </div>
                     <div>
+                        <a href="{{ route('admin.reports.senior-citizens') }}" class="btn btn-info mr-2">
+                            <i class="fas fa-file-alt mr-2"></i>Generate Report
+                        </a>
                         <a href="{{ route('admin.residents.index') }}" class="btn btn-outline-secondary">
                             <i class="fe fe-users fe-16 mr-2"></i>All Residents
                         </a>
