@@ -212,7 +212,12 @@ Route::middleware([
             Route::get('/create', [ResidentController::class, 'create'])->name('create');
             // Barangay ID Registration page for admin
             Route::get('/barangay-id-registration', [ResidentController::class, 'barangayIdRegistration'])->name('barangay-id-registration');
-            Route::get('census-data', [App\Http\Controllers\ResidentController::class, 'censusData'])->name('admin.residents.census-data');
+            Route::get('census-data', [ResidentController::class, 'censusData'])->name('census-data');
+            // Census CRUD routes
+            Route::post('census-data', [ResidentController::class, 'storeCensusRecord'])->name('census-data.store');
+            Route::get('census-data/{household}/edit', [ResidentController::class, 'editCensusRecord'])->name('census-data.edit');
+            Route::put('census-data/{household}', [ResidentController::class, 'updateCensusRecord'])->name('census-data.update');
+            Route::delete('census-data/{household}', [ResidentController::class, 'destroyCensusRecord'])->name('census-data.destroy');
             // Multi-step resident creation routes
             Route::get('/create/step1', [ResidentController::class, 'createStep1'])->name('create.step1');
             Route::post('/create/step1', [ResidentController::class, 'storeStep1'])->name('create.step1.store');
@@ -239,9 +244,6 @@ Route::middleware([
             Route::get('/{resident}/services', [App\Http\Controllers\ResidentController::class, 'services'])->name('services');
             Route::delete('/{resident}/force-delete', [App\Http\Controllers\ResidentController::class, 'forceDelete'])->name('force-delete');
             Route::get('/{resident}/generate-issue-id', [App\Http\Controllers\ResidentIdController::class, 'generateNewIssueId'])->name('id.generate');
-            Route::get('/census-data', function () {
-                return view('admin.residents.census-data');
-            })->name('census-data');
         });
         
         // Admin Profile Management

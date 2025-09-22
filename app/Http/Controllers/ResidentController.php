@@ -1067,8 +1067,111 @@ class ResidentController extends Controller
      */
     public function censusData()
     {
-        // You can add logic to fetch census data here
-        return view('admin.residents.census-data');
+        $households = Household::with(['resident'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        return view('admin.residents.census-data', compact('households'));
+    }
+
+    /**
+     * Store new census record (household).
+     */
+    public function storeCensusRecord(Request $request)
+    {
+        $request->validate([
+            'resident_id' => 'required|exists:residents,id',
+            'primary_name' => 'required|string|max:255',
+            'primary_birthday' => 'required|date',
+            'primary_gender' => 'required|in:Male,Female',
+            'primary_phone' => 'nullable|string|max:20',
+            'primary_work' => 'nullable|string|max:255',
+            'emergency_contact_name' => 'required|string|max:255',
+            'emergency_relationship' => 'required|string|max:255',
+            'emergency_phone' => 'required|string|max:20',
+        ]);
+
+        try {
+            $household = Household::create($request->all());
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Census record created successfully!',
+                'data' => $household->load('resident')
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create census record: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get census record for editing.
+     */
+    public function editCensusRecord(Household $household)
+    {
+        try {
+            return response()->json($household);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch census record: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Update census record (household).
+     */
+    public function updateCensusRecord(Request $request, Household $household)
+    {
+        $request->validate([
+            'primary_name' => 'required|string|max:255',
+            'primary_birthday' => 'required|date',
+            'primary_gender' => 'required|in:Male,Female',
+            'primary_phone' => 'nullable|string|max:20',
+            'primary_work' => 'nullable|string|max:255',
+            'emergency_contact_name' => 'required|string|max:255',
+            'emergency_relationship' => 'required|string|max:255',
+            'emergency_phone' => 'required|string|max:20',
+        ]);
+
+        try {
+            $household->update($request->all());
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Census record updated successfully!',
+                'data' => $household->load('resident')
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update census record: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete census record (household).
+     */
+    public function destroyCensusRecord(Household $household)
+    {
+        try {
+            $household->delete();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Census record deleted successfully!'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete census record: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
