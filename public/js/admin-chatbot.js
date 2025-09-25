@@ -329,15 +329,16 @@ class AdminChatbot {
 
     async markConversationAsRead(sessionId) {
         try {
-            await fetch(`/api/admin/agent-conversation/${sessionId}/mark-read`, {
+            await fetch('/api/admin/agent-conversation/mark-read', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 },
-                body: JSON.stringify({})
+                body: JSON.stringify({
+                    session_id: sessionId
+                })
             });
-            console.log('[ADMIN CHATBOT] Marked conversation as read:', sessionId);
         } catch (error) {
             console.error('Error marking conversation as read:', error);
         }

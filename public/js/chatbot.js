@@ -12,7 +12,6 @@ class BarangayChatbot {
         this.agentSessionId = null;
         this.agentPollInterval = null;
         this.lastMessageCheck = null;
-        this.isPendingAgent = false; // Track if waiting for agent to join
         
         this.init();
         this.knowledgeBase = this.initKnowledgeBase();
@@ -625,8 +624,7 @@ class BarangayChatbot {
     async escalateToAgent() {
         this.agentEscalationOffered = true;
         
-        // Show initial connecting message
-        this.addMessage('Connecting you to a barangay staff member...', 'bot');
+        this.addMessage('Connecting you to a barangay staff member. Please wait...', 'bot');
         this.showTyping();
 
         try {
@@ -648,21 +646,18 @@ class BarangayChatbot {
             this.hideTyping();
             
             if (data.success) {
-                // Show pending/waiting state
                 this.addMessage(`
-                    <div id="agent-pending-status" style="padding: 15px; border: 2px solid #ffc107; border-radius: 10px; background: #fff3cd; margin: 10px 0;">
-                        <h5 style="color: #856404; margin: 0 0 10px 0;">⏳ Request Sent</h5>
-                        <p style="color: #856404; margin: 0 0 10px 0;">
-                            Your request has been sent to our barangay staff. Please wait while we connect you to an available agent.
+                    <div style="padding: 15px; border: 2px solid #28a745; border-radius: 10px; background: #d4edda; margin: 10px 0;">
+                        <h5 style="color: #155724; margin: 0 0 10px 0;">✅ Connected to Agent</h5>
+                        <p style="color: #155724; margin: 0;">
+                            You're now connected to a barangay staff member. They will respond to your messages as soon as possible. 
+                            Please continue asking your questions here.
                         </p>
-                        <div style="color: #856404; font-size: 12px;">
-                            <strong>Estimated Wait Time:</strong> 2 mins 43 secs
-                        </div>
                     </div>
                 `, 'bot');
                 
-                // Switch to agent mode with pending state
-                this.switchToAgentMode(data.session_id, true); // true = pending state
+                // Change the chatbot behavior to agent mode
+                this.switchToAgentMode(data.session_id);
             } else {
                 this.addMessage('Sorry, unable to connect to an agent right now. Please try again later or contact the barangay office directly.', 'bot');
             }
@@ -674,10 +669,9 @@ class BarangayChatbot {
     }
 
     // Switch to agent conversation mode
-    switchToAgentMode(sessionId, isPending = false) {
+    switchToAgentMode(sessionId) {
         this.agentSessionId = sessionId;
         this.isAgentMode = true;
-        this.isPendingAgent = isPending; // Track pending state
         
         // Initialize last message check time to current time to avoid loading old messages
         this.lastMessageCheck = new Date().toISOString();
@@ -688,11 +682,7 @@ class BarangayChatbot {
         // Update UI to show agent mode
         const header = this.window.querySelector('.chatbot-header h4');
         if (header) {
-            if (isPending) {
-                header.innerHTML = '⏳ Waiting for Agent';
-            } else {
-                header.innerHTML = '💬 Talking to Agent';
-            }
+            header.innerHTML = '💬 Talking to Agent';
         }
     }
 
@@ -727,14 +717,6 @@ class BarangayChatbot {
             const data = await response.json();
             
             if (data.success && data.messages.length > 0) {
-                // Check if this is the first message from admin (agent joining)
-                if (this.isPendingAgent) {
-                    const firstAdminMessage = data.messages.find(msg => msg.sender_type === 'admin');
-                    if (firstAdminMessage) {
-                        this.agentJoined(); // Call agent joined function
-                    }
-                }
-
                 data.messages.forEach(msg => {
                     if (msg.sender_type === 'admin') {
                         this.addMessage(msg.message, 'bot', msg.created_at);
@@ -751,34 +733,6 @@ class BarangayChatbot {
         } catch (error) {
             console.error('Error checking for agent messages:', error);
         }
-    }
-
-    // Handle when agent joins the conversation
-    agentJoined() {
-        if (!this.isPendingAgent) return; // Already joined
-        
-        this.isPendingAgent = false;
-        
-        // Update pending status message to connected
-        const pendingStatus = document.getElementById('agent-pending-status');
-        if (pendingStatus) {
-            pendingStatus.innerHTML = `
-                <h5 style="color: #155724; margin: 0 0 10px 0;">✅ Agent Available</h5>
-                <p style="color: #155724; margin: 0;">
-                    A barangay staff member has joined the conversation. You can now chat directly with them.
-                </p>
-            `;
-            pendingStatus.style.borderColor = '#28a745';
-            pendingStatus.style.background = '#d4edda';
-        }
-        
-        // Update header
-        const header = this.window.querySelector('.chatbot-header h4');
-        if (header) {
-            header.innerHTML = '💬 Talking to Agent';
-        }
-        
-        console.log('[USER CHATBOT] Agent joined the conversation');
     }
 
     // Send user message to agent

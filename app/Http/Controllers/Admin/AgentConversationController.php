@@ -164,46 +164,4 @@ class AgentConversationController extends Controller
         $conversation = AgentConversation::where('session_id', $sessionId)->first();
         return $conversation ? $conversation->user_session : $sessionId;
     }
-
-    /**
-     * End a conversation
-     */
-    public function endConversation(Request $request)
-    {
-        try {
-            $validated = $request->validate([
-                'session_id' => 'required|string'
-            ]);
-
-            $sessionId = $validated['session_id'];
-
-            // Add system message indicating conversation ended
-            AgentConversation::create([
-                'session_id' => $sessionId,
-                'user_session' => $this->getUserSessionFromSessionId($sessionId),
-                'message' => '[SYSTEM] Conversation ended by admin',
-                'sender_type' => 'system',
-                'admin_id' => auth()->id(),
-                'is_read' => true,
-                'is_active' => false
-            ]);
-
-            // Mark all messages in this conversation as inactive (ended)
-            AgentConversation::where('session_id', $sessionId)
-                ->update([
-                    'is_active' => false
-                ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Conversation ended successfully'
-            ]);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to end conversation: ' . $e->getMessage()
-            ], 500);
-        }
-    }
 }
