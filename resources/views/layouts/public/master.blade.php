@@ -104,6 +104,7 @@
                                         <li><a class="dropdown-item" href="{{ route('health.request') }}">Health Services</a></li>
                                         <li><a class="dropdown-item" href="{{ route('documents.request') }}">Document Request</a></li>
                                         <li><a class="dropdown-item" href="{{ route('complaints.create') }}">File a Complaint</a></li>
+                                        <li><a class="dropdown-item" href="{{ route('blotter.request') }}">Blotter Report</a></li>
                                     </ul>
                                 </li>
                                 <li class="nav-item mx-2">

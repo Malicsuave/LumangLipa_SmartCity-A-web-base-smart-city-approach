@@ -103,6 +103,13 @@ Route::post('/complaints/check-resident', [App\Http\Controllers\ComplaintControl
 Route::post('/complaints/send-otp', [App\Http\Controllers\ComplaintController::class, 'sendOtp'])->name('complaints.send-otp');
 Route::post('/complaints/verify-otp', [App\Http\Controllers\ComplaintController::class, 'verifyOtp'])->name('complaints.verify-otp');
 
+// Blotter Report Public Routes
+Route::get('/blotter/request', [App\Http\Controllers\BlotterController::class, 'create'])->name('blotter.request');
+Route::post('/blotter/request', [App\Http\Controllers\BlotterController::class, 'store'])->name('blotter.store');
+Route::post('/blotter/check-resident', [App\Http\Controllers\BlotterController::class, 'checkResident'])->name('blotter.check-resident');
+Route::post('/blotter/send-otp', [App\Http\Controllers\BlotterController::class, 'sendOtp'])->name('blotter.send-otp');
+Route::post('/blotter/verify-otp', [App\Http\Controllers\BlotterController::class, 'verifyOtp'])->name('blotter.verify-otp');
+
 // Resident ID full preview route
 Route::get('/resident/{resident}/id/full-preview', [ResidentIdController::class, 'fullPreview'])->name('id.full-preview');
 
