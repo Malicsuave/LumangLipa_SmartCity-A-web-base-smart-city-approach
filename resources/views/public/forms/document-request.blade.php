@@ -3,19 +3,30 @@
 @section('title', 'Request Document')
 
 @section('content')
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card shadow-lg border-0" style="border-radius: 15px;">
-                <div class="card-header bg-primary text-white text-center" style="border-radius: 15px 15px 0 0;">
-                    <h3 class="mb-0">
-                        <i class="fas fa-file-alt me-2"></i>
-                        Document Request
-                    </h3>
-                    <p class="mb-0 mt-2">Request official barangay documents online</p>
-                </div>
-                
-                <div class="card-body p-4">
+<!-- Hero Section with Background -->
+<section class="position-relative" style="background: #eaf4fb; padding-top: 6rem; margin-top: -20px;">
+    <div class="container py-4">
+        <div class="text-center mb-4">
+            <h1 class="fw-bold mb-2" style="color: #2A7BC4; font-size: 2.2rem;">Document Request</h1>
+            <p class="text-muted" style="font-size: 1rem;">Request official barangay documents online</p>
+        </div>
+    </div>
+</section>
+
+<div class="card card-body blur shadow-blur mx-3 mx-md-4 mt-n4" style="border-radius: 18px;">
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card border-0 shadow-lg" style="border: 2px solid #2A7BC4 !important; border-radius: 18px; overflow: hidden; background: #ffffff;">
+                    <div class="card-header text-center py-4" style="background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8b 100%); color: white; border: none;">
+                        <div class="d-flex align-items-center justify-content-center mb-2">
+                            <i class="fas fa-file-alt me-3" style="font-size: 2rem;"></i>
+                            <h2 class="mb-0 fw-bold">Document Services</h2>
+                        </div>
+                        <p class="mb-0 opacity-9">Complete the form below to request official documents from Barangay Lumanglipa</p>
+                    </div>
+                    
+                    <div class="card-body p-5" style="background: #ffffff;">
                     <!-- Success Alert -->
                     <div id="successAlert" class="alert alert-success alert-dismissible fade" role="alert" style="display: none;">
                         <i class="fas fa-check-circle me-2"></i>
@@ -37,7 +48,7 @@
                         <div class="mb-4">
                             <label for="barangay_id" class="form-label fw-bold">
                                 <i class="fas fa-id-card text-primary me-2"></i>
-                                Barangay ID
+                                Barangay ID <span class="text-danger">*Required</span>
                             </label>
                             <div class="input-group">
                                 <input type="text" 
@@ -160,7 +171,7 @@
                             <div class="mb-4">
                                 <label for="document_type" class="form-label fw-bold">
                                     <i class="fas fa-file-text text-primary me-2"></i>
-                                    Document Type
+                                    Document Type <span class="text-danger">*Required</span>
                                 </label>
                                 <select class="form-select form-select-lg" id="document_type" name="document_type" required disabled>
                                     <option value="">Select Document Type</option>
@@ -180,7 +191,7 @@
                             <div class="mb-4">
                                 <label for="purpose" class="form-label fw-bold">
                                     <i class="fas fa-clipboard-list text-primary me-2"></i>
-                                    Purpose
+                                    Purpose <span class="text-danger">*Required</span>
                                 </label>
                                 <textarea class="form-control" 
                                           id="purpose" 
@@ -211,7 +222,7 @@
                             <div class="mb-4">
                                 <label for="receipt" class="form-label fw-bold">
                                     <i class="fas fa-receipt text-primary me-2"></i>
-                                    Upload GCash Payment Receipt <span class="text-danger">*</span>
+                                    Upload GCash Payment Receipt <span class="text-danger">*Required</span>
                                 </label>
                                 <input type="file" class="form-control" id="receipt" name="receipt" accept="image/*,.pdf" required>
                                 <div class="form-text">
@@ -220,7 +231,7 @@
                             </div>
 
                             <!-- Submit Button -->
-                            <div class="d-grid">
+                            <div class="d-grid" id="submitButtonSection" style="display: none !important;">
                                 <button type="submit" 
                                         class="btn btn-primary btn-lg" 
                                         id="submitBtn"
@@ -239,7 +250,7 @@
                             Important Information
                         </h5>                        <ul class="list-unstyled mb-0">
                             <li class="mb-2">
-                                <i class="fas fa-shield-alt text-primary me-2"></i>
+                                <i class="fas fa-check text-success me-2"></i>
                                 Email verification with OTP is required for all document requests
                             </li>
                             <li class="mb-2">
@@ -265,6 +276,7 @@
         </div>
     </div>
 </div>
+</section>
 
 <style>
 .card {
@@ -292,8 +304,15 @@
 }
 
 #submitBtn:disabled {
-    background: #6c757d;
+    background: #6c757d !important;
+    border-color: #6c757d !important;
     cursor: not-allowed;
+    opacity: 1;
+}
+
+#submitBtn:not(:disabled) {
+    background: linear-gradient(45deg, #0d6efd, #0a58ca) !important;
+    border-color: #0d6efd !important;
 }
 
 .alert {
@@ -416,8 +435,14 @@ document.addEventListener('DOMContentLoaded', function() {
     let otpTimer = null;
     let otpExpiryTime = null;
 
-    // Initialize form with blur effect
+    // Initialize form with blur effect and hidden submit button
     formFieldsSection.classList.add('blurred');
+    
+    // Ensure submit button is hidden initially
+    const submitButtonSection = document.getElementById('submitButtonSection');
+    if (submitButtonSection) {
+        submitButtonSection.style.setProperty('display', 'none', 'important');
+    }
 
     // Check resident function
     checkResidentBtn.addEventListener('click', function() {
@@ -552,6 +577,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 documentTypeSelect.disabled = false;
                 purposeTextarea.disabled = false;
+                
+                // Show submit button section
+                const submitButtonSection = document.getElementById('submitButtonSection');
+                if (submitButtonSection) {
+                    submitButtonSection.style.setProperty('display', 'block', 'important');
+                }
                 
                 // Stop timer
                 if (otpTimer) {
@@ -693,6 +724,13 @@ document.addEventListener('DOMContentLoaded', function() {
     function resetForm() {
         residentInfo.style.display = 'none';
         otpSection.style.display = 'none';
+        
+        // Hide submit button section
+        const submitButtonSection = document.getElementById('submitButtonSection');
+        if (submitButtonSection) {
+            submitButtonSection.style.setProperty('display', 'none', 'important');
+        }
+        
         documentTypeSelect.disabled = true;
         purposeTextarea.disabled = true;
         submitBtn.disabled = true;
@@ -700,6 +738,14 @@ document.addEventListener('DOMContentLoaded', function() {
         otpVerified = false;
         documentTypeSelect.value = '';
         purposeTextarea.value = '';
+        
+        // Clear file input
+        const receiptInput = document.getElementById('receipt');
+        receiptInput.value = '';
+        
+        // Reset blur effects
+        formFieldsSection.classList.add('blurred');
+        formFieldsSection.classList.remove('form-fields-reveal');
         
         // Reset OTP section
         document.getElementById('otpRequestStep').style.display = 'block';

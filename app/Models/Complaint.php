@@ -17,6 +17,10 @@ class Complaint extends Model
         'complaint_type',
         'subject',
         'description',
+        'incident_date',
+        'incident_location',
+        'involved_parties',
+        'incident_details',
         'status',
         'filed_at',
         'approved_at',
@@ -28,10 +32,12 @@ class Complaint extends Model
         'admin_notes',
     ];
     protected $casts = [
-        'filed_at' => 'datetime',
+        'filed_at' => 'date',
         'approved_at' => 'datetime',
         'scheduled_at' => 'datetime',
         'resolved_at' => 'datetime',
+        'incident_date' => 'date',
+        'involved_parties' => 'string',  // Store as string instead of JSON
     ];
 
     public function getActivitylogOptions(): LogOptions

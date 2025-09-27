@@ -7,19 +7,30 @@
 @endpush
 
 @section('content')
-<div class="container py-5" style="min-height: 100vh;">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card shadow-lg">
-                <div class="card-header bg-primary text-white text-center py-4">
-                    <h2 class="mb-1">
-                        <i class="fas fa-heartbeat me-2"></i>
-                        Health Service Request
-                    </h2>
-                    <p class="mb-0">Schedule a health service appointment or request medical assistance from Barangay Lumanglipa</p>
-                </div>
-                
-                <div class="card-body p-5">
+<!-- Hero Section with Background -->
+<section class="position-relative" style="background: #eaf4fb; padding-top: 6rem; margin-top: -20px;">
+    <div class="container py-4">
+        <div class="text-center mb-4">
+            <h1 class="fw-bold mb-2" style="color: #2A7BC4; font-size: 2.2rem;">Health Service Request</h1>
+            <p class="text-muted" style="font-size: 1rem;">Schedule a health service appointment or request medical assistance</p>
+        </div>
+    </div>
+</section>
+
+<div class="card card-body blur shadow-blur mx-3 mx-md-4 mt-n4" style="border-radius: 18px;">
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card border-0 shadow-lg" style="border: 2px solid #2A7BC4 !important; border-radius: 18px; overflow: hidden; background: #ffffff;">
+                    <div class="card-header text-center py-4" style="background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8b 100%); color: white; border: none;">
+                        <div class="d-flex align-items-center justify-content-center mb-2">
+                            <i class="fas fa-heartbeat me-3" style="font-size: 2rem;"></i>
+                            <h2 class="mb-0 fw-bold">Health Services</h2>
+                        </div>
+                        <p class="mb-0 opacity-9">Complete the form below to request health services from Barangay Lumanglipa</p>
+                    </div>
+                    
+                    <div class="card-body p-5" style="background: #ffffff;">
                 <!-- Alerts -->
                 <div id="successAlert" class="alert alert-success alert-dismissible fade" role="alert" style="display: none;">
                     <i class="fas fa-check-circle me-2"></i>
@@ -40,7 +51,7 @@
                     <div class="mb-4">
                         <label for="barangay_id" class="form-label fw-bold">
                             <i class="fas fa-id-card text-primary me-2"></i>
-                            Barangay ID
+                            Barangay ID <span class="text-danger">*Required</span>
                         </label>
                         <div class="input-group">
                             <input type="text" 
@@ -167,7 +178,7 @@
                         <div class="mb-4">
                             <label for="service_type" class="form-label fw-bold">
                                 <i class="fas fa-stethoscope text-primary me-2"></i>
-                                Service Type
+                                Service Type <span class="text-danger">*Required</span>
                             </label>
                             <select class="form-select form-select-lg" id="service_type" name="service_type" required disabled>
                                 <option value="">Select Service Type</option>
@@ -189,7 +200,7 @@
                         <div class="mb-4">
                             <label for="purpose" class="form-label fw-bold">
                                 <i class="fas fa-clipboard-list text-primary me-2"></i>
-                                Purpose / Additional Details
+                                Purpose / Additional Details <span class="text-danger">*Required</span>
                             </label>
                             <textarea class="form-control" 
                                       id="purpose" 
@@ -208,7 +219,7 @@
                         <div class="mb-4">
                             <label for="appointment_type" class="form-label fw-bold">
                                 <i class="fas fa-calendar-alt text-primary me-2"></i>
-                                Appointment Type
+                                Appointment Type <span class="text-danger">*Required</span>
                             </label>
                             <select class="form-select form-select-lg" id="appointment_type" name="appointment_type" required disabled>
                                 <option value="">Select Appointment Type</option>
@@ -233,7 +244,7 @@
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <label for="preferred_date" class="form-label">Preferred Date</label>
+                                            <label for="preferred_date" class="form-label">Preferred Date <span class="text-danger">*Required</span></label>
                                             <input type="date" 
                                                    class="form-control" 
                                                    id="preferred_date" 
@@ -241,7 +252,7 @@
                                                    disabled>
                                         </div>
                                         <div class="col-md-6">
-                                            <label for="preferred_time" class="form-label">Preferred Time</label>
+                                            <label for="preferred_time" class="form-label">Preferred Time <span class="text-danger">*Required</span></label>
                                             <select class="form-select" id="preferred_time" name="preferred_time" disabled>
                                                 <option value="">Select Time</option>
                                                 <option value="08:00">8:00 AM</option>
@@ -263,7 +274,7 @@
                         <div class="mb-4">
                             <label for="chief_complaint" class="form-label fw-bold">
                                 <i class="fas fa-notes-medical text-primary me-2"></i>
-                                Chief Complaint / Symptoms
+                                Chief Complaint / Symptoms <span class="text-muted">*Optional</span>
                             </label>
                             <textarea class="form-control" 
                                       id="chief_complaint" 
@@ -277,7 +288,7 @@
                         <div class="mb-4">
                             <label class="form-label fw-bold">
                                 <i class="fas fa-history text-primary me-2"></i>
-                                Medical History
+                                Medical History <span class="text-muted">*Optional</span>
                             </label>
                             <div class="row">
                                 <div class="col-md-6">
@@ -315,11 +326,11 @@
                         <div class="mb-4">
                             <label class="form-label fw-bold">
                                 <i class="fas fa-phone text-primary me-2"></i>
-                                Emergency Contact
+                                Emergency Contact <span class="text-muted">*Optional</span>
                             </label>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <label for="emergency_contact_name" class="form-label">Name</label>
+                                    <label for="emergency_contact_name" class="form-label">Name <span class="text-muted">*Optional</span></label>
                                     <input type="text" 
                                            class="form-control" 
                                            id="emergency_contact_name" 
@@ -328,7 +339,7 @@
                                            disabled>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="emergency_contact_number" class="form-label">Phone Number</label>
+                                    <label for="emergency_contact_number" class="form-label">Phone Number <span class="text-muted">*Optional</span></label>
                                     <input type="tel" 
                                            class="form-control" 
                                            id="emergency_contact_number" 
@@ -340,7 +351,7 @@
                         </div>
 
                         <!-- Submit Button -->
-                        <div class="d-grid">
+                        <div class="d-grid" id="submitButtonSection" style="display: none !important;">
                             <button type="submit" 
                                     class="btn btn-primary btn-lg" 
                                     id="submitBtn"
@@ -360,23 +371,23 @@
                     </h5>
                     <ul class="list-unstyled mb-0">
                         <li class="mb-2">
-                            <i class="fas fa-shield-alt text-primary me-2"></i>
+                            <i class="fas fa-check text-success me-2"></i>
                             Email verification with OTP is required for all health service requests
                         </li>
                         <li class="mb-2">
-                            <i class="fas fa-clock text-primary me-2"></i>
+                            <i class="fas fa-check text-success me-2"></i>
                             Walk-in appointments are subject to availability
                         </li>
                         <li class="mb-2">
-                            <i class="fas fa-calendar-check text-primary me-2"></i>
+                            <i class="fas fa-check text-success me-2"></i>
                             Scheduled appointments can be made 1 day in advance
                         </li>
                         <li class="mb-2">
-                            <i class="fas fa-user-md text-primary me-2"></i>
+                            <i class="fas fa-check text-success me-2"></i>
                             Health services are provided by qualified barangay health workers
                         </li>
                         <li class="mb-0">
-                            <i class="fas fa-bell text-primary me-2"></i>
+                            <i class="fas fa-check text-success me-2"></i>
                             You will receive confirmation and updates via email
                         </li>
                     </ul>
@@ -385,6 +396,7 @@
         </div>
     </div>
 </div>
+</section>
 @endsection
 
 @push('scripts')
@@ -411,6 +423,22 @@
 .btn-primary:hover {
     background: linear-gradient(45deg, #0a58ca, #084298);
     transform: translateY(-1px);
+}
+
+#submitBtn:disabled {
+    background: #6c757d !important;
+    border-color: #6c757d !important;
+    cursor: not-allowed;
+    opacity: 1;
+}
+
+#submitBtn:not(:disabled) {
+    background: linear-gradient(45deg, #0d6efd, #0a58ca) !important;
+    border-color: #0d6efd !important;
+}
+
+.d-grid #submitBtn {
+    width: 100% !important;
 }
 
 #otp_code {
@@ -522,6 +550,16 @@ document.addEventListener('DOMContentLoaded', function() {
     let otpVerified = false;
     let otpTimer = null;
     let otpExpiryTime = null;
+
+    // Initialize form - show form fields section with blur effect (original state)
+    formFieldsSection.classList.add('blurred');
+    addBlurEffects();
+
+    // Ensure submit button is hidden initially
+    const submitButtonSection = document.getElementById('submitButtonSection');
+    if (submitButtonSection) {
+        submitButtonSection.style.setProperty('display', 'none', 'important');
+    }
 
     // Initialize form with blur effect
     formFieldsSection.classList.add('blurred');
@@ -691,6 +729,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('otpVerifyStep').style.display = 'none';
                 document.getElementById('otpVerifiedStep').style.display = 'block';
                   
+                // Show and enable form fields section
+                formFieldsSection.style.display = 'block';
+                
                 // Remove blur effect and enable form fields
                 formFieldsSection.classList.remove('blurred');
                 
@@ -707,6 +748,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Remove blur effects
                 removeBlurEffects();
+                
+                // Show submit button section
+                const submitButtonSection = document.getElementById('submitButtonSection');
+                if (submitButtonSection) {
+                    submitButtonSection.style.setProperty('display', 'block', 'important');
+                }
                 
                 checkFormValidity();
                 
@@ -841,7 +888,9 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             if (data.success) {
                 showSuccess(`Health service request submitted successfully! Reference ID: ${data.data.request_id}`);
+                // Clear form fields first
                 form.reset();
+                // Then reset to initial state with blur
                 resetForm();
             } else {
                 let errorMessage = 'Please check the following errors:\n';
@@ -904,8 +953,23 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function resetForm() {
+        // Clear barangay ID input
+        barangayIdInput.value = '';
+        
         residentInfo.style.display = 'none';
         otpSection.style.display = 'none';
+        
+        // Reset form fields section to blurred state (original state)
+        formFieldsSection.style.display = 'block';
+        formFieldsSection.classList.add('blurred');
+        addBlurEffects();
+        
+        // Hide submit button section
+        const submitButtonSection = document.getElementById('submitButtonSection');
+        if (submitButtonSection) {
+            submitButtonSection.style.setProperty('display', 'none', 'important');
+        }
+        
         scheduledAppointmentSection.classList.remove('show');
         residentVerified = false;
         otpVerified = false;
@@ -920,20 +984,24 @@ document.addEventListener('DOMContentLoaded', function() {
             clearInterval(otpTimer);
         }
         
-        // Disable form fields
+        // Clear and disable form fields
         formFields.forEach(fieldName => {
             const field = document.getElementById(fieldName);
-            if (field) field.disabled = true;
+            if (field) {
+                field.disabled = true;
+                if (field.tagName === 'SELECT') {
+                    field.selectedIndex = 0;
+                } else {
+                    field.value = '';
+                }
+            }
         });
         
-        // Disable checkbox fields
+        // Disable and clear checkbox fields
         checkboxFields.forEach(checkbox => {
             checkbox.disabled = true;
             checkbox.checked = false;
         });
-        
-        // Add blur effects back
-        addBlurEffects();
         
         submitBtn.disabled = true;
         
@@ -965,6 +1033,16 @@ document.addEventListener('DOMContentLoaded', function() {
         const blurredSections = document.querySelectorAll('.blurred-section');
         blurredSections.forEach(section => {
             section.classList.add('blurred');
+            // Restore the blur overlay visibility
+            const blurOverlay = section.querySelector('.blur-overlay');
+            if (blurOverlay) {
+                blurOverlay.style.opacity = '1';
+                blurOverlay.style.pointerEvents = 'auto';
+            }
+            // Disable interactions with the section
+            section.style.pointerEvents = 'none';
+            section.style.userSelect = 'none';
+            section.style.filter = 'blur(3px)';
         });
     }
     

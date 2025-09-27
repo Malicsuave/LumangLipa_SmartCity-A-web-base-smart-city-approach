@@ -3,19 +3,61 @@
 @section('title', 'File a Complaint - Barangay Lumanglipa')
 
 @section('content')
-<div class="container py-5" style="min-height: 100vh;">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card shadow-lg">
-                <div class="card-header bg-primary text-white text-center py-4">
-                    <h2 class="mb-0">
-                        <i class="fas fa-flag me-2"></i>
-                        File a Complaint
-                    </h2>
-                    <p class="mb-0 mt-2">Report issues and concerns to Barangay Lumanglipa</p>
-                </div>
-                
-                <div class="card-body p-5">
+<!-- Hero Section with Background -->
+<section class="position-relative" style="background: #eaf4fb; padding-top: 6rem; margin-top: -20px;">
+    <div class="container py-4">
+        <div class="text-center mb-4">
+            <h1 class="fw-bold mb-2" style="color: #2A7BC4; font-size: 2.2rem;">File a Complaint</h1>
+            <p class="text-muted" style="font-size: 1rem;">Report issues and concerns to Barangay Lumanglipa</p>
+        </div>
+    </div>
+</section>
+
+<div class="card card-body blur shadow-blur mx-3 mx-md-4 mt-n4" style="border-radius: 18px;">
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card border-0 shadow-lg" style="border: 2px solid #2A7BC4 !important; border-radius: 18px; overflow: hidden; background: #ffffff;">
+                    <div class="card-header text-center py-4" style="background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8b 100%); color: white; border: none;">
+                        <div class="d-flex align-items-center justify-content-center mb-2">
+                            <i class="fas fa-flag me-3" style="font-size: 2rem;"></i>
+                            <h2 class="mb-0 fw-bold">Complaint Services</h2>
+                        </div>
+                        <p class="mb-0 opacity-9">Complete the form below to file your complaint to Barangay Lumanglipa</p>
+                    </div>
+                    
+                    <div class="card-body p-5" style="background: #ffffff;">
+                    <!-- Laravel Validation Errors -->
+                    @if($errors->any())
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Please check the following errors:</strong>
+                            <ul class="mb-0 mt-2">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    @endif
+
+                    <!-- Session Flash Messages -->
+                    @if(session('success'))
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    @endif
+
+                    @if(session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    @endif
+
                     <!-- Success Alert -->
                     <div id="successAlert" class="alert alert-success alert-dismissible fade" role="alert" style="display: none;">
                         <i class="fas fa-check-circle me-2"></i>
@@ -36,7 +78,7 @@
                         <!-- Barangay ID Section -->                        <div class="mb-4">
                             <label for="barangay_id" class="form-label fw-bold">
                                 <i class="fas fa-id-card text-primary me-2"></i>
-                                Barangay ID
+                                Barangay ID <span class="text-danger">*Required</span>
                             </label>
                             <div class="input-group">
                                 <input type="text" 
@@ -148,7 +190,7 @@
                         <div id="complaintFormSection" class="blurred-section">
                             <div class="blur-overlay">
                                 <div class="overlay-message">
-                                    <i class="fas fa-lock fa-2x mb-3"></i>
+                                    <i class="fas fa-shield-alt fa-2x text-warning mb-2"></i>
                                     <h5>Verify Email to Continue</h5>
                                     <p>Please complete email verification to access the form fields</p>
                                 </div>
@@ -158,7 +200,7 @@
                             <div class="mb-4">
                                 <label for="complaint_type" class="form-label fw-bold">
                                     <i class="fas fa-list-alt text-primary me-2"></i>
-                                    Complaint Type
+                                    Complaint Type <span class="text-danger">*Required</span>
                                 </label>
                                 <select class="form-select form-select-lg" id="complaint_type" name="complaint_type" required disabled>
                                     <option value="">Select Complaint Type</option>
@@ -175,7 +217,7 @@
                             <div class="mb-4">
                                 <label for="subject" class="form-label fw-bold">
                                     <i class="fas fa-tag text-primary me-2"></i>
-                                    Subject
+                                    Subject <span class="text-danger">*Required</span>
                                 </label>
                                 <input type="text" 
                                        class="form-control form-control-lg"
@@ -192,9 +234,10 @@
                             </div>
 
                             <!-- Description Section -->
-                            <div class="mb-4">                                <label for="description" class="form-label fw-bold">
+                            <div class="mb-4">
+                                <label for="description" class="form-label fw-bold">
                                     <i class="fas fa-comment-alt text-primary me-2"></i>
-                                    Detailed Description
+                                    Detailed Description <span class="text-danger">*Required</span>
                                 </label>
                                 <textarea class="form-control" 
                                           id="description" 
@@ -202,15 +245,89 @@
                                           rows="4" 
                                           placeholder="Provide detailed information about your complaint..."
                                           required
-                                          disabled></textarea>                                <div class="form-text">
+                                          disabled></textarea>
+                                <div class="form-text">
                                     <i class="fas fa-info-circle text-info"></i>
                                     Describe the issue in detail. Include what happened, when, where, and who was involved
+                                </div>
+                            </div>
+
+                            <!-- Incident Date Section -->
+                            <div class="mb-4">
+                                <label for="incident_date" class="form-label fw-bold">
+                                    <i class="fas fa-calendar-alt text-primary me-2"></i>
+                                    Date of Incident <span class="text-danger">*Required</span>
+                                </label>
+                                <input type="date" 
+                                       class="form-control" 
+                                       id="incident_date" 
+                                       name="incident_date" 
+                                       required
+                                       disabled>
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle text-info"></i>
+                                    When did the incident occur?
+                                </div>
+                            </div>
+
+                            <!-- Incident Location Section -->
+                            <div class="mb-4">
+                                <label for="incident_location" class="form-label fw-bold">
+                                    <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                                    Location of Incident <span class="text-danger">*Required</span>
+                                </label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="incident_location" 
+                                       name="incident_location" 
+                                       placeholder="e.g., Purok 1, Near Barangay Hall, etc."
+                                       required
+                                       disabled>
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle text-info"></i>
+                                    Specify where the incident took place
+                                </div>
+                            </div>
+
+                            <!-- Involved Parties Section -->
+                            <div class="mb-4">
+                                <label for="involved_parties" class="form-label fw-bold">
+                                    <i class="fas fa-users text-primary me-2"></i>
+                                    Involved Parties <span class="text-muted">*Optional</span>
+                                </label>
+                                <textarea class="form-control" 
+                                          id="involved_parties" 
+                                          name="involved_parties" 
+                                          rows="3" 
+                                          placeholder="List the people involved in the incident (names, addresses if known)..."
+                                          disabled></textarea>
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle text-info"></i>
+                                    List all parties involved in the incident (optional but helpful for investigation)
+                                </div>
+                            </div>
+
+                            <!-- Additional Incident Details Section -->
+                            <div class="mb-4">
+                                <label for="incident_details" class="form-label fw-bold">
+                                    <i class="fas fa-file-alt text-primary me-2"></i>
+                                    Additional Details <span class="text-muted">*Optional</span>
+                                </label>
+                                <textarea class="form-control" 
+                                          id="incident_details" 
+                                          name="incident_details" 
+                                          rows="3" 
+                                          placeholder="Any additional information, witnesses, evidence, etc..."
+                                          disabled></textarea>
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle text-info"></i>
+                                    Include any additional details, witness information, or evidence (optional)
                                 </div>
                             </div>
                         </div>
 
                         <!-- Submit Button -->
-                        <div id="submitButtonSection" class="d-grid gap-2" style="display: none;">
+                        <div class="d-grid" id="submitButtonSection" style="display: none !important;">
                             <button type="submit" 
                                     class="btn btn-primary btn-lg" 
                                     id="submitBtn" 
@@ -219,17 +336,49 @@
                                 Submit Complaint
                             </button>
                         </div>
+
+                        <!-- Important Information Section -->
+                        <div class="mt-5 p-4 bg-light rounded">
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Important Information
+                            </h5>
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Email verification with OTP is required for all complaint submissions
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    All complaints will be reviewed by the Barangay Officials
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Processing and response time is typically 3-5 business days
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    You will be notified about the status and resolution of your complaint
+                                </li>
+                                <li class="mb-0">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Ensure all details are accurate for proper investigation and resolution
+                                </li>
+                            </ul>
+                        </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
+</section>
 @endsection
 
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Check if all required elements exist
     const barangayIdInput = document.getElementById('barangay_id');
     const checkResidentBtn = document.getElementById('checkResidentBtn');
     const residentInfo = document.getElementById('residentInfo');
@@ -239,11 +388,23 @@ document.addEventListener('DOMContentLoaded', function() {
     const resendOtpBtn = document.getElementById('resendOtpBtn');
     const otpCodeInput = document.getElementById('otp_code');
     const complaintForm = document.getElementById('complaintForm');
-    const submitBtn = document.getElementById('submitBtn');      
+    const submitBtn = document.getElementById('submitBtn');
+    
+    // Error check for missing elements
+    if (!barangayIdInput || !checkResidentBtn || !complaintForm || !submitBtn) {
+        console.error('Required form elements not found');
+        return;
+    }
+    
+    // Ensure submit button is hidden initially
+    const submitButtonSection = document.getElementById('submitButtonSection');
+    if (submitButtonSection) {
+        submitButtonSection.style.setProperty('display', 'none', 'important');
+    }      
     
     // Form fields to enable/disable
     const formFields = [
-        'complaint_type', 'subject', 'description'
+        'complaint_type', 'subject', 'description', 'incident_date', 'incident_location', 'involved_parties', 'incident_details'
     ];
 
     let residentVerified = false;
@@ -389,8 +550,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Remove blur effects
                 removeBlurEffects();
                 
-                // Show submit button section
-                document.getElementById('submitButtonSection').style.display = 'block';
+                // Show submit button and enable it
+                const submitButtonSection = document.getElementById('submitButtonSection');
+                if (submitButtonSection) {
+                    submitButtonSection.style.setProperty('display', 'block', 'important');
+                }
+                submitBtn.disabled = false;
                 
                 checkFormValidity();
                 
@@ -459,14 +624,32 @@ document.addEventListener('DOMContentLoaded', function() {
         const complaintType = document.getElementById('complaint_type').value;
         const subject = document.getElementById('subject').value.trim();
         const description = document.getElementById('description').value.trim();
-        const isValid = residentVerified && otpVerified && complaintType && subject && description;
-        submitBtn.disabled = !isValid;
+        const incidentDate = document.getElementById('incident_date').value;
+        const incidentLocation = document.getElementById('incident_location').value.trim();
+        
+        const isValid = residentVerified && otpVerified && complaintType && subject && description && incidentDate && incidentLocation;
+        
+        // Only enable submit button if OTP is verified AND form is valid
+        if (otpVerified) {
+            submitBtn.disabled = !isValid;
+        } else {
+            submitBtn.disabled = true;
+            // Ensure submit button section is hidden if OTP not verified
+            const submitButtonSection = document.getElementById('submitButtonSection');
+            if (submitButtonSection && !otpVerified) {
+                submitButtonSection.style.setProperty('display', 'none', 'important');
+            }
+        }
     }
 
     // Add event listeners for form validation
     document.getElementById('complaint_type').addEventListener('change', checkFormValidity);
     document.getElementById('subject').addEventListener('input', checkFormValidity);
     document.getElementById('description').addEventListener('input', checkFormValidity);
+    document.getElementById('incident_date').addEventListener('change', checkFormValidity);
+    document.getElementById('incident_location').addEventListener('input', checkFormValidity);
+    document.getElementById('involved_parties').addEventListener('input', checkFormValidity);
+    document.getElementById('incident_details').addEventListener('input', checkFormValidity);
 
     // Form submission
     complaintForm.addEventListener('submit', function(e) {
@@ -563,9 +746,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function resetForm() {
+        // Clear barangay ID input
+        barangayIdInput.value = '';
+        
         residentInfo.style.display = 'none';
         otpSection.style.display = 'none';
-        document.getElementById('submitButtonSection').style.display = 'none';
+        const submitButtonSection = document.getElementById('submitButtonSection');
+        if (submitButtonSection) {
+            submitButtonSection.style.setProperty('display', 'none', 'important');
+        }
+        submitBtn.disabled = true;
         residentVerified = false;
         otpVerified = false;
         
@@ -578,19 +768,29 @@ document.addEventListener('DOMContentLoaded', function() {
         if (otpTimer) {
             clearInterval(otpTimer);
         }
-          // Disable form fields
+        
+        // Clear and disable form fields
         formFields.forEach(fieldName => {
-            document.getElementById(fieldName).disabled = true;
+            const field = document.getElementById(fieldName);
+            if (field) {
+                field.disabled = true;
+                if (field.tagName === 'SELECT') {
+                    field.selectedIndex = 0;
+                } else {
+                    field.value = '';
+                }
+            }
         });
         
         // Add blur effects back
         addBlurEffects();
         
         submitBtn.disabled = true;
-          
+        
         // Reset button
         checkResidentBtn.innerHTML = '<i class="fas fa-search"></i> Verify';
-        checkResidentBtn.classList.remove('btn-success');        checkResidentBtn.classList.add('btn-outline-primary');
+        checkResidentBtn.classList.remove('btn-success');
+        checkResidentBtn.classList.add('btn-outline-primary');
         checkResidentBtn.disabled = false;
     }
     
@@ -615,6 +815,16 @@ document.addEventListener('DOMContentLoaded', function() {
         const blurredSections = document.querySelectorAll('.blurred-section');
         blurredSections.forEach(section => {
             section.classList.add('blurred');
+            // Restore the blur overlay visibility
+            const blurOverlay = section.querySelector('.blur-overlay');
+            if (blurOverlay) {
+                blurOverlay.style.opacity = '1';
+                blurOverlay.style.pointerEvents = 'auto';
+            }
+            // Disable interactions with the section
+            section.style.pointerEvents = 'none';
+            section.style.userSelect = 'none';
+            section.style.filter = 'blur(3px)';
         });
     }
     
@@ -647,6 +857,22 @@ document.addEventListener('DOMContentLoaded', function() {
 .btn-primary:hover {
     background: linear-gradient(45deg, #0a58ca, #084298);
     transform: translateY(-1px);
+}
+
+#submitBtn:disabled {
+    background: #6c757d !important;
+    border-color: #6c757d !important;
+    cursor: not-allowed;
+    opacity: 1;
+}
+
+#submitBtn:not(:disabled) {
+    background: linear-gradient(45deg, #0d6efd, #0a58ca) !important;
+    border-color: #0d6efd !important;
+}
+
+.d-grid #submitBtn {
+    width: 100% !important;
 }
 
 #otp_code {
@@ -722,5 +948,10 @@ document.addEventListener('DOMContentLoaded', function() {
 .overlay-message p {
     color: #6c757d;
     margin: 0;
+}
+
+/* Submit Button Width Fix */
+.d-grid #submitBtn {
+    width: 100% !important;
 }
 </style>

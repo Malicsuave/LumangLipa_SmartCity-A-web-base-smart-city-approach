@@ -115,12 +115,19 @@ class ComplaintController extends Controller
         ];
 
         return view('public/forms/complaint-request', compact('complaintTypes'));
-    }    public function store(Request $request)
-    {        $validator = Validator::make($request->all(), [
+    }
+    
+    public function store(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
             'barangay_id' => 'required|string|exists:residents,barangay_id',
             'complaint_type' => 'required|string',
             'subject' => 'required|string|max:255',
             'description' => 'required|string|max:1000',
+            'incident_date' => 'required|date',
+            'incident_location' => 'required|string|max:255',
+            'involved_parties' => 'nullable|string|max:1000',
+            'incident_details' => 'nullable|string|max:1000',
         ]);
 
         if ($validator->fails()) {
@@ -153,7 +160,12 @@ class ComplaintController extends Controller
             'complaint_type' => $request->complaint_type,
             'subject' => $request->subject,
             'description' => $request->description,
+            'incident_date' => $request->incident_date,
+            'incident_location' => $request->incident_location,
+            'involved_parties' => $request->involved_parties ?: '',  // Default to empty string if null
+            'incident_details' => $request->incident_details ?: '',  // Default to empty string if null
             'status' => 'pending',
+            'filed_at' => now()->toDateString(),  // Set current date only
         ]);
 
         return response()->json([
