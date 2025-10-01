@@ -72,10 +72,8 @@ class DocumentRequestController extends Controller
             $query->orderBy('requested_at', 'desc');
         }
         
-        $documentRequests = $query->paginate(10);
-        
-        // Append query parameters to pagination links
-        $documentRequests->appends($request->query());
+        // Get all document requests and let DataTables handle pagination
+        $documentRequests = $query->get();
         
         // Calculate metrics
         $stats = [
@@ -347,5 +345,17 @@ class DocumentRequestController extends Controller
         }
 
         return response()->json($result);
+    }
+
+    /**
+     * Generate documents report.
+     */
+    public function reports()
+    {
+        $documentRequests = \App\Models\DocumentRequest::with('resident')
+            ->orderBy('created_at', 'desc')
+            ->get();
+            
+        return view('admin.reports.documents', compact('documentRequests'));
     }
 }

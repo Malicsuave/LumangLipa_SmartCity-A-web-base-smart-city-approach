@@ -176,15 +176,6 @@
                     @endif
                 </form>
 
-                @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="fe fe-check-circle fe-16 mr-2"></i> {{ session('success') }}
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                @endif
-
                 @if($archivedGadRecords->count())
                 <div class="table-responsive">
                     <table class="table table-striped table-hover">

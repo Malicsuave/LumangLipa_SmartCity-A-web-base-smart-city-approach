@@ -37,15 +37,7 @@
                 </div>
                 @endif
                 
-                @if(session('error'))
-                <div class="alert alert-danger alert-dismissible fade show">
-                    <i class="fe fe-alert-circle fe-16 mr-2"></i>
-                    {{ session('error') }}
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                @endif
+
                 
                 <form action="{{ route('admin.gad.update', $gad->id) }}" method="POST" id="gadEditForm">
                     @csrf

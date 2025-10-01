@@ -8,7 +8,7 @@
     <div class="card-body">
         <div class="table-responsive">
             @if($pendingIssuance->count() > 0)
-                <table class="table table-bordered table-striped">
+                <table class="table table-bordered table-striped" id="issuanceTable" data-export-title="Pending ID Issuance">
                     <thead>
                         <tr>
                             <th>
@@ -56,9 +56,18 @@
                                     <div class="d-flex align-items-center">
                                         <div class="avatar avatar-sm mr-2">
                                             @if($resident->photo)
-                                                <img src="{{ $resident->photo_url }}" alt="{{ $resident->full_name }}" class="avatar-img rounded-circle">
+                                                <img src="{{ $resident->photo_url }}" 
+                                                     alt="{{ $resident->full_name }}" 
+                                                     class="avatar-img rounded-circle"
+                                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                                                     loading="lazy">
+                                                <div class="avatar-letter rounded-circle bg-secondary" style="display: none;">
+                                                    {{ substr($resident->first_name, 0, 1) }}
+                                                </div>
                                             @else
-                                                <div class="avatar-letter rounded-circle bg-warning">{{ substr($resident->first_name, 0, 1) }}</div>
+                                                <div class="avatar-letter rounded-circle" style="background-color: {{ $resident->sex === 'Female' ? '#e91e63' : '#2196f3' }};">
+                                                    {{ substr($resident->first_name, 0, 1) }}
+                                                </div>
                                             @endif
                                         </div>
                                         <div>
@@ -111,30 +120,7 @@
                         @endforeach
                     </tbody>
                 </table>
-                <div class="d-flex justify-content-between align-items-center mt-4">
-                    <div class="text-muted small">
-                        Showing {{ $pendingIssuance->firstItem() ?? 0 }} to {{ $pendingIssuance->lastItem() ?? 0 }} of {{ $pendingIssuance->total() }} pending issuance
-                    </div>
-                    <nav aria-label="Table Paging" class="mb-0">
-                        <ul class="pagination justify-content-end mb-0">
-                            @if($pendingIssuance->onFirstPage())
-                                <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1" aria-disabled="true"><i class="fe fe-arrow-left"></i> Previous</a></li>
-                            @else
-                                <li class="page-item"><a class="page-link" href="{{ $pendingIssuance->previousPageUrl() }}&tab=issuance"><i class="fe fe-arrow-left"></i> Previous</a></li>
-                            @endif
-                            @for($i = 1; $i <= $pendingIssuance->lastPage(); $i++)
-                                <li class="page-item {{ $i == $pendingIssuance->currentPage() ? 'active' : '' }}">
-                                    <a class="page-link" href="{{ $pendingIssuance->url($i) }}&tab=issuance">{{ $i }}</a>
-                                </li>
-                            @endfor
-                            @if($pendingIssuance->hasMorePages())
-                                <li class="page-item"><a class="page-link" href="{{ $pendingIssuance->nextPageUrl() }}&tab=issuance">Next <i class="fe fe-arrow-right"></i></a></li>
-                            @else
-                                <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1" aria-disabled="true">Next <i class="fe fe-arrow-right"></i></a></li>
-                            @endif
-                        </ul>
-                    </nav>
-                </div>
+               
             @else
                 <div class="text-center py-5" id="pendingIssuanceNoResults">
                     <div class="d-flex justify-content-center mb-3">
@@ -155,3 +141,77 @@
         </div>
     </div>
 </div>
+
+<style>
+.avatar {
+    position: relative;
+    width: 40px;
+    height: 40px;
+}
+.avatar-sm {
+    width: 32px;
+    height: 32px;
+}
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: 1px solid #dee2e6;
+}
+.avatar-letter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+    .avatar {
+        width: 28px;
+        height: 28px;
+    }
+    .avatar-sm {
+        width: 24px;
+        height: 24px;
+    }
+    .avatar-letter {
+        font-size: 11px;
+    }
+    /* Adjust table layout for mobile */
+    .table-responsive table td {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.875rem;
+    }
+    .table-responsive table td .d-flex {
+        flex-direction: row;
+        align-items: center;
+    }
+    .table-responsive table td .avatar {
+        margin-right: 0.5rem;
+        flex-shrink: 0;
+    }
+}
+
+@media (max-width: 576px) {
+    .avatar {
+        width: 24px;
+        height: 24px;
+    }
+    .avatar-sm {
+        width: 20px;
+        height: 20px;
+    }
+    .avatar-letter {
+        font-size: 10px;
+    }
+    .table-responsive table td {
+        padding: 0.375rem 0.25rem;
+        font-size: 0.8rem;
+    }
+}
+</style>

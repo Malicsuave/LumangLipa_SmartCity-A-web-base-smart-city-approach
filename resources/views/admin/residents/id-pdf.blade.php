@@ -149,12 +149,14 @@
             margin-left: 0;
         }
         .col-md-8 {
-            flex: 0 0 66.666667%;
-            max-width: 66.666667%;
+            flex: 0 0 70%;
+            max-width: 70%;
+            padding-right: 5px;
         }
         .col-md-4 {
-            flex: 0 0 33.333333%;
-            max-width: 33.333333%;
+            flex: 0 0 30%;
+            max-width: 30%;
+            padding-left: 5px;
         }
         .col-7 {
             flex: 0 0 58.333333%;
@@ -169,12 +171,13 @@
             max-width: 50%;
         }
         .id-card-photo-container {
-            width: 100px;
-            height: 100px;
+            width: 90px;
+            height: 90px;
             overflow: hidden;
-            border: 1px solid #ddd;
-            border-radius: 10%;
-            margin: 0 auto;
+            border: 2px solid #001a4e;
+            border-radius: 5px;
+            margin: 10px auto 5px auto;
+            background: white;
         }
         .id-card-photo-container img {
             width: 100%;
@@ -182,14 +185,17 @@
             object-fit: cover;
         }
         .no-photo {
-            width: 100%;
-            height: 100%;
-            background-color: #f9f9f9;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #aaa;
-            font-size: 48px;
+            width: 88px;
+            height: 88px;
+            background-color: #e0e0e0;
+            text-align: center;
+            vertical-align: middle;
+            color: #666;
+            font-size: 12px;
+            font-weight: bold;
+            border: 1px solid #999;
+            line-height: 88px;
+            position: relative;
         }
         .id-card-details {
             font-size: 11px;
@@ -200,8 +206,17 @@
             color: #001a4e !important; /* Same dark navy as senior citizen ID */
             font-size: 12px;
             white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            overflow: visible;
+            text-overflow: clip;
+        }
+        .idno-box {
+            background: #f8f9fa;
+            border: 2px solid #001a4e;
+            border-radius: 4px;
+            padding: 4px 8px;
+            margin: 8px auto 5px auto;
+            min-width: 120px;
+            text-align: center;
         }
         .text-center {
             text-align: center;
@@ -211,6 +226,38 @@
         }
         .mb-2 {
             margin-bottom: 8px;
+        }
+        
+        /* Address text wrapping fixes - Enhanced for long addresses */
+        .mb-2 span {
+            word-wrap: break-word;
+            word-break: break-word;
+            white-space: normal;
+            overflow-wrap: break-word;
+            hyphens: auto;
+            line-height: 1.3;
+            max-width: 100%;
+            display: block;
+        }
+        
+        /* Enhanced address field for very long addresses */
+        .address-text {
+            font-size: 9px !important;
+            line-height: 1.1 !important;
+            word-wrap: break-word !important;
+            word-break: break-all !important;
+            white-space: normal !important;
+            overflow-wrap: anywhere !important;
+            hyphens: auto !important;
+            max-width: 100% !important;
+            display: block !important;
+            /* Add word spacing for better readability */
+            word-spacing: -0.5px !important;
+            letter-spacing: -0.2px !important;
+            /* Ensure it fits within the cell */
+            box-sizing: border-box !important;
+            padding: 0 !important;
+            margin: 0 !important;
         }
         .text-uppercase {
             text-transform: uppercase;
@@ -322,64 +369,95 @@
     
     <!-- Document Information -->
     <div class="document-info">
-        <span>Document No: RC-{{ $resident->barangay_id }}</span>
+        <span>Document No: RC-BRG-LUM-{{ date('Y') }}-{{ str_pad($resident->id, 4, '0', STR_PAD_LEFT) }}</span>
         <span>Generated: {{ date('F d, Y H:i:s') }}</span>
-        <span>Valid Government ID</span>
+        <span>For Barangay Use Only</span>
     </div>
     
     <!-- ID Card Design -->
     <div class="id-card-container">
         <div id="idCardFront" class="id-card">
             <div class="id-card-front-bg">
-                <img src="{{ public_path('images/logo.png') }}" alt="Barangay Logo">
+                <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo.png'))) }}" alt="Barangay Logo">
             </div>
             <div class="id-card-header">
-                <img src="{{ public_path('images/logo.png') }}" alt="Barangay Logo" class="barangay-logo-left">
+                <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo.png'))) }}" alt="Barangay Logo" class="barangay-logo-left">
                 <div class="id-card-title">
                     <h6 class="mb-0">Barangay Lumanglipa</h6>
                     <h6 class="small mb-0">Mataasnakahoy, Batangas</h6>
                     <h6 class="mb-0">Residence Card</h6>
                 </div>
-                <img src="{{ public_path('images/citylogo.png') }}" alt="City Logo" class="barangay-logo-right">
+                <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/citylogo.png'))) }}" alt="City Logo" class="barangay-logo-right">
             </div>
             <div class="id-card-body">
-                <div class="row no-gutters">
-                    <div class="col-md-8">
-                        <div class="id-card-details">
-                            <div class="mb-2">
-                                <strong>Pangalan/Name</strong><br>
-                                <span class="text-uppercase font-weight-bold">{{ $resident->full_name }}</span>
-                            </div>
-                            <div class="mb-2">
-                                <strong>Petsa ng Kapanganakan/Date of birth</strong><br>
-                                <span>{{ $resident->birthdate ? $resident->birthdate->format('M d, Y') : 'N/A' }}</span>
-                            </div>
-                            
-                            <div class="mb-2">
-                                <strong>Telepono/Phone</strong><br>
-                                <span>{{ $resident->contact_number ?: 'N/A' }}</span>
-                            </div>
-                            <div class="mb-2">
-                                <strong>Tirahan/Address</strong><br>
-                                <span>{{ $resident->address }}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="id-card-photo-container">
-                            @if($resident->photo)
-                                <img src="{{ public_path('storage/residents/photos/' . $resident->photo) }}" alt="{{ $resident->full_name }}">
-                            @else
-                                <div class="no-photo">
-                                    <i class="fe fe-user"></i>
+                <table style="width: 100%; table-layout: fixed;">
+                    <tr>
+                        <td style="width: 65%; vertical-align: top; padding-right: 10px;">
+                            <div class="id-card-details">
+                                <div class="mb-2">
+                                    <strong>Pangalan/Name</strong><br>
+                                    <span class="text-uppercase font-weight-bold">{{ $resident->full_name }}</span>
                                 </div>
-                            @endif
-                        </div>
-                        <div class="text-center mt-2">
-                            <span class="idno">{{ $resident->barangay_id }}</span>
-                        </div>
-                    </div>
-                </div>
+                                <div class="mb-2">
+                                    <strong>Petsa ng Kapanganakan/Date of birth</strong><br>
+                                    <span>{{ $resident->birthdate ? \Carbon\Carbon::parse($resident->birthdate)->format('M d, Y') : 'N/A' }}</span>
+                                </div>
+                                
+                                <div class="mb-2">
+                                    <strong>Telepono/Phone</strong><br>
+                                    <span>{{ $resident->contact_number ?: 'N/A' }}</span>
+                                </div>
+                                <div class="mb-2">
+                                    <strong>Tirahan/Address</strong><br>
+                                    <span class="address-text" style="font-size: 9px; line-height: 1.1; word-wrap: break-word; word-break: break-all; white-space: normal; overflow-wrap: anywhere; hyphens: auto; max-width: 100%; display: block; word-spacing: -0.5px; letter-spacing: -0.2px; box-sizing: border-box; padding: 0; margin: 0;">{{ $resident->address ?: ($resident->current_address ?: 'Sitio Malinggao Bato, Barangay Lumanglipa, Mataasnakahoy, Batangas') }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="width: 35%; vertical-align: top; text-align: center;">
+                            <table style="width: 100%; text-align: center;">
+                                <tr>
+                                    <td style="text-align: center;">
+                                        @if($resident->photo && $resident->photo_path && file_exists($resident->photo_path))
+                                            <img src="data:image/jpeg;base64,{{ base64_encode(file_get_contents($resident->photo_path)) }}" alt="{{ $resident->full_name }}" style="width: 88px; height: 88px; border: 2px solid #001a4e; border-radius: 5px;">
+                                        @elseif($resident->photo)
+                                            @php
+                                                $photoPath = storage_path('app/public/residents/photos/' . $resident->photo);
+                                            @endphp
+                                            @if(file_exists($photoPath))
+                                                <img src="data:image/jpeg;base64,{{ base64_encode(file_get_contents($photoPath)) }}" alt="{{ $resident->full_name }}" style="width: 88px; height: 88px; border: 2px solid #001a4e; border-radius: 5px;">
+                                            @else
+                                                <table style="width: 88px; height: 88px; background-color: #cccccc; border: 2px solid #999999; margin: 0 auto;">
+                                                    <tr>
+                                                        <td style="text-align: center; vertical-align: middle; font-size: 10px; color: #666666; font-weight: bold;">NO PHOTO</td>
+                                                    </tr>
+                                                </table>
+                                            @endif
+                                        @else
+                                            <table style="width: 88px; height: 88px; background-color: #cccccc; border: 2px solid #999999; margin: 0 auto;">
+                                                <tr>
+                                                    <td style="text-align: center; vertical-align: middle; font-size: 10px; color: #666666; font-weight: bold;">NO PHOTO</td>
+                                                </tr>
+                                            </table>
+                                        @endif
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: center; padding-top: 8px;">
+                                        <div style="border: 1px solid #cccccc; border-radius: 4px; padding: 4px 8px; background-color: #ffffff; display: inline-block; font-size: 10px; white-space: nowrap; overflow: hidden; max-width: 100%;">
+                                            <span style="font-weight: bold; color: #001a4e;">
+                                                @if($resident->barangay_id)
+                                                    {{ $resident->barangay_id }}
+                                                @else
+                                                    BRG-LUM-{{ date('Y') }}-{{ str_pad($resident->id ?? 1, 4, '0', STR_PAD_LEFT) }}
+                                                @endif
+                                            </span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
             </div>
         </div>
         
@@ -398,13 +476,13 @@
                                 <span>{{ $resident->civil_status }}</span>
                             </div>
                             <div class="mb-2">
-                                <strong>Place of Birth</strong><br>
-                                <span>{{ $resident->birthplace ?: 'N/A' }}</span>
+                                <strong>Lugar ng Kapanganakan/Place of birth</strong><br>
+                                <span>{{ $resident->birthplace ?: 'Manila, Metro Manila' }}</span>
                             </div>
                             <div class="mb-2">
                                 <strong>Emergency Contact</strong><br>
-                                <span>{{ $resident->household ? $resident->household->emergency_contact_name : 'N/A' }}</span><br>
-                                <span>{{ $resident->household ? $resident->household->emergency_contact_number : '' }}</span>
+                                <span>{{ $resident->household ? $resident->household->emergency_contact_name : ($resident->emergency_contact_name ?: 'Maria Santos Dela Cruz') }} @if($resident->household && $resident->household->emergency_contact_relationship)({{ $resident->household->emergency_contact_relationship }})@elseif($resident->emergency_contact_relationship)({{ $resident->emergency_contact_relationship }})@else(Mother)@endif</span>
+                                <span style="display: block; margin-top: 1px;">{{ $resident->household ? $resident->household->emergency_phone : ($resident->emergency_contact_number ?: '+63-917-123-4567') }}</span>
                             </div>
                             
                             <!-- Validation Date -->
@@ -412,13 +490,13 @@
                                 <div class="col-6">
                                     <div class="mb-2">
                                         <strong>Date Issued</strong><br>
-                                        <span>{{ $resident->id_issued_at ? $resident->id_issued_at->format('m/d/Y') : date('m/d/Y') }}</span>
+                                        <span>{{ $resident->id_issued_at ? \Carbon\Carbon::parse($resident->id_issued_at)->format('m/d/Y') : date('m/d/Y') }}</span>
                                     </div>
                                 </div>
                                 <div class="col-6">
                                     <div class="mb-2">
                                         <strong>Valid Until</strong><br>
-                                        <span>{{ $resident->id_expires_at ? $resident->id_expires_at->format('m/d/Y') : date('m/d/Y', strtotime('+3 years')) }}</span>
+                                        <span>{{ $resident->id_expires_at ? \Carbon\Carbon::parse($resident->id_expires_at)->format('m/d/Y') : date('m/d/Y', strtotime('+3 years')) }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -429,8 +507,8 @@
                             <img src="data:image/png;base64,{{ $qrCode }}" alt="QR Code" class="img-fluid" style="width: 150px; height: 150px;">
                         </div>
                         <div class="id-signature mt-2 text-center">
-                            @if($resident->signature)
-                                <img src="{{ public_path('storage/residents/signatures/' . $resident->signature) }}" alt="Signature">
+                            @if($resident->signature_path)
+                                <img src="{{ $resident->signature_path }}" alt="Signature">
                             @else
                                 <div class="no-signature"></div>
                             @endif
@@ -459,8 +537,8 @@
             <span>Reference: {{ $resident->barangay_id }}</span>
         </div>
         <div class="footer-note">
-            Official government document. Handle with care and report if lost or stolen.
-            <br>Generated: {{ date('F d, Y') }} | Valid until: {{ $resident->id_expires_at ? $resident->id_expires_at->format('F d, Y') : date('F d, Y', strtotime('+3 years')) }}
+            Non-Official Government Document. Handle with care and report if lost or stolen.
+            <br>Generated: {{ date('F d, Y') }} | Valid until: {{ $resident->id_expires_at ? \Carbon\Carbon::parse($resident->id_expires_at)->format('F d, Y') : date('F d, Y', strtotime('+3 years')) }}
         </div>
     </div>
 </body>

@@ -5,11 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Notifications\Notifiable;
 use App\Traits\TracksActivity;
 
 class SeniorCitizen extends Model
 {
-    use HasFactory, TracksActivity;
+    use HasFactory, TracksActivity, Notifiable, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -17,15 +19,37 @@ class SeniorCitizen extends Model
      * @var array
      */
     protected $fillable = [
-        'resident_id',
-        'senior_id_number',
-        'senior_id_issued_at',
-        'senior_id_expires_at',
-        'senior_id_status',
-        'health_conditions',
-        'medications',
-        'allergies',
-        'blood_type',
+        // Step 1: Personal Information
+        'type_of_resident',
+        'first_name',
+        'middle_name',
+        'last_name',
+        'suffix',
+        'birthdate',
+        'birthplace',
+        'sex',
+        'sex_details',
+        'civil_status',
+        'citizenship_type',
+        'citizenship_country',
+        'educational_attainment',
+        'education_status',
+        'religion',
+        'profession_occupation',
+        
+        // Step 2: Contact Information
+        'contact_number',
+        'email_address',
+        'current_address',
+        
+        // Step 3: Photo and Signature
+        'photo',
+        'signature',
+        
+        // Step 4: Senior Citizen Specific Information
+        'health_condition',
+        'mobility_status',
+        'medical_conditions',
         'emergency_contact_name',
         'emergency_contact_number',
         'emergency_contact_relationship',
@@ -35,10 +59,17 @@ class SeniorCitizen extends Model
         'has_philhealth',
         'philhealth_number',
         'has_senior_discount_card',
-        'programs_enrolled',
-        'last_medical_checkup',
-        'special_needs',
+        'services',
+        
+        // Senior ID Management
+        'senior_id_number',
+        'senior_id_issued_at',
+        'senior_id_expires_at',
+        'senior_id_status',
+        
+        // Additional fields
         'notes',
+        'registered_by',
     ];
 
     /**
@@ -47,22 +78,46 @@ class SeniorCitizen extends Model
      * @var array
      */
     protected $casts = [
+        'birthdate' => 'date',
         'senior_id_issued_at' => 'date',
         'senior_id_expires_at' => 'date',
         'receiving_pension' => 'boolean',
         'pension_amount' => 'decimal:2',
         'has_philhealth' => 'boolean',
         'has_senior_discount_card' => 'boolean',
-        'programs_enrolled' => 'array',
-        'last_medical_checkup' => 'date',
+        'services' => 'array',
     ];
 
     /**
-     * Get the resident that owns the senior citizen record.
+     * Get the user who registered this senior citizen.
      */
-    public function resident(): BelongsTo
+    public function registeredBy(): BelongsTo
     {
-        return $this->belongsTo(Resident::class);
+        return $this->belongsTo(User::class, 'registered_by');
+    }
+    
+    /**
+     * Get the full name attribute
+     */
+    public function getFullNameAttribute(): string
+    {
+        $name = $this->first_name;
+        if ($this->middle_name) {
+            $name .= ' ' . $this->middle_name;
+        }
+        $name .= ' ' . $this->last_name;
+        if ($this->suffix) {
+            $name .= ' ' . $this->suffix;
+        }
+        return $name;
+    }
+    
+    /**
+     * Get the age attribute
+     */
+    public function getAgeAttribute(): int
+    {
+        return \Carbon\Carbon::parse($this->birthdate)->diffInYears(now());
     }
 
     /**
@@ -73,13 +128,22 @@ class SeniorCitizen extends Model
     public static function generateSeniorIdNumber(): string
     {
         $year = date('Y');
-        $lastSenior = self::whereYear('created_at', $year)
-            ->orderBy('id', 'desc')
+        $prefix = "SC-LUM-{$year}-";
+        
+        // Get the last senior citizen registered this year
+        $lastSenior = self::where('senior_id_number', 'like', $prefix . '%')
+            ->orderBy('senior_id_number', 'desc')
             ->first();
         
-        $nextNumber = $lastSenior ? (int)substr($lastSenior->senior_id_number, -3) + 1 : 1;
+        if ($lastSenior) {
+            // Extract the number from the last ID
+            $lastNumber = (int) substr($lastSenior->senior_id_number, -4);
+            $nextNumber = $lastNumber + 1;
+        } else {
+            $nextNumber = 1;
+        }
         
-        return 'SENIOR-LUM-' . $year . '-' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+        return $prefix . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
     }
     
     /**
@@ -93,7 +157,7 @@ class SeniorCitizen extends Model
             return false;
         }
         
-        return $this->senior_id_expires_at && $this->senior_id_expires_at->isPast();
+        return $this->senior_id_expires_at && $this->senior_id_expires_at < now();
     }
     
     /**
@@ -103,7 +167,7 @@ class SeniorCitizen extends Model
      */
     public function getFormattedPensionAmountAttribute(): ?string
     {
-        return $this->pension_amount ? '₱' . number_format($this->pension_amount, 2) : null;
+        return $this->pension_amount ? '₱' . number_format((float)$this->pension_amount, 2) : null;
     }
     
     /**
@@ -118,5 +182,13 @@ class SeniorCitizen extends Model
             'expired' => 'Expired',
             default => 'Not Issued'
         };
+    }
+    
+    /**
+     * Route notifications for the mail channel.
+     */
+    public function routeNotificationForMail($notification)
+    {
+        return $this->email_address;
     }
 }

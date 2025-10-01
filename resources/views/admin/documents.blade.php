@@ -13,6 +13,9 @@ $(function () {
     const documentsTable = DataTableHelpers.initDataTable("#documentsTable", {
         buttons: ["copy", "csv", "excel", "pdf", "print", "colvis"],
         order: [[ 0, "desc" ]],
+        pageLength: 10,
+        lengthChange: true,
+        lengthMenu: [ [10, 25, 50, 100, -1], [10, 25, 50, 100, "All"] ],
         columnDefs: [
             { "orderable": false, "targets": -1 },
             { "responsivePriority": 1, "targets": 0 },
@@ -21,7 +24,10 @@ $(function () {
             { "responsivePriority": 4, "targets": 2 },
             { "responsivePriority": 5, "targets": 4 },
             { "responsivePriority": 10, "targets": -1 }
-        ]
+        ],
+        dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+             '<"row"<"col-sm-12"tr>>' +
+             '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
     });
 
     // Helper functions for modals
@@ -53,6 +59,153 @@ $(function () {
             window.open('/admin/documents/' + window.currentDocumentRequestId + '/print', '_blank');
         }
     });
+
+    // Mark as claimed confirmation handler
+    $(document).on('click', '#confirmMarkClaimed', function() {
+        if (!window.currentRequestId) {
+            console.error('No request ID available');
+            return;
+        }
+
+        // Disable button to prevent double clicks
+        $(this).prop('disabled', true).text('Processing...');
+
+        $.ajax({
+            url: '/admin/documents/' + window.currentRequestId + '/mark-claimed',
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Close modal
+                    $('#markClaimedModal').modal('hide');
+                    
+                    // Show success message with global helper
+                    showSuccess(response.message);
+                    
+                    // Reload the page to refresh the table
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    // Show error message
+                    showError(response.message || 'Failed to mark document as claimed.');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error marking document as claimed:', error);
+                handleAjaxError(xhr, status, error, 'An error occurred while marking the document as claimed.');
+            },
+            complete: function() {
+                // Re-enable button
+                $('#confirmMarkClaimed').prop('disabled', false).html('<i class="fe fe-check-square fe-16 mr-2 text-white"></i> Mark as Claimed');
+            }
+        });
+    });
+
+    // Approve request confirmation handler
+    $(document).on('click', '#confirmApprove', function() {
+        if (!window.currentRequestId) {
+            console.error('No request ID available');
+            return;
+        }
+
+        // Disable button to prevent double clicks
+        $(this).prop('disabled', true).text('Processing...');
+
+        $.ajax({
+            url: '/admin/documents/' + window.currentRequestId + '/approve',
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Close modal
+                    $('#approveModal').modal('hide');
+                    
+                    // Show success message with global helper
+                    showSuccess(response.message);
+                    
+                    // Reload the page to refresh the table
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    // Show error message
+                    showError(response.message || 'Failed to approve document request.');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error approving document request:', error);
+                handleAjaxError(xhr, status, error, 'An error occurred while approving the document request.');
+            },
+            complete: function() {
+                // Re-enable button
+                $('#confirmApprove').prop('disabled', false).html('<i class="fe fe-check-circle fe-16 mr-2 text-white"></i> Approve Request');
+            }
+        });
+    });
+
+    // Reject form submission handler
+    $(document).on('submit', '#rejectForm', function(e) {
+        e.preventDefault();
+        
+        if (!window.currentRequestId) {
+            console.error('No request ID available');
+            return;
+        }
+
+        var rejectionReason = $('#rejection_reason').val().trim();
+        if (!rejectionReason) {
+            showWarning('Please provide a reason for rejection.');
+            return;
+        }
+
+        // Disable submit button to prevent double submission
+        var submitBtn = $(this).find('button[type="submit"]');
+        submitBtn.prop('disabled', true).text('Processing...');
+
+        $.ajax({
+            url: '/admin/documents/' + window.currentRequestId + '/reject',
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                rejection_reason: rejectionReason
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Close modal
+                    $('#rejectModal').modal('hide');
+                    
+                    // Reset form
+                    $('#rejectForm')[0].reset();
+                    
+                    // Show success message with global helper
+                    showSuccess(response.message);
+                    
+                    // Reload the page to refresh the table
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    // Show error message
+                    showError(response.message || 'Failed to reject document request.');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error rejecting document request:', error);
+                handleAjaxError(xhr, status, error, 'An error occurred while rejecting the document request.');
+            },
+            complete: function() {
+                // Re-enable submit button
+                submitBtn.prop('disabled', false).text('Reject Request');
+            }
+        });
+    });
 });
 </script>
 @endpush
@@ -65,7 +218,11 @@ $(function () {
                 <h1 class="h3 mb-0 text-gray-800">Document Requests</h1>
                 <p class="text-muted mb-0">Manage barangay document requests and approvals</p>
             </div>
-            
+            <div class="col-auto">
+                <a href="{{ route('admin.reports.documents') }}" class="btn btn-info">
+                    <i class="fas fa-file-alt mr-2"></i>Generate Report
+                </a>
+            </div>
         </div>
     </div>
 </div>

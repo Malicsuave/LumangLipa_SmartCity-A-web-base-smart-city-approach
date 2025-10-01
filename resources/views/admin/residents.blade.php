@@ -2,6 +2,7 @@
 
 @push('styles')
 @include('admin.components.datatable-styles')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 @endpush
 
 @section('content')
@@ -13,12 +14,63 @@
                 <p class="text-muted mb-0">Manage all registered residents in your barangay</p>
             </div>
             <div class="col-auto">
+                <a href="{{ route('admin.reports.residents') }}" class="btn btn-info mr-2">
+                    <i class="fas fa-file-alt mr-2"></i>Generate Report
+                </a>
                 <button type="button" class="btn btn-outline-secondary mr-2" onclick="window.location.href='{{ route('admin.residents.archived') }}'">
                     <i class="fas fa-archive mr-2"></i>View Archived
                 </button>
                 <a href="{{ route('admin.residents.create') }}" class="btn btn-primary">
                     <i class="fas fa-user-plus mr-2"></i>Register New Resident
                 </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-info">
+            <div class="inner">
+                <h3>{{ $stats['total'] }}</h3>
+                <p>Total Residents</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-users"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-primary">
+            <div class="inner">
+                <h3>{{ $stats['male'] }}</h3>
+                <p>Male Residents</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-male"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-danger">
+            <div class="inner">
+                <h3>{{ $stats['female'] }}</h3>
+                <p>Female Residents</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-female"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-success">
+            <div class="inner">
+                <h3>{{ $stats['with_id'] }}</h3>
+                <p>With ID Cards</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-id-card"></i>
             </div>
         </div>
     </div>
@@ -38,7 +90,7 @@
                             <th>Resident Name</th>
                             <th>Type</th>
                             <th>Age/Gender</th>
-                            <th>Civil Status</th>
+                            <th>Date Created</th>
                             <th>Contact</th>
                             <th>Actions</th>
                         </tr>
@@ -50,7 +102,7 @@
                             <td><strong>{{ $resident->last_name }}, {{ $resident->first_name }}{{ $resident->middle_name ? ' ' . $resident->middle_name : '' }}{{ $resident->suffix ? ' ' . $resident->suffix : '' }}</strong></td>
                             <td>{{ $resident->type_of_resident }}</td>
                             <td>{{ \Carbon\Carbon::parse($resident->birthdate)->age }}<br><small class="text-muted">{{ $resident->sex }}</small></td>
-                            <td>{{ $resident->civil_status }}</td>
+                            <td>{{ $resident->created_at->format('M d, Y') }}<br><small class="text-muted">{{ $resident->created_at->format('h:i A') }}</small></td>
                             <td>{{ $resident->contact_number }}</td>
                             <td>
                                 <div class="btn-group">
@@ -68,18 +120,13 @@
                                             <i class="fas fa-eye mr-2"></i>View Details
                                         </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-warning" href="javascript:void(0)" onclick="handleArchiveClick(event, {{ $resident->id }}, '{{ addslashes($resident->first_name . ' ' . $resident->last_name) }}')">
+                                        <a class="dropdown-item text-dark" href="javascript:void(0)" onclick="handleArchiveClick(event, {{ $resident->id }}, '{{ addslashes($resident->first_name . ' ' . $resident->last_name) }}')">
                                             <i class="fas fa-archive mr-2"></i>Archive Resident
                                         </a>
                                     </div>
                                 </div>
                             </td>
                         </tr>
-                        <!-- Delete Form -->
-                        <form id="delete-form-{{ $resident->id }}" action="{{ route('admin.residents.destroy', $resident) }}" method="POST" style="display: none;">
-                            @csrf
-                            @method('DELETE')
-                        </form>
                         @endforeach
                     </tbody>
                     <tfoot>
@@ -88,12 +135,20 @@
                             <th>Resident Name</th>
                             <th>Type</th>
                             <th>Age/Gender</th>
-                            <th>Civil Status</th>
+                            <th>Date Created</th>
                             <th>Contact</th>
                             <th>Actions</th>
                         </tr>
                     </tfoot>
                 </table>
+                
+                <!-- Archive Forms -->
+                @foreach($residents as $resident)
+                <form id="delete-form-{{ $resident->id }}" action="{{ route('admin.residents.destroy', $resident) }}" method="POST" style="display: none;">
+                    @csrf
+                    @method('DELETE')
+                </form>
+                @endforeach
             </div>
         </div>
     </div>
@@ -141,8 +196,8 @@
                             <span class="info-value" id="modal-address"></span>
                         </div>
                         <div class="info-row">
-                            <span class="info-label">Civil Status:</span>
-                            <span class="info-value" id="modal-civil-status"></span>
+                            <span class="info-label">Date Created:</span>
+                            <span class="info-value" id="modal-date-created"></span>
                         </div>
                     </div>
                 </div>
@@ -185,14 +240,27 @@
 
 <script>
 $(function () {
+    // Flash messages are now handled automatically by the master layout with toastr
+
     // Initialize DataTable with custom configuration for residents
     const residentTable = DataTableHelpers.initDataTable("#residentTable", {
         buttons: ["copy", "csv", "excel", "pdf", "print", "colvis"],
         order: [[ 0, "desc" ]],
+        pageLength: 10,
+        lengthChange: true,
+        lengthMenu: [ [10, 25, 50, 100, -1], [10, 25, 50, 100, "All"] ],
         columnDefs: [
             { "orderable": false, "targets": -1 }
-        ]
+        ],
+        dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+             '<"row"<"col-sm-12"tr>>' +
+             '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
     });
+    
+    // Auto-hide success alerts after 10 seconds (for fallback alerts only)
+    setTimeout(function() {
+        $('.alert-success').fadeOut('slow');
+    }, 10000);
     
     // Enhanced Font Awesome icon fix for dropdowns
     function fixDropdownIcons() {
@@ -239,9 +307,32 @@ function handleArchiveClick(event, id, name) {
 
 function confirmArchive(id, name) {
     document.getElementById('residentName').textContent = name;
+    
+    // Remove any existing event listeners
+    const confirmButton = document.getElementById('confirmDelete');
+    const newButton = confirmButton.cloneNode(true);
+    confirmButton.parentNode.replaceChild(newButton, confirmButton);
+    
+    // Add new event listener
     document.getElementById('confirmDelete').onclick = function() {
-        document.getElementById('delete-form-' + id).submit();
+        console.log('Archive button clicked for ID:', id);
+        const form = document.getElementById('delete-form-' + id);
+        console.log('Form found:', form);
+        
+        if (form) {
+            // Hide modal first
+            $('#archiveResidentModal').modal('hide');
+            
+            // Add a small delay then submit
+            setTimeout(() => {
+                form.submit();
+            }, 300);
+        } else {
+            console.error('Form not found: delete-form-' + id);
+            toastr.error('Error: Archive form not found. Please refresh the page and try again.', 'Error');
+        }
     };
+    
     $('#archiveResidentModal').modal('show');
 }
 
@@ -262,13 +353,13 @@ function viewResidentDetails(id) {
             $('#modal-age-gender').text(response.age + ' / ' + response.sex);
             $('#modal-contact').text(response.contact_number);
             $('#modal-address').text(response.address);
-            $('#modal-civil-status').text(response.civil_status);
+            $('#modal-date-created').text(response.date_created);
             
             // Show modal
             $('#viewDetailsModal').modal('show');
         },
         error: function() {
-            alert('Error loading resident details');
+            toastr.error('Error loading resident details. Please try again.', 'Error');
         }
     });
 }

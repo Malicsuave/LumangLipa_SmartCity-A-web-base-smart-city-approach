@@ -84,28 +84,8 @@ class IdCardController extends Controller
         
         $resident->save();
         
-        // Check if this is a senior citizen (60+ years old)
-        if ($resident->isSeniorCitizen) {
-            // Check if senior record exists, if not create it
-            if (!$resident->seniorCitizen) {
-                $senior = new SeniorCitizen();
-                $senior->resident_id = $resident->id;
-                $senior->senior_id_number = SeniorCitizen::generateSeniorIdNumber();
-                $senior->senior_id_issued_at = now();
-                $senior->senior_id_expires_at = now()->addYears(5); // Senior IDs valid for 5 years
-                $senior->senior_id_status = 'issued';
-                $senior->save();
-            } else {
-                // Update existing senior record with new ID format
-                if (!$resident->seniorCitizen->senior_id_number || strpos($resident->seniorCitizen->senior_id_number, 'SC-LUM-') !== false) {
-                    $resident->seniorCitizen->senior_id_number = SeniorCitizen::generateSeniorIdNumber();
-                }
-                $resident->seniorCitizen->senior_id_status = 'issued';
-                $resident->seniorCitizen->senior_id_issued_at = now();
-                $resident->seniorCitizen->senior_id_expires_at = now()->addYears(5);
-                $resident->seniorCitizen->save();
-            }
-        }
+        // Note: Senior citizens are now managed independently 
+        // Use the SeniorCitizenController for senior citizen ID management
         
         return redirect()->route('admin.id-cards.show', $resident->id)
             ->with('success', 'ID card generated successfully!');

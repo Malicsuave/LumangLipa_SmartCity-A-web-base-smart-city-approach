@@ -1,20 +1,48 @@
 /**
- * Common DataTable Functionality for Admin Pages
+ * Common DataTable Function    drawCallback: function() {
+        // Fix dropdown positioning after each redraw
+        $('.dropdown-toggle').off('click.dropdown-fix').on('click.dropdown-fix', function(e) {
+            var dropdown = $(this).next('.dropdown-menu');
+            var button = $(this);
+            var buttonOffset = button.offset();
+            var windowWidth = $(window).width();
+            var dropdownWidth = dropdown.outerWidth();
+            
+            // Reset any previous positioning
+            dropdown.removeClass('dropdown-menu-right dropdown-menu-left');
+            dropdown.css({
+                'position': '',
+                'top': '',
+                'left': '',
+                'right': ''
+            });
+            
+        });
+        
+        // Force AdminLTE 3 pagination styling
+        forcePaginationStyling();
+    },es
  * Provides reusable functions and configurations for DataTables
  */
 
 // Common DataTable configuration
 const commonDataTableConfig = {
     responsive: true,
-    lengthChange: false,
+    lengthChange: true,
     autoWidth: false,
-    pageLength: 25,
+    pageLength: 10,
+    lengthMenu: [ [10, 25, 50, 100, -1], [10, 25, 50, 100, "All"] ],
     scrollX: false,
     scrollCollapse: false,
+    pagingType: "simple_numbers",
+    processing: false,
+    serverSide: false,
     language: {
         search: "Search:",
         lengthMenu: "Show _MENU_ entries",
         info: "Showing _START_ to _END_ of _TOTAL_ entries",
+        infoEmpty: "Showing 0 to 0 of 0 entries",
+        infoFiltered: "(filtered from _MAX_ total entries)",
         paginate: {
             first: "First",
             last: "Last",
@@ -52,8 +80,72 @@ const commonDataTableConfig = {
                 dropdown.addClass('dropdown-menu-right');
             }
         });
+        
+        // PAGINATION SIZE FIX - Force consistent button dimensions after each redraw
+        setTimeout(function() {
+            fixPaginationButtonSizes('table');
+        }, 50);
     }
 };
+
+// Function to force consistent pagination button sizes with MutationObserver
+function fixPaginationButtonSizes(tableSelector) {
+    // Minimal approach: Remove any custom inline styles that interfere with AdminLTE 3
+    const cleanupStyles = function() {
+        $('.dataTables_paginate .paginate_button, .pagination .page-link').each(function() {
+            // Remove custom inline styles to let AdminLTE 3 CSS take over
+            const properties = ['width', 'min-width', 'max-width', 'height', 'min-height', 'max-height', 
+                              'line-height', 'padding', 'margin', 'border-radius', 'display', 'align-items', 
+                              'justify-content', 'font-size', 'font-weight', 'border', 'background-color', 
+                              'color', 'box-shadow', 'transition'];
+            
+            properties.forEach(prop => {
+                this.style.removeProperty(prop);
+            });
+        });
+
+        // Clean up ellipsis elements
+        $('.dataTables_paginate .ellipsis').each(function() {
+            const properties = ['width', 'min-width', 'max-width', 'height', 'min-height', 'max-height', 
+                              'line-height', 'padding', 'margin', 'border-radius', 'display', 'border', 
+                              'background-color', 'color'];
+            
+            properties.forEach(prop => {
+                this.style.removeProperty(prop);
+            });
+        });
+    };
+    
+    // Apply cleanup immediately
+    cleanupStyles();
+    
+    // Simplified observer - only clean up when needed
+    if (typeof window.paginationObserver === 'undefined') {
+        window.paginationObserver = new MutationObserver(function(mutations) {
+            let needsCleanup = false;
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'childList' && 
+                    $(mutation.target).closest('.dataTables_paginate').length > 0) {
+                    needsCleanup = true;
+                }
+            });
+            
+            if (needsCleanup) {
+                setTimeout(cleanupStyles, 10);
+            }
+        });
+        
+        // Start observing
+        $('.dataTables_wrapper').each(function() {
+            window.paginationObserver.observe(this, {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                attributeFilter: ['class', 'style']
+            });
+        });
+    }
+}
 
 // Initialize DataTable with common config plus custom options
 function initDataTable(tableId, customConfig = {}) {
@@ -126,6 +218,26 @@ function initDataTable(tableId, customConfig = {}) {
     $wrapper.closest('.card').addClass('admin-card-shadow');
     $wrapper.find('.dataTables_paginate .pagination').addClass('pagination-sm');
     
+    // PAGINATION FIX - Add event listeners for pagination changes
+    table.on('draw.dt', function() {
+        // Force pagination button consistency after any table redraw
+        setTimeout(function() {
+            fixPaginationButtonSizes(tableId);
+        }, 50);
+    });
+    
+    // Listen for pagination clicks specifically
+    $(tableId + '_wrapper').on('click', '.dataTables_paginate .paginate_button', function() {
+        setTimeout(function() {
+            fixPaginationButtonSizes(tableId);
+        }, 100);
+    });
+    
+    // Initial pagination fix
+    setTimeout(function() {
+        fixPaginationButtonSizes(tableId);
+    }, 200);
+    
     return table;
 }
 
@@ -192,86 +304,52 @@ function fixFontAwesomeIcons() {
                 });
             }
             
-            // Set proper font weight
+            // Ensure icon weights are correct
             if (classes.includes('fas')) {
                 $icon.css('font-weight', '900');
             } else if (classes.includes('far')) {
                 $icon.css('font-weight', '400');
             }
         });
-    }, 100);
+    }, 500);
 }
 
-// Common status badge helper
-function getStatusBadge(status, customStatuses = {}) {
-    const defaultStatuses = {
-        'pending': '<span class="badge badge-warning">Pending</span>',
-        'approved': '<span class="badge badge-success">Approved</span>',
+// Common status badge formatter
+function getStatusBadge(status) {
+    const statusMap = {
         'active': '<span class="badge badge-success">Active</span>',
         'inactive': '<span class="badge badge-secondary">Inactive</span>',
-        'completed': '<span class="badge badge-success">Completed</span>',
-        'cancelled': '<span class="badge badge-danger">Cancelled</span>',
-        'draft': '<span class="badge badge-secondary">Draft</span>',
-        'published': '<span class="badge badge-primary">Published</span>'
+        'pending': '<span class="badge badge-warning">Pending</span>',
+        'approved': '<span class="badge badge-success">Approved</span>',
+        'rejected': '<span class="badge badge-danger">Rejected</span>',
+        'claimed': '<span class="badge badge-info">Claimed</span>'
     };
-    
-    const allStatuses = { ...defaultStatuses, ...customStatuses };
-    return allStatuses[status] || `<span class="badge badge-secondary">${status}</span>`;
+    return statusMap[status] || '<span class="badge badge-secondary">Unknown</span>';
 }
 
 // Common date formatter
-function formatDate(dateString, options = {}) {
-    if (!dateString) return 'N/A';
-    
-    const defaultOptions = {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-    };
-    
-    const formatOptions = { ...defaultOptions, ...options };
-    const date = new Date(dateString);
-    
-    return date.toLocaleDateString('en-US', formatOptions);
-}
-
-// Loading state helpers
-function showLoadingState(containerId) {
-    const container = $(containerId);
-    container.addClass('loading-overlay loading');
-    
-    if (!container.find('.loading-spinner').length) {
-        container.append(`
-            <div class="loading-spinner">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="sr-only">Loading...</span>
-                </div>
-            </div>
-        `);
+function formatDate(dateString) {
+    try {
+        const date = new Date(dateString);
+        return isNaN(date.getTime()) ? (dateString || 'N/A') : date.toLocaleString();
+    } catch (e) {
+        return dateString || 'N/A';
     }
 }
 
-function hideLoadingState(containerId) {
-    const container = $(containerId);
-    container.removeClass('loading-overlay loading');
-    container.find('.loading-spinner').remove();
+// Loading state management
+function showLoadingState(message = 'Loading...') {
+    // You can customize this to use your preferred loading indicator
+    $('.dataTables_processing').text(message).show();
 }
 
-// Common AJAX error handler
-function handleAjaxError(xhr, status, error, context = '') {
-    console.error(`AJAX Error ${context}:`, error);
-    
-    let message = 'An error occurred. Please try again.';
-    
-    if (xhr.status === 404) {
-        message = 'The requested resource was not found.';
-    } else if (xhr.status === 403) {
-        message = 'You do not have permission to perform this action.';
-    } else if (xhr.status === 500) {
-        message = 'Internal server error. Please contact support.';
-    } else if (xhr.responseJSON && xhr.responseJSON.message) {
-        message = xhr.responseJSON.message;
-    }
+function hideLoadingState() {
+    $('.dataTables_processing').hide();
+}
+
+// Error handling
+function handleAjaxError(xhr, status, error) {
+    const message = xhr.responseJSON?.message || error || 'An error occurred';
     
     // You can customize this to use your preferred notification system
     if (typeof toastr !== 'undefined') {
@@ -299,6 +377,7 @@ function showConfirmDialog(title, message, onConfirm, onCancel = null) {
 $(document).ready(function() {
     setupDropdownHandlers();
     fixFontAwesomeIcons();
+    
     // Use native Bootstrap/AdminLTE dropdown behavior for both pages
     $(window).on('resize.mobile-table', function() {
         $('.table.dataTable .dropdown-menu').removeClass('show').hide();
@@ -310,7 +389,84 @@ $(document).ready(function() {
             $('.table.dataTable .btn-group').removeClass('show');
         }
     });
+    
+    // Global pagination fix for all tables - More aggressive monitoring
+    setInterval(function() {
+        if ($('.dataTables_paginate .paginate_button').length > 0) {
+            fixPaginationButtonSizes('global');
+        }
+    }, 500); // Check every 500ms instead of 1000ms
+    
+    // Immediate fix on any click in the document
+    $(document).on('click', '.dataTables_paginate .paginate_button, .pagination .page-link', function() {
+        const $this = $(this);
+        setTimeout(function() {
+            fixPaginationButtonSizes('immediate');
+        }, 10);
+        setTimeout(function() {
+            fixPaginationButtonSizes('immediate');
+        }, 100);
+        setTimeout(function() {
+            fixPaginationButtonSizes('immediate');
+        }, 300);
+    });
+    
+    // Fix on window resize
+    $(window).on('resize', function() {
+        setTimeout(function() {
+            fixPaginationButtonSizes('resize');
+        }, 100);
+    });
+    
+    // Fix on any DataTable event
+    $(document).on('draw.dt page.dt', 'table.dataTable', function() {
+        setTimeout(function() {
+            fixPaginationButtonSizes('datatable-event');
+        }, 50);
+    });
 });
+
+// Force AdminLTE 3 pagination styling
+function forcePaginationStyling() {
+    // Remove all rounded corners and apply AdminLTE 3 style
+    $('.dataTables_wrapper .dataTables_paginate .page-link').each(function() {
+        const $link = $(this);
+        $link.css({
+            'border-radius': '0',
+            '-webkit-border-radius': '0',
+            '-moz-border-radius': '0',
+            'border-top-left-radius': '0',
+            'border-top-right-radius': '0',
+            'border-bottom-left-radius': '0',
+            'border-bottom-right-radius': '0',
+            '-webkit-border-top-left-radius': '0',
+            '-webkit-border-top-right-radius': '0',
+            '-webkit-border-bottom-left-radius': '0',
+            '-webkit-border-bottom-right-radius': '0',
+            'box-shadow': 'none',
+            'transition': 'none'
+        });
+    });
+    
+    // Apply rounded corners only to first and last buttons
+    $('.dataTables_wrapper .dataTables_paginate .page-item:first-child .page-link').css({
+        'border-top-left-radius': '0.25rem',
+        'border-bottom-left-radius': '0.25rem',
+        '-webkit-border-top-left-radius': '0.25rem',
+        '-webkit-border-bottom-left-radius': '0.25rem',
+        'border-top-right-radius': '0',
+        'border-bottom-right-radius': '0'
+    });
+    
+    $('.dataTables_wrapper .dataTables_paginate .page-item:last-child .page-link').css({
+        'border-top-right-radius': '0.25rem',
+        'border-bottom-right-radius': '0.25rem',
+        '-webkit-border-top-right-radius': '0.25rem',
+        '-webkit-border-bottom-right-radius': '0.25rem',
+        'border-top-left-radius': '0',
+        'border-bottom-left-radius': '0'
+    });
+}
 
 // Export functions for use in other scripts
 window.DataTableHelpers = {
@@ -323,5 +479,7 @@ window.DataTableHelpers = {
     showLoadingState,
     hideLoadingState,
     handleAjaxError,
-    showConfirmDialog
+    showConfirmDialog,
+    fixPaginationButtonSizes,
+    forcePaginationStyling
 };

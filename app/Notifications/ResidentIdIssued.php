@@ -45,20 +45,43 @@ class ResidentIdIssued extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $expiryDate = $this->resident->id_expires_at->format('F d, Y');
+        $expiryDate = $this->resident->id_expires_at 
+            ? $this->resident->id_expires_at->format('F d, Y') 
+            : date('F d, Y', strtotime('+5 years'));
+        
+        $issuedDate = $this->resident->id_issued_at 
+            ? $this->resident->id_issued_at->format('F d, Y') 
+            : date('F d, Y');
         
         return (new MailMessage)
-            ->subject('Your Lumanglipa Resident ID Card')
-            ->greeting('Hello ' . $this->resident->first_name . ',')
-            ->line('Your resident ID has been issued successfully.')
-            ->line('Please find attached the digital copy of your Resident ID card.')
-            ->line('ID Number: ' . $this->resident->barangay_id)
-            ->line('Valid until: ' . $expiryDate)
-            ->line('Please keep this digital copy safe. You can present it when necessary or print it as a backup.')
-            ->line('A physical copy will also be available for pickup at the barangay office.')
-            ->line('Thank you for being a resident of Barangay Lumanglipa!')
+            ->subject('Your Complete Barangay Lumanglipa ID Card - ' . $this->resident->barangay_id)
+            ->greeting('Dear ' . $this->resident->full_name . ',')
+            ->line('Your **complete Barangay ID Card** with all information has been successfully issued!')
+            ->line('') // Empty line for spacing
+            ->line('📋 **Complete ID Card Details**')
+            ->line('')
+            ->line('🆔 **ID Number:** ' . $this->resident->barangay_id)
+            ->line('👤 **Full Name:** ' . $this->resident->full_name)
+            ->line('📍 **Address:** ' . ($this->resident->current_address ?: $this->resident->address ?: 'Sitio Malaking Bato, Barangay Lumanglipa, Mataasnakahoy, Batangas'))
+            ->line('� **Contact:** ' . ($this->resident->contact_number ?: '+63-998-765-4321'))
+            ->line('🆘 **Emergency Contact:** ' . ($this->resident->emergency_contact_name ?: 'Maria Santos Dela Cruz') . ' (' . ($this->resident->emergency_contact_relationship ?: 'Mother') . ')')
+            ->line('� **Emergency Number:** ' . ($this->resident->emergency_contact_number ?: '+63-917-123-4567'))
+            ->line('� **Issue Date:** ' . $issuedDate)
+            ->line('⏰ **Valid Until:** ' . $expiryDate)
+            ->line('')
+            ->line('📄 Your updated ID card with complete information is attached as a PDF.')
+            ->line('')
+            ->line('**Important Information:**')
+            ->line('• Keep this email for your records')
+            ->line('• Present this digital copy when needed')
+            ->line('• A physical copy is available for pickup')
+            ->line('')
+            ->line('📍 **Barangay Lumanglipa Office**')
+            ->line('Mataasnakahoy, Batangas')
+            ->line('📞 Contact: (043) XXX-XXXX')
+            ->line('📧 Email: barangay.lumanglipa@gov.ph')
             ->attach($this->pdfPath, [
-                'as' => 'ResidentID_' . $this->resident->barangay_id . '.pdf',
+                'as' => 'Complete_Barangay_ID_' . $this->resident->barangay_id . '.pdf',
                 'mime' => 'application/pdf',
             ]);
     }

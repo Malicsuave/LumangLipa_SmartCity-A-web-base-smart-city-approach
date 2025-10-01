@@ -19,6 +19,8 @@
   <link rel="stylesheet" href="{{ asset('adminlte/css/adminlte.min.css') }}">
   <!-- overlayScrollbars -->
   <link rel="stylesheet" href="{{ asset('adminlte/plugins/overlayScrollbars/css/OverlayScrollbars.min.css') }}">
+  <!-- Feather Icons -->
+  <link rel="stylesheet" href="{{ asset('admin/dark/css/feather.css') }}">
   <!-- Custom Admin Fonts -->
   <link rel="stylesheet" href="{{ asset('css/admin-fonts.css') }}" />
   <!-- User Chatbot Styles for Admin -->
@@ -57,6 +59,9 @@
       transition: color 0.3s ease;
     }
   </style>
+  
+  <!-- Toastr CSS for global notifications -->
+  <link rel="stylesheet" href="{{ asset('adminlte/plugins/toastr/toastr.min.css') }}">
   
   @stack('styles')
 </head>
@@ -203,16 +208,6 @@
 
     <!-- Sidebar -->
     <div class="sidebar">
-      <!-- Sidebar user panel (optional) -->
-      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-        <div class="image">
-          <img src="{{ Auth::user()->profile_photo_url ?? asset('images/logo.png') }}" class="img-circle elevation-2" alt="User Image">
-        </div>
-        <div class="info">
-          <a href="{{ route('admin.profile') }}" class="d-block">{{ Auth::user()->name ?? 'Admin' }}</a>
-        </div>
-      </div>
-
       <!-- SidebarSearch Form -->
       <div class="form-inline">
         <div class="input-group" data-widget="sidebar-search">
@@ -275,11 +270,11 @@
           </li>
 
           <!-- Residents dropdown menu -->
-          <li class="nav-item {{ Request::routeIs('admin.residents.*') || Request::routeIs('admin.gad.*') || Request::routeIs('admin.senior-citizens.*') ? 'menu-open' : '' }}">
-            <a href="#" class="nav-link {{ Request::routeIs('admin.residents.*') || Request::routeIs('admin.gad.*') || Request::routeIs('admin.senior-citizens.*') ? 'active' : '' }}">
+          <li class="nav-item {{ Request::routeIs('admin.residents.*') || Request::routeIs('admin.gad.*') ? 'menu-open' : '' }}">
+            <a href="#" class="nav-link {{ Request::routeIs('admin.residents.*') || Request::routeIs('admin.gad.*') ? 'active' : '' }}">
               <i class="nav-icon fas fa-users"></i>
               <p>
-                Residents
+                Manage Residents
                 <i class="right fas fa-angle-left"></i>
               </p>
             </a>
@@ -287,7 +282,13 @@
               <li class="nav-item">
                 <a class="nav-link {{ Request::routeIs('admin.residents.index') ? 'active' : '' }}" href="{{ route('admin.residents.index') }}">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>All Residents</p>
+                  <p>Residents</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {{ Request::routeIs('admin.residents.create.*') ? 'active' : '' }}" href="{{ route('admin.residents.create.step1') }}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Register Resident</p>
                 </a>
               </li>
               <li class="nav-item">
@@ -308,15 +309,47 @@
                   <p>Gender & Development</p>
                 </a>
               </li>
+            </ul>
+          </li>
+
+          <!-- Manage Senior Citizen dropdown menu -->
+          <li class="nav-item {{ Request::routeIs('admin.senior-citizens.*') ? 'menu-open' : '' }}">
+            <a href="#" class="nav-link {{ Request::routeIs('admin.senior-citizens.*') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-blind"></i>
+              <p>
+                Manage Senior Citizen
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a class="nav-link {{ Request::routeIs('admin.senior-citizens.*') ? 'active' : '' }}" href="{{ route('admin.senior-citizens.index') }}">
+                <a class="nav-link {{ Request::routeIs('admin.senior-citizens.index') ? 'active' : '' }}" href="{{ route('admin.senior-citizens.index') }}">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Senior Citizens</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {{ Request::routeIs('admin.senior-citizens.register*') ? 'active' : '' }}" href="{{ route('admin.senior-citizens.register') }}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Register Senior Citizen</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {{ Request::routeIs('admin.senior-citizens.id.pending') ? 'active' : '' }}" href="{{ route('admin.senior-citizens.id.pending') }}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>ID Card Management</p>
                 </a>
               </li>
             </ul>
           </li>
              <li class="nav-item">
+            <a href="{{ route('admin.officials.edit-single') }}" class="nav-link {{ Request::routeIs('admin.officials.edit-single') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-user-tie"></i>
+              <p>Officials</p>
+            </a>
+          </li>
+
+          <li class="nav-item">
             <a href="{{ route('admin.officials.edit-single') }}" class="nav-link {{ Request::routeIs('admin.officials.edit-single') ? 'active' : '' }}">
               <i class="nav-icon fas fa-user-tie"></i>
               <p>Officials</p>
@@ -337,7 +370,7 @@
             </a>
           </li>
 
-          @if(Auth::user()->role->name === 'Barangay Captain')
+          @if(Auth::check() && Auth::user()->role && Auth::user()->role->name === 'Barangay Captain')
           <li class="nav-item {{ Request::routeIs('admin.analytics*') || Request::routeIs('admin.security.*') ? 'menu-open' : '' }}">
             <a href="#" class="nav-link {{ Request::routeIs('admin.analytics*') || Request::routeIs('admin.security.*') ? 'active' : '' }}">
               <i class="nav-icon fas fa-chart-bar"></i>
@@ -548,6 +581,101 @@
 <script src="{{ asset('adminlte/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js') }}"></script>
 <!-- AdminLTE App -->
 <script src="{{ asset('adminlte/js/adminlte.min.js') }}"></script>
+<!-- Toastr JS for global notifications -->
+<script src="{{ asset('adminlte/plugins/toastr/toastr.min.js') }}"></script>
+<!-- Global Toastr Configuration -->
+<script>
+// Configure Toastr globally
+toastr.options = {
+    "closeButton": true,
+    "debug": false,
+    "newestOnTop": true,
+    "progressBar": true,
+    "positionClass": "toast-top-right",
+    "preventDuplicates": false,
+    "onclick": null,
+    "showDuration": "300",
+    "hideDuration": "1000",
+    "timeOut": "5000",
+    "extendedTimeOut": "1000",
+    "showEasing": "swing",
+    "hideEasing": "linear",
+    "showMethod": "fadeIn",
+    "hideMethod": "fadeOut"
+};
+
+// Global notification helper functions
+window.showSuccess = function(message, title) {
+    toastr.success(message, title || 'Success');
+};
+
+window.showError = function(message, title) {
+    toastr.error(message, title || 'Error');
+};
+
+window.showWarning = function(message, title) {
+    toastr.warning(message, title || 'Warning');
+};
+
+window.showInfo = function(message, title) {
+    toastr.info(message, title || 'Info');
+};
+
+// Helper function for handling AJAX responses
+window.handleAjaxResponse = function(response, successCallback, errorCallback) {
+    if (response.success) {
+        showSuccess(response.message);
+        if (successCallback && typeof successCallback === 'function') {
+            successCallback(response);
+        }
+    } else {
+        showError(response.message || 'An error occurred');
+        if (errorCallback && typeof errorCallback === 'function') {
+            errorCallback(response);
+        }
+    }
+};
+
+// Helper function for handling AJAX errors
+window.handleAjaxError = function(xhr, status, error, customMessage) {
+    let errorMessage = customMessage || 'An unexpected error occurred';
+    
+    if (xhr.responseJSON && xhr.responseJSON.message) {
+        errorMessage = xhr.responseJSON.message;
+    } else if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+        // Laravel validation errors
+        const errors = xhr.responseJSON.errors;
+        const firstError = Object.values(errors)[0];
+        errorMessage = Array.isArray(firstError) ? firstError[0] : firstError;
+    } else if (xhr.status === 403) {
+        errorMessage = 'You do not have permission to perform this action';
+    } else if (xhr.status === 404) {
+        errorMessage = 'The requested resource was not found';
+    } else if (xhr.status === 500) {
+        errorMessage = 'Internal server error. Please try again later';
+    }
+    
+    showError(errorMessage);
+    console.error('AJAX Error:', error, xhr);
+};
+
+// Handle Laravel Flash Messages with Toastr
+@if(session('success'))
+    showSuccess('{{ session('success') }}');
+@endif
+
+@if(session('error'))
+    showError('{{ session('error') }}');
+@endif
+
+@if(session('warning'))
+    showWarning('{{ session('warning') }}');
+@endif
+
+@if(session('info'))
+    showInfo('{{ session('info') }}');
+@endif
+</script>
 {{-- DataTables and shared admin table scripts --}}
 @include('admin.components.datatable-scripts')
 

@@ -58,7 +58,7 @@
       }
     </style>
 </head>
-<body class="index-page bg-gray-200" data-chatbot-strict="{{ config('services.huggingface.strict') ? '1' : '0' }}" data-chatbot-has-key="{{ config('services.huggingface.api_key') ? '1' : '0' }}">
+<body class="index-page bs-gray-200" data-chatbot-strict="{{ config('services.huggingface.strict') ? '1' : '0' }}" data-chatbot-has-key="{{ config('services.huggingface.api_key') ? '1' : '0' }}">
     <!-- Navbar -->
     <div class="container position-sticky z-index-sticky top-0">
         <div class="row">

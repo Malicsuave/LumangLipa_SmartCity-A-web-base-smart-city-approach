@@ -223,14 +223,34 @@ class PreRegistrationController extends Controller
             \Log::info('Checking age for senior citizen status', ['age' => $age]);
             
             if ($age >= 60) {
-                \Log::info('Creating senior citizen record');
-                // Create senior citizen record
-                $seniorCitizen = new SeniorCitizen();
-                $seniorCitizen->resident_id = $resident->id;
-                $seniorCitizen->senior_id_number = SeniorCitizen::generateSeniorIdNumber();
-                $seniorCitizen->senior_id_status = 'issued';
-                $seniorCitizen->senior_id_issued_at = now();
-                $seniorCitizen->senior_id_expires_at = now()->addYears(5);
+                \Log::info('Creating independent senior citizen record');
+                // Create independent senior citizen record with all resident data
+                $seniorCitizen = SeniorCitizen::create([
+                    // Copy resident data to senior citizen (since they're now independent)
+                    'type_of_resident' => $resident->type_of_resident,
+                    'first_name' => $resident->first_name,
+                    'middle_name' => $resident->middle_name,
+                    'last_name' => $resident->last_name,
+                    'suffix' => $resident->suffix,
+                    'birthdate' => $resident->birthdate,
+                    'birthplace' => $resident->birthplace,
+                    'sex' => $resident->sex,
+                    'civil_status' => $resident->civil_status,
+                    'citizenship_type' => $resident->citizenship_type,
+                    'citizenship_country' => $resident->citizenship_country,
+                    'educational_attainment' => $resident->educational_attainment,
+                    'religion' => $resident->religion,
+                    'profession_occupation' => $resident->profession_occupation,
+                    'contact_number' => $resident->contact_number,
+                    'email_address' => $resident->email_address,
+                    'current_address' => $resident->current_address ?? $resident->address,
+                    'photo' => $resident->photo,
+                    'signature' => $resident->signature,
+                    'senior_id_number' => SeniorCitizen::generateSeniorIdNumber(),
+                    'senior_id_status' => 'issued',
+                    'senior_id_issued_at' => now(),
+                    'senior_id_expires_at' => now()->addYears(5),
+                ]);
                 
                 // Add senior citizen to population sectors if not already present
                 $sectors = $resident->population_sectors ?? [];

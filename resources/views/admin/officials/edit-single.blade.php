@@ -3,9 +3,7 @@
 @section('content')
 <div class="container-fluid mt-4">
     <h4>Edit Barangay Officials</h4>
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
+
     <form action="{{ route('admin.officials.update-single') }}" method="POST" enctype="multipart/form-data" class="card card-body shadow-sm">
         @csrf
         
