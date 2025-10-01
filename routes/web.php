@@ -72,6 +72,7 @@ Route::get('/admin-chat-debug', function() {
 });
 
 // Public Pre-Registration Routes - Multi-step
+Route::get('/register', [\App\Http\Controllers\Public\PreRegistrationController::class, 'chooseRegistrationType'])->name('public.register');
 Route::prefix('pre-registration')->name('public.pre-registration.')->group(function () {
     Route::get('step1', [\App\Http\Controllers\Public\PreRegistrationController::class, 'createStep1'])->name('step1');
     Route::post('step1', [\App\Http\Controllers\Public\PreRegistrationController::class, 'storeStep1'])->name('step1.store');
@@ -89,6 +90,23 @@ Route::prefix('pre-registration')->name('public.pre-registration.')->group(funct
     Route::post('submit', [\App\Http\Controllers\Public\PreRegistrationController::class, 'store'])->name('submit');
     Route::get('success', [\App\Http\Controllers\Public\PreRegistrationController::class, 'success'])->name('success');
     Route::match(['get', 'post'], 'check-status', [\App\Http\Controllers\Public\PreRegistrationController::class, 'checkStatus'])->name('check-status');
+});
+
+// Senior Citizen Pre-Registration Routes
+Route::prefix('senior-registration')->name('public.senior-registration.')->group(function () {
+    Route::get('step1', [\App\Http\Controllers\Public\SeniorRegistrationController::class, 'createStep1'])->name('step1');
+    Route::post('step1', [\App\Http\Controllers\Public\SeniorRegistrationController::class, 'storeStep1'])->name('step1.store');
+    Route::get('step2', [\App\Http\Controllers\Public\SeniorRegistrationController::class, 'createStep2'])->name('step2');
+    Route::post('step2', [\App\Http\Controllers\Public\SeniorRegistrationController::class, 'storeStep2'])->name('step2.store');
+    Route::get('step3', [\App\Http\Controllers\Public\SeniorRegistrationController::class, 'createStep3'])->name('step3');
+    Route::post('step3', [\App\Http\Controllers\Public\SeniorRegistrationController::class, 'storeStep3'])->name('step3.store');
+    Route::get('step4', [\App\Http\Controllers\Public\SeniorRegistrationController::class, 'createStep4'])->name('step4');
+    Route::post('step4', [\App\Http\Controllers\Public\SeniorRegistrationController::class, 'storeStep4'])->name('step4.store');
+    Route::get('step5', [\App\Http\Controllers\Public\SeniorRegistrationController::class, 'createStep5'])->name('step5');
+    Route::post('step5', [\App\Http\Controllers\Public\SeniorRegistrationController::class, 'storeStep5'])->name('step5.store');
+    Route::get('review', [\App\Http\Controllers\Public\SeniorRegistrationController::class, 'createReview'])->name('review');
+    Route::post('submit', [\App\Http\Controllers\Public\SeniorRegistrationController::class, 'store'])->name('submit');
+    Route::get('success', [\App\Http\Controllers\Public\SeniorRegistrationController::class, 'success'])->name('success');
 });
 
 // Document Request Public Routes
@@ -218,6 +236,18 @@ Route::middleware([
             Route::get('census-data/{household}/edit', [ResidentController::class, 'editCensusRecord'])->name('census-data.edit');
             Route::put('census-data/{household}', [ResidentController::class, 'updateCensusRecord'])->name('census-data.update');
             Route::delete('census-data/{household}', [ResidentController::class, 'destroyCensusRecord'])->name('census-data.destroy');
+            
+            // Census registration routes
+            Route::get('/census/create', [ResidentController::class, 'createCensus'])->name('census.create');
+            Route::post('/census/store', [ResidentController::class, 'storeCensus'])->name('census.store');
+            
+            // Multi-step census registration routes
+            Route::get('/census/step1', [ResidentController::class, 'censusStep1'])->name('census.step1');
+            Route::post('/census/step1', [ResidentController::class, 'storeCensusStep1'])->name('census.step1.store');
+            Route::get('/census/step2', [ResidentController::class, 'censusStep2'])->name('census.step2');
+            Route::post('/census/step2', [ResidentController::class, 'storeCensusStep2'])->name('census.step2.store');
+            Route::get('/census/step3', [ResidentController::class, 'censusStep3'])->name('census.step3');
+            Route::post('/census/step3', [ResidentController::class, 'storeCensusStep3'])->name('census.step3.store');
             // Multi-step resident creation routes
             Route::get('/create/step1', [ResidentController::class, 'createStep1'])->name('create.step1');
             Route::post('/create/step1', [ResidentController::class, 'storeStep1'])->name('create.step1.store');
@@ -225,6 +255,7 @@ Route::middleware([
             Route::post('/create/step2', [ResidentController::class, 'storeStep2'])->name('create.step2.store');
             Route::get('/create/step3', [ResidentController::class, 'createStep3'])->name('create.step3');
             Route::post('/create/step3', [ResidentController::class, 'storeStep3'])->name('create.step3.store');
+            Route::post('/create/step3/remove-file', [ResidentController::class, 'removeUploadedFile'])->name('create.step3.remove-file');
             Route::get('/create/step4', [ResidentController::class, 'createStep4'])->name('create.step4');
             Route::post('/create/step4', [ResidentController::class, 'storeStep4'])->name('create.step4.store');
             Route::get('/create/step4-senior', [ResidentController::class, 'createStep4Senior'])->name('create.step4-senior');
@@ -233,6 +264,9 @@ Route::middleware([
             Route::post('/create/step5', [ResidentController::class, 'storeStep5'])->name('create.step5.store');
             Route::get('/create/review', [ResidentController::class, 'createReview'])->name('create.review');
             Route::post('/create/store', [App\Http\Controllers\ResidentController::class, 'store'])->name('create.store');
+            
+            // API routes for resident selection
+            Route::get('/api/all', [ResidentController::class, 'getAllResidentsApi'])->name('api.all');
             
             Route::get('/{resident}', [App\Http\Controllers\ResidentController::class, 'show'])->name('show');
             Route::put('/{resident}', [App\Http\Controllers\ResidentController::class, 'update'])->name('update');
@@ -287,8 +321,32 @@ Route::middleware([
         
         // Senior Citizens Management
         Route::prefix('admin/senior-citizens')->name('admin.senior-citizens.')->group(function() {
-            Route::post('/{seniorCitizen}/revoke-id', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'revokeId'])->name('revoke-id');
             Route::get('/', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'index'])->name('index');
+            Route::get('/archived', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'archived'])->name('archived');
+            Route::post('/restore/{id}', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'restore'])->name('restore');
+            Route::delete('/force-delete/{id}', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'forceDelete'])->name('force-delete');
+            
+            // Multi-step registration routes
+            Route::get('/register/step1', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'createStep1'])->name('register.step1');
+            Route::post('/register/step1', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'storeStep1'])->name('register.step1.store');
+            Route::get('/register/step2', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'createStep2'])->name('register.step2');
+            Route::post('/register/step2', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'storeStep2'])->name('register.step2.store');
+            Route::get('/register/step3', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'createStep3'])->name('register.step3');
+            Route::post('/register/step3', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'storeStep3'])->name('register.step3.store');
+            Route::get('/register/step4', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'createStep4'])->name('register.step4');
+            Route::post('/register/step4', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'storeStep4'])->name('register.step4.store');
+            Route::get('/register/step5', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'createStep5'])->name('register.step5');
+            Route::post('/register/store', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'store'])->name('register.store');
+            
+            // Legacy single-step registration (redirect to step 1)
+            Route::get('/register', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'redirectToStep1'])->name('register');
+            
+            Route::get('/id/pending', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'idPending'])->name('id.pending');
+            Route::post('/{seniorCitizen}/revoke-id', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'revokeId'])->name('revoke-id');
+            Route::post('/{seniorCitizen}/remove-issuance', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'removeFromIssuanceQueue'])->name('remove-issuance');
+            Route::post('/{seniorCitizen}/remove-renewal', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'removeFromRenewalQueue'])->name('remove-renewal');
+            Route::get('/{seniorCitizen}/services', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'services'])->name('services');
+            Route::post('/{seniorCitizen}/archive', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'archive'])->name('archive');
            Route::get('/{seniorCitizen}', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'showIdManagement'])->name('show');
             Route::put('/{seniorCitizen}', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'update'])->name('update');
             Route::delete('/{seniorCitizen}', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'destroy'])->name('destroy');
@@ -296,6 +354,10 @@ Route::middleware([
             Route::post('/{seniorCitizen}/upload-signature', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'uploadSignature'])->name('upload-signature');
             Route::put('/{seniorCitizen}/update-id-info', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'updateIdInfo'])->name('update-id-info');
             Route::post('/{seniorCitizen}/mark-renewal', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'markForRenewal'])->name('mark-renewal');
+            
+            // API routes for senior citizen selection
+            Route::get('/api/all', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'getAllSeniorCitizensApi'])->name('api.all');
+            Route::get('/api/all', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'getAllSeniorCitizensApi'])->name('api.all');
         });
     });
 

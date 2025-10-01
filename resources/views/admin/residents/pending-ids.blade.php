@@ -34,11 +34,11 @@
 </div>
 <!-- Tab Navigation -->
 @php
-    $tab = request('tab', 'issuance');
+    $tab = request('tab', 'issued');
 @endphp
 <ul class="nav nav-tabs mb-4" id="idTabs" role="tablist">
     <li class="nav-item">
-        <a class="nav-link {{ $tab === 'issuance' ? 'active' : '' }}" href="?tab=issuance">Pending Issuance</a>
+        <a class="nav-link {{ $tab === 'issued' ? 'active' : '' }}" href="?tab=issued">Issued IDs</a>
     </li>
     <li class="nav-item">
         <a class="nav-link {{ $tab === 'renewal' ? 'active' : '' }}" href="?tab=renewal">Pending Renewal</a>
@@ -48,8 +48,8 @@
     </li>
 </ul>
 <div class="tab-content" id="idTabContent">
-    <div class="tab-pane fade {{ $tab === 'issuance' ? 'show active' : '' }}" id="issuance" role="tabpanel">
-        @include('admin.residents.partials.pending-ids-issuance', compact('pendingIssuance'))
+    <div class="tab-pane fade {{ $tab === 'issued' ? 'show active' : '' }}" id="issued" role="tabpanel">
+        @include('admin.residents.partials.issued-ids', compact('issuedIds'))
     </div>
     <div class="tab-pane fade {{ $tab === 'renewal' ? 'show active' : '' }}" id="renewal" role="tabpanel">
         @include('admin.residents.partials.pending-ids-renewal', compact('pendingRenewal'))
@@ -66,7 +66,7 @@
 <script>
 $(function () {
     // DataTables for each tab
-    DataTableHelpers.initDataTable('#issuanceTable', {
+    DataTableHelpers.initDataTable('#issuedTable', {
         buttons: ["copy", "csv", "excel", "pdf", "print", "colvis"],
         order: [[ 0, "desc" ]],
         columnDefs: [
@@ -88,8 +88,8 @@ $(function () {
         ]
     });
     // Search bar for each tab
-    $('#searchIssuanceInput').on('keyup', function() {
-        $('#issuanceTable').DataTable().search($(this).val()).draw();
+    $('#searchIssuedInput').on('keyup', function() {
+        $('#issuedTable').DataTable().search($(this).val()).draw();
     });
     $('#searchRenewalInput').on('keyup', function() {
         $('#renewalTable').DataTable().search($(this).val()).draw();
@@ -98,8 +98,8 @@ $(function () {
         $('#expiringTable').DataTable().search($(this).val()).draw();
     });
     // Export buttons for each tab
-    $('#exportIssuanceBtn').on('click', function() {
-        $('#issuanceTable').DataTable().button('.buttons-csv').trigger();
+    $('#exportIssuedBtn').on('click', function() {
+        $('#issuedTable').DataTable().button('.buttons-csv').trigger();
     });
     $('#exportRenewalBtn').on('click', function() {
         $('#renewalTable').DataTable().button('.buttons-csv').trigger();

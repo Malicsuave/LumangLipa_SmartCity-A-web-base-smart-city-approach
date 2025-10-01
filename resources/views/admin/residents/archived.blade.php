@@ -36,15 +36,6 @@
                 <strong class="card-title">Archived Residents</strong>
             </div>
             <div class="card-body">
-                @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="fe fe-check-circle fe-16 mr-2"></i> {{ session('success') }}
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                @endif
-
                 @if($archivedResidents->count())
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped" id="archivedTable" data-export-title="Archived Residents">
@@ -98,17 +89,17 @@
                                         {{ $resident->deleted_at->format('M d, Y') }}
                                         <br><small class="text-muted">{{ $resident->deleted_at->diffForHumans() }}</small>
                                     </td>
-                                    <td class="text-center table-actions-col">
+                                    <td>
                                         <div class="btn-group">
                                             <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                 Actions
                                             </button>
                                             <div class="dropdown-menu dropdown-menu-right">
                                                 <a class="dropdown-item" href="#" onclick="event.preventDefault(); confirmRestore('{{ $resident->id }}', '{{ $resident->first_name }} {{ $resident->last_name }}')">
-                                                    <i class="fas fa-undo mr-2 text-success"></i>Restore
+                                                    <i class="fas fa-undo mr-2"></i>Restore
                                                 </a>
                                                 <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger" href="#" onclick="event.preventDefault(); confirmPermanentDelete('{{ $resident->id }}', '{{ $resident->first_name }} {{ $resident->last_name }}')">
+                                                <a class="dropdown-item" href="#" onclick="event.preventDefault(); confirmPermanentDelete('{{ $resident->id }}', '{{ $resident->first_name }} {{ $resident->last_name }}')">
                                                     <i class="fas fa-trash-alt mr-2"></i>Delete Permanently
                                                 </a>
                                             </div>
@@ -160,6 +151,54 @@
         </div>
     </div>
 </div>
+
+<!-- Restore Confirmation Modal -->
+<div class="modal fade" id="restoreResidentModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Restore Resident</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to restore <strong id="restoreResidentName"></strong>?</p>
+                <p class="text-muted"><small>This action will move the resident back to the active list.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" id="confirmRestore">Restore Resident</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Permanently Confirmation Modal -->
+<div class="modal fade" id="deleteResidentModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Resident Permanently</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to permanently delete <strong id="deleteResidentName"></strong>?</p>
+                <p class="text-muted"><small>This action cannot be undone and will remove all associated data permanently.</small></p>
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    <strong>Warning:</strong> This will permanently delete all data for this resident.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Delete Permanently</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 
@@ -190,38 +229,20 @@ html {
     });
 
     // Confirmation functions
-    function confirmRestore(residentId, residentName) {
-        Swal.fire({
-            title: 'Restore Resident?',
-            text: `Are you sure you want to restore ${residentName}? This will move them back to active residents.`,
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#28a745',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: '<i class="fas fa-undo mr-2"></i>Yes, Restore',
-            cancelButtonText: '<i class="fas fa-times mr-2"></i>Cancel'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById(`restore-form-${residentId}`).submit();
-            }
-        });
+    function confirmRestore(id, name) {
+        document.getElementById('restoreResidentName').textContent = name;
+        document.getElementById('confirmRestore').onclick = function() {
+            document.getElementById('restore-form-' + id).submit();
+        };
+        $('#restoreResidentModal').modal('show');
     }
 
-    function confirmPermanentDelete(residentId, residentName) {
-        Swal.fire({
-            title: 'Permanently Delete?',
-            text: `Are you sure you want to permanently delete ${residentName}? This action cannot be undone!`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#dc3545',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: '<i class="fas fa-trash-alt mr-2"></i>Yes, Delete Forever',
-            cancelButtonText: '<i class="fas fa-times mr-2"></i>Cancel'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById(`permanent-delete-form-${residentId}`).submit();
-            }
-        });
+    function confirmPermanentDelete(id, name) {
+        document.getElementById('deleteResidentName').textContent = name;
+        document.getElementById('confirmDelete').onclick = function() {
+            document.getElementById('permanent-delete-form-' + id).submit();
+        };
+        $('#deleteResidentModal').modal('show');
     }
 
     // Auto-scroll to results if filters are applied

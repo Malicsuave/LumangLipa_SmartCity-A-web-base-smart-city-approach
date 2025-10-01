@@ -33,15 +33,6 @@
                 <strong class="card-title">GAD Records</strong>
             </div>
             <div class="card-body">
-                @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="fas fa-check-circle mr-2"></i> {{ session('success') }}
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                @endif
-
                 @if($gadRecords->count())
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped" id="gadTable" data-export-title="GAD Records">

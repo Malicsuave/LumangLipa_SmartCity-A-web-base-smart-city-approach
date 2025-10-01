@@ -2,26 +2,10 @@
 
 @push('styles')
 @include('admin.components.datatable-styles')
-<link rel="stylesheet" href="{{ asset('adminlte/plugins/sweetalert2/sweetalert2.min.css') }}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 @endpush
 
 @section('content')
-<!-- Debug Information (only show if session data is missing) -->
-@if(session('error'))
-<div class="row mb-3">
-    <div class="col-md-12">
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-circle mr-2"></i>
-            {{ session('error') }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    </div>
-</div>
-@endif
-
 <div class="row">
     <div class="col-md-12 mb-4">
         <div class="row align-items-center">
@@ -39,6 +23,54 @@
                 <a href="{{ route('admin.residents.create') }}" class="btn btn-primary">
                     <i class="fas fa-user-plus mr-2"></i>Register New Resident
                 </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-info">
+            <div class="inner">
+                <h3>{{ $stats['total'] }}</h3>
+                <p>Total Residents</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-users"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-primary">
+            <div class="inner">
+                <h3>{{ $stats['male'] }}</h3>
+                <p>Male Residents</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-male"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-danger">
+            <div class="inner">
+                <h3>{{ $stats['female'] }}</h3>
+                <p>Female Residents</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-female"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-success">
+            <div class="inner">
+                <h3>{{ $stats['with_id'] }}</h3>
+                <p>With ID Cards</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-id-card"></i>
             </div>
         </div>
     </div>
@@ -88,18 +120,13 @@
                                             <i class="fas fa-eye mr-2"></i>View Details
                                         </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-warning" href="javascript:void(0)" onclick="handleArchiveClick(event, {{ $resident->id }}, '{{ addslashes($resident->first_name . ' ' . $resident->last_name) }}')">
+                                        <a class="dropdown-item text-dark" href="javascript:void(0)" onclick="handleArchiveClick(event, {{ $resident->id }}, '{{ addslashes($resident->first_name . ' ' . $resident->last_name) }}')">
                                             <i class="fas fa-archive mr-2"></i>Archive Resident
                                         </a>
                                     </div>
                                 </div>
                             </td>
                         </tr>
-                        <!-- Delete Form -->
-                        <form id="delete-form-{{ $resident->id }}" action="{{ route('admin.residents.destroy', $resident) }}" method="POST" style="display: none;">
-                            @csrf
-                            @method('DELETE')
-                        </form>
                         @endforeach
                     </tbody>
                     <tfoot>
@@ -114,6 +141,14 @@
                         </tr>
                     </tfoot>
                 </table>
+                
+                <!-- Archive Forms -->
+                @foreach($residents as $resident)
+                <form id="delete-form-{{ $resident->id }}" action="{{ route('admin.residents.destroy', $resident) }}" method="POST" style="display: none;">
+                    @csrf
+                    @method('DELETE')
+                </form>
+                @endforeach
             </div>
         </div>
     </div>
@@ -202,79 +237,10 @@
 @include('admin.components.datatable-scripts')
 <!-- Common DataTable Helpers -->
 <script src="{{ asset('js/admin/datatable-helpers.js') }}"></script>
-<script src="{{ asset('adminlte/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
 
 <script>
 $(function () {
-    // Show success message with SweetAlert2 for registration completion
-    @if(session('success'))
-        @php
-            $successMessage = session('success');
-            $hasBarangayId = strpos($successMessage, 'Barangay ID:') !== false;
-        @endphp
-        
-        @if($hasBarangayId)
-            @php
-                // Extract the Barangay ID for highlighting
-                preg_match('/Barangay ID: ([A-Z0-9-]+)/', $successMessage, $matches);
-                $barangayId = $matches[1] ?? '';
-                $message = str_replace("Barangay ID: {$barangayId}", '', $successMessage);
-            @endphp
-            
-            Swal.fire({
-                icon: 'success',
-                title: 'Registration Completed!',
-                html: `
-                    <div style="text-align: center;">
-                        <p style="font-size: 16px; margin-bottom: 20px;">{{ trim($message) }}</p>
-                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #28a745;">
-                            <strong style="font-size: 18px; color: #28a745;">Barangay ID: {{ $barangayId }}</strong>
-                        </div>
-                        <p style="font-size: 14px; color: #6c757d; margin-top: 15px;">
-                            <i class="fas fa-info-circle"></i> This ID can be used for barangay services and ID card generation.
-                        </p>
-                    </div>
-                `,
-                confirmButtonText: 'View Resident Records',
-                confirmButtonColor: '#28a745',
-                allowOutsideClick: false,
-                customClass: {
-                    popup: 'animate__animated animate__zoomIn'
-                },
-                timer: null
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Refresh the page to show the updated table with the new resident
-                    window.location.reload();
-                }
-            });
-        @else
-            Swal.fire({
-                icon: 'success',
-                title: 'Success!',
-                text: '{{ $successMessage }}',
-                confirmButtonText: 'Great!',
-                confirmButtonColor: '#28a745',
-                showClass: {
-                    popup: 'animate__animated animate__zoomIn'
-                }
-            });
-        @endif
-    @endif
-    
-    // Show error message with SweetAlert2
-    @if(session('error'))
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: '{{ session('error') }}',
-            confirmButtonText: 'OK',
-            confirmButtonColor: '#dc3545',
-            showClass: {
-                popup: 'animate__animated animate__shakeX'
-            }
-        });
-    @endif
+    // Flash messages are now handled automatically by the master layout with toastr
 
     // Initialize DataTable with custom configuration for residents
     const residentTable = DataTableHelpers.initDataTable("#residentTable", {
@@ -341,9 +307,32 @@ function handleArchiveClick(event, id, name) {
 
 function confirmArchive(id, name) {
     document.getElementById('residentName').textContent = name;
+    
+    // Remove any existing event listeners
+    const confirmButton = document.getElementById('confirmDelete');
+    const newButton = confirmButton.cloneNode(true);
+    confirmButton.parentNode.replaceChild(newButton, confirmButton);
+    
+    // Add new event listener
     document.getElementById('confirmDelete').onclick = function() {
-        document.getElementById('delete-form-' + id).submit();
+        console.log('Archive button clicked for ID:', id);
+        const form = document.getElementById('delete-form-' + id);
+        console.log('Form found:', form);
+        
+        if (form) {
+            // Hide modal first
+            $('#archiveResidentModal').modal('hide');
+            
+            // Add a small delay then submit
+            setTimeout(() => {
+                form.submit();
+            }, 300);
+        } else {
+            console.error('Form not found: delete-form-' + id);
+            toastr.error('Error: Archive form not found. Please refresh the page and try again.', 'Error');
+        }
     };
+    
     $('#archiveResidentModal').modal('show');
 }
 
@@ -370,13 +359,7 @@ function viewResidentDetails(id) {
             $('#viewDetailsModal').modal('show');
         },
         error: function() {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Error loading resident details. Please try again.',
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#dc3545'
-            });
+            toastr.error('Error loading resident details. Please try again.', 'Error');
         }
     });
 }

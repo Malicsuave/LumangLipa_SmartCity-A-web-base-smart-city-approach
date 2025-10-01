@@ -19,6 +19,8 @@
   <link rel="stylesheet" href="{{ asset('adminlte/css/adminlte.min.css') }}">
   <!-- overlayScrollbars -->
   <link rel="stylesheet" href="{{ asset('adminlte/plugins/overlayScrollbars/css/OverlayScrollbars.min.css') }}">
+  <!-- Feather Icons -->
+  <link rel="stylesheet" href="{{ asset('admin/dark/css/feather.css') }}">
   <!-- Custom Admin Fonts -->
   <link rel="stylesheet" href="{{ asset('css/admin-fonts.css') }}" />
   {{-- DataTables and shared admin table styles --}}
@@ -204,16 +206,6 @@
 
     <!-- Sidebar -->
     <div class="sidebar">
-      <!-- Sidebar user panel (optional) -->
-      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-        <div class="image">
-          <img src="{{ Auth::user()->profile_photo_url ?? asset('images/logo.png') }}" class="img-circle elevation-2" alt="User Image">
-        </div>
-        <div class="info">
-          <a href="{{ route('admin.profile') }}" class="d-block">{{ Auth::user()->name ?? 'Admin' }}</a>
-        </div>
-      </div>
-
       <!-- SidebarSearch Form -->
       <div class="form-inline">
         <div class="input-group" data-widget="sidebar-search">
@@ -276,11 +268,11 @@
           </li>
 
           <!-- Residents dropdown menu -->
-          <li class="nav-item {{ Request::routeIs('admin.residents.*') || Request::routeIs('admin.gad.*') || Request::routeIs('admin.senior-citizens.*') ? 'menu-open' : '' }}">
-            <a href="#" class="nav-link {{ Request::routeIs('admin.residents.*') || Request::routeIs('admin.gad.*') || Request::routeIs('admin.senior-citizens.*') ? 'active' : '' }}">
+          <li class="nav-item {{ Request::routeIs('admin.residents.*') || Request::routeIs('admin.gad.*') ? 'menu-open' : '' }}">
+            <a href="#" class="nav-link {{ Request::routeIs('admin.residents.*') || Request::routeIs('admin.gad.*') ? 'active' : '' }}">
               <i class="nav-icon fas fa-users"></i>
               <p>
-                Residents
+                Manage Residents
                 <i class="right fas fa-angle-left"></i>
               </p>
             </a>
@@ -288,7 +280,13 @@
               <li class="nav-item">
                 <a class="nav-link {{ Request::routeIs('admin.residents.index') ? 'active' : '' }}" href="{{ route('admin.residents.index') }}">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>All Residents</p>
+                  <p>Residents</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {{ Request::routeIs('admin.residents.create.*') ? 'active' : '' }}" href="{{ route('admin.residents.create.step1') }}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Register Resident</p>
                 </a>
               </li>
               <li class="nav-item">
@@ -309,15 +307,41 @@
                   <p>Gender & Development</p>
                 </a>
               </li>
+            </ul>
+          </li>
+
+          <!-- Manage Senior Citizen dropdown menu -->
+          <li class="nav-item {{ Request::routeIs('admin.senior-citizens.*') ? 'menu-open' : '' }}">
+            <a href="#" class="nav-link {{ Request::routeIs('admin.senior-citizens.*') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-blind"></i>
+              <p>
+                Manage Senior Citizen
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a class="nav-link {{ Request::routeIs('admin.senior-citizens.*') ? 'active' : '' }}" href="{{ route('admin.senior-citizens.index') }}">
+                <a class="nav-link {{ Request::routeIs('admin.senior-citizens.index') ? 'active' : '' }}" href="{{ route('admin.senior-citizens.index') }}">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Senior Citizens</p>
                 </a>
               </li>
+              <li class="nav-item">
+                <a class="nav-link {{ Request::routeIs('admin.senior-citizens.register*') ? 'active' : '' }}" href="{{ route('admin.senior-citizens.register') }}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Register Senior Citizen</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {{ Request::routeIs('admin.senior-citizens.id.pending') ? 'active' : '' }}" href="{{ route('admin.senior-citizens.id.pending') }}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>ID Card Management</p>
+                </a>
+              </li>
             </ul>
           </li>
-             <li class="nav-item">
+
+          <li class="nav-item">
             <a href="{{ route('admin.officials.edit-single') }}" class="nav-link {{ Request::routeIs('admin.officials.edit-single') ? 'active' : '' }}">
               <i class="nav-icon fas fa-user-tie"></i>
               <p>Officials</p>
@@ -338,7 +362,7 @@
             </a>
           </li>
 
-          @if(Auth::user()->role->name === 'Barangay Captain')
+          @if(Auth::check() && Auth::user()->role && Auth::user()->role->name === 'Barangay Captain')
           <li class="nav-item {{ Request::routeIs('admin.analytics*') || Request::routeIs('admin.security.*') ? 'menu-open' : '' }}">
             <a href="#" class="nav-link {{ Request::routeIs('admin.analytics*') || Request::routeIs('admin.security.*') ? 'active' : '' }}">
               <i class="nav-icon fas fa-chart-bar"></i>
@@ -626,6 +650,23 @@ window.handleAjaxError = function(xhr, status, error, customMessage) {
     showError(errorMessage);
     console.error('AJAX Error:', error, xhr);
 };
+
+// Handle Laravel Flash Messages with Toastr
+@if(session('success'))
+    showSuccess('{{ session('success') }}');
+@endif
+
+@if(session('error'))
+    showError('{{ session('error') }}');
+@endif
+
+@if(session('warning'))
+    showWarning('{{ session('warning') }}');
+@endif
+
+@if(session('info'))
+    showInfo('{{ session('info') }}');
+@endif
 </script>
 {{-- DataTables and shared admin table scripts --}}
 @include('admin.components.datatable-scripts')

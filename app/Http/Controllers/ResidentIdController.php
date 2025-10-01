@@ -24,12 +24,7 @@ class ResidentIdController extends Controller
      */
     public function show(Resident $resident)
     {
-        // Check if this resident is a senior citizen
-        if ($resident->seniorCitizen) {
-            // Automatically redirect to senior citizen ID management
-            return redirect()->route('admin.senior-citizens.id-management', $resident->seniorCitizen)
-                ->with('info', 'This resident is a senior citizen and is managed through the Senior Citizen ID system.');
-        }
+        // Since senior citizens are now independent, we no longer check for resident-senior relationship
         
         // Get suggested issue ID for new cards
         $suggestedIssueId = $this->generateIssueIdNumber();
@@ -426,9 +421,8 @@ class ResidentIdController extends Controller
      */
     public function pendingIds(Request $request)
     {
-        // Base query for residents - exclude senior citizens as they have their own management
-        $baseQuery = Resident::query()
-            ->whereDoesntHave('seniorCitizen'); // Exclude residents who are senior citizens
+        // Base query for residents - since senior citizens are now independent, we include all residents
+        $baseQuery = Resident::query();
 
         // Search filters
         if ($request->has('search') && !empty($request->search)) {
@@ -558,23 +552,18 @@ class ResidentIdController extends Controller
             return $query;
         };
 
-        // 1. Pending ID Issuance - Use cloned query to maintain filters
-        $pendingIssuanceQuery = clone $baseQuery;
+        // 1. Issued IDs - Use cloned query to maintain filters
+        $issuedIdsQuery = clone $baseQuery;
         
-        // Only apply the needs_renewal exclusion if no specific ID status filter is applied
-        if (!$request->has('id_status') || empty($request->id_status)) {
-            $pendingIssuanceQuery->where(function($query) {
-                $query->whereNull('id_status')
-                    ->orWhere('id_status', '!=', 'needs_renewal');
-            });
-        }
+        // Only show residents with issued IDs
+        $issuedIdsQuery->where('id_status', 'issued');
         
-        // Apply sorting for pending issuance
-        $pendingIssuanceQuery = $applySorting($pendingIssuanceQuery, 'sort', 'direction');
+        // Apply sorting for issued IDs
+        $issuedIdsQuery = $applySorting($issuedIdsQuery, 'sort', 'direction');
         
-        $pendingIssuance = $pendingIssuanceQuery
-            ->paginate(10, ['*'], 'issuance_page')
-            ->appends(request()->except('issuance_page'));
+        $issuedIds = $issuedIdsQuery
+            ->paginate(10, ['*'], 'issued_page')
+            ->appends(request()->except('issued_page'));
         
         // 2. Pending renewals - use independent filters
         $pendingRenewalQuery = Resident::query()->where('id_status', 'needs_renewal');
@@ -653,7 +642,7 @@ class ResidentIdController extends Controller
             ->paginate(10, ['*'], 'expiring_page')
             ->appends(request()->except('expiring_page'));
 
-        return view('admin.residents.pending-ids', compact('pendingIssuance', 'pendingRenewal', 'expiringSoon'));
+        return view('admin.residents.pending-ids', compact('issuedIds', 'pendingRenewal', 'expiringSoon'));
     }
 
     /**

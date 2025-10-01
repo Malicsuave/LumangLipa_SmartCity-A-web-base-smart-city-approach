@@ -51,17 +51,17 @@
                         <tbody>
                             @foreach($seniorCitizens as $seniorCitizen)
                                 <tr>
-                                    <td><strong>{{ $seniorCitizen->resident->barangay_id }}</strong></td>
-                                    <td>{{ $seniorCitizen->resident->last_name }}, {{ $seniorCitizen->resident->first_name }} {{ $seniorCitizen->resident->middle_name ? substr($seniorCitizen->resident->middle_name, 0, 1) . '.' : '' }} {{ $seniorCitizen->resident->suffix }}</td>
+                                    <td><strong>{{ $seniorCitizen->senior_id_number ?: 'N/A' }}</strong></td>
+                                    <td>{{ $seniorCitizen->last_name }}, {{ $seniorCitizen->first_name }} {{ $seniorCitizen->middle_name ? substr($seniorCitizen->middle_name, 0, 1) . '.' : '' }} {{ $seniorCitizen->suffix }}</td>
                                     <td>
-                                        {{ \Carbon\Carbon::parse($seniorCitizen->resident->birthdate)->age }} years old
-                                        <br><small class="text-muted">{{ $seniorCitizen->resident->sex }}</small>
+                                        {{ \Carbon\Carbon::parse($seniorCitizen->birthdate)->age }} years old
+                                        <br><small class="text-muted">{{ $seniorCitizen->sex }}</small>
                                     </td>
-                                    <td>{{ $seniorCitizen->resident->civil_status }}</td>
-                                    <td>{{ $seniorCitizen->resident->contact_number ?: 'N/A' }}</td>
-                                    <td>{{ $seniorCitizen->resident->address }}</td>
+                                    <td>{{ $seniorCitizen->civil_status }}</td>
+                                    <td>{{ $seniorCitizen->contact_number ?: 'N/A' }}</td>
+                                    <td>{{ $seniorCitizen->current_address }}</td>
                                     <td>
-                                        @if($seniorCitizen->resident->photo && $seniorCitizen->resident->signature)
+                                        @if($seniorCitizen->photo && $seniorCitizen->signature)
                                             <span class="badge badge-success">ID Ready</span>
                                         @else
                                             <span class="badge badge-warning">Pending</span>

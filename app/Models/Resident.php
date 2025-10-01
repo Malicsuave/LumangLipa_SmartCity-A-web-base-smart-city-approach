@@ -19,38 +19,50 @@ class Resident extends Model
     use HasFactory, LogsActivity, SoftDeletes, Notifiable;
 
     protected $fillable = [
+        // Basic Information
         'barangay_id',
         'type_of_resident',
-        'last_name',
+        
+        // Personal Information (Step 1)
         'first_name',
         'middle_name',
+        'last_name',
         'suffix',
-        'birthplace',
         'birthdate',
+        'birthplace',
         'sex',
         'civil_status',
         'citizenship_type',
         'citizenship_country',
-        'profession_occupation',
-        'occupation',
-        'monthly_income',
-        'contact_number',
-        'email_address',
-        'religion',
         'educational_attainment',
         'education_status',
-        'mother_first_name',
-        'mother_middle_name',
-        'mother_last_name',
-        'address',
-        'purok',
+        'religion',
+        'profession_occupation',
+        
+        // Contact Information (Step 2)
+        'contact_number',
+        'email_address',
+        'current_address',
+        'emergency_contact_name',
+        'emergency_contact_relationship',
+        'emergency_contact_number',
+        
+        // Additional Information
+        'monthly_income',
         'philsys_id',
         'population_sectors',
+        
+        // Files (Step 3)
         'photo',
         'signature',
+        
+        // System fields
         'id_status',
         'id_issued_at',
         'id_expires_at',
+        'status',
+        'status_reason',
+        'status_date',
     ];
 
     protected $casts = [
@@ -89,13 +101,36 @@ class Resident extends Model
     public static function generateBarangayId(): string
     {
         $year = date('Y');
-        $lastResident = self::whereYear('created_at', $year)
-            ->orderBy('id', 'desc')
+        $prefix = 'BRG-LUM-' . $year . '-';
+        
+        // Find the highest existing ID number for this year
+        $lastResident = self::where('barangay_id', 'like', $prefix . '%')
+            ->orderBy('barangay_id', 'desc')
             ->first();
         
-        $nextNumber = $lastResident ? (int)substr($lastResident->barangay_id, -4) + 1 : 1;
+        $nextNumber = 1;
+        if ($lastResident && $lastResident->barangay_id) {
+            // Extract the number part from the ID (last 4 digits)
+            $lastNumber = (int)substr($lastResident->barangay_id, -4);
+            $nextNumber = $lastNumber + 1;
+        }
         
-        return 'BRG-LUM-' . $year . '-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+        return $prefix . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Get or generate barangay ID for this resident
+     */
+    public function getBarangayIdAttribute($value): string
+    {
+        // If barangay_id already exists, return it
+        if ($value) {
+            return $value;
+        }
+        
+        // If no barangay_id, generate one based on the resident's database ID
+        $year = $this->created_at ? $this->created_at->format('Y') : date('Y');
+        return 'BRG-LUM-' . $year . '-' . str_pad($this->id, 4, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -119,7 +154,12 @@ class Resident extends Model
      */
     public function getAgeAttribute(): int
     {
-        return $this->birthdate->age;
+        if (!$this->birthdate) {
+            return 0;
+        }
+        
+        $birthdate = $this->birthdate instanceof Carbon ? $this->birthdate : Carbon::parse($this->birthdate);
+        return $birthdate->diffInYears(now());
     }
 
     /**
@@ -158,12 +198,9 @@ class Resident extends Model
     }
     
     /**
-     * Relationship with senior citizen information
+     * Senior citizens are now independent entities - no direct relationship
+     * Use SeniorCitizen model directly to manage senior citizen records
      */
-    public function seniorCitizen(): HasOne
-    {
-        return $this->hasOne(SeniorCitizen::class);
-    }
     
     /**
      * Relationship with GAD (Gender and Development) information
@@ -175,10 +212,14 @@ class Resident extends Model
     
     /**
      * Check if resident is a senior citizen (60 years old or above)
+     * Note: Senior citizens are now managed independently
      */
     public function getIsSeniorCitizenAttribute(): bool
     {
-        return $this->birthdate && $this->birthdate->diffInYears(now()) >= 60;
+        if (!$this->birthdate) return false;
+        
+        $birthdate = is_string($this->birthdate) ? \Carbon\Carbon::parse($this->birthdate) : $this->birthdate;
+        return $birthdate->diffInYears(now()) >= 60;
     }
 
     /**
@@ -243,6 +284,30 @@ class Resident extends Model
         return $this->signature 
             ? asset('storage/residents/signatures/' . $this->signature)
             : null;
+    }
+    
+    /**
+     * Get the absolute photo path for PDF generation
+     */
+    public function getPhotoPathAttribute(): ?string
+    {
+        if ($this->photo) {
+            $photoPath = storage_path('app/public/residents/photos/' . $this->photo);
+            return file_exists($photoPath) ? $photoPath : null;
+        }
+        return null;
+    }
+    
+    /**
+     * Get the absolute signature path for PDF generation
+     */
+    public function getSignaturePathAttribute(): ?string
+    {
+        if ($this->signature) {
+            $signaturePath = storage_path('app/public/residents/signatures/' . $this->signature);
+            return file_exists($signaturePath) ? $signaturePath : null;
+        }
+        return null;
     }
     
     /**

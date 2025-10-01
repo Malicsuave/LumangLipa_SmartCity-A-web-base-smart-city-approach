@@ -1,0 +1,302 @@
+.registration-progress {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    color: white;
+}
+
+.step-indicator {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.step-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    position: relative;
+}
+
+.step-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    width: calc(100% - 30px);
+    height: 2px;
+    background: rgba(255, 255, 255, 0.3);
+    z-index: 1;
+}
+
+.step-circle {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+    position: relative;
+    z-index: 2;
+}
+
+.step-circle.active {
+    background: white;
+    color: #667eea;
+}
+
+.step-label {
+    font-size: 0.75rem;
+    text-align: center;
+    font-weight: 500;
+}
+
+.registration-card {
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.registration-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    text-align: center;
+}
+
+.form-section {
+    padding: 2.5rem;
+}
+
+.material-input {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.material-input input,
+.material-input select,
+.material-input textarea {
+    width: 100%;
+    padding: 1rem 0.75rem;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: transparent;
+}
+
+.material-input input:focus,
+.material-input select:focus,
+.material-input textarea:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    outline: none;
+}
+
+.material-input label {
+    position: absolute;
+    top: 1rem;
+    left: 0.75rem;
+    color: #6c757d;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    background: white;
+    padding: 0 0.25rem;
+}
+
+.material-input input:focus + label,
+.material-input input:not(:placeholder-shown) + label,
+.material-input select:focus + label,
+.material-input select:not([value=""]) + label,
+.material-input textarea:focus + label,
+.material-input textarea:not(:placeholder-shown) + label {
+    top: -0.5rem;
+    left: 0.75rem;
+    font-size: 0.75rem;
+    color: #667eea;
+}
+
+.btn-material {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 25px;
+    padding: 0.75rem 2rem;
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-material:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    color: white;
+}
+
+.btn-outline-material {
+    border: 2px solid #667eea;
+    background: transparent;
+    color: #667eea;
+    border-radius: 25px;
+    padding: 0.75rem 2rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-material:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.alert-material {
+    border-radius: 12px;
+    border: none;
+    padding: 1rem 1.5rem;
+}
+
+.checkbox-material {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.checkbox-material input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-right: 0.75rem;
+    accent-color: #667eea;
+}
+
+@media (max-width: 768px) {
+    .registration-progress {
+        padding: 1.5rem;
+    }
+
+    .step-indicator {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .step-item:not(:last-child)::after {
+        display: none;
+    }
+
+    .form-section {
+        padding: 1.5rem;
+    }
+
+    /* Registration Choice Page Styles */
+    .registration-card {
+        background: #fff;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .registration-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #007bff, #6610f2);
+    }
+
+    .registration-card:nth-child(2)::before {
+        background: linear-gradient(90deg, #28a745, #20c997);
+    }
+
+    .registration-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .registration-icon {
+        width: 100px;
+        height: 100px;
+    }
+
+    .registration-icon span {
+        font-size: 3rem !important;
+    }
+
+    .display-4 {
+        font-size: 2rem;
+    }
+
+    .lead {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .registration-card {
+        padding: 1rem;
+    }
+
+    .registration-icon {
+        width: 80px;
+        height: 80px;
+    }
+
+    .registration-icon span {
+        font-size: 2.5rem !important;
+    }
+
+    .btn-lg {
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+    }
+}
+
+/* Animation for cards */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.registration-card {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.registration-card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+/* Button hover effects */
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,123,255,0.3);
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(40,167,69,0.3);
+}
+
+.btn-outline-secondary:hover {
+    transform: translateY(-2px);
+}

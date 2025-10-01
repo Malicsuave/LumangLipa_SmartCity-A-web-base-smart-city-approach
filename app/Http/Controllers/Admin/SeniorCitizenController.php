@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\SeniorCitizen;
-use App\Models\Resident;
+use App\Notifications\SeniorCitizenRegistered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 
 class SeniorCitizenController extends Controller
@@ -16,31 +18,24 @@ class SeniorCitizenController extends Controller
      */
     public function index(Request $request)
     {
-        $query = SeniorCitizen::with(['resident' => function($q) {
-            $q->where('status', 'active');
-        }])->whereHas('resident', function($q) {
-            $q->where('status', 'active');
-        });
+        $query = SeniorCitizen::query();
 
         // Search functionality
         if ($request->has('search') && !empty($request->search)) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
-                $q->whereHas('resident', function ($residentQuery) use ($search) {
-                    $residentQuery->where('first_name', 'like', "%{$search}%")
-                        ->orWhere('middle_name', 'like', "%{$search}%")
-                        ->orWhere('last_name', 'like', "%{$search}%")
-                        ->orWhere('barangay_id', 'like', "%{$search}%")
-                        ->orWhere('contact_number', 'like', "%{$search}%");
-                })->orWhere('senior_id_number', 'like', "%{$search}%");
+                $q->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('middle_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhere('senior_id_number', 'like', "%{$search}%")
+                  ->orWhere('contact_number', 'like', "%{$search}%")
+                  ->orWhere('email_address', 'like', "%{$search}%");
             });
         }
 
         // Gender filter
         if ($request->has('gender') && !empty($request->gender)) {
-            $query->whereHas('resident', function ($q) use ($request) {
-                $q->where('sex', $request->gender);
-            });
+            $query->where('sex', $request->gender);
         }
 
         // Age range filter
@@ -48,21 +43,15 @@ class SeniorCitizenController extends Controller
             $now = Carbon::now();
             switch ($request->age_range) {
                 case '60-69':
-                    $query->whereHas('resident', function ($q) use ($now) {
-                        $q->whereDate('birthdate', '<=', $now->copy()->subYears(60))
+                    $query->whereDate('birthdate', '<=', $now->copy()->subYears(60))
                           ->whereDate('birthdate', '>', $now->copy()->subYears(70));
-                    });
                     break;
                 case '70-79':
-                    $query->whereHas('resident', function ($q) use ($now) {
-                        $q->whereDate('birthdate', '<=', $now->copy()->subYears(70))
+                    $query->whereDate('birthdate', '<=', $now->copy()->subYears(70))
                           ->whereDate('birthdate', '>', $now->copy()->subYears(80));
-                    });
                     break;
                 case '80+':
-                    $query->whereHas('resident', function ($q) use ($now) {
-                        $q->whereDate('birthdate', '<=', $now->copy()->subYears(80));
-                    });
+                    $query->whereDate('birthdate', '<=', $now->copy()->subYears(80));
                     break;
             }
         }
@@ -116,28 +105,25 @@ class SeniorCitizenController extends Controller
             $direction = 'asc';
         }
 
-        // Join with residents table for sorting
-        $query->join('residents', 'senior_citizens.resident_id', '=', 'residents.id')
-              ->select('senior_citizens.*');
-
         // Apply sorting based on the sort parameter
         switch ($sort) {
-            case 'barangay_id':
-                $query->orderBy('residents.barangay_id', $direction);
+            case 'senior_id':
+            case 'barangay_id': // backward compatibility
+                $query->orderBy('senior_id_number', $direction);
                 break;
             case 'last_name':
-                $query->orderBy('residents.last_name', $direction)
-                      ->orderBy('residents.first_name', $direction);
+                $query->orderBy('last_name', $direction)
+                      ->orderBy('first_name', $direction);
                 break;
             case 'birthdate':
-                $query->orderBy('residents.birthdate', $direction);
+                $query->orderBy('birthdate', $direction);
                 break;
             case 'senior_id_status':
-                $query->orderBy('senior_citizens.senior_id_status', $direction);
+                $query->orderBy('senior_id_status', $direction);
                 break;
             default:
-                $query->orderBy('residents.last_name', 'asc')
-                      ->orderBy('residents.first_name', 'asc');
+                $query->orderBy('last_name', 'asc')
+                      ->orderBy('first_name', 'asc');
                 break;
         }
 
@@ -148,11 +134,527 @@ class SeniorCitizenController extends Controller
     }
 
     /**
+     * Display archived senior citizens.
+     */
+    public function archived(Request $request)
+    {
+        $query = SeniorCitizen::onlyTrashed();
+
+        // Search functionality for archived senior citizens
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                    ->orWhere('middle_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%")
+                    ->orWhere('senior_id_number', 'like', "%{$search}%")
+                    ->orWhere('contact_number', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter by gender
+        if ($request->has('gender') && !empty($request->gender)) {
+            $query->where('sex', $request->gender);
+        }
+
+        // Filter by age group
+        if ($request->has('age_group') && !empty($request->age_group)) {
+            $now = Carbon::now();
+            switch ($request->age_group) {
+                case '60-69':
+                    $query->whereDate('birthdate', '<=', $now->copy()->subYears(60))
+                          ->whereDate('birthdate', '>', $now->copy()->subYears(70));
+                    break;
+                case '70-79':
+                    $query->whereDate('birthdate', '<=', $now->copy()->subYears(70))
+                          ->whereDate('birthdate', '>', $now->copy()->subYears(80));
+                    break;
+                case '80+':
+                    $query->whereDate('birthdate', '<=', $now->copy()->subYears(80));
+                    break;
+            }
+        }
+
+        // Date filter (deleted_at)
+        if ($request->has('date_from') && !empty($request->date_from)) {
+            $query->whereDate('deleted_at', '>=', $request->date_from);
+        }
+        if ($request->has('date_to') && !empty($request->date_to)) {
+            $query->whereDate('deleted_at', '<=', $request->date_to);
+        }
+
+        $query->orderBy('deleted_at', 'desc');
+        $archivedSeniorCitizens = $query->get();
+        
+        return view('admin.senior-citizens.archived', compact('archivedSeniorCitizens'));
+    }
+
+    /**
+     * Restore an archived senior citizen.
+     */
+    public function restore($id)
+    {
+        try {
+            $seniorCitizen = SeniorCitizen::onlyTrashed()->findOrFail($id);
+            $seniorCitizen->restore();
+            
+            return redirect()->route('admin.senior-citizens.archived')
+                ->with('success', 'Senior citizen restored successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Error restoring senior citizen: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Permanently delete an archived senior citizen.
+     */
+    public function forceDelete($id)
+    {
+        try {
+            $seniorCitizen = SeniorCitizen::onlyTrashed()->findOrFail($id);
+            
+            // Delete related files if they exist
+            if ($seniorCitizen->photo) {
+                Storage::disk('public')->delete($seniorCitizen->photo);
+            }
+            if ($seniorCitizen->signature) {
+                Storage::disk('public')->delete($seniorCitizen->signature);
+            }
+            
+            // Permanently delete the senior citizen
+            $seniorCitizen->forceDelete();
+            
+            return redirect()->route('admin.senior-citizens.archived')
+                ->with('success', 'Senior citizen permanently deleted!');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Error permanently deleting senior citizen: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Archive a senior citizen.
+     */
+    public function archive(SeniorCitizen $seniorCitizen)
+    {
+        try {
+            $seniorCitizen->delete();
+            
+            return redirect()->route('admin.senior-citizens.index')
+                ->with('success', 'Senior citizen archived successfully! You can restore it from the archive.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Error archiving senior citizen: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Redirect to step 1 of senior citizen registration
+     */
+    public function redirectToStep1()
+    {
+        return redirect()->route('admin.senior-citizens.register.step1');
+    }
+
+    /**
+     * Show step 1 form - Personal Information
+     */
+    public function createStep1()
+    {
+        return view('admin.senior-citizens.register.step1');
+    }
+
+    /**
+     * Store step 1 data - Personal Information
+     */
+    public function storeStep1(Request $request)
+    {
+        $request->validate([
+            'type_of_resident' => 'required|in:Non-Migrant,Migrant,Transient',
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'suffix' => 'nullable|string|max:50',
+            'birthdate' => 'required|date|before_or_equal:' . now()->subYears(60)->format('Y-m-d'),
+            'birthplace' => 'required|string|max:255',
+            'sex' => 'required|in:Male,Female,Non-binary,Transgender,Other',
+            'sex_details' => 'nullable|string|max:255',
+            'civil_status' => 'required|in:Single,Married,Widowed,Divorced,Separated',
+            'citizenship_type' => 'required|in:FILIPINO,DUAL,NATURALIZED,FOREIGN',
+            'citizenship_country' => 'nullable|string|max:255',
+            'educational_attainment' => 'nullable|string|max:255',
+            'education_status' => 'nullable|in:Studying,Graduated,Stopped Schooling,Not Applicable',
+            'religion' => 'nullable|string|max:255',
+            'profession_occupation' => 'nullable|string|max:255',
+        ]);
+
+        // Validate age is 60 or above
+        $birthdate = Carbon::parse($request->birthdate);
+        if ($birthdate->age < 60) {
+            return redirect()->back()->withErrors(['birthdate' => 'Senior citizen must be 60 years or older.'])->withInput();
+        }
+
+        // When saving step 1, preserve step 3 (photo/signature) if it exists
+        $step1 = $request->except('_token');
+        $session = session('senior_registration', []);
+        $session['step1'] = $step1;
+        session(['senior_registration' => $session]);
+        return redirect()->route('admin.senior-citizens.register.step2')
+            ->with('success', 'Personal information saved successfully!');
+    }
+
+    /**
+     * Show step 2 form - Contact Information
+     */
+    public function createStep2()
+    {
+        if (!session('senior_registration.step1')) {
+            return redirect()->route('admin.senior-citizens.register.step1')
+                ->with('error', 'Please complete Step 1 first.');
+        }
+        
+        return view('admin.senior-citizens.register.step2');
+    }
+
+    /**
+     * Store step 2 data - Contact Information
+     */
+    public function storeStep2(Request $request)
+    {
+        $request->validate([
+            'contact_number' => 'required|numeric|digits:11|regex:/^09\d{9}$/',
+            'email_address' => 'nullable|email|max:255',
+            'current_address' => 'required|string|max:500',
+            'emergency_contact_name' => 'required|string|max:255',
+            'emergency_contact_relationship' => 'required|string|max:100',
+            'emergency_contact_number' => 'required|numeric|digits:11|regex:/^09\d{9}$/',
+        ], [
+            'contact_number.required' => 'The contact number field is required.',
+            'contact_number.numeric' => 'The contact number must contain only numbers.',
+            'contact_number.digits' => 'The contact number must be exactly 11 digits.',
+            'contact_number.regex' => 'The contact number must be a valid Philippine mobile number (09XXXXXXXXX).',
+            'emergency_contact_number.required' => 'The emergency contact number is required.',
+            'emergency_contact_number.numeric' => 'The emergency contact number must contain only numbers.',
+            'emergency_contact_number.digits' => 'The emergency contact number must be exactly 11 digits.',
+            'emergency_contact_number.regex' => 'The emergency contact number must be a valid Philippine mobile number (09XXXXXXXXX).',
+        ]);
+
+        session(['senior_registration.step2' => $request->except('_token')]);
+        
+        return redirect()->route('admin.senior-citizens.register.step3')
+            ->with('success', 'Contact information saved successfully!');
+    }
+
+    /**
+     * Show step 3 form - Photo and Signature Upload
+     */
+    public function createStep3()
+    {
+        if (!session('senior_registration.step1') || !session('senior_registration.step2')) {
+            return redirect()->route('admin.senior-citizens.register.step1')
+                ->with('error', 'Please complete previous steps first.');
+        }
+        
+        return view('admin.senior-citizens.register.step3');
+    }
+
+    /**
+     * Store step 3 data - Photo and Signature
+     */
+    public function storeStep3(Request $request)
+    {
+        $request->validate([
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
+            'signature' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'remove_photo' => 'nullable|boolean',
+            'remove_signature' => 'nullable|boolean',
+        ]);
+
+        // Get existing step3 data to preserve previously uploaded files
+        $step3Data = session('senior_registration.step3', []);
+
+        // Handle photo removal
+        if ($request->input('remove_photo') == '1') {
+            if (isset($step3Data['photo']) && Storage::disk('public')->exists($step3Data['photo'])) {
+                Storage::disk('public')->delete($step3Data['photo']);
+            }
+            unset($step3Data['photo']);
+        }
+
+        // Handle signature removal
+        if ($request->input('remove_signature') == '1') {
+            if (isset($step3Data['signature']) && Storage::disk('public')->exists($step3Data['signature'])) {
+                Storage::disk('public')->delete($step3Data['signature']);
+            }
+            unset($step3Data['signature']);
+        }
+
+        // Handle new photo upload
+        if ($request->hasFile('photo')) {
+            // Delete old photo if exists
+            if (isset($step3Data['photo']) && Storage::disk('public')->exists($step3Data['photo'])) {
+                Storage::disk('public')->delete($step3Data['photo']);
+            }
+            $photoPath = $request->file('photo')->store('senior-citizens/photos', 'public');
+            $step3Data['photo'] = $photoPath;
+        }
+
+        // Handle new signature upload
+        if ($request->hasFile('signature')) {
+            // Delete old signature if exists
+            if (isset($step3Data['signature']) && Storage::disk('public')->exists($step3Data['signature'])) {
+                Storage::disk('public')->delete($step3Data['signature']);
+            }
+            $signaturePath = $request->file('signature')->store('senior-citizens/signatures', 'public');
+            $step3Data['signature'] = $signaturePath;
+        }
+
+        session(['senior_registration.step3' => $step3Data]);
+        
+        return redirect()->route('admin.senior-citizens.register.step4')
+            ->with('success', 'Photo and signature uploaded successfully!');
+    }
+
+    /**
+     * Show step 4 form - Senior Citizen Specific Information
+     */
+    public function createStep4()
+    {
+        if (!session('senior_registration.step1') || !session('senior_registration.step2')) {
+            return redirect()->route('admin.senior-citizens.register.step1')
+                ->with('error', 'Please complete previous steps first.');
+        }
+        
+        return view('admin.senior-citizens.register.step4');
+    }
+
+    /**
+     * Store step 4 data - Senior Citizen Information
+     */
+    public function storeStep4(Request $request)
+    {
+        $request->validate([
+            // Health Information
+            'health_condition' => 'nullable|string|in:excellent,good,fair,poor,critical',
+            'mobility_status' => 'nullable|string|in:independent,assisted,wheelchair,bedridden',
+            'medical_conditions' => 'nullable|string|max:1000',
+            
+            // Pension and Benefits Information
+            'receiving_pension' => 'nullable|boolean',
+            'pension_type' => 'nullable|string|in:SSS,GSIS,Government Employee,Private Company,Social Pension,Other',
+            'pension_amount' => 'nullable|numeric|min:0|max:99999999.99',
+            'has_philhealth' => 'nullable|boolean',
+            'philhealth_number' => 'nullable|string|max:20',
+            'has_senior_discount_card' => 'nullable|boolean',
+            
+            // Benefits and Services
+            'current_benefits' => 'nullable|string|max:255',
+            'programs_enrolled' => 'nullable|string|max:255',
+            'services' => 'nullable|array',
+            'services.*' => 'string|in:healthcare,financial_assistance,education,legal_assistance,transportation,discount_privileges,emergency_response',
+        ]);
+
+        session(['senior_registration.step4' => $request->except('_token')]);
+        
+        return redirect()->route('admin.senior-citizens.register.step5')
+            ->with('success', 'Senior citizen information saved successfully!');
+    }
+
+    /**
+     * Show step 5 form - Review and Confirmation
+     */
+    public function createStep5()
+    {
+        if (!session('senior_registration.step1') || 
+            !session('senior_registration.step2')) {
+            return redirect()->route('admin.senior-citizens.register.step1')
+                ->with('error', 'Please complete previous steps first.');
+        }
+        
+        return view('admin.senior-citizens.register.step5');
+    }
+
+    /**
+     * Store the complete senior citizen registration from multi-step form
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'confirmation' => 'required|accepted',
+        ]);
+
+        // Check if all session data exists
+        if (!session('senior_registration.step1') || !session('senior_registration.step2')) {
+            return redirect()->route('admin.senior-citizens.register.step1')
+                ->with('error', 'Registration data is incomplete. Please start from Step 1.');
+        }
+
+        $step1 = session('senior_registration.step1');
+        $step2 = session('senior_registration.step2');
+        $step3 = session('senior_registration.step3', []);
+        $step4 = session('senior_registration.step4', []);
+
+        DB::beginTransaction();
+        try {
+            // Generate unique Senior Citizen Barangay ID with SC prefix
+            $seniorBarangayId = $this->generateSeniorBarangayId();
+
+            // Create self-contained senior citizen record
+            $seniorCitizen = SeniorCitizen::create([
+                // Step 1: Personal Information
+                'type_of_resident' => $step1['type_of_resident'] ?? 'Non-Migrant',
+                'first_name' => $step1['first_name'],
+                'middle_name' => $step1['middle_name'] ?? null,
+                'last_name' => $step1['last_name'],
+                'suffix' => $step1['suffix'] ?? null,
+                'birthdate' => $step1['birthdate'],
+                'birthplace' => $step1['birthplace'],
+                'sex' => $step1['sex'],
+                'sex_details' => $step1['sex_details'] ?? null,
+                'civil_status' => $step1['civil_status'],
+                'citizenship_type' => $step1['citizenship_type'],
+                'citizenship_country' => $step1['citizenship_country'] ?? null,
+                'educational_attainment' => $step1['educational_attainment'] ?? null,
+                'education_status' => $step1['education_status'] ?? null,
+                'religion' => $step1['religion'] ?? null,
+                'profession_occupation' => $step1['profession_occupation'] ?? null,
+                
+                // Step 2: Contact Information
+                'contact_number' => $step2['contact_number'],
+                'email_address' => $step2['email_address'] ?? null,
+                'current_address' => $step2['current_address'],
+                
+                // Step 3: Photos and Signature
+                'photo' => $step3['photo'] ?? null,
+                'signature' => $step3['signature'] ?? null,
+                
+                // Step 2: Emergency Contact Information (collected in Step 2, not Step 4)
+                'emergency_contact_name' => $step2['emergency_contact_name'] ?? null,
+                'emergency_contact_number' => $step2['emergency_contact_number'] ?? null,
+                'emergency_contact_relationship' => $step2['emergency_contact_relationship'] ?? null,
+                
+                // Step 4: Senior-Specific Information
+                'health_condition' => $step4['health_condition'] ?? null,
+                'mobility_status' => $step4['mobility_status'] ?? null,
+                'medical_conditions' => $step4['medical_conditions'] ?? null,
+                'receiving_pension' => isset($step4['receiving_pension']) ? (bool)$step4['receiving_pension'] : false,
+                'pension_type' => $step4['pension_type'] ?? null,
+                'pension_amount' => isset($step4['pension_amount']) ? (float)$step4['pension_amount'] : null,
+                'has_philhealth' => isset($step4['has_philhealth']) ? (bool)$step4['has_philhealth'] : false,
+                'philhealth_number' => $step4['philhealth_number'] ?? null,
+                'has_senior_discount_card' => isset($step4['has_senior_discount_card']) ? (bool)$step4['has_senior_discount_card'] : false,
+                'services' => isset($step4['services']) ? $step4['services'] : [],
+                
+                // Senior ID Management - Automatically issue ID upon registration
+                'senior_id_number' => $seniorBarangayId,
+                'senior_id_status' => 'issued',
+                'senior_id_issued_at' => now(),
+                'senior_id_expires_at' => now()->addYears(5),
+                
+                // System Fields
+                'registered_by' => auth()->id(),
+                'notes' => 'Health: ' . ($step4['health_condition'] ?? 'Not specified') . 
+                         ' | Mobility: ' . ($step4['mobility_status'] ?? 'Not specified') . 
+                         ' | Pension: ' . ($step4['receiving_pension'] ? 'Yes (' . ($step4['pension_type'] ?? 'Unknown type') . ')' : 'No') .
+                         ' | PhilHealth: ' . ($step4['has_philhealth'] ? 'Yes' : 'No') .
+                         ' | Discount Card: ' . ($step4['has_senior_discount_card'] ? 'Yes' : 'No'),
+            ]);
+
+            DB::commit();
+
+            // Send email notifications if email address is provided
+            if (!empty($seniorCitizen->email_address)) {
+                try {
+                    // Send registration confirmation email
+                    $seniorCitizen->notify(new SeniorCitizenRegistered($seniorCitizen, $seniorBarangayId));
+                    
+                    // Automatically send ID card email since ID is issued upon registration
+                    $this->sendIdCardEmail($seniorCitizen);
+                    
+                    Log::info("Senior citizen registration and ID card emails sent to {$seniorCitizen->email_address} for ID: {$seniorBarangayId}");
+                    
+                } catch (\Exception $e) {
+                    // Log error but don't fail the registration
+                    Log::error("Failed to send senior citizen emails for {$seniorBarangayId}: " . $e->getMessage());
+                }
+            }
+
+            // Clear session data
+            session()->forget([
+                'senior_registration.step1',
+                'senior_registration.step2', 
+                'senior_registration.step3',
+                'senior_registration.step4'
+            ]);
+
+            return redirect()->route('admin.senior-citizens.index')
+                ->with('success', "Senior citizen registered successfully! Senior ID: {$seniorBarangayId}" . 
+                    (!empty($seniorCitizen->email_address) ? " A confirmation email has been sent to {$seniorCitizen->email_address}." : ""));
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            Log::error('Senior citizen registration failed: ' . $e->getMessage());
+            
+            return redirect()->back()
+                ->with('error', 'An error occurred while registering the senior citizen. Please try again.');
+        }
+    }
+
+    /**
+     * Generate unique Senior Citizen Barangay ID with SC prefix
+     */
+    private function generateSeniorBarangayId()
+    {
+        $year = date('Y');
+        $prefix = "SC-LUM-{$year}-";
+        
+        // Get the last senior citizen registered this year
+        $lastSeniorCitizen = SeniorCitizen::where('senior_id_number', 'like', $prefix . '%')
+            ->orderBy('senior_id_number', 'desc')
+            ->first();
+        
+        if ($lastSeniorCitizen) {
+            // Extract the number from the last ID
+            $lastNumber = (int) substr($lastSeniorCitizen->senior_id_number, -4);
+            $nextNumber = $lastNumber + 1;
+        } else {
+            $nextNumber = 1;
+        }
+        
+        return $prefix . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Display senior citizens with pending ID status.
+     */
+    public function idPending()
+    {
+        // Issued IDs - senior citizens with issued IDs
+        $issuedIds = SeniorCitizen::where('senior_id_status', 'issued')
+            ->orderBy('senior_id_issued_at', 'desc')
+            ->get();
+
+        // Pending renewal - senior citizens marked for renewal
+        $pendingRenewal = SeniorCitizen::where('senior_id_status', 'renewal')
+            ->orderBy('senior_id_expires_at', 'asc')
+            ->get();
+
+        // Expiring soon - senior citizens with IDs expiring within 60 days
+        $expiringSoon = SeniorCitizen::where('senior_id_status', 'issued')
+            ->whereNotNull('senior_id_expires_at')
+            ->where('senior_id_expires_at', '<=', now()->addDays(60))
+            ->orderBy('senior_id_expires_at', 'asc')
+            ->get();
+
+        return view('admin.senior-citizens.id-pending', compact('issuedIds', 'pendingRenewal', 'expiringSoon'));
+    }
+
+    /**
      * Show the form for editing the specified senior citizen.
      */
     public function edit(SeniorCitizen $seniorCitizen)
     {
-        $seniorCitizen->load('resident');
         return view('admin.senior-citizens.edit', compact('seniorCitizen'));
     }
 
@@ -330,9 +832,7 @@ class SeniorCitizenController extends Controller
     public function dashboard()
     {
         $stats = [
-            'total_seniors' => SeniorCitizen::whereHas('resident', function($q) {
-                $q->where('status', 'active');
-            })->count(),
+            'total_seniors' => SeniorCitizen::count(),
             'issued_ids' => SeniorCitizen::where('senior_id_status', 'issued')->count(),
             'pending_ids' => SeniorCitizen::where('senior_id_status', 'not_issued')->count(),
             'expiring_soon' => SeniorCitizen::where('senior_id_expires_at', '<=', now()->addMonths(3))
@@ -350,18 +850,14 @@ class SeniorCitizenController extends Controller
      */
     public function issueId(SeniorCitizen $seniorCitizen)
     {
-        // Load the resident relationship
-        $seniorCitizen->load('resident');
-        $resident = $seniorCitizen->resident;
-        
         // Validate required fields for ID issuance
-        if (!$resident->photo) {
+        if (!$seniorCitizen->photo) {
             return redirect()->back()
-                ->with('error', 'Unable to issue Senior Citizen ID card: Resident photo is required.');
+                ->with('error', 'Unable to issue Senior Citizen ID card: Photo is required.');
         }
 
         if (!$seniorCitizen->senior_id_number) {
-            $seniorCitizen->senior_id_number = SeniorCitizen::generateSeniorIdNumber();
+            $seniorCitizen->senior_id_number = $this->generateSeniorBarangayId();
         }
 
         // Set ID expiration (valid for 5 years)
@@ -386,12 +882,12 @@ class SeniorCitizenController extends Controller
 
         // Generate digital ID card to send via email
         try {
-            if ($resident->email_address) {
+            if ($seniorCitizen->email_address) {
                 // Generate QR code data
                 $qrData = json_encode([
                     'id' => $seniorCitizen->senior_id_number,
-                    'name' => $resident->full_name,
-                    'dob' => $resident->birthdate ? $resident->birthdate->format('Y-m-d') : null,
+                    'name' => $seniorCitizen->full_name,
+                    'dob' => $seniorCitizen->birthdate ? \Carbon\Carbon::parse($seniorCitizen->birthdate)->format('Y-m-d') : null,
                 ]);
                 
                 $qrCode = \App\Facades\QrCode::generateQrCode($qrData, 300);
@@ -436,7 +932,7 @@ class SeniorCitizenController extends Controller
                 $pdf->save($pdfPath);
                 
                 // Send notification with PDF attached
-                $resident->notify(new \App\Notifications\SeniorCitizenIdIssued($seniorCitizen, $pdfPath));
+                $seniorCitizen->notify(new \App\Notifications\SeniorCitizenIdIssued($seniorCitizen, $pdfPath));
                 
                 // Log email sent activity
                 \Spatie\Activitylog\Facades\Activity::causedBy(auth()->user())
@@ -464,10 +960,10 @@ class SeniorCitizenController extends Controller
 
         $successMessage = 'Senior citizen ID issued successfully. Valid until ' . $expiresAt->format('M d, Y') . '.';
         
-        if ($resident->email_address) {
-            $successMessage .= ' A digital copy has been sent to the resident\'s email.';
+        if ($seniorCitizen->email_address) {
+            $successMessage .= ' A digital copy has been sent to the email address.';
         } else {
-            $successMessage .= ' No email was sent as the resident does not have an email address on file.';
+            $successMessage .= ' No email was sent as no email address is on file.';
         }
 
         return redirect()->back()
@@ -512,8 +1008,6 @@ class SeniorCitizenController extends Controller
      */
     public function previewId(SeniorCitizen $seniorCitizen)
     {
-        $seniorCitizen->load('resident');
-        
         // Check if senior citizen has an issued ID
         if ($seniorCitizen->senior_id_status !== 'issued') {
             return redirect()->back()
@@ -523,8 +1017,8 @@ class SeniorCitizenController extends Controller
         // Generate QR code data (contains senior ID, name and DOB like regular resident IDs)
         $qrData = json_encode([
             'id' => $seniorCitizen->senior_id_number,
-            'name' => $seniorCitizen->resident->full_name,
-            'dob' => $seniorCitizen->resident->birthdate ? $seniorCitizen->resident->birthdate->format('Y-m-d') : null,
+            'name' => $seniorCitizen->full_name,
+            'dob' => $seniorCitizen->birthdate ? \Carbon\Carbon::parse($seniorCitizen->birthdate)->format('Y-m-d') : null,
         ]);
         
         // Generate QR code using the application's custom QR code facade
@@ -543,8 +1037,6 @@ class SeniorCitizenController extends Controller
      */
     public function downloadId(SeniorCitizen $seniorCitizen)
     {
-        $seniorCitizen->load('resident');
-        
         // Check if senior citizen has an issued ID
         if ($seniorCitizen->senior_id_status !== 'issued') {
             return redirect()->back()
@@ -554,8 +1046,8 @@ class SeniorCitizenController extends Controller
         // Generate QR code data
         $qrData = json_encode([
             'id' => $seniorCitizen->senior_id_number,
-            'name' => $seniorCitizen->resident->full_name,
-            'dob' => $seniorCitizen->resident->birthdate ? $seniorCitizen->resident->birthdate->format('Y-m-d') : null,
+            'name' => $seniorCitizen->full_name,
+            'dob' => $seniorCitizen->birthdate ? \Carbon\Carbon::parse($seniorCitizen->birthdate)->format('Y-m-d') : null,
         ]);
         
         $qrCode = \App\Facades\QrCode::generateQrCode($qrData, 200);
@@ -595,7 +1087,7 @@ class SeniorCitizenController extends Controller
                 'debug-javascript' => true
             ]);
 
-            $filename = 'SENIOR_ID_' . $seniorCitizen->resident->last_name . '_' . $seniorCitizen->resident->first_name . '.pdf';
+            $filename = 'SENIOR_ID_' . $seniorCitizen->last_name . '_' . $seniorCitizen->first_name . '.pdf';
 
             return $pdf->download($filename);
             
@@ -615,7 +1107,6 @@ class SeniorCitizenController extends Controller
      */
     public function showIdManagement(SeniorCitizen $seniorCitizen)
     {
-        $seniorCitizen->load('resident');
         $suggestedSeniorId = \App\Models\SeniorCitizen::generateSeniorIdNumber();
         $idHistory = \Spatie\Activitylog\Models\Activity::where('subject_type', get_class($seniorCitizen))
             ->where('subject_id', $seniorCitizen->id)
@@ -639,11 +1130,9 @@ class SeniorCitizenController extends Controller
         ]);
 
         try {
-            $resident = $seniorCitizen->resident;
-
             // Delete old photo if exists
-            if ($resident->photo) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete('residents/photos/' . $resident->photo);
+            if ($seniorCitizen->photo) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($seniorCitizen->photo);
             }
 
             // Process and save the new photo
@@ -653,27 +1142,19 @@ class SeniorCitizenController extends Controller
             $image->fit(600, 600);
             
             // Generate unique filename
-            $filename = $resident->barangay_id . '_' . \Illuminate\Support\Str::random(10) . '.jpg';
+            $filename = $seniorCitizen->senior_id_number . '_' . \Illuminate\Support\Str::random(10) . '.jpg';
             
-            // Save the processed image
-            $path = storage_path('app/public/residents/photos/' . $filename);
+            // Save the processed image using the senior citizens directory
+            $photoPath = $request->file('photo')->store('senior-citizens/photos', 'public');
             
-            // Ensure directory exists
-            if (!file_exists(dirname($path))) {
-                mkdir(dirname($path), 0755, true);
-            }
-            
-            // Save image with compression
-            $image->save($path, 80);
-            
-            // Update the resident record
-            $resident->photo = $filename;
-            $resident->save();
+            // Update the senior citizen record
+            $seniorCitizen->photo = $photoPath;
+            $seniorCitizen->save();
             
             // Log the activity
             \Spatie\Activitylog\Facades\Activity::causedBy(auth()->user())
-                ->performedOn($resident)
-                ->withProperties(['photo' => $filename])
+                ->performedOn($seniorCitizen)
+                ->withProperties(['photo' => $photoPath])
                 ->log('uploaded photo for senior citizen ID');
 
             return redirect()->route('admin.senior-citizens.id-management', $seniorCitizen)
@@ -701,44 +1182,22 @@ class SeniorCitizenController extends Controller
         ]);
 
         try {
-            $resident = $seniorCitizen->resident;
-
             // Delete old signature if exists
-            if ($resident->signature) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete('residents/signatures/' . $resident->signature);
+            if ($seniorCitizen->signature) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($seniorCitizen->signature);
             }
 
-            // Process and save the new signature
-            $image = \Intervention\Image\Facades\Image::make($request->file('signature'));
+            // Save the new signature using the senior citizens directory
+            $signaturePath = $request->file('signature')->store('senior-citizens/signatures', 'public');
             
-            // Resize signature to standard size
-            $image->resize(300, null, function ($constraint) {
-                $constraint->aspectRatio();
-                $constraint->upsize();
-            });
-            
-            // Generate unique filename
-            $filename = $resident->barangay_id . '_sig_' . \Illuminate\Support\Str::random(10) . '.png';
-            
-            // Save the processed image
-            $path = storage_path('app/public/residents/signatures/' . $filename);
-            
-            // Ensure directory exists
-            if (!file_exists(dirname($path))) {
-                mkdir(dirname($path), 0755, true);
-            }
-            
-            // Save image with compression
-            $image->save($path, 80);
-            
-            // Update the resident record
-            $resident->signature = $filename;
-            $resident->save();
+            // Update the senior citizen record
+            $seniorCitizen->signature = $signaturePath;
+            $seniorCitizen->save();
             
             // Log the activity
             \Spatie\Activitylog\Facades\Activity::causedBy(auth()->user())
-                ->performedOn($resident)
-                ->withProperties(['signature' => $filename])
+                ->performedOn($seniorCitizen)
+                ->withProperties(['signature' => $signaturePath])
                 ->log('uploaded signature for senior citizen ID');
 
             return redirect()->route('admin.senior-citizens.id-management', $seniorCitizen)
@@ -800,10 +1259,146 @@ class SeniorCitizenController extends Controller
      */
     public function reports()
     {
-        $seniorCitizens = \App\Models\SeniorCitizen::with('resident')
-            ->orderBy('created_at', 'desc')
+        $seniorCitizens = \App\Models\SeniorCitizen::orderBy('created_at', 'desc')
             ->get();
             
         return view('admin.reports.senior-citizens', compact('seniorCitizens'));
+    }
+
+    /**
+     * Clear senior citizen registration session data
+     */
+    public function clearSession()
+    {
+        session()->forget([
+            'senior_registration.step1',
+            'senior_registration.step2', 
+            'senior_registration.step3',
+            'senior_registration.step4'
+        ]);
+        
+        return redirect()->route('admin.senior-citizens.register.step1')
+            ->with('success', 'Registration session cleared. You can start fresh!');
+    }
+
+    /**
+     * Send ID card email to senior citizen
+     */
+    private function sendIdCardEmail(SeniorCitizen $seniorCitizen)
+    {
+        if (!$seniorCitizen->email_address) {
+            return;
+        }
+
+        try {
+            // Generate QR code data
+            $qrData = json_encode([
+                'id' => $seniorCitizen->senior_id_number,
+                'name' => $seniorCitizen->full_name,
+                'dob' => $seniorCitizen->birthdate ? \Carbon\Carbon::parse($seniorCitizen->birthdate)->format('Y-m-d') : null,
+            ]);
+            
+            $qrCode = \App\Facades\QrCode::generateQrCode($qrData, 300);
+            
+            // If the QR code already has the data URI prefix, extract just the base64 part
+            if (strpos($qrCode, 'data:image/png;base64,') === 0) {
+                $qrCode = substr($qrCode, 22); // Remove the prefix
+            }
+            
+            // Generate PDF using Snappy with same settings as download method
+            $pdf = \Barryvdh\Snappy\Facades\SnappyPdf::loadView('admin.senior-citizens.id-for-image', [
+                'seniorCitizen' => $seniorCitizen,
+                'qrCode' => $qrCode,
+            ]);
+            
+            // Set PDF options to match the download method
+            $pdf->setOptions([
+                'page-width' => '148mm',
+                'page-height' => '180mm',
+                'orientation' => 'Portrait',
+                'margin-top' => '8mm',
+                'margin-right' => '8mm',
+                'margin-bottom' => '8mm',
+                'margin-left' => '8mm',
+                'encoding' => 'UTF-8',
+                'enable-local-file-access' => true,
+                'disable-smart-shrinking' => true,
+                'dpi' => 300,
+                'image-quality' => 100,
+            ]);
+            
+            // Create temporary file for PDF
+            $tempPath = storage_path('app/temp');
+            if (!file_exists($tempPath)) {
+                mkdir($tempPath, 0755, true);
+            }
+            
+            $pdfFileName = 'senior_citizen_id_' . $seniorCitizen->id . '_' . time() . '.pdf';
+            $pdfPath = $tempPath . '/' . $pdfFileName;
+            
+            // Save PDF to temp directory
+            $pdf->save($pdfPath);
+            
+            // Send notification with PDF attached
+            $seniorCitizen->notify(new \App\Notifications\SeniorCitizenIdIssued($seniorCitizen, $pdfPath));
+            
+            // Log email sent activity
+            \Spatie\Activitylog\Facades\Activity::causedBy(auth()->user())
+                ->performedOn($seniorCitizen)
+                ->log('sent_senior_citizen_id_card_email');
+            
+            // Clean up temp file after a delay (using queue)
+            \Illuminate\Support\Facades\Queue::later(now()->addMinutes(5), function () use ($pdfPath) {
+                if (file_exists($pdfPath)) {
+                    unlink($pdfPath);
+                }
+            });
+
+        } catch (\Exception $e) {
+            // Log error but don't throw exception
+            \Illuminate\Support\Facades\Log::error('Error sending Senior Citizen ID card via email during registration: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Get all senior citizens for API consumption
+     */
+    public function getAllSeniorCitizensApi()
+    {
+        $seniors = SeniorCitizen::select([
+            'id',
+            'first_name',
+            'middle_name', 
+            'last_name',
+            'birthdate',
+            'sex as gender',
+            'civil_status',
+            'current_address as address',
+            'educational_attainment',
+            'profession_occupation',
+            'citizenship_type as citizenship',
+            'religion'
+        ])
+        ->get()
+        ->map(function ($senior) {
+            // Calculate age from birthdate
+            $age = $senior->birthdate ? Carbon::parse($senior->birthdate)->age : null;
+            
+            return [
+                'id' => $senior->id,
+                'full_name' => trim($senior->first_name . ' ' . ($senior->middle_name ? $senior->middle_name . ' ' : '') . $senior->last_name),
+                'age' => $age,
+                'gender' => $senior->gender,
+                'address' => $senior->address,
+                'birthdate' => $senior->birthdate,
+                'civil_status' => $senior->civil_status,
+                'educational_attainment' => $senior->educational_attainment,
+                'profession_occupation' => $senior->profession_occupation,
+                'citizenship' => $senior->citizenship,
+                'religion' => $senior->religion,
+            ];
+        });
+        
+        return response()->json($seniors);
     }
 }

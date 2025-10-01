@@ -1,0 +1,226 @@
+/* Resident Registration Form Styles */
+
+/* Header Styles */
+.personal-header,
+.citizenship-header,
+.education-header,
+.additional-header,
+.address-header,
+.contact-header,
+.emergency-header,
+.household-header {
+  background: #1976d2;
+  color: #fff;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+/* Card Styles */
+.public-form-card.card.shadow {
+  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.12), 0 1.5px 6px 0 rgba(0,0,0,0.08) !important;
+  border-radius: 0.75rem;
+  border: 2px solid #000000;
+}
+
+/* Additional Header Spacing */
+.additional-header {
+  margin-bottom: 2rem;
+}
+
+/* Hero Section Styles */
+.public-form-hero {
+  position: relative;
+  min-height: 300px;
+  background: linear-gradient(135deg, #1976d2 0%, #2196f3 100%);
+  overflow: hidden;
+}
+
+.public-form-hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 200px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 1;
+}
+
+.public-form-hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+.public-form-outer {
+  margin-top: -150px;
+  position: relative;
+  z-index: 3;
+  padding-bottom: 3rem;
+}
+
+/* Form Control Styles - Force bordered style */
+/* Override Material Kit's "border: none" to always show borders */
+/* Use very specific selectors to override Material Kit */
+input.form-control,
+textarea.form-control,
+select.form-control,
+.input-group-static .form-control,
+.input-group-static input.form-control,
+.input-group-static select.form-control {
+  border: 1px solid #d2d6da !important;
+  border-radius: 0.375rem !important;
+  padding: 0.625rem 0.75rem !important;
+  background-color: #fff !important;
+  background-image: none !important;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
+}
+
+input.form-control:focus,
+textarea.form-control:focus,
+select.form-control:focus,
+.input-group-static .form-control:focus {
+  border-color: #e91e63 !important;
+  box-shadow: 0 0 0 2px rgba(233, 30, 99, 0.25) !important;
+  background-color: #fff !important;
+}
+
+/* Rounded pill variant */
+input.form-control.rounded-pill,
+textarea.form-control.rounded-pill,
+select.form-control.rounded-pill {
+  border-radius: 1.875rem !important;
+  padding-left: 1.25rem !important;
+  padding-right: 1.25rem !important;
+}
+
+/* Ensure rounded inputs with validation states show icons properly */
+input.form-control.rounded-pill.is-valid,
+textarea.form-control.rounded-pill.is-valid,
+input.form-control.rounded-pill.is-invalid,
+textarea.form-control.rounded-pill.is-invalid {
+  padding-right: calc(1.5em + 1.75rem) !important;
+  background-position: right 1.25rem center !important;
+}
+
+/* Validation state styles - ensure Material Kit icons show */
+input.form-control.is-valid,
+textarea.form-control.is-valid {
+  border-color: #66bb6a !important;
+  background-color: #fff !important;
+}
+
+input.form-control.is-valid:focus,
+textarea.form-control.is-valid:focus {
+  border-color: #66bb6a !important;
+  box-shadow: 0 0 0 2px rgba(102, 187, 106, 0.25) !important;
+}
+
+input.form-control.is-invalid,
+textarea.form-control.is-invalid {
+  border-color: #f44336 !important;
+  background-color: #fff !important;
+}
+
+input.form-control.is-invalid:focus,
+textarea.form-control.is-invalid:focus {
+  border-color: #f44336 !important;
+  box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.25) !important;
+}
+
+/* Labels for simple inputs */
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #344767;
+}
+
+/* Select Picker Rounded Style */
+.bootstrap-select.rounded-pill .dropdown-toggle {
+  border-radius: 1.875rem !important;
+  padding-left: 1.25rem !important;
+  padding-right: 1.25rem !important;
+}
+
+.bootstrap-select .dropdown-menu {
+  border-radius: 0.75rem !important;
+}
+
+/* Form Group Spacing */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+/* Validation Feedback Text */
+.invalid-feedback {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: #f44336;
+}
+
+.valid-feedback {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: #66bb6a;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .public-form-hero {
+    min-height: 200px;
+  }
+  
+  .public-form-outer {
+    margin-top: -100px;
+  }
+  
+  .personal-header,
+  .citizenship-header,
+  .education-header,
+  .additional-header,
+  .address-header,
+  .contact-header,
+  .emergency-header,
+  .household-header {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+/* Step Badge */
+.badge.bg-light.text-dark {
+  background-color: #f8f9fa !important;
+  color: #344767 !important;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+}
+
+/* Button Styles */
+.btn.bg-gradient-dark {
+  background-image: linear-gradient(195deg, #42424a 0%, #191919 100%);
+  border-radius: 0.5rem;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  transition: all 0.15s ease-in;
+}
+
+.btn.bg-gradient-dark:hover {
+  transform: scale(1.02);
+  box-shadow: 0 3px 5px -1px rgba(0,0,0,.2), 0 6px 10px 0 rgba(0,0,0,.14), 0 1px 18px 0 rgba(0,0,0,.12);
+}
+
+/* Previous Button */
+.btn.btn-outline-secondary {
+  border-radius: 0.5rem;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+}

@@ -18,11 +18,20 @@ use Illuminate\Support\Facades\Log;
 class PreRegistrationController extends Controller
 {
     /**
+     * Show registration type choice page
+     */
+    public function chooseRegistrationType()
+    {
+        return view('public.register');
+    }
+
+    /**
      * Show Step 1: Personal Information
      */
     public function createStep1()
     {
-        return view('public.pre-registration.step1');
+        $step1 = Session::get('pre_registration.step1', []);
+        return view('public.pre-registration.resident.step1', compact('step1'));
     }
 
     /**
@@ -40,12 +49,19 @@ class PreRegistrationController extends Controller
             'birthdate' => 'required|date|before_or_equal:today',
             'sex' => 'required|in:Male,Female,Non-binary,Transgender,Other',
             'civil_status' => 'required|in:Single,Married,Divorced,Widowed,Separated',
+            'citizenship_type' => 'required|in:FILIPINO,DUAL,NATURALIZED,FOREIGN',
+            'citizenship_country' => 'nullable|required_if:citizenship_type,DUAL,FOREIGN|string|max:100',
+            'educational_attainment' => 'required|string|max:100',
+            'education_status' => 'required|in:Studying,Graduated,Stopped Schooling,Not Applicable',
+            'religion' => 'nullable|string|max:100',
+            'profession_occupation' => 'nullable|string|max:100',
         ], [
             'first_name.regex' => 'First name can only contain letters, spaces, dots, hyphens, and apostrophes.',
             'middle_name.regex' => 'Middle name can only contain letters, spaces, dots, hyphens, and apostrophes.',
             'last_name.regex' => 'Last name can only contain letters, spaces, dots, hyphens, and apostrophes.',
             'suffix.regex' => 'Suffix can only contain letters, spaces, and dots.',
             'birthdate.before_or_equal' => 'Birthdate cannot be in the future.',
+            'citizenship_country.required_if' => 'Country is required for Dual Citizens and Foreign Nationals.',
         ]);
 
         Session::put('pre_registration.step1', $validated);
@@ -58,11 +74,10 @@ class PreRegistrationController extends Controller
     public function createStep2()
     {
         if (!Session::has('pre_registration.step1')) {
-            return redirect()->route('public.pre-registration.step1')
-                ->with('error', 'Please complete step 1 first');
+            return redirect()->route('public.pre-registration.step1');
         }
-
-        return view('public.pre-registration.step2');
+        $step2 = Session::get('pre_registration.step2', []);
+        return view('public.pre-registration.resident.step2', compact('step2'));
     }
 
     /**
@@ -77,11 +92,24 @@ class PreRegistrationController extends Controller
             'monthly_income' => 'nullable|numeric|min:0',
             'contact_number' => 'required|numeric|digits:11',
             'email_address' => [
-                'required',
+                'nullable',
                 'email',
                 'max:255',
-                Rule::unique('pre_registrations', 'email_address'),
-                Rule::unique('residents', 'email_address')
+                function ($attribute, $value, $fail) {
+                    if ($value) {
+                        $existsInPreReg = \DB::table('pre_registrations')
+                            ->where('email_address', $value)
+                            ->exists();
+                        
+                        $existsInResidents = \DB::table('residents')
+                            ->where('email_address', $value)
+                            ->exists();
+                        
+                        if ($existsInPreReg || $existsInResidents) {
+                            $fail('This email address is already registered or pending registration.');
+                        }
+                    }
+                }
             ],
             'religion' => 'nullable|string|max:100',
             'educational_attainment' => 'required|string|max:100',
@@ -105,7 +133,8 @@ class PreRegistrationController extends Controller
             return redirect()->route('public.pre-registration.step2')
                 ->with('error', 'Please complete step 2 first');
         }
-        return view('public.pre-registration.step3');
+        $step3 = Session::get('pre_registration.step3', []);
+        return view('public.pre-registration.resident.step3', compact('step3'));
     }
 
     /**
@@ -169,7 +198,7 @@ class PreRegistrationController extends Controller
             return redirect()->route('public.pre-registration.step3')
                 ->with('error', 'Please complete step 3 first');
         }
-        return view('public.pre-registration.step4');
+        return view('public.pre-registration.resident.step4');
     }
 
     /**

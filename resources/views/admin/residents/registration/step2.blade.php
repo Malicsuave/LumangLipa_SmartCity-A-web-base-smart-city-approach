@@ -2,6 +2,10 @@
 
 @section('page-header', 'New Resident Registration')
 
+@section('page-header-extra')
+    <p class="text-muted mb-0">Provide contact information and additional details for the resident</p>
+@endsection
+
 @section('breadcrumbs')
     <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Home</a></li>
     <li class="breadcrumb-item"><a href="{{ route('admin.residents.index') }}">Residents</a></li>
@@ -15,14 +19,14 @@
 @section('content')
 <div class="row">
     <div class="col-md-12">
-        <div class="card card-primary">
+        <div class="card shadow-lg border-0 admin-card-shadow">
             <div class="card-header">
-                <h3 class="card-title text-white">
+                <strong class="card-title">
                     <i class="fas fa-phone mr-2"></i>
                     Contact Information
-                </h3>
+                </strong>
                 <div class="card-tools">
-                    <span class="badge badge-light">Step 2 of 3</span>
+                    <span class="badge badge-light">Step 2 of 4</span>
                 </div>
             </div>
             <form action="{{ route('admin.residents.create.step2.store') }}" method="POST" id="step2Form">
@@ -44,11 +48,12 @@
                             </div>
                             
                             <div class="col-md-6 mb-3">
-                                <label for="email_address" class="form-label">Email Address</label>
+                                <label for="email_address" class="form-label">Email Address <small class="text-muted">(Optional)</small></label>
                                 <input type="email" class="form-control @error('email_address') is-invalid @enderror" 
                                        id="email_address" name="email_address" 
                                        value="{{ old('email_address', session('registration.step2.email_address')) }}" 
-                                       placeholder="resident@example.com">
+                                       placeholder="resident@example.com (Optional)">
+                                <small class="form-text text-muted">Used for notifications and document delivery</small>
                                 @error('email_address')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror

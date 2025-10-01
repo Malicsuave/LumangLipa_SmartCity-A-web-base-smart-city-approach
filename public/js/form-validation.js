@@ -181,6 +181,21 @@ function formatPhoneNumber($field) {
     }
     
     $field.val(value);
+    
+    // Add visual feedback during typing
+    if (value.length > 0 && value.length < 11) {
+        $field.removeClass('is-valid').addClass('is-invalid');
+        updateFieldFeedback($field, 'Please enter all 11 digits of your phone number.', 'invalid');
+    } else if (value.length === 11 && /^09\d{9}$/.test(value)) {
+        $field.removeClass('is-invalid').addClass('is-valid');
+        updateFieldFeedback($field, 'Valid Philippine mobile number.', 'valid');
+    } else if (value.length === 11) {
+        $field.removeClass('is-valid').addClass('is-invalid');
+        updateFieldFeedback($field, 'Philippine mobile numbers must start with 09.', 'invalid');
+    } else if (value.length === 0) {
+        $field.removeClass('is-valid is-invalid');
+        clearFieldError($field);
+    }
 }
 
 function validatePhoneNumber($field) {
@@ -197,14 +212,37 @@ function validatePhoneNumber($field) {
         return false;
     }
     
-    // Philippine mobile number validation
+    // Must be exactly 11 digits
+    if (!/^\d{11}$/.test(phone)) {
+        setFieldError($field, 'Please enter exactly 11 digits.');
+        return false;
+    }
+    
+    // Philippine mobile number validation (must start with 09)
     if (!/^09\d{9}$/.test(phone)) {
-        setFieldError($field, 'Please enter a valid Philippine mobile number (09XXXXXXXXX).');
+        setFieldError($field, 'Philippine mobile numbers must start with 09 (e.g., 09123456789).');
         return false;
     }
     
     setFieldSuccess($field);
     return true;
+}
+
+/**
+ * Update field feedback (helper function for phone validation)
+ */
+function updateFieldFeedback($field, message, type) {
+    var feedbackClass = type === 'valid' ? 'valid-feedback' : 'invalid-feedback';
+    var existingFeedback = $field.next('.' + feedbackClass);
+    
+    if (existingFeedback.length) {
+        existingFeedback.text(message);
+    } else {
+        // Remove any existing feedback
+        $field.next('.valid-feedback, .invalid-feedback').remove();
+        // Add new feedback
+        $field.after('<div class="' + feedbackClass + '">' + message + '</div>');
+    }
 }
 
 /**

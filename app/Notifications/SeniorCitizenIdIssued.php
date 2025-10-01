@@ -39,24 +39,48 @@ class SeniorCitizenIdIssued extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $resident = $this->seniorCitizen->resident;
+        $expiryDate = $this->seniorCitizen->senior_id_expires_at 
+            ? \Carbon\Carbon::parse($this->seniorCitizen->senior_id_expires_at)->format('F d, Y')
+            : date('F d, Y', strtotime('+5 years'));
+        
+        $issuedDate = $this->seniorCitizen->senior_id_issued_at 
+            ? \Carbon\Carbon::parse($this->seniorCitizen->senior_id_issued_at)->format('F d, Y')
+            : date('F d, Y');
+        
         $message = (new MailMessage)
-            ->subject('Senior Citizen ID Card Issued - Barangay Lumanglipa')
-            ->greeting('Dear ' . $resident->first_name . ',')
-            ->line('Your Senior Citizen ID card has been successfully issued!')
-            ->line('**Senior ID Number:** ' . $this->seniorCitizen->senior_id_number)
-            ->line('**Issued Date:** ' . $this->seniorCitizen->senior_id_issued_at->format('F d, Y'))
-            ->line('**Expiry Date:** ' . $this->seniorCitizen->senior_id_expires_at->format('F d, Y'))
-            ->line('Please find your digital Senior Citizen ID card attached to this email.')
-            ->line('You can present this digital copy along with your physical ID card when needed.')
-            ->line('Thank you for being a valued senior citizen of Barangay Lumanglipa.')
-            ->salutation('Best regards,')
-            ->salutation('Barangay Lumanglipa Administration');
+            ->subject('Your Complete Senior Citizen ID Card - ' . $this->seniorCitizen->senior_id_number)
+            ->greeting('Dear ' . $this->seniorCitizen->full_name . ',')
+            ->line('Your **complete Senior Citizen ID Card** with all information has been successfully issued!')
+            ->line('') // Empty line for spacing
+            ->line('📋 **Complete Senior Citizen ID Details**')
+            ->line('')
+            ->line('🆔 **Senior ID Number:** ' . $this->seniorCitizen->senior_id_number)
+            ->line('👤 **Full Name:** ' . $this->seniorCitizen->full_name)
+            ->line('📍 **Address:** ' . ($this->seniorCitizen->address ?: 'Sitio Malaking Bato, Barangay Lumanglipa, Mataasnakahoy, Batangas'))
+            ->line('📞 **Contact:** ' . ($this->seniorCitizen->phone ?: '+63-998-765-4321'))
+            ->line('🎂 **Date of Birth:** ' . ($this->seniorCitizen->birthdate ? \Carbon\Carbon::parse($this->seniorCitizen->birthdate)->format('F d, Y') : 'N/A'))
+            ->line('🆘 **Emergency Contact:** ' . ($this->seniorCitizen->emergency_contact_name ?: 'Emergency Contact') . ' (' . ($this->seniorCitizen->emergency_contact_relationship ?: 'Family Member') . ')')
+            ->line('📞 **Emergency Number:** ' . ($this->seniorCitizen->emergency_contact_phone ?: '+63-917-123-4567'))
+            ->line('📅 **Issue Date:** ' . $issuedDate)
+            ->line('⏰ **Valid Until:** ' . $expiryDate)
+            ->line('')
+            ->line('📄 Your updated Senior Citizen ID card with complete information is attached as a PDF.')
+            ->line('')
+            ->line('**Important Information:**')
+            ->line('• Keep this email for your records')
+            ->line('• Present this digital copy when availing senior citizen benefits')
+            ->line('• A physical copy is available for pickup')
+            ->line('• This ID provides access to senior citizen discounts and benefits')
+            ->line('')
+            ->line('📍 **Barangay Lumanglipa Office**')
+            ->line('Mataasnakahoy, Batangas')
+            ->line('📞 Contact: (043) XXX-XXXX')
+            ->line('📧 Email: barangay.lumanglipa@gov.ph');
 
         // Attach PDF if provided
         if ($this->pdfPath && file_exists($this->pdfPath)) {
             $message->attach($this->pdfPath, [
-                'as' => 'Senior_Citizen_ID_' . $resident->last_name . '_' . $resident->first_name . '.pdf',
+                'as' => 'Senior_Citizen_ID_' . $this->seniorCitizen->senior_id_number . '.pdf',
                 'mime' => 'application/pdf',
             ]);
         }
@@ -74,7 +98,7 @@ class SeniorCitizenIdIssued extends Notification
         return [
             'senior_citizen_id' => $this->seniorCitizen->id,
             'senior_id_number' => $this->seniorCitizen->senior_id_number,
-            'resident_name' => $this->seniorCitizen->resident->full_name,
+            'resident_name' => $this->seniorCitizen->full_name,
             'issued_at' => $this->seniorCitizen->senior_id_issued_at,
             'expires_at' => $this->seniorCitizen->senior_id_expires_at,
         ];

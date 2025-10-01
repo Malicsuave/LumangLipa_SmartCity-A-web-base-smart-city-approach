@@ -26,36 +26,22 @@
 <section class="content">
     <div class="container-fluid">
         <!-- Senior Citizen Alert -->
-        @if($resident->seniorCitizen)
-        <div class="alert alert-info alert-dismissible">
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-            <h5><i class="icon fas fa-info"></i> Senior Citizen Detected</h5>
-            This resident is registered as a senior citizen and has access to both Resident ID and Senior Citizen ID.
-            <div class="mt-2">
-                <a href="{{ route('admin.senior-citizens.id-management', $resident->seniorCitizen) }}" class="btn btn-warning btn-sm">
-                    <i class="fas fa-user-check mr-1"></i>Manage Senior Citizen ID
-                </a>
-                <span class="text-muted ml-2">or continue managing Resident ID below</span>
-            </div>
-        </div>
+        @if($resident->is_senior_citizen)
+                                                @if($resident->is_senior_citizen)
+                                            <div class="alert alert-warning">
+                                                <h6><i class="fas fa-info-circle mr-2"></i>Senior Citizen Age Detected</h6>
+                                                <p class="mb-2">This resident is 60+ years old. Senior citizens are now managed independently.</p>
+                                                <a href="{{ route('admin.senior-citizens.index') }}" class="btn btn-warning btn-sm">
+                                                    <i class="fas fa-users mr-1"></i>View Senior Citizens
+                                                </a>
+                                                <a href="{{ route('admin.senior-citizens.register') }}" class="btn btn-info btn-sm">
+                                                    <i class="fas fa-plus mr-1"></i>Register as Senior
+                                                </a>
+                                            </div>
+                                        @endif
         @endif
 
         <!-- Alerts -->
-        @if(session('success'))
-        <div class="alert alert-success alert-dismissible">
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-            <h5><i class="icon fas fa-check"></i> Success!</h5>
-            {{ session('success') }}
-        </div>
-        @endif
-
-        @if(session('error'))
-        <div class="alert alert-danger alert-dismissible">
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-            <h5><i class="icon fas fa-ban"></i> Error!</h5>
-            {{ session('error') }}
-        </div>
-        @endif
 
         @if($errors->any())
         <div class="alert alert-danger alert-dismissible">
@@ -73,14 +59,14 @@
                 <div class="card-header">
                     <h3 class="card-title">
                         <i class="fas fa-id-card mr-2"></i>Resident ID Management
-                        @if($resident->seniorCitizen)
-                            <span class="badge badge-warning ml-2">Senior Citizen</span>
+                        @if($resident->is_senior_citizen)
+                            <span class="badge badge-warning ml-2">Age 60+</span>
                         @endif
                     </h3>
                     <div class="card-tools">
-                        @if($resident->seniorCitizen)
-                            <a href="{{ route('admin.senior-citizens.id-management', $resident->seniorCitizen) }}" class="btn btn-tool btn-sm">
-                                <i class="fas fa-user-check"></i> Senior ID
+                        @if($resident->is_senior_citizen)
+                            <a href="{{ route('admin.senior-citizens.index') }}" class="btn btn-tool btn-sm">
+                                <i class="fas fa-user-check"></i> Senior Citizens
                             </a>
                         @endif
                     </div>
@@ -89,7 +75,7 @@
                 <div class="card-body">
 
                     <!-- ID Type Selection for Senior Citizens -->
-                    @if($resident->seniorCitizen)
+                    @if($resident->is_senior_citizen)
                     <div class="row mb-4">
                         <div class="col-12">
                             <div class="card card-warning">
@@ -120,8 +106,8 @@
                                                     <span class="info-box-text">Senior Citizen ID</span>
                                                     <span class="info-box-number">5-year validity</span>
                                                     <div class="mt-2">
-                                                        <a href="{{ route('admin.senior-citizens.id-management', $resident->seniorCitizen) }}" class="btn btn-warning btn-sm">
-                                                            <i class="fas fa-arrow-right mr-1"></i>Switch to Senior ID
+                                                        <a href="{{ route('admin.senior-citizens.index') }}" class="btn btn-warning btn-sm">
+                                                            <i class="fas fa-arrow-right mr-1"></i>View Senior Citizens
                                                         </a>
                                                     </div>
                                                 </div>

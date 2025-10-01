@@ -2,6 +2,10 @@
 
 @section('page-header', 'New Resident Registration')
 
+@section('page-header-extra')
+    <p class="text-muted mb-0">Enter the resident's personal information and household details</p>
+@endsection
+
 @section('breadcrumbs')
     <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Home</a></li>
     <li class="breadcrumb-item"><a href="{{ route('admin.residents.index') }}">Residents</a></li>
@@ -15,21 +19,20 @@
 @section('content')
 <div class="row">
     <div class="col-md-12">
-        <div class="card card-primary">
+        <div class="card shadow-lg border-0 admin-card-shadow">
             <div class="card-header">
-                <h3 class="card-title text-white">
+                <strong class="card-title">
                     <i class="fas fa-user mr-2"></i>
                     Personal Information
-                </h3>
+                </strong>
                 <div class="card-tools">
-                    <span class="badge badge-light">Step 1 of 3</span>
+                    <span class="badge badge-light">Step 1 of 4</span>
                 </div>
             </div>
             <form action="{{ route('admin.residents.create.step1.store') }}" method="POST" id="step1Form">
                 @csrf
                 <div class="card-body registration-form">
 
-                    @csrf
                     <div class="card-body">
                         <!-- Type of Resident -->
                         <div class="row mb-4">
@@ -155,6 +158,114 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
+                        </div>
+
+                        <!-- Citizenship Information -->
+                        <hr>
+                        <h5 class="text-primary mb-3">
+                            <i class="fas fa-flag mr-2"></i>Citizenship Information
+                        </h5>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="citizenship_type" class="form-label">Citizenship Type <span class="text-danger">*</span></label>
+                                <select class="form-control @error('citizenship_type') is-invalid @enderror" 
+                                        id="citizenship_type" name="citizenship_type" required>
+                                    <option value="">Select citizenship type</option>
+                                    <option value="FILIPINO" {{ old('citizenship_type', session('registration.step1.citizenship_type')) == 'FILIPINO' ? 'selected' : '' }}>Filipino</option>
+                                    <option value="DUAL" {{ old('citizenship_type', session('registration.step1.citizenship_type')) == 'DUAL' ? 'selected' : '' }}>Dual Citizen</option>
+                                    <option value="NATURALIZED" {{ old('citizenship_type', session('registration.step1.citizenship_type')) == 'NATURALIZED' ? 'selected' : '' }}>Naturalized Filipino</option>
+                                    <option value="FOREIGN" {{ old('citizenship_type', session('registration.step1.citizenship_type')) == 'FOREIGN' ? 'selected' : '' }}>Foreign National</option>
+                                </select>
+                                @error('citizenship_type')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="citizenship_country" class="form-label">Country <span class="citizenship-country-required text-danger" style="display: none;">*</span></label>
+                                <input type="text" class="form-control @error('citizenship_country') is-invalid @enderror" 
+                                       id="citizenship_country" name="citizenship_country" 
+                                       value="{{ old('citizenship_country', session('registration.step1.citizenship_country')) }}" 
+                                       placeholder="Enter country (for dual/foreign citizens)">
+                                @error('citizenship_country')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <!-- Education Information -->
+                        <hr>
+                        <h5 class="text-primary mb-3">
+                            <i class="fas fa-graduation-cap mr-2"></i>Education Information
+                        </h5>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="educational_attainment" class="form-label">Educational Attainment <span class="text-danger">*</span></label>
+                                <select class="form-control @error('educational_attainment') is-invalid @enderror" 
+                                        id="educational_attainment" name="educational_attainment" required>
+                                    <option value="">Select educational attainment</option>
+                                    <option value="No Formal Education" {{ old('educational_attainment', session('registration.step1.educational_attainment')) == 'No Formal Education' ? 'selected' : '' }}>No Formal Education</option>
+                                    <option value="Elementary Undergraduate" {{ old('educational_attainment', session('registration.step1.educational_attainment')) == 'Elementary Undergraduate' ? 'selected' : '' }}>Elementary Undergraduate</option>
+                                    <option value="Elementary Graduate" {{ old('educational_attainment', session('registration.step1.educational_attainment')) == 'Elementary Graduate' ? 'selected' : '' }}>Elementary Graduate</option>
+                                    <option value="High School Undergraduate" {{ old('educational_attainment', session('registration.step1.educational_attainment')) == 'High School Undergraduate' ? 'selected' : '' }}>High School Undergraduate</option>
+                                    <option value="High School Graduate" {{ old('educational_attainment', session('registration.step1.educational_attainment')) == 'High School Graduate' ? 'selected' : '' }}>High School Graduate</option>
+                                    <option value="Vocational/Technical Graduate" {{ old('educational_attainment', session('registration.step1.educational_attainment')) == 'Vocational/Technical Graduate' ? 'selected' : '' }}>Vocational/Technical Graduate</option>
+                                    <option value="College Undergraduate" {{ old('educational_attainment', session('registration.step1.educational_attainment')) == 'College Undergraduate' ? 'selected' : '' }}>College Undergraduate</option>
+                                    <option value="College Graduate" {{ old('educational_attainment', session('registration.step1.educational_attainment')) == 'College Graduate' ? 'selected' : '' }}>College Graduate</option>
+                                    <option value="Post Graduate" {{ old('educational_attainment', session('registration.step1.educational_attainment')) == 'Post Graduate' ? 'selected' : '' }}>Post Graduate</option>
+                                </select>
+                                @error('educational_attainment')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="education_status" class="form-label">Education Status <span class="text-danger">*</span></label>
+                                <select class="form-control @error('education_status') is-invalid @enderror" 
+                                        id="education_status" name="education_status" required>
+                                    <option value="">Select education status</option>
+                                    <option value="Studying" {{ old('education_status', session('registration.step1.education_status')) == 'Studying' ? 'selected' : '' }}>Studying</option>
+                                    <option value="Graduated" {{ old('education_status', session('registration.step1.education_status')) == 'Graduated' ? 'selected' : '' }}>Graduated</option>
+                                    <option value="Stopped Schooling" {{ old('education_status', session('registration.step1.education_status')) == 'Stopped Schooling' ? 'selected' : '' }}>Stopped Schooling</option>
+                                    <option value="Not Applicable" {{ old('education_status', session('registration.step1.education_status')) == 'Not Applicable' ? 'selected' : '' }}>Not Applicable</option>
+                                </select>
+                                @error('education_status')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <!-- Additional Information -->
+                        <hr>
+                        <h5 class="text-primary mb-3">
+                            <i class="fas fa-info-circle mr-2"></i>Additional Information
+                        </h5>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="religion" class="form-label">Religion</label>
+                                <input type="text" class="form-control @error('religion') is-invalid @enderror" 
+                                       id="religion" name="religion" 
+                                       value="{{ old('religion', session('registration.step1.religion')) }}" 
+                                       placeholder="Enter religion (optional)">
+                                @error('religion')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="profession_occupation" class="form-label">Profession/Occupation</label>
+                                <input type="text" class="form-control @error('profession_occupation') is-invalid @enderror" 
+                                       id="profession_occupation" name="profession_occupation" 
+                                       value="{{ old('profession_occupation', session('registration.step1.profession_occupation')) }}" 
+                                       placeholder="Enter profession/occupation (optional)">
+                                @error('profession_occupation')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
                     </div>
 
                 <div class="card-footer bg-light">
@@ -184,6 +295,55 @@
 @section('scripts')
 <script>
 $(document).ready(function() {
+    console.log('Step 1 inline script loaded');
+    
+    // Handle citizenship type change
+    $('#citizenship_type').on('change', function() {
+        const citizenshipType = $(this).val();
+        const countryField = $('#citizenship_country');
+        const requiredIndicator = $('.citizenship-country-required');
+        
+        if (citizenshipType === 'DUAL' || citizenshipType === 'FOREIGN' || citizenshipType === 'NATURALIZED') {
+            // Show required indicator and make field required
+            requiredIndicator.show();
+            countryField.prop('required', true);
+            
+            // Update placeholder based on type
+            if (citizenshipType === 'DUAL') {
+                countryField.attr('placeholder', 'Enter other country (for dual citizens)');
+            } else if (citizenshipType === 'FOREIGN') {
+                countryField.attr('placeholder', 'Enter country of citizenship');
+            } else if (citizenshipType === 'NATURALIZED') {
+                countryField.attr('placeholder', 'Enter country of origin');
+            }
+        } else {
+            // Hide required indicator and remove required attribute
+            requiredIndicator.hide();
+            countryField.prop('required', false);
+            countryField.val(''); // Clear the field
+            countryField.attr('placeholder', 'Enter country (for dual/foreign citizens)');
+        }
+    });
+    
+    // Trigger change event on page load to handle pre-selected values
+    $('#citizenship_type').trigger('change');
+    
+    // Form validation enhancement
+    $('#step1Form').on('submit', function(e) {
+        const citizenshipType = $('#citizenship_type').val();
+        const countryField = $('#citizenship_country').val().trim();
+        
+        // Validate citizenship country field
+        if ((citizenshipType === 'DUAL' || citizenshipType === 'FOREIGN' || citizenshipType === 'NATURALIZED') && !countryField) {
+            e.preventDefault();
+            alert('Please enter the country for the selected citizenship type.');
+            $('#citizenship_country').focus();
+            return false;
+        }
+        
+        return true;
+    });
+
     // Calculate age when birthdate is entered
     $('#birthdate').on('change', function() {
         var birthdate = new Date($(this).val());
