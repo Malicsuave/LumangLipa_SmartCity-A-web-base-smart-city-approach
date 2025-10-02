@@ -83,6 +83,7 @@
                     <table id="preRegistrationsTable" class="table table-bordered table-striped">
                         <thead>
                             <tr>
+                                <th>Registration ID</th>
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Contact</th>
@@ -128,6 +129,9 @@
                                 @endphp
                                 <tr>
                                     <td>
+                                        <strong>{{ $registration->registration_id ?? 'PRE-' . $registration->created_at->format('Y-m') . '-' . str_pad($registration->id, 5, '0', STR_PAD_LEFT) }}</strong>
+                                    </td>
+                                    <td>
                                         <strong>{{ $registration->full_name }}</strong>
                                         @if($registration->is_senior_citizen)
                                             <br><small class="badge badge-warning">Senior Citizen</small>
@@ -157,7 +161,6 @@
                                                     <i class="fas fa-eye mr-2"></i>View Details
                                                 </a>
                                                 @if($registration->status === 'pending')
-                                                    <div class="dropdown-divider"></div>
                                                     <a class="dropdown-item" href="javascript:void(0)" onclick="approveRegistration({{ $registration->id }})">
                                                         <i class="fas fa-check mr-2"></i>Approve
                                                     </a>

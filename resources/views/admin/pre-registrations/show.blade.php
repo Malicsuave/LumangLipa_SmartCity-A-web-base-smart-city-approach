@@ -3,381 +3,446 @@
 @section('title', 'Pre-Registration Details - ' . $preRegistration->full_name)
 
 @section('content')
-<div class="container-fluid">
-    <div class="row justify-content-center">
-        <div class="col-12">
-            <!-- Header -->
-            <div class="row mb-2 align-items-center">
-                <div class="col">
-                    <h2 class="h5 page-title">Pre-Registration Details</h2>
-                </div>
-                <div class="col-auto">
-                    <a href="{{ route('admin.pre-registrations.index') }}" class="btn btn-outline-secondary">
-                        <i class="fe fe-arrow-left"></i> Back to List
-                    </a>
-                </div>
+<!-- Content Header (Page header) -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Pre-Registration Details</h1>
+                <small class="text-muted">{{ $preRegistration->full_name }}</small>
             </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('admin.pre-registrations.index') }}">Pre-Registrations</a></li>
+                    <li class="breadcrumb-item active">{{ $preRegistration->full_name }}</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
 
-            <!-- Status and Action Cards -->
-            <div class="row mb-4">
-                <div class="col-md-8">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col">
-                                    <h4>{{ $preRegistration->full_name }}</h4>
-                                    <p class="text-muted mb-0">Registration ID: {{ $preRegistration->id }}</p>
-                                </div>
-                                <div class="col-auto">
-                                    @if($preRegistration->status === 'pending')
-                                        <span class="badge badge-warning badge-lg">PENDING REVIEW</span>
-                                    @elseif($preRegistration->status === 'approved')
-                                        <span class="badge badge-success badge-lg">APPROVED</span>
-                                    @else
-                                        <span class="badge badge-danger badge-lg">REJECTED</span>
-                                    @endif
-                                </div>
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        <!-- Status and Action Cards -->
+        <div class="row mb-3">
+            <div class="col-md-8">
+                <div class="card card-primary card-outline">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h4 class="mb-1">{{ $preRegistration->full_name }}</h4>
+                                <p class="text-muted mb-0">
+                                    <i class="fas fa-hashtag mr-1"></i>Registration ID: <strong>{{ $preRegistration->registration_id ?? 'PRE-' . $preRegistration->created_at->format('Y-m') . '-' . str_pad($preRegistration->id, 5, '0', STR_PAD_LEFT) }}</strong>
+                                </p>
                             </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-body text-center">
-                            @if($preRegistration->status === 'pending')
-                                <button type="button" class="btn btn-success btn-block mb-2" 
-                                        onclick="approveRegistration({{ $preRegistration->id }})">
-                                    <i class="fe fe-check"></i> Approve Registration
-                                </button>
-                                <button type="button" class="btn btn-danger btn-block" 
-                                        onclick="rejectRegistration({{ $preRegistration->id }})">
-                                    <i class="fe fe-x"></i> Reject Registration
-                                </button>
-                            @else
-                                <p class="text-muted">Registration has been {{ $preRegistration->status }}</p>
-                                @if($preRegistration->status === 'approved' && $preRegistration->resident)
-                                    <a href="{{ route('admin.residents.show', $preRegistration->resident) }}" 
-                                       class="btn btn-primary btn-block">
-                                        <i class="fe fe-user"></i> View Resident Record
-                                    </a>
+                            <div class="col-auto">
+                                @if($preRegistration->status === 'pending')
+                                    <span class="badge badge-warning p-2" style="font-size: 1rem;">
+                                        <i class="fas fa-clock mr-1"></i>PENDING REVIEW
+                                    </span>
+                                @elseif($preRegistration->status === 'approved')
+                                    <span class="badge badge-success p-2" style="font-size: 1rem;">
+                                        <i class="fas fa-check-circle mr-1"></i>APPROVED
+                                    </span>
+                                @else
+                                    <span class="badge badge-danger p-2" style="font-size: 1rem;">
+                                        <i class="fas fa-times-circle mr-1"></i>REJECTED
+                                    </span>
                                 @endif
-                            @endif
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center p-3">
+                        @if($preRegistration->status === 'pending')
+                            <button type="button" class="btn btn-success btn-block mb-2" 
+                                    onclick="approveRegistration({{ $preRegistration->id }})">
+                                <i class="fas fa-check mr-1"></i> Approve Registration
+                            </button>
+                            <button type="button" class="btn btn-danger btn-block" 
+                                    onclick="rejectRegistration({{ $preRegistration->id }})">
+                                <i class="fas fa-times mr-1"></i> Reject Registration
+                            </button>
+                        @else
+                            <p class="text-muted mb-2">Registration has been {{ $preRegistration->status }}</p>
+                            @if($preRegistration->status === 'approved' && $preRegistration->resident)
+                                <a href="{{ route('admin.residents.show', $preRegistration->resident) }}" 
+                                   class="btn btn-primary btn-block">
+                                    <i class="fas fa-user mr-1"></i> View Resident Record
+                                </a>
+                            @endif
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            <div class="row">
-                <!-- Personal Information -->
-                <div class="col-md-6 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h6 class="card-title mb-0">Personal Information</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row mb-2">
-                                <div class="col-sm-4"><strong>Full Name:</strong></div>
-                                <div class="col-sm-8">{{ $preRegistration->full_name }}</div>
-                            </div>
-                            <div class="row mb-2">
-                                <div class="col-sm-4"><strong>Gender:</strong></div>
-                                <div class="col-sm-8">{{ $preRegistration->sex }}</div>
-                            </div>
-                            <div class="row mb-2">
-                                <div class="col-sm-4"><strong>Birthdate:</strong></div>
-                                <div class="col-sm-8">
-                                    {{ $preRegistration->birthdate->format('F d, Y') }} 
-                                    <small class="text-muted">({{ $preRegistration->age }} years old)</small>
-                                    @if($preRegistration->is_senior_citizen)
-                                        <br><span class="badge badge-warning">Senior Citizen</span>
+        <!-- Consolidated Information Card -->
+        <div class="row">
+            <div class="col-12 mb-3">
+                <div class="card card-primary card-outline">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-info-circle mr-2"></i>Registration Information</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Personal Information -->
+                            <div class="col-md-6 mb-4">
+                                <h5 class="text-primary border-bottom pb-2 mb-3">
+                                    <i class="fas fa-user mr-2"></i>Personal Information
+                                </h5>
+                                <table class="table table-sm table-borderless">
+                                    <tr>
+                                        <td width="40%" class="text-muted"><strong>Full Name:</strong></td>
+                                        <td>{{ $preRegistration->full_name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted"><strong>Gender:</strong></td>
+                                        <td>{{ $preRegistration->sex }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted"><strong>Birthdate:</strong></td>
+                                        <td>
+                                            {{ $preRegistration->birthdate->format('F d, Y') }} 
+                                            <small class="text-muted">({{ $preRegistration->age }} years old)</small>
+                                            @if($preRegistration->is_senior_citizen)
+                                                <br><span class="badge badge-warning mt-1"><i class="fas fa-user-check mr-1"></i>Senior Citizen</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted"><strong>Birthplace:</strong></td>
+                                        <td>{{ $preRegistration->birthplace }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted"><strong>Civil Status:</strong></td>
+                                        <td>{{ $preRegistration->civil_status }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted"><strong>Resident Type:</strong></td>
+                                        <td>{{ $preRegistration->type_of_resident }}</td>
+                                    </tr>
+                                    @if($preRegistration->religion)
+                                    <tr>
+                                        <td class="text-muted"><strong>Religion:</strong></td>
+                                        <td>{{ $preRegistration->religion }}</td>
+                                    </tr>
                                     @endif
+                                </table>
+                            </div>
+
+                            <!-- Contact Information -->
+                            <div class="col-md-6 mb-4">
+                                <h5 class="text-primary border-bottom pb-2 mb-3">
+                                    <i class="fas fa-address-book mr-2"></i>Contact Information
+                                </h5>
+                                <table class="table table-sm table-borderless">
+                                    <tr>
+                                        <td width="40%" class="text-muted"><strong>Email:</strong></td>
+                                        <td>
+                                            @if($preRegistration->email_address)
+                                                <i class="fas fa-envelope mr-1"></i>{{ $preRegistration->email_address }}
+                                            @else
+                                                <span class="text-muted">Not provided</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted"><strong>Phone:</strong></td>
+                                        <td><i class="fas fa-phone mr-1"></i>{{ $preRegistration->contact_number }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted"><strong>Address:</strong></td>
+                                        <td><i class="fas fa-map-marker-alt mr-1"></i>{{ $preRegistration->address }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <!-- Citizenship & Work Information -->
+                            <div class="col-md-6 mb-4">
+                                <h5 class="text-primary border-bottom pb-2 mb-3">
+                                    <i class="fas fa-briefcase mr-2"></i>Citizenship & Work
+                                </h5>
+                                <table class="table table-sm table-borderless">
+                                    <tr>
+                                        <td width="40%" class="text-muted"><strong>Citizenship:</strong></td>
+                                        <td>
+                                            {{ $preRegistration->citizenship_type }}
+                                            @if($preRegistration->citizenship_country)
+                                                ({{ $preRegistration->citizenship_country }})
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted"><strong>Occupation:</strong></td>
+                                        <td>{{ $preRegistration->profession_occupation }}</td>
+                                    </tr>
+                                    @if($preRegistration->monthly_income)
+                                    <tr>
+                                        <td class="text-muted"><strong>Monthly Income:</strong></td>
+                                        <td>₱{{ number_format($preRegistration->monthly_income, 2) }}</td>
+                                    </tr>
+                                    @endif
+                                </table>
+                            </div>
+
+                            <!-- Education Information -->
+                            <div class="col-md-6 mb-4">
+                                <h5 class="text-primary border-bottom pb-2 mb-3">
+                                    <i class="fas fa-graduation-cap mr-2"></i>Education
+                                </h5>
+                                <table class="table table-sm table-borderless">
+                                    <tr>
+                                        <td width="40%" class="text-muted"><strong>Attainment:</strong></td>
+                                        <td>{{ $preRegistration->educational_attainment }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted"><strong>Status:</strong></td>
+                                        <td>{{ $preRegistration->education_status }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <!-- Mother's Information -->
+                            @if($preRegistration->mother_full_name)
+                            <div class="col-md-6 mb-4">
+                                <h5 class="text-primary border-bottom pb-2 mb-3">
+                                    <i class="fas fa-female mr-2"></i>Mother's Information
+                                </h5>
+                                <table class="table table-sm table-borderless">
+                                    <tr>
+                                        <td width="40%" class="text-muted"><strong>Name:</strong></td>
+                                        <td>{{ $preRegistration->mother_full_name }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            @endif
+
+                            <!-- Population Sectors -->
+                            @if($preRegistration->population_sectors && is_array($preRegistration->population_sectors) && count($preRegistration->population_sectors) > 0)
+                            <div class="col-md-6 mb-4">
+                                <h5 class="text-primary border-bottom pb-2 mb-3">
+                                    <i class="fas fa-users mr-2"></i>Population Sectors
+                                </h5>
+                                <div>
+                                    @foreach($preRegistration->population_sectors as $sector)
+                                        <span class="badge badge-info mr-1 mb-1">{{ $sector }}</span>
+                                    @endforeach
                                 </div>
                             </div>
-                            <div class="row mb-2">
-                                <div class="col-sm-4"><strong>Birthplace:</strong></div>
-                                <div class="col-sm-8">{{ $preRegistration->birthplace }}</div>
-                            </div>
-                            <div class="row mb-2">
-                                <div class="col-sm-4"><strong>Civil Status:</strong></div>
-                                <div class="col-sm-8">{{ $preRegistration->civil_status }}</div>
-                            </div>
-                            <div class="row mb-2">
-                                <div class="col-sm-4"><strong>Resident Type:</strong></div>
-                                <div class="col-sm-8">{{ $preRegistration->type_of_resident }}</div>
-                            </div>
-                            @if($preRegistration->religion)
-                                <div class="row mb-2">
-                                    <div class="col-sm-4"><strong>Religion:</strong></div>
-                                    <div class="col-sm-8">{{ $preRegistration->religion }}</div>
-                                </div>
                             @endif
                         </div>
-                    </div>
-                </div>
 
-                <!-- Contact Information -->
-                <div class="col-md-6 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h6 class="card-title mb-0">Contact Information</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row mb-2">
-                                <div class="col-sm-4"><strong>Email:</strong></div>
-                                <div class="col-sm-8">{{ $preRegistration->email_address }}</div>
-                            </div>
-                            <div class="row mb-2">
-                                <div class="col-sm-4"><strong>Phone:</strong></div>
-                                <div class="col-sm-8">{{ $preRegistration->contact_number }}</div>
-                            </div>
-                            <div class="row mb-2">
-                                <div class="col-sm-4"><strong>Address:</strong></div>
-                                <div class="col-sm-8">{{ $preRegistration->address }}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Citizenship & Work Information -->
-                <div class="col-md-6 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h6 class="card-title mb-0">Citizenship & Work</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row mb-2">
-                                <div class="col-sm-4"><strong>Citizenship:</strong></div>
-                                <div class="col-sm-8">
-                                    {{ $preRegistration->citizenship_type }}
-                                    @if($preRegistration->citizenship_country)
-                                        ({{ $preRegistration->citizenship_country }})
+                        <!-- Proof of Residency -->
+                        @if($preRegistration->proof_of_residency)
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <h5 class="text-primary border-bottom pb-2 mb-3">
+                                    <i class="fas fa-file-alt mr-2"></i>Proof of Residency
+                                </h5>
+                                <div class="text-center">
+                                    @php
+                                        $proofPath = 'storage/pre-registrations/proof-of-residency/' . $preRegistration->proof_of_residency;
+                                        $isImage = in_array(pathinfo($preRegistration->proof_of_residency, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png', 'gif']);
+                                    @endphp
+                                    
+                                    @if($isImage)
+                                        <img src="{{ asset($proofPath) }}" 
+                                             alt="Proof of Residency" class="img-thumbnail" style="max-width: 600px;"
+                                             onerror="this.onerror=null; this.src='{{ asset('images/no-image.png') }}'; this.alt='Image not found';">
+                                    @else
+                                        <div class="alert alert-info">
+                                            <i class="fas fa-file-pdf fa-3x mb-2"></i>
+                                            <p>PDF Document</p>
+                                        </div>
                                     @endif
-                                </div>
-                            </div>
-                            <div class="row mb-2">
-                                <div class="col-sm-4"><strong>Occupation:</strong></div>
-                                <div class="col-sm-8">{{ $preRegistration->profession_occupation }}</div>
-                            </div>
-                            @if($preRegistration->monthly_income)
-                                <div class="row mb-2">
-                                    <div class="col-sm-4"><strong>Monthly Income:</strong></div>
-                                    <div class="col-sm-8">₱{{ number_format($preRegistration->monthly_income, 2) }}</div>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Education Information -->
-                <div class="col-md-6 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h6 class="card-title mb-0">Education</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row mb-2">
-                                <div class="col-sm-4"><strong>Attainment:</strong></div>
-                                <div class="col-sm-8">{{ $preRegistration->educational_attainment }}</div>
-                            </div>
-                            <div class="row mb-2">
-                                <div class="col-sm-4"><strong>Status:</strong></div>
-                                <div class="col-sm-8">{{ $preRegistration->education_status }}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Mother's Information -->
-                @if($preRegistration->mother_full_name)
-                    <div class="col-md-6 mb-4">
-                        <div class="card">
-                            <div class="card-header">
-                                <h6 class="card-title mb-0">Mother's Information</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="row mb-2">
-                                    <div class="col-sm-4"><strong>Name:</strong></div>
-                                    <div class="col-sm-8">{{ $preRegistration->mother_full_name }}</div>
+                                    <br>
+                                    <a href="{{ asset($proofPath) }}" 
+                                       target="_blank" class="btn btn-sm btn-primary mt-2">
+                                        <i class="fas fa-external-link-alt mr-1"></i>Open in New Tab
+                                    </a>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                @endif
+                        @endif
 
-                <!-- Population Sectors -->
-                @if($preRegistration->population_sectors && is_array($preRegistration->population_sectors) && count($preRegistration->population_sectors) > 0)
-                    <div class="col-md-6 mb-4">
-                        <div class="card">
-                            <div class="card-header">
-                                <h6 class="card-title mb-0">Population Sectors</h6>
-                            </div>
-                            <div class="card-body">
-                                @foreach($preRegistration->population_sectors as $sector)
-                                    <span class="badge badge-info mr-1 mb-1">{{ $sector }}</span>
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
-                @endif
-
-                <!-- ID Card Images -->
-                <div class="col-md-12 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h6 class="card-title mb-0">ID Card Images</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                @if($preRegistration->photo)
-                                    <div class="col-md-6 text-center">
-                                        <h6>Photo</h6>
+                        <!-- ID Card Images -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <h5 class="text-primary border-bottom pb-2 mb-3">
+                                    <i class="fas fa-images mr-2"></i>ID Card Images
+                                </h5>
+                                <div class="row">
+                                    @if($preRegistration->photo)
+                                    <div class="col-md-6 text-center mb-3">
+                                        <h6 class="text-muted mb-2"><i class="fas fa-camera mr-1"></i>Photo</h6>
                                         <img src="{{ asset('storage/pre-registrations/photos/' . $preRegistration->photo) }}" 
                                              alt="Registration Photo" class="img-thumbnail" style="max-width: 300px;">
                                     </div>
-                                @endif
-                                
-                                @if($preRegistration->signature)
-                                    <div class="col-md-6 text-center">
-                                        <h6>Signature</h6>
+                                    @endif
+                                    
+                                    @if($preRegistration->signature)
+                                    <div class="col-md-6 text-center mb-3">
+                                        <h6 class="text-muted mb-2"><i class="fas fa-signature mr-1"></i>Signature</h6>
                                         <img src="{{ asset('storage/pre-registrations/signatures/' . $preRegistration->signature) }}" 
                                              alt="Registration Signature" class="img-thumbnail" style="max-width: 300px;">
                                     </div>
-                                @endif
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <!-- Registration Timeline -->
-                <div class="col-md-12 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h6 class="card-title mb-0">Registration Timeline</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="timeline">
+        <div class="row">
+
+            <!-- Registration Timeline -->
+            <div class="col-md-12 mb-3">
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-history mr-2"></i>Registration Timeline</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="timeline">
+                            <div>
+                                <i class="fas fa-file-alt bg-primary"></i>
                                 <div class="timeline-item">
-                                    <div class="timeline-marker bg-primary"></div>
-                                    <div class="timeline-content">
-                                        <h6>Registration Submitted</h6>
-                                        <p class="text-muted mb-0">{{ $preRegistration->created_at->format('F d, Y g:i A') }}</p>
+                                    <span class="time"><i class="fas fa-clock mr-1"></i>{{ $preRegistration->created_at->format('M d, Y g:i A') }}</span>
+                                    <h3 class="timeline-header">Registration Submitted</h3>
+                                    <div class="timeline-body">
+                                        Pre-registration application was submitted by {{ $preRegistration->full_name }}
                                     </div>
                                 </div>
-                                
-                                @if($preRegistration->status === 'approved')
-                                    <div class="timeline-item">
-                                        <div class="timeline-marker bg-success"></div>
-                                        <div class="timeline-content">
-                                            <h6>Registration Approved</h6>
-                                            <p class="text-muted mb-0">
-                                                {{ $preRegistration->approved_at->format('F d, Y g:i A') }}
-                                                @if($preRegistration->approvedBy)
-                                                    by {{ $preRegistration->approvedBy->name }}
-                                                @endif
-                                            </p>
-                                            @if($preRegistration->resident)
-                                                <p class="text-success mb-0">
-                                                    <i class="fe fe-check"></i> Resident record created & digital ID sent
-                                                </p>
-                                            @endif
-                                        </div>
+                            </div>
+                            
+                            @if($preRegistration->status === 'approved')
+                            <div>
+                                <i class="fas fa-check-circle bg-success"></i>
+                                <div class="timeline-item">
+                                    <span class="time"><i class="fas fa-clock mr-1"></i>{{ $preRegistration->approved_at->format('M d, Y g:i A') }}</span>
+                                    <h3 class="timeline-header">Registration Approved</h3>
+                                    <div class="timeline-body">
+                                        @if($preRegistration->approvedBy)
+                                            Approved by <strong>{{ $preRegistration->approvedBy->name }}</strong>
+                                        @endif
+                                        @if($preRegistration->resident)
+                                            <br><span class="badge badge-success mt-1"><i class="fas fa-check mr-1"></i>Resident record created & digital ID sent</span>
+                                        @endif
                                     </div>
-                                @elseif($preRegistration->status === 'rejected')
-                                    <div class="timeline-item">
-                                        <div class="timeline-marker bg-danger"></div>
-                                        <div class="timeline-content">
-                                            <h6>Registration Rejected</h6>
-                                            <p class="text-muted mb-0">
-                                                {{ $preRegistration->rejected_at->format('F d, Y g:i A') }}
-                                                @if($preRegistration->rejectedBy)
-                                                    by {{ $preRegistration->rejectedBy->name }}
-                                                @endif
-                                            </p>
-                                            @if($preRegistration->rejection_reason)
-                                                <p class="text-danger mb-0">
-                                                    <strong>Reason:</strong> {{ $preRegistration->rejection_reason }}
-                                                </p>
-                                            @endif
-                                        </div>
+                                </div>
+                            </div>
+                            @elseif($preRegistration->status === 'rejected')
+                            <div>
+                                <i class="fas fa-times-circle bg-danger"></i>
+                                <div class="timeline-item">
+                                    <span class="time"><i class="fas fa-clock mr-1"></i>{{ $preRegistration->rejected_at->format('M d, Y g:i A') }}</span>
+                                    <h3 class="timeline-header text-danger">Registration Rejected</h3>
+                                    <div class="timeline-body">
+                                        @if($preRegistration->rejectedBy)
+                                            Rejected by <strong>{{ $preRegistration->rejectedBy->name }}</strong>
+                                        @endif
+                                        @if($preRegistration->rejection_reason)
+                                            <br><div class="alert alert-danger mt-2 mb-0">
+                                                <strong>Reason:</strong> {{ $preRegistration->rejection_reason }}
+                                            </div>
+                                        @endif
                                     </div>
-                                @endif
+                                </div>
+                            </div>
+                            @endif
+                            
+                            <div>
+                                <i class="fas fa-clock bg-gray"></i>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
-<!-- Approve Confirmation Modal -->
-<div class="modal fade" id="approveModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Approve Registration</h5>
-                <button type="button" class="close" data-dismiss="modal">
-                    <span>&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>Are you sure you want to approve this registration for <strong>{{ $preRegistration->full_name }}</strong>?</p>
-                <div class="alert alert-info">
-                    <h6><i class="fe fe-info"></i> This will:</h6>
-                    <ul class="mb-0">
-                        <li>Create a new resident record in the system</li>
-                        <li>Generate a digital ID ({{ $preRegistration->is_senior_citizen ? 'Senior Citizen ID' : 'Resident ID' }})</li>
-                        <li>Send the digital ID to the applicant's email</li>
-                        @if($preRegistration->is_senior_citizen)
-                            <li>Register them as a senior citizen with benefits</li>
-                        @endif
-                    </ul>
+        <!-- Approve Confirmation Modal -->
+        <div class="modal fade" id="approveModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-success">
+                        <h4 class="modal-title"><i class="fas fa-check-circle mr-2"></i>Approve Registration</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to approve this registration for <strong>{{ $preRegistration->full_name }}</strong>?</p>
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-info-circle mr-1"></i>This will:</h6>
+                            <ul class="mb-0">
+                                <li>Create a new resident record in the system</li>
+                                <li>Generate a digital ID ({{ $preRegistration->is_senior_citizen ? 'Senior Citizen ID' : 'Resident ID' }})</li>
+                                <li>Send the digital ID to the applicant's email @if($preRegistration->email_address)({{ $preRegistration->email_address }})@endif</li>
+                                <li>Send SMS notification to {{ $preRegistration->contact_number }}</li>
+                                @if($preRegistration->is_senior_citizen)
+                                    <li>Register them as a senior citizen with benefits</li>
+                                @endif
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <form id="approveForm" method="POST" style="display: inline;">
+                            @csrf
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-check mr-1"></i> Approve Registration
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <form id="approveForm" method="POST" style="display: inline;">
-                    @csrf
-                    <button type="submit" class="btn btn-success">
-                        <i class="fe fe-check"></i> Approve Registration
-                    </button>
-                </form>
+        </div>
+
+        <!-- Reject Modal -->
+        <div class="modal fade" id="rejectModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger">
+                        <h4 class="modal-title"><i class="fas fa-times-circle mr-2"></i>Reject Registration</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form id="rejectForm" method="POST">
+                        @csrf
+                        <div class="modal-body">
+                            <p>Please provide a reason for rejecting <strong>{{ $preRegistration->full_name }}</strong>'s registration:</p>
+                            <div class="form-group">
+                                <textarea class="form-control" name="rejection_reason" rows="3" 
+                                          placeholder="Enter reason for rejection..." required></textarea>
+                            </div>
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle mr-1"></i>The applicant will be notified via email and SMS about the rejection.
+                            </div>
+                        </div>
+                        <div class="modal-footer justify-content-between">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-times mr-1"></i> Reject Registration
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
-
-<!-- Reject Modal -->
-<div class="modal fade" id="rejectModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Reject Registration</h5>
-                <button type="button" class="close" data-dismiss="modal">
-                    <span>&times;</span>
-                </button>
-            </div>
-            <form id="rejectForm" method="POST">
-                @csrf
-                <div class="modal-body">
-                    <p>Please provide a reason for rejecting <strong>{{ $preRegistration->full_name }}</strong>'s registration:</p>
-                    <textarea class="form-control" name="rejection_reason" rows="3" 
-                              placeholder="Enter reason for rejection..." required></textarea>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-danger">
-                        <i class="fe fe-x"></i> Reject Registration
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+</section>
 @endsection
 
-@section('scripts')
+@push('scripts')
 <script>
 function approveRegistration(id) {
     document.getElementById('approveForm').action = `/admin/pre-registrations/${id}/approve`;
@@ -389,35 +454,4 @@ function rejectRegistration(id) {
     $('#rejectModal').modal('show');
 }
 </script>
-
-<style>
-.timeline {
-    position: relative;
-    padding-left: 30px;
-}
-
-.timeline-item {
-    position: relative;
-    margin-bottom: 20px;
-}
-
-.timeline-marker {
-    position: absolute;
-    left: -34px;
-    top: 5px;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-}
-
-.timeline::before {
-    content: '';
-    position: absolute;
-    left: -28px;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: #dee2e6;
-}
-</style>
-@endsection
+@endpush

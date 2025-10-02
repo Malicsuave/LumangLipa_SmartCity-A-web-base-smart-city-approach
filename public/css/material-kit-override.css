@@ -1,0 +1,200 @@
+/* CRITICAL: Override Material Kit form-control styles */
+/* This file MUST load AFTER material-kit.min.css */
+
+/* Force rounded borders on ALL form controls */
+input.form-control,
+input.form-control[type="text"],
+input.form-control[type="date"],
+input.form-control[type="email"],
+input.form-control[type="tel"],
+select.form-control,
+textarea.form-control,
+.form-control,
+.card .form-control,
+.card-body .form-control,
+.row .form-control,
+.col-md-6 .form-control,
+.col-md-12 .form-control {
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  padding: 0.5rem 0.75rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 400 !important;
+  line-height: 1.4 !important;
+  color: #495057 !important;
+  background-color: #fff !important;
+  background-clip: padding-box !important;
+  background-image: none !important;
+  background-position: 0 0 !important;
+  background-size: 0 0 !important;
+  border: 1px solid #d2d6da !important;
+  border-top: 1px solid #d2d6da !important;
+  border-right: 1px solid #d2d6da !important;
+  border-bottom: 1px solid #d2d6da !important;
+  border-left: 1px solid #d2d6da !important;
+  border-radius: 0.375rem !important;
+  -webkit-border-radius: 0.375rem !important;
+  -moz-border-radius: 0.375rem !important;
+  transition: all 0.15s ease-in-out !important;
+  box-sizing: border-box !important;
+  box-shadow: none !important;
+}
+
+/* Focus state */
+input.form-control:focus,
+input.form-control[type="text"]:focus,
+input.form-control[type="date"]:focus,
+input.form-control[type="email"]:focus,
+input.form-control[type="tel"]:focus,
+select.form-control:focus,
+textarea.form-control:focus,
+.form-control:focus,
+.card .form-control:focus,
+.card-body .form-control:focus {
+  color: #495057 !important;
+  background-color: #fff !important;
+  border-color: #000 !important;
+  border: 1px solid #000 !important;
+  outline: 0 !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Remove Material Kit's ::before and ::after pseudo-elements that create underlines */
+input.form-control::before,
+input.form-control::after,
+select.form-control::before,
+select.form-control::after,
+textarea.form-control::before,
+textarea.form-control::after,
+.form-control::before,
+.form-control::after {
+  display: none !important;
+  content: none !important;
+  background: none !important;
+}
+
+/* Custom rounded input - for inputs WITHOUT validation */
+.custom-rounded-input:not(.is-invalid):not(.is-valid) {
+  border: 1px solid #d2d6da !important;
+  border-radius: 0.375rem !important;
+  background-color: #fff !important;
+  background-image: none !important;
+  padding: 0.5rem 0.75rem !important;
+}
+
+.custom-rounded-input:not(.is-invalid):not(.is-valid):focus {
+  border-color: #000 !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Disabled state */
+input.form-control:disabled,
+select.form-control:disabled,
+textarea.form-control:disabled,
+.form-control:disabled {
+  background-color: #e9ecef !important;
+  opacity: 1 !important;
+}
+
+/* Readonly state */
+input.form-control:read-only,
+.form-control:read-only {
+  background-color: #e9ecef !important;
+  opacity: 1 !important;
+}
+
+
+.form-control.is-valid,
+input.form-control.is-valid,
+input[type="text"].form-control.is-valid,
+select.form-control.is-valid,
+textarea.form-control.is-valid {
+  border-color: #66bb6a !important;
+  background-color: #fff !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2366bb6a' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right calc(0.375em + 0.75rem) center !important;
+  background-size: calc(0.5em + 0.5rem) calc(0.5em + 0.5rem) !important;
+  padding-right: calc(1.5em + 1.5rem) !important;
+}
+
+.form-control.is-valid:focus,
+input.form-control.is-valid:focus,
+input[type="text"].form-control.is-valid:focus,
+select.form-control.is-valid:focus,
+textarea.form-control.is-valid:focus {
+  border-color: #66bb6a !important;
+  background-color: #fff !important;
+  box-shadow: 0 0 0 2px rgba(102, 187, 106, 0.25) !important;
+}
+
+/* Error State - Material Kit Style with Red Border and Error Icon */
+.form-control.is-invalid,
+input.form-control.is-invalid,
+input[type="text"].form-control.is-invalid,
+select.form-control.is-invalid,
+textarea.form-control.is-invalid {
+  border-color: #f44336 !important;
+  background-color: #fff !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23f44336'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23f44336' stroke='none'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right calc(0.375em + 0.75rem) center !important;
+  background-size: calc(0.5em + 0.5rem) calc(0.5em + 0.5rem) !important;
+  padding-right: calc(1.5em + 1.5rem) !important;
+}
+
+.form-control.is-invalid:focus,
+input.form-control.is-invalid:focus,
+input[type="text"].form-control.is-invalid:focus,
+select.form-control.is-invalid:focus,
+textarea.form-control.is-invalid:focus {
+  border-color: #f44336 !important;
+  background-color: #fff !important;
+  box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.25) !important;
+}
+
+/* Validation Feedback */
+.invalid-feedback {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: #f44336;
+}
+
+.valid-feedback {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: #66bb6a;
+}
+
+/* Hide server-side validation errors on page load (JavaScript will show them after interaction) */
+.invalid-feedback[data-server] {
+  display: none !important;
+}
+
+/* Optional fields - show green checkmark when filled, but no error state */
+.optional-field.has-value,
+input.optional-field.has-value,
+input[type="text"].optional-field.has-value,
+select.optional-field.has-value,
+textarea.optional-field.has-value {
+  border-color: #66bb6a !important;
+  background-color: #fff !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2366bb6a' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right calc(0.375em + 0.75rem) center !important;
+  background-size: calc(0.5em + 0.5rem) calc(0.5em + 0.5rem) !important;
+  padding-right: calc(1.5em + 1.5rem) !important;
+}
+
+.optional-field.has-value:focus,
+input.optional-field.has-value:focus,
+input[type="text"].optional-field.has-value:focus,
+select.optional-field.has-value:focus,
+textarea.optional-field.has-value:focus {
+  border-color: #66bb6a !important;
+  background-color: #fff !important;
+  box-shadow: 0 0 0 2px rgba(102, 187, 106, 0.25) !important;
+}

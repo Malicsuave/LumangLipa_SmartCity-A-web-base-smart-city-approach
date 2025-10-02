@@ -12,11 +12,50 @@ class PreRegistration extends Model
     use HasFactory;
 
     /**
+     * Boot the model.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($preRegistration) {
+            if (!$preRegistration->registration_id) {
+                $preRegistration->registration_id = static::generateRegistrationId();
+            }
+        });
+    }
+
+    /**
+     * Generate a unique registration ID with format: PRE-YYYY-MM-XXXXX
+     */
+    public static function generateRegistrationId(): string
+    {
+        $date = now();
+        $yearMonth = $date->format('Y-m');
+        
+        // Get the last registration for this month
+        $lastRegistration = static::where('registration_id', 'LIKE', "PRE-{$yearMonth}-%")
+            ->orderBy('id', 'desc')
+            ->first();
+        
+        if ($lastRegistration && preg_match('/PRE-\d{4}-\d{2}-(\d+)/', $lastRegistration->registration_id, $matches)) {
+            $lastNumber = (int) $matches[1];
+            $newNumber = $lastNumber + 1;
+        } else {
+            // Start from 1 for the first registration of the month
+            $newNumber = 1;
+        }
+        
+        return sprintf('PRE-%s-%05d', $yearMonth, $newNumber);
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
     protected $fillable = [
+        'registration_id',
         'type_of_resident',
         'first_name',
         'middle_name',
@@ -29,27 +68,24 @@ class PreRegistration extends Model
         'citizenship_type',
         'citizenship_country',
         'profession_occupation',
-        'monthly_income',
         'contact_number',
         'email_address',
         'religion',
         'educational_attainment',
         'education_status',
         'address',
-        'philsys_id',
-        'population_sectors',
-        'mother_first_name',
-        'mother_middle_name',
-        'mother_last_name',
+        'emergency_contact_name',
+        'emergency_contact_relationship',
+        'emergency_contact_number',
         'photo',
         'signature',
+        'proof_of_residency',
         'status',
         'rejection_reason',
         'approved_at',
         'rejected_at',
         'approved_by',
         'rejected_by',
-        'senior_info', // Added for senior citizen information
     ];
 
     /**
@@ -59,9 +95,6 @@ class PreRegistration extends Model
      */
     protected $casts = [
         'birthdate' => 'date',
-        'monthly_income' => 'decimal:2',
-        'population_sectors' => 'array',
-        'senior_info' => 'array',
         'approved_at' => 'datetime',
         'rejected_at' => 'datetime',
     ];

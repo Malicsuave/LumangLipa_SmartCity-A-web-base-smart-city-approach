@@ -48,12 +48,11 @@
                             </div>
                             
                             <div class="col-md-6 mb-3">
-                                <label for="email_address" class="form-label">Email Address <small class="text-muted">(Optional)</small></label>
+                                <label for="email_address" class="form-label">Email Address</label>
                                 <input type="email" class="form-control @error('email_address') is-invalid @enderror" 
                                        id="email_address" name="email_address" 
                                        value="{{ old('email_address', session('registration.step2.email_address')) }}" 
-                                       placeholder="resident@example.com (Optional)">
-                                <small class="form-text text-muted">Used for notifications and document delivery</small>
+                                       placeholder="resident@example.com">
                                 @error('email_address')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror

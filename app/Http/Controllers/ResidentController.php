@@ -782,8 +782,8 @@ class ResidentController extends Controller
             // Phone number validation (11 digits)
             'contact_number' => ['required', 'string', 'regex:/^\d{11}$/'],
             
-            // Enhanced email validation (optional)
-            'email_address' => ['nullable', 'email:rfc,dns', 'max:100'],
+            // Enhanced email validation
+            'email_address' => ['required', 'email:rfc,dns', 'max:100'],
             
             'type_of_resident' => 'required|string|max:20',
             'birthplace' => 'required|string|max:255',

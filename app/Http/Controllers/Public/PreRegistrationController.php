@@ -14,6 +14,7 @@ use Intervention\Image\Facades\Image;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use App\Services\SmsService;
 
 class PreRegistrationController extends Controller
 {
@@ -30,8 +31,22 @@ class PreRegistrationController extends Controller
      */
     public function createStep1()
     {
+        // Get saved step1 data from session (if exists)
         $step1 = Session::get('pre_registration.step1', []);
-        return view('public.pre-registration.resident.step1', compact('step1'));
+        
+        return view('public.pre-registration.resident.step1', [
+            'step1' => $step1
+        ]);
+    }
+    
+    /**
+     * Clear all registration session data
+     */
+    private function clearRegistrationData()
+    {
+        Session::forget('pre_registration');
+        Session::forget('temp_photo_preview');
+        Session::forget('temp_signature_preview');
     }
 
     /**
@@ -40,7 +55,7 @@ class PreRegistrationController extends Controller
     public function storeStep1(Request $request)
     {
         $validated = $request->validate([
-            'type_of_resident' => 'required|in:Migrant,Non-Migrant,Transient',
+            'type_of_resident' => 'required|in:Non-Migrant,Migrant,Transient',
             'first_name' => ['required', 'string', 'max:100', 'regex:/^[a-zA-Z\s\.\-\']+$/'],
             'middle_name' => ['nullable', 'string', 'max:100', 'regex:/^[a-zA-Z\s\.\-\']+$/'],
             'last_name' => ['required', 'string', 'max:100', 'regex:/^[a-zA-Z\s\.\-\']+$/'],
@@ -61,7 +76,7 @@ class PreRegistrationController extends Controller
             'last_name.regex' => 'Last name can only contain letters, spaces, dots, hyphens, and apostrophes.',
             'suffix.regex' => 'Suffix can only contain letters, spaces, and dots.',
             'birthdate.before_or_equal' => 'Birthdate cannot be in the future.',
-            'citizenship_country.required_if' => 'Country is required for Dual Citizens and Foreign Nationals.',
+            'citizenship_country.required_if' => 'Please specify the country for dual citizenship or foreign national.',
         ]);
 
         Session::put('pre_registration.step1', $validated);
@@ -76,48 +91,36 @@ class PreRegistrationController extends Controller
         if (!Session::has('pre_registration.step1')) {
             return redirect()->route('public.pre-registration.step1');
         }
+        
+        // Get saved step2 data from session (if exists)
         $step2 = Session::get('pre_registration.step2', []);
-        return view('public.pre-registration.resident.step2', compact('step2'));
+        
+        // Correct view path
+        return view('public.pre-registration.resident.step2', [
+            'step2' => $step2
+        ]);
     }
 
     /**
-     * Store Step 2: Contact & Education Information
+     * Store Step 2: Contact & Address Information
      */
     public function storeStep2(Request $request)
     {
         $validated = $request->validate([
-            'citizenship_type' => 'required|string|in:FILIPINO,Dual Citizen,Foreigner',
-            'citizenship_country' => 'nullable|required_if:citizenship_type,Dual Citizen,Foreigner|string|max:100',
-            'profession_occupation' => 'required|string|max:100',
-            'monthly_income' => 'nullable|numeric|min:0',
             'contact_number' => 'required|numeric|digits:11',
-            'email_address' => [
-                'nullable',
-                'email',
-                'max:255',
-                function ($attribute, $value, $fail) {
-                    if ($value) {
-                        $existsInPreReg = \DB::table('pre_registrations')
-                            ->where('email_address', $value)
-                            ->exists();
-                        
-                        $existsInResidents = \DB::table('residents')
-                            ->where('email_address', $value)
-                            ->exists();
-                        
-                        if ($existsInPreReg || $existsInResidents) {
-                            $fail('This email address is already registered or pending registration.');
-                        }
-                    }
-                }
-            ],
-            'religion' => 'nullable|string|max:100',
-            'educational_attainment' => 'required|string|max:100',
-            'education_status' => 'required|in:Studying,Graduated,Stopped Schooling,Not Applicable',
-            'address' => 'required|string|max:255',
+            'email_address' => 'nullable|email|max:255',
+            'address' => 'required|string',
+            'emergency_contact_name' => 'required|string|max:255',
+            'emergency_contact_relationship' => 'required|in:Parent,Spouse,Child,Sibling,Relative,Friend,Other',
+            'emergency_contact_number' => 'required|numeric|digits:11',
+            'emergency_contact_address' => 'required|string|max:500',
         ], [
             'contact_number.digits' => 'Contact number must be exactly 11 digits.',
-            'email_address.unique' => 'This email address is already registered or pending registration.',
+            'emergency_contact_name.required' => 'Emergency contact person is required.',
+            'emergency_contact_relationship.required' => 'Emergency contact relationship is required.',
+            'emergency_contact_number.required' => 'Emergency contact number is required.',
+            'emergency_contact_number.digits' => 'Emergency contact number must be exactly 11 digits.',
+            'emergency_contact_address.required' => 'Emergency contact address is required.',
         ]);
 
         Session::put('pre_registration.step2', $validated);
@@ -133,59 +136,115 @@ class PreRegistrationController extends Controller
             return redirect()->route('public.pre-registration.step2')
                 ->with('error', 'Please complete step 2 first');
         }
+        
+        // Get saved step3 data from session (if exists)
         $step3 = Session::get('pre_registration.step3', []);
-        return view('public.pre-registration.resident.step3', compact('step3'));
+        
+        return view('public.pre-registration.resident.step3', [
+            'step3' => $step3
+        ]);
     }
 
     /**
-     * Store Step 3: Household Information
+     * Store Step 3: Photo & Signature Upload (for resident registration)
      */
     public function storeStep3(Request $request)
     {
-        $validated = $request->validate([
-            'primary_name' => 'required|string|max:255',
-            'primary_birthday' => 'required|date|before_or_equal:today',
-            'primary_gender' => 'required|in:Male,Female,Non-binary,Transgender,Other',
-            'primary_phone' => 'required|numeric|digits:11',
-            'primary_work' => 'nullable|string|max:100',
-            'primary_allergies' => 'nullable|string|max:255',
-            'primary_medical_condition' => 'nullable|string|max:255',
-            'secondary_name' => 'nullable|string|max:255',
-            'secondary_birthday' => 'nullable|date|before_or_equal:today',
-            'secondary_gender' => 'nullable|in:Male,Female,Non-binary,Transgender,Other',
-            'secondary_phone' => 'nullable|numeric|digits:11',
-            'secondary_work' => 'nullable|string|max:100',
-            'secondary_allergies' => 'nullable|string|max:255',
-            'secondary_medical_condition' => 'nullable|string|max:255',
-            'emergency_contact_name' => 'nullable|string|max:255',
-            'emergency_relationship' => 'nullable|string|max:100',
-            'emergency_work' => 'nullable|string|max:100',
-            'emergency_phone' => 'nullable|numeric|digits:11',
-        ], [
-            'primary_name.required' => "The primary person's name is required.",
-            'primary_birthday.required' => "The primary person's birthday is required.",
-            'primary_birthday.date' => 'The birthday must be a valid date format.',
-            'primary_birthday.before_or_equal' => 'The birthday cannot be in the future.',
-            'primary_gender.required' => "Please select the primary person's gender.",
-            'primary_gender.in' => 'Please select a valid gender.',
-            'primary_phone.required' => 'The primary phone number is required.',
-            'primary_phone.numeric' => 'The phone number must contain only numbers.',
-            'primary_phone.digits' => 'The primary phone number must be exactly 11 digits.',
-            'secondary_phone.numeric' => 'The phone number must contain only numbers.',
-            'secondary_phone.digits' => 'The secondary phone number must be exactly 11 digits.',
-            'emergency_phone.numeric' => 'The emergency contact phone number must contain only numbers.',
-            'emergency_phone.digits' => 'The emergency contact phone number must be exactly 11 digits.',
-            'secondary_birthday.date' => 'The birthday must be a valid date format.',
-            'secondary_birthday.before_or_equal' => 'The birthday cannot be in the future.',
-            'secondary_gender.in' => 'Please select a valid gender.',
-        ]);
-        Session::put('pre_registration.step3', $validated);
-        $birthdate = Session::get('pre_registration.step1.birthdate');
-        $age = \Carbon\Carbon::parse($birthdate)->age;
-        if ($age >= 60) {
-            return redirect()->route('public.pre-registration.step4-senior');
-        } else {
-            return redirect()->route('public.pre-registration.step4');
+        try {
+            // Check if we already have files in session
+            $hasExistingPhoto = Session::has('pre_registration.step3.photo');
+            $hasExistingProof = Session::has('pre_registration.step3.proof_of_residency');
+            
+            // Validate with conditional required for photo and proof
+            $rules = [
+                'signature' => 'nullable|image|mimes:jpeg,jpg,png|max:2000',
+            ];
+            
+            // Only require photo if there isn't one already
+            if (!$hasExistingPhoto) {
+                $rules['photo'] = 'required|image|mimes:jpeg,jpg,png|max:5000';
+            } else {
+                $rules['photo'] = 'nullable|image|mimes:jpeg,jpg,png|max:5000';
+            }
+            
+            // Only require proof of residency if there isn't one already
+            if (!$hasExistingProof) {
+                $rules['proof_of_residency'] = 'required|file|mimes:jpeg,jpg,png,pdf|max:5000';
+            } else {
+                $rules['proof_of_residency'] = 'nullable|file|mimes:jpeg,jpg,png,pdf|max:5000';
+            }
+            
+            $messages = [
+                'photo.required' => 'Photo is required for ID generation.',
+                'photo.max' => 'Photo file size must not exceed 5MB.',
+                'signature.max' => 'Signature file size must not exceed 2MB.',
+                'proof_of_residency.required' => 'Proof of residency document is required.',
+                'proof_of_residency.max' => 'Proof of residency file size must not exceed 5MB.',
+                'proof_of_residency.mimes' => 'Proof of residency must be a JPEG, PNG, or PDF file.',
+            ];
+            
+            $validated = $request->validate($rules, $messages);
+
+            // Get existing files data or initialize empty array
+            $files = Session::get('pre_registration.step3', []);
+            
+            // Handle photo upload if provided
+            if ($request->hasFile('photo')) {
+                $photoFile = $request->file('photo');
+                $files['photo'] = [
+                    'name' => $photoFile->getClientOriginalName(),
+                    'data' => base64_encode(file_get_contents($photoFile->getPathname())),
+                    'mime' => $photoFile->getMimeType()
+                ];
+                
+                // Store preview for display when navigating back
+                Session::put('temp_photo_preview', 'data:' . $photoFile->getMimeType() . ';base64,' . base64_encode(file_get_contents($photoFile->getPathname())));
+            }
+            
+            // Handle signature upload if provided
+            if ($request->hasFile('signature')) {
+                $signatureFile = $request->file('signature');
+                $files['signature'] = [
+                    'name' => $signatureFile->getClientOriginalName(),
+                    'data' => base64_encode(file_get_contents($signatureFile->getPathname())),
+                    'mime' => $signatureFile->getMimeType()
+                ];
+                
+                // Store preview for display when navigating back
+                Session::put('temp_signature_preview', 'data:' . $signatureFile->getMimeType() . ';base64,' . base64_encode(file_get_contents($signatureFile->getPathname())));
+            }
+            
+            // Handle proof of residency upload if provided
+            if ($request->hasFile('proof_of_residency')) {
+                $proofFile = $request->file('proof_of_residency');
+                $files['proof_of_residency'] = [
+                    'name' => $proofFile->getClientOriginalName(),
+                    'data' => base64_encode(file_get_contents($proofFile->getPathname())),
+                    'mime' => $proofFile->getMimeType()
+                ];
+                
+                // Store preview for display when navigating back (only for images, not PDFs)
+                if (in_array($proofFile->getMimeType(), ['image/jpeg', 'image/jpg', 'image/png'])) {
+                    Session::put('temp_proof_preview', 'data:' . $proofFile->getMimeType() . ';base64,' . base64_encode(file_get_contents($proofFile->getPathname())));
+                } else {
+                    // For PDFs, just store a flag
+                    Session::put('temp_proof_preview', 'pdf_uploaded');
+                }
+            }
+            
+            Session::put('pre_registration.step3', $files);
+            
+            // Redirect to step 4 or review page
+            return redirect()->route('public.pre-registration.review');
+            
+        } catch (\Exception $e) {
+            // Log the error for debugging
+            Log::error('Pre-registration step 3 error: ' . $e->getMessage());
+            
+            // Return with a more specific error message
+            return redirect()->back()
+                ->with('error', 'Error processing your upload: ' . $e->getMessage())
+                ->withInput();
         }
     }
 
@@ -202,177 +261,39 @@ class PreRegistrationController extends Controller
     }
 
     /**
-     * Store Step 4: Family Members
+     * Store Step 4: Family Members (Optional)
      */
     public function storeStep4(Request $request)
     {
+        // Family members are optional, only validate if provided
         $validated = $request->validate([
-            'family_members.*.name' => 'nullable|string|max:255',
-            'family_members.*.birthday' => 'nullable|date|before_or_equal:today',
-            'family_members.*.gender' => 'nullable|in:Male,Female,Non-binary,Transgender,Other',
-            'family_members.*.relationship' => 'nullable|string|max:100',
-            'family_members.*.related_to' => 'nullable|in:primary,secondary,both',
+            'family_members' => 'nullable|array',
+            'family_members.*.name' => 'required_with:family_members|string|max:255',
+            'family_members.*.birthday' => 'required_with:family_members|date|before_or_equal:today',
+            'family_members.*.gender' => 'required_with:family_members|in:Male,Female,Non-binary,Transgender,Other',
+            'family_members.*.relationship' => 'required_with:family_members|string|max:100',
             'family_members.*.phone' => 'nullable|numeric|digits:11',
             'family_members.*.work' => 'nullable|string|max:100',
             'family_members.*.allergies' => 'nullable|string|max:255',
             'family_members.*.medical_condition' => 'nullable|string|max:255',
         ], [
+            'family_members.*.name.required_with' => 'Family member name is required.',
             'family_members.*.name.max' => 'The family member name must not exceed 255 characters.',
-            'family_members.*.phone.numeric' => 'The family member phone number must contain only numbers.',
-            'family_members.*.phone.digits' => 'The family member phone number must be exactly 11 digits.',
-            'family_members.*.related_to.in' => 'The family member relation must be either primary, secondary, or both.',
+            'family_members.*.birthday.required_with' => 'Family member birthday is required.',
             'family_members.*.birthday.date' => 'The birthday must be a valid date format.',
             'family_members.*.birthday.before_or_equal' => 'The birthday cannot be in the future.',
+            'family_members.*.gender.required_with' => 'Family member gender is required.',
             'family_members.*.gender.in' => 'Please select a valid gender for the family member.',
+            'family_members.*.relationship.required_with' => 'Family member relationship is required.',
+            'family_members.*.phone.numeric' => 'The family member phone number must contain only numbers.',
+            'family_members.*.phone.digits' => 'The family member phone number must be exactly 11 digits.',
         ]);
+
+        // Store family members data (even if empty array)
         Session::put('pre_registration.step4', $validated);
-        return redirect()->route('public.pre-registration.step5');
-    }
-
-    /**
-     * Show Step 4-Senior: Senior Citizen Information (Only for ages 60+)
-     */
-    public function createStep4Senior()
-    {
-        if (!Session::has('pre_registration.step3')) {
-            return redirect()->route('public.pre-registration.step3')
-                ->with('error', 'Please complete step 3 first');
-        }
-
-        // Verify the person is actually a senior citizen
-        $birthdate = Session::get('pre_registration.step1.birthdate');
-        $age = Carbon::parse($birthdate)->age;
-
-        if ($age < 60) {
-            return redirect()->route('public.pre-registration.step4');
-        }
-
-        return view('public.pre-registration.step4-senior');
-    }
-
-    /**
-     * Store Step 4-Senior: Senior Citizen Information
-     */
-    public function storeStep4Senior(Request $request)
-    {
-        $validated = $request->validate([
-            'pension_type' => 'nullable|string|max:100',
-            'pension_amount' => 'nullable|numeric|min:0',
-            'emergency_contact_name' => 'nullable|string|max:255',
-            'emergency_contact_relationship' => 'nullable|string|max:100',
-            'emergency_contact_number' => 'nullable|numeric|digits:11',
-            'health_conditions' => 'nullable|string|max:500',
-            'medications' => 'nullable|string|max:500',
-            'living_arrangement' => 'nullable|in:Alone,With Family,With Caregiver,Assisted Living',
-            'mobility_status' => 'nullable|in:Independent,Needs Assistance,Wheelchair Bound,Bedridden',
-        ]);
-
-        Session::put('pre_registration.step4_senior', $validated);
-        return redirect()->route('public.pre-registration.step4');
-    }
-
-    /**
-     * Show Step 5: Photo & Signature Upload
-     */
-    public function createStep5()
-    {
-        if (!Session::has('pre_registration.step4')) {
-            return redirect()->route('public.pre-registration.step4')
-                ->with('error', 'Please complete step 4 first');
-        }
-
-        // Check if person is senior citizen
-        $birthdate = Session::get('pre_registration.step1.birthdate');
-        $age = \Carbon\Carbon::parse($birthdate)->age;
-        $isSenior = $age >= 60;
         
-        // Get previously uploaded photo/signature data if available
-        $photoData = null;
-        $signatureData = null;
-        
-        if (Session::has('pre_registration.step5')) {
-            $step5Data = Session::get('pre_registration.step5');
-            
-            if (isset($step5Data['photo'])) {
-                $photoData = 'data:' . $step5Data['photo']['mime'] . ';base64,' . $step5Data['photo']['data'];
-            }
-            
-            if (isset($step5Data['signature'])) {
-                $signatureData = 'data:' . $step5Data['signature']['mime'] . ';base64,' . $step5Data['signature']['data'];
-            }
-        }
-
-        return view('public.pre-registration.step5', compact('isSenior', 'photoData', 'signatureData'));
-    }
-
-    /**
-     * Store Step 5: Photo & Signature Upload
-     */
-    public function storeStep5(Request $request)
-    {
-        try {
-            // Check if we already have photos in session
-            $hasExistingPhoto = Session::has('pre_registration.step5.photo');
-            
-            // Validate with conditional required for photo
-            $rules = [
-                'signature' => 'nullable|image|mimes:jpeg,jpg,png|max:2000',
-                'terms_accepted' => 'required|accepted',
-            ];
-            
-            // Only require photo if there isn't one already
-            if (!$hasExistingPhoto) {
-                $rules['photo'] = 'required|image|mimes:jpeg,jpg,png|max:5000';
-            } else {
-                $rules['photo'] = 'nullable|image|mimes:jpeg,jpg,png|max:5000';
-            }
-            
-            $messages = [
-                'photo.required' => 'Photo is required for ID generation.',
-                'photo.max' => 'Photo file size must not exceed 5MB.',
-                'signature.max' => 'Signature file size must not exceed 2MB.',
-                'terms_accepted.required' => 'You must accept the terms and conditions to proceed.',
-            ];
-            
-            $validated = $request->validate($rules, $messages);
-
-            // Get existing files data or initialize empty array
-            $files = Session::get('pre_registration.step5', []);
-            
-            // Handle photo upload if provided
-            if ($request->hasFile('photo')) {
-                $photoFile = $request->file('photo');
-                $files['photo'] = [
-                    'name' => $photoFile->getClientOriginalName(),
-                    'data' => base64_encode(file_get_contents($photoFile->getPathname())),
-                    'mime' => $photoFile->getMimeType()
-                ];
-            }
-            
-            // Handle signature upload if provided
-            if ($request->hasFile('signature')) {
-                $signatureFile = $request->file('signature');
-                $files['signature'] = [
-                    'name' => $signatureFile->getClientOriginalName(),
-                    'data' => base64_encode(file_get_contents($signatureFile->getPathname())),
-                    'mime' => $signatureFile->getMimeType()
-                ];
-            }
-
-            $files['terms_accepted'] = $validated['terms_accepted'];
-            
-            Session::put('pre_registration.step5', $files);
-            return redirect()->route('public.pre-registration.review');
-            
-        } catch (\Exception $e) {
-            // Log the error for debugging
-            Log::error('Pre-registration step 5 error: ' . $e->getMessage());
-            
-            // Return with a more specific error message
-            return redirect()->back()
-                ->with('error', 'Error processing your upload: ' . $e->getMessage())
-                ->withInput();
-        }
+        // Redirect to review page
+        return redirect()->route('public.pre-registration.review');
     }
 
     /**
@@ -380,17 +301,19 @@ class PreRegistrationController extends Controller
      */
     public function createReview()
     {
-        if (!Session::has('pre_registration.step4')) {
-            return redirect()->route('public.pre-registration.step4')
-                ->with('error', 'Please complete step 4 first');
+        // Step 4 is optional, so we only require step 3
+        if (!Session::has('pre_registration.step3')) {
+            return redirect()->route('public.pre-registration.step3')
+                ->with('error', 'Please complete step 3 first');
         }
 
-        // Check if person is senior citizen
-        $birthdate = Session::get('pre_registration.step1.birthdate');
-        $age = Carbon::parse($birthdate)->age;
-        $isSenior = $age >= 60;
+        // Get all session data for review
+        $step1 = Session::get('pre_registration.step1');
+        $step2 = Session::get('pre_registration.step2');
+        $step3 = Session::get('pre_registration.step3');
+        $step4 = Session::get('pre_registration.step4', ['family_members' => []]); // Optional family members
 
-        return view('public.pre-registration.review', compact('isSenior'));
+        return view('public.pre-registration.resident.review', compact('step1', 'step2', 'step3', 'step4'));
     }
 
     /**
@@ -402,72 +325,55 @@ class PreRegistrationController extends Controller
             'final_confirmation' => 'required|accepted'
         ]);
 
-        // Check if all session data exists
+        // Check if all required session data exists (step4 is optional)
         if (!Session::has('pre_registration.step1') || 
             !Session::has('pre_registration.step2') || 
-            !Session::has('pre_registration.step3') ||
-            !Session::has('pre_registration.step4')) {
+            !Session::has('pre_registration.step3')) {
             return redirect()->route('public.pre-registration.step1')
                 ->with('error', 'Registration data is incomplete. Please start again.');
         }
         
-        // Get email address from session
+        // Get email address from session (can be null)
         $emailAddress = Session::get('pre_registration.step2.email_address');
         
         // Check if email is still unique (might have been taken since step 2 was completed)
-        $existingPreReg = PreRegistration::where('email_address', $emailAddress)->first();
-        $existingResident = Resident::where('email_address', $emailAddress)->first();
-        
-        if ($existingPreReg || $existingResident) {
-            return redirect()->back()
-                ->with('error', 'This email address is already registered or pending registration. Please go back to step 2 and use a different email address.');
+        if ($emailAddress) {
+            $existingPreReg = PreRegistration::where('email_address', $emailAddress)->first();
+            $existingResident = Resident::where('email_address', $emailAddress)->first();
+            
+            if ($existingPreReg || $existingResident) {
+                return redirect()->back()
+                    ->with('error', 'This email address is already registered or pending registration. Please go back to step 2 and use a different email address.');
+            }
         }
 
         try {
-            // Handle photo upload
-            $photoFilename = null;
-            $photoFile = Session::get('pre_registration.step5.photo');
-            if ($photoFile) {
-                $photoFilename = $this->processPhoto($photoFile);
-            }
-
-            // Handle optional signature upload
-            $signatureFilename = null;
-            $signatureFile = Session::get('pre_registration.step5.signature');
-            if ($signatureFile) {
-                $signatureFilename = $this->processSignature($signatureFile);
-            }
-
             // Get all session data
             $step1 = Session::get('pre_registration.step1');
             $step2 = Session::get('pre_registration.step2');
             $step3 = Session::get('pre_registration.step3');
-            $step4Senior = Session::get('pre_registration.step4_senior', []);
 
-            // Check if person is senior citizen
-            $age = Carbon::parse($step1['birthdate'])->age;
-            $isSenior = $age >= 60;
+            // Handle photo upload from step 3
+            $photoFilename = null;
+            if (isset($step3['photo'])) {
+                $photoFilename = $this->processPhoto($step3['photo']);
+            }
 
-            // Add senior citizen to population sectors if they are 60+
-            $populationSectors = $step3['population_sectors'] ?? [];
-            if ($isSenior && !in_array('Senior Citizen', $populationSectors)) {
-                $populationSectors[] = 'Senior Citizen';
+            // Handle optional signature upload from step 3
+            $signatureFilename = null;
+            if (isset($step3['signature'])) {
+                $signatureFilename = $this->processSignature($step3['signature']);
             }
             
-            // Check if population_sectors is null, and make it an empty array
-            if ($populationSectors === null) {
-                $populationSectors = [];
+            // Handle proof of residency upload from step 3
+            $proofFilename = null;
+            if (isset($step3['proof_of_residency'])) {
+                $proofFilename = $this->processProofOfResidency($step3['proof_of_residency']);
             }
-
-            // Add quotes around string values to prevent SQL truncation errors
-            $typeOfResident = "'" . $step1['type_of_resident'] . "'";
-            $sex = "'" . $step1['sex'] . "'";
-            $civilStatus = "'" . $step1['civil_status'] . "'";
-            $citizenshipType = "'" . $step2['citizenship_type'] . "'";
             
             // Create pre-registration record
             $preRegistration = PreRegistration::create([
-                // Step 1 data
+                // Step 1 - Personal Information
                 'type_of_resident' => $step1['type_of_resident'],
                 'first_name' => $step1['first_name'],
                 'middle_name' => $step1['middle_name'] ?? null,
@@ -477,44 +383,48 @@ class PreRegistrationController extends Controller
                 'birthdate' => $step1['birthdate'],
                 'sex' => $step1['sex'],
                 'civil_status' => $step1['civil_status'],
+                'citizenship_type' => $step1['citizenship_type'],
+                'citizenship_country' => $step1['citizenship_country'] ?? null,
+                'educational_attainment' => $step1['educational_attainment'],
+                'education_status' => $step1['education_status'],
+                'religion' => $step1['religion'] ?? null,
+                'profession_occupation' => $step1['profession_occupation'] ?? null,
                 
-                // Step 2 data
-                'citizenship_type' => $step2['citizenship_type'],
-                'citizenship_country' => $step2['citizenship_country'] ?? null,
-                'profession_occupation' => $step2['profession_occupation'],
-                'monthly_income' => $step2['monthly_income'] ?? null,
+                // Step 2 - Contact & Address Information
                 'contact_number' => $step2['contact_number'],
-                'email_address' => $step2['email_address'],
-                'religion' => $step2['religion'] ?? null,
-                'educational_attainment' => $step2['educational_attainment'],
-                'education_status' => $step2['education_status'],
+                'email_address' => $step2['email_address'] ?? null,
                 'address' => $step2['address'],
+                'emergency_contact_name' => $step2['emergency_contact_name'] ?? null,
+                'emergency_contact_relationship' => $step2['emergency_contact_relationship'] ?? null,
+                'emergency_contact_number' => $step2['contact_number'], // Use primary contact as emergency for now
                 
-                // Step 3 data
-                'philsys_id' => $step3['philsys_id'] ?? null,
-                'population_sectors' => json_encode($populationSectors), // Explicitly encode as JSON
-                'mother_first_name' => $step3['mother_first_name'] ?? null,
-                'mother_middle_name' => $step3['mother_middle_name'] ?? null,
-                'mother_last_name' => $step3['mother_last_name'] ?? null,
-                
-                // Files
+                // Step 3 - Photos & Documents
                 'photo' => $photoFilename,
                 'signature' => $signatureFilename,
-                'status' => 'pending',
+                'proof_of_residency' => $proofFilename,
                 
-                // Senior citizen info (stored as JSON for now)
-                'senior_info' => $isSenior ? json_encode($step4Senior) : null,
+                // Status
+                'status' => 'pending',
             ]);
 
-            // Clear session data
-            Session::forget('pre_registration');
+            // Send SMS notification
+            try {
+                $smsService = new SmsService();
+                $fullName = trim($step1['first_name'] . ' ' . $step1['last_name']);
+                $smsService->sendPreRegistrationConfirmation($step2['contact_number'], $fullName);
+            } catch (\Exception $e) {
+                Log::warning('SMS notification failed: ' . $e->getMessage());
+                // Don't fail the registration if SMS fails
+            }
+
+            // Clear all registration session data
+            $this->clearRegistrationData();
 
             return redirect()->route('public.pre-registration.success')
-                ->with('success', $isSenior ? 
-                    'Your senior citizen registration has been submitted successfully! You will receive your Senior ID via email once approved.' :
-                    'Your registration has been submitted successfully! You will receive your ID via email once approved.')
-                ->with('registration_id', $preRegistration->id)
-                ->with('is_senior', $isSenior);
+                ->with('success', 'Your registration has been submitted successfully! You will receive your ID via email once approved.')
+                ->with('registration_email', $step2['email_address'] ?? null)
+                ->with('registration_phone', $step2['contact_number'])
+                ->with('registration_id', $preRegistration->registration_id);
 
         } catch (\Exception $e) {
             // Log detailed error information
@@ -655,6 +565,58 @@ class PreRegistrationController extends Controller
         
         // Save image with compression
         $image->save($path, 80);
+        
+        return $filename;
+    }
+
+    /**
+     * Process and save proof of residency document from base64 data.
+     */
+    private function processProofOfResidency($fileData)
+    {
+        // Decode base64 data
+        $fileContent = base64_decode($fileData['data']);
+        
+        // Get the mime type
+        $mimeType = $fileData['mime'];
+        
+        // Determine file extension
+        $extension = 'jpg'; // default
+        if ($mimeType === 'application/pdf') {
+            $extension = 'pdf';
+        } elseif ($mimeType === 'image/png') {
+            $extension = 'png';
+        } elseif ($mimeType === 'image/jpeg' || $mimeType === 'image/jpg') {
+            $extension = 'jpg';
+        }
+        
+        // Generate unique filename
+        $filename = 'prereg_proof_' . time() . '_' . Str::random(10) . '.' . $extension;
+        
+        // Save path
+        $path = storage_path('app/public/pre-registrations/proof-of-residency/' . $filename);
+        
+        // Ensure directory exists
+        if (!file_exists(dirname($path))) {
+            mkdir(dirname($path), 0755, true);
+        }
+        
+        // For PDFs, just save the file directly
+        if ($extension === 'pdf') {
+            file_put_contents($path, $fileContent);
+        } else {
+            // For images, process and compress
+            $image = Image::make($fileContent);
+            
+            // Resize if too large (max 1600px width while maintaining aspect ratio)
+            $image->resize(1600, null, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            });
+            
+            // Save image with compression
+            $image->save($path, 85);
+        }
         
         return $filename;
     }

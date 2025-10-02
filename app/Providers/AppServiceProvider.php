@@ -7,6 +7,7 @@ use Illuminate\Pagination\Paginator;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 use App\Http\Responses\LoginResponse;
 use App\Services\QrCodeService;
+use App\Services\SmsService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,6 +21,11 @@ class AppServiceProvider extends ServiceProvider
         // Register QR Code Service
         $this->app->singleton(QrCodeService::class, function () {
             return new QrCodeService();
+        });
+        
+        // Register SMS Service
+        $this->app->singleton('sms', function () {
+            return new SmsService();
         });
     }
 

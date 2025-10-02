@@ -153,11 +153,11 @@
       </div>
     </div>
 
-    <!-- Step 3: Photo & Signature -->
+    <!-- Step 3: Photo, Signature & Documents -->
     <div class="card mb-3" style="border: 1px solid #dee2e6; border-radius: 10px;">
       <div class="card-header" style="background-color: #007bff; color: white; padding: 0.75rem 1rem;">
         <div class="d-flex justify-content-between align-items-center">
-          <span class="mb-0" style="font-weight: 600; font-size: 1rem;"><i class="fas fa-camera mr-2"></i>Photo & Signature</span>
+          <span class="mb-0" style="font-weight: 600; font-size: 1rem;"><i class="fas fa-camera mr-2"></i>Photo, Signature & Documents</span>
           <a href="{{ route('public.pre-registration.step3') }}" class="text-white" style="font-weight: 600; text-decoration: none; font-size: 0.95rem;">
             <i class="fas fa-edit" style="margin-right: 6px;"></i>Edit
           </a>
@@ -165,7 +165,7 @@
       </div>
       <div class="card-body">
         <div class="row">
-          <div class="col-md-6 text-center">
+          <div class="col-md-4 text-center">
             <strong>Photo:</strong>
             <div class="mt-2 mb-2">
               @if(session('temp_photo_preview'))
@@ -181,7 +181,7 @@
               @endif
             </div>
           </div>
-          <div class="col-md-6 text-center">
+          <div class="col-md-4 text-center">
             <strong>Signature:</strong>
             <div class="mt-2 mb-2">
               @if(session('temp_signature_preview'))
@@ -191,8 +191,22 @@
                   <i class="fas fa-check-circle"></i> Signature uploaded
                 </div>
               @else
-                <div class="alert alert-info">
-                  <i class="fas fa-info-circle"></i> No signature provided (Optional)
+                <p class="mb-0 text-muted">No signature provided (Optional)</p>
+              @endif
+            </div>
+          </div>
+          <div class="col-md-4 text-center">
+            <strong>Proof of Residency:</strong>
+            <div class="mt-2 mb-2">
+              @if(session('temp_proof_preview'))
+                <img src="{{ session('temp_proof_preview') }}" alt="Proof of Residency Preview" style="max-width: 200px; max-height: 200px; border: 2px solid #dee2e6; border-radius: 10px; object-fit: contain;">
+              @elseif(isset($step3['proof_of_residency']))
+                <div class="alert alert-success">
+                  <i class="fas fa-check-circle"></i> Document uploaded
+                </div>
+              @else
+                <div class="alert alert-warning">
+                  <i class="fas fa-exclamation-triangle"></i> No document uploaded
                 </div>
               @endif
             </div>
@@ -202,13 +216,13 @@
     </div>
 
     <!-- Confirmation -->
-    <div class="card mb-4" style="border: 2px solid #007bff; border-radius: 10px;">
-      <div class="card-body">
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" id="final_confirmation" name="final_confirmation" value="1" required>
-          <label class="form-check-label" for="final_confirmation">
-            <strong>I hereby certify that all information provided above is true and correct to the best of my knowledge.</strong>
-            I understand that any false information may result in the rejection of my pre-registration.
+    <div class="card mb-4" style="border: 1px solid #dee2e6; border-radius: 10px; background-color: #f8f9fa;">
+      <div class="card-body" style="padding: 1.5rem;">
+        <div class="d-flex align-items-start">
+          <input type="checkbox" id="final_confirmation" name="final_confirmation" value="1" required style="width: 18px; height: 18px; min-width: 18px; cursor: pointer; margin-top: 3px; margin-right: 12px; accent-color: #007bff;">
+          <label for="final_confirmation" style="cursor: pointer; line-height: 1.6; margin: 0;">
+            <strong style="color: #333;">I hereby certify that all information provided above is true and correct to the best of my knowledge.</strong>
+            <span class="d-block mt-1" style="color: #6c757d; font-size: 0.95rem;">I understand that any false information may result in the rejection of my pre-registration.</span>
           </label>
         </div>
       </div>
