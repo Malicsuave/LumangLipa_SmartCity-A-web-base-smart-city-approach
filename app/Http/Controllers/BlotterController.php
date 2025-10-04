@@ -7,7 +7,9 @@ use App\Models\Blotter;
 use App\Models\Resident;
 use App\Services\OtpService;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Zxing\QrReader;
 use Carbon\Carbon;
 
 class BlotterController extends Controller
@@ -150,14 +152,14 @@ class BlotterController extends Controller
             $validator = Validator::make($request->all(), [
                 'barangay_id' => 'required|string',
                 'incident_type' => 'required|string',
-                'incident_title' => 'required|string|max:255',
-                'incident_description' => 'required|string',
                 'incident_date' => 'required|date',
-                'incident_time' => 'nullable|string',
+                'incident_time' => 'required|string',
                 'incident_location' => 'required|string',
-                'parties_involved' => 'required|string',
+                'incident_description' => 'required|string',
+                'persons_involved' => 'nullable|string',
                 'witnesses' => 'nullable|string',
-                'desired_resolution' => 'nullable|string'
+                'evidence.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120', // 5MB max per file
+                'verification_method' => 'required|string|in:manual,qr'
             ]);
 
             if ($validator->fails()) {
@@ -177,17 +179,31 @@ class BlotterController extends Controller
                 'barangay_id' => $request->barangay_id,
                 'resident_id' => $resident->id,
                 'incident_type' => $request->incident_type,
-                'incident_title' => $request->incident_title,
+                'incident_title' => $request->incident_type, // Use incident_type as title
                 'incident_description' => $request->incident_description,
                 'incident_date' => $request->incident_date,
                 'incident_time' => $request->incident_time,
                 'incident_location' => $request->incident_location,
-                'parties_involved' => $request->parties_involved,
+                'parties_involved' => $request->persons_involved, // Map to correct field
                 'witnesses' => $request->witnesses,
-                'desired_resolution' => $request->desired_resolution,
+                'desired_resolution' => null, // Not collected in new form
                 'status' => 'pending',
                 'filed_at' => now()
             ]);
+
+            // Handle evidence file uploads if any
+            if ($request->hasFile('evidence')) {
+                $evidencePaths = [];
+                foreach ($request->file('evidence') as $file) {
+                    $path = $file->store('blotter_evidence', 'public');
+                    $evidencePaths[] = $path;
+                }
+                
+                // Store evidence paths in the blotter record
+                $blotter->update([
+                    'evidence_files' => json_encode($evidencePaths)
+                ]);
+            }
 
             return response()->json([
                 'success' => true,
@@ -203,6 +219,64 @@ class BlotterController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred while submitting your blotter report. Please try again.'
+            ], 500);
+        }
+    }
+
+    /**
+     * Decode QR code from uploaded image.
+     */
+    public function decodeQr(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'qr_image' => 'required|image|max:10240', // 10MB max
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid image file',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $image = $request->file('qr_image');
+            $imagePath = $image->store('temp', 'public');
+            $fullPath = storage_path('app/public/' . $imagePath);
+
+            // Read QR code from image
+            $qrcode = new QrReader($fullPath);
+            $qrData = $qrcode->text();
+
+            // Clean up temporary file
+            Storage::disk('public')->delete($imagePath);
+
+            if (!$qrData) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No QR code found in the image or QR code is not readable'
+                ], 400);
+            }
+
+            // Debug information
+            $debugInfo = [
+                'raw_qr_data' => $qrData,
+                'qr_data_length' => strlen($qrData),
+                'qr_data_type' => gettype($qrData)
+            ];
+
+            return response()->json([
+                'success' => true,
+                'message' => 'QR code decoded successfully',
+                'qr_data' => $qrData,
+                'debug_info' => $debugInfo
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to process QR code: ' . $e->getMessage()
             ], 500);
         }
     }

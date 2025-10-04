@@ -25,6 +25,7 @@ class Blotter extends Model
         'parties_involved',
         'witnesses',
         'desired_resolution',
+        'evidence_files',
         'status',
         'filed_at',
         'approved_at',

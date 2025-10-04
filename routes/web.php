@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\AccessRequestController;
 use App\Http\Controllers\Admin\SeniorCitizenController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\ComplaintMeetingController;
+use App\Http\Controllers\BlotterController;
 use App\Http\Controllers\HealthServiceController;
 use App\Http\Controllers\HealthMeetingController;
 use App\Http\Controllers\Admin\GadController;
@@ -117,14 +118,20 @@ Route::post('/request-document', [App\Http\Controllers\DocumentRequestController
 Route::post('/check-resident', [App\Http\Controllers\DocumentRequestController::class, 'checkResident'])->name('documents.check-resident');
 Route::post('/send-otp', [App\Http\Controllers\DocumentRequestController::class, 'sendOtp'])->name('documents.send-otp');
 Route::post('/verify-otp', [App\Http\Controllers\DocumentRequestController::class, 'verifyOtp'])->name('documents.verify-otp');
+Route::post('/decode-qr', [App\Http\Controllers\DocumentRequestController::class, 'decodeQr'])->name('documents.decode-qr');
 Route::get('/verify/{uuid}', [App\Http\Controllers\DocumentVerificationController::class, 'show'])->name('documents.verify');
 
-// Health Service Public Routes
-Route::get('/health/request', [App\Http\Controllers\HealthServiceController::class, 'create'])->name('health.request');
-Route::post('/health/request', [App\Http\Controllers\HealthServiceController::class, 'store'])->name('health.store');
+// Health Request Public Routes
+Route::get('/health/request', function () {
+    return view('public.forms.health-request');
+})->name('health.request');
 Route::post('/health/check-resident', [App\Http\Controllers\HealthServiceController::class, 'checkResident'])->name('health.check-resident');
 Route::post('/health/send-otp', [App\Http\Controllers\HealthServiceController::class, 'sendOtp'])->name('health.send-otp');
 Route::post('/health/verify-otp', [App\Http\Controllers\HealthServiceController::class, 'verifyOtp'])->name('health.verify-otp');
+Route::post('/health/decode-qr', [App\Http\Controllers\HealthServiceController::class, 'decodeQr'])->name('health.decode-qr');
+Route::post('/health/request', [App\Http\Controllers\HealthServiceController::class, 'store'])->name('health.store');
+
+
 
 // Complaint Public Routes
 Route::get('/complaints/file', [App\Http\Controllers\ComplaintController::class, 'create'])->name('complaints.create');
@@ -132,6 +139,7 @@ Route::post('/complaints/file', [App\Http\Controllers\ComplaintController::class
 Route::post('/complaints/check-resident', [App\Http\Controllers\ComplaintController::class, 'checkResident'])->name('complaints.check-resident');
 Route::post('/complaints/send-otp', [App\Http\Controllers\ComplaintController::class, 'sendOtp'])->name('complaints.send-otp');
 Route::post('/complaints/verify-otp', [App\Http\Controllers\ComplaintController::class, 'verifyOtp'])->name('complaints.verify-otp');
+Route::post('/complaints/decode-qr', [App\Http\Controllers\ComplaintController::class, 'decodeQr'])->name('complaints.decode-qr');
 
 // Blotter Report Public Routes
 Route::get('/blotter/request', [App\Http\Controllers\BlotterController::class, 'create'])->name('blotter.request');
@@ -139,6 +147,7 @@ Route::post('/blotter/request', [App\Http\Controllers\BlotterController::class, 
 Route::post('/blotter/check-resident', [App\Http\Controllers\BlotterController::class, 'checkResident'])->name('blotter.check-resident');
 Route::post('/blotter/send-otp', [App\Http\Controllers\BlotterController::class, 'sendOtp'])->name('blotter.send-otp');
 Route::post('/blotter/verify-otp', [App\Http\Controllers\BlotterController::class, 'verifyOtp'])->name('blotter.verify-otp');
+Route::post('/blotter/decode-qr', [App\Http\Controllers\BlotterController::class, 'decodeQr'])->name('blotter.decode-qr');
 
 // Resident ID full preview route
 Route::get('/resident/{resident}/id/full-preview', [ResidentIdController::class, 'fullPreview'])->name('id.full-preview');

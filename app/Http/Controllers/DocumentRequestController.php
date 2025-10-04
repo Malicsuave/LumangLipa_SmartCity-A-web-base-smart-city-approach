@@ -7,7 +7,10 @@ use App\Models\DocumentRequest;
 use App\Models\Resident;
 use App\Services\OtpService;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
+use Zxing\QrReader;
 
 class DocumentRequestController extends Controller
 {
@@ -94,12 +97,18 @@ class DocumentRequestController extends Controller
 
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        // Check if this is QR verification or manual verification
+        $isQrVerification = $request->input('verification_method') === 'qr';
+
+        $validationRules = [
             'barangay_id' => 'required|string|exists:residents,barangay_id',
             'document_type' => 'required|string|in:Barangay Clearance,Certificate of Residency,Certificate of Indigency,Certificate of Low Income,Business Permit',
             'purpose' => 'required|string|max:500',
-            'receipt' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
-        ]);
+            'verification_method' => 'required|string|in:manual,qr',
+            'receipt' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120', // Always required regardless of verification method
+        ];
+
+        $validator = Validator::make($request->all(), $validationRules);
 
         if ($validator->fails()) {
             return response()->json([
@@ -117,8 +126,8 @@ class DocumentRequestController extends Controller
             ], 404);
         }
 
-        // Check if OTP has been verified
-        if (!$this->otpService->hasValidOtp($request->barangay_id, 'document_verification')) {
+        // Check verification - skip OTP check for QR verification
+        if (!$isQrVerification && !$this->otpService->hasValidOtp($request->barangay_id, 'document_verification')) {
             return response()->json([
                 'success' => false,
                 'message' => 'Please verify your identity with the OTP sent to your email before submitting the request.'
@@ -357,5 +366,134 @@ class DocumentRequestController extends Controller
             ->get();
             
         return view('admin.reports.documents', compact('documentRequests'));
+    }
+
+    /**
+     * Decode QR code from uploaded image
+     */
+    public function decodeQr(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'qr_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:10240', // 10MB max
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid image file. Please upload a valid image (JPEG, PNG, JPG, GIF) under 10MB.',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $image = $request->file('qr_image');
+            
+            // Log for debugging
+            Log::info('QR Code decode attempt', [
+                'file_name' => $image->getClientOriginalName(),
+                'file_size' => $image->getSize(),
+                'mime_type' => $image->getMimeType()
+            ]);
+            
+            $qrData = $this->decodeQrFromImage($image);
+            
+            if ($qrData) {
+                // Log successful decode
+                Log::info('QR Code decoded successfully', [
+                    'qr_data' => $qrData,
+                    'data_length' => strlen($qrData)
+                ]);
+                
+                return response()->json([
+                    'success' => true,
+                    'qr_data' => $qrData,
+                    'message' => 'QR code decoded successfully',
+                    'debug_info' => [
+                        'data_length' => strlen($qrData),
+                        'data_preview' => substr($qrData, 0, 50) . (strlen($qrData) > 50 ? '...' : '')
+                    ]
+                ]);
+            } else {
+                Log::warning('QR Code decode failed - no data extracted');
+                
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Could not decode QR code from the image. Please ensure the image contains a clear, valid QR code.'
+                ], 400);
+            }
+            
+        } catch (\Exception $e) {
+            Log::error('QR Code decode error: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while processing the QR code. Please try again.',
+                'error_details' => config('app.debug') ? $e->getMessage() : null
+            ], 500);
+        }
+    }
+
+    /**
+     * Decode QR code from image using external service or library
+     */
+    private function decodeQrFromImage($imageFile)
+    {
+        try {
+            // Store the uploaded file temporarily
+            $tempPath = $imageFile->store('temp', 'local');
+            $fullPath = storage_path('app/' . $tempPath);
+            
+            Log::info('QR decode attempt', [
+                'temp_path' => $tempPath,
+                'full_path' => $fullPath,
+                'file_exists' => file_exists($fullPath)
+            ]);
+            
+            // Method 1: Use the PHP QR code library
+            $qrcode = new QrReader($fullPath);
+            $qrData = $qrcode->text();
+            
+            Log::info('QR Reader result', [
+                'raw_result' => $qrData,
+                'result_type' => gettype($qrData),
+                'is_empty' => empty($qrData),
+                'length' => $qrData ? strlen($qrData) : 0
+            ]);
+            
+            // Clean up temp file
+            Storage::disk('local')->delete($tempPath);
+            
+            if ($qrData && !empty(trim($qrData))) {
+                $cleanData = trim($qrData);
+                Log::info('QR decode success', ['clean_data' => $cleanData]);
+                return $cleanData;
+            }
+            
+            // If the library didn't work, log and return null
+            Log::warning('QR code could not be decoded from image - empty result');
+            return null;
+            
+        } catch (\Exception $e) {
+            Log::error('QR decode error: ' . $e->getMessage(), [
+                'error_type' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
+            
+            // Clean up temp file if it exists
+            if (isset($tempPath)) {
+                try {
+                    Storage::disk('local')->delete($tempPath);
+                } catch (\Exception $cleanupError) {
+                    Log::error('Failed to cleanup temp file: ' . $cleanupError->getMessage());
+                }
+            }
+            
+            return null;
+        }
     }
 }
