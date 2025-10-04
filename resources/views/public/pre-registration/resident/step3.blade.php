@@ -3,7 +3,7 @@
 @section('title', 'Resident Pre-Registration - Step 3')
 
 @section('form-title', 'Resident Pre-Registration')
-@section('step-indicator', 'Step 3 of 3')
+@section('step-indicator', 'Step 3 of 4')
 
 @section('form-content')
 <div class="card-header bg-white border-0 pb-0">

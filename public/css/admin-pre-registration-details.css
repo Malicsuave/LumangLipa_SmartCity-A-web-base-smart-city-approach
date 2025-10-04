@@ -1,0 +1,83 @@
+/* Pre-Registration Details Page Styles */
+
+/* Prevent horizontal overflow on mobile */
+.content-wrapper {
+    overflow-x: hidden !important;
+}
+
+/* Make all images responsive */
+img {
+    max-width: 100% !important;
+    height: auto !important;
+}
+
+.card-body img {
+    max-width: 100% !important;
+    height: auto !important;
+}
+
+/* Ensure text wraps properly */
+h1, h2, h3, h4, h5, h6, p, td {
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+}
+
+/* Fix table overflow on mobile */
+.table-responsive {
+    overflow-x: auto;
+}
+
+/* Header card name styling */
+.pre-registration-header h4 {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.pre-registration-header p {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.pre-registration-header .badge {
+    display: inline-block;
+}
+
+/* Proof of Residency image */
+.proof-of-residency-img {
+    max-width: 100%;
+    max-height: 600px;
+    width: auto;
+}
+
+/* ID Card Images */
+.id-card-image {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .badge {
+        display: inline-block !important;
+        margin-top: 0.25rem !important;
+    }
+    
+    .pre-registration-header h4 {
+        font-size: 1.25rem;
+    }
+    
+    .breadcrumb {
+        font-size: 0.875rem;
+    }
+}
+
+/* Small screen adjustments */
+@media (max-width: 576px) {
+    .content-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .card-title {
+        font-size: 1rem;
+    }
+}

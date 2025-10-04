@@ -23,6 +23,9 @@ class PreRegistrationController extends Controller
      */
     public function chooseRegistrationType()
     {
+        // Clear any previous registration data when starting fresh
+        $this->clearRegistrationData();
+        
         return view('public.register');
     }
 
@@ -31,6 +34,12 @@ class PreRegistrationController extends Controller
      */
     public function createStep1()
     {
+        // Clear any previous registration data for a fresh start
+        // Only clear if no current registration is in progress
+        if (!Session::has('pre_registration.step1')) {
+            $this->clearRegistrationData();
+        }
+        
         // Clear any previous validation errors for a fresh start
         $errors = session()->get('errors');
         if ($errors) {
@@ -53,6 +62,7 @@ class PreRegistrationController extends Controller
         Session::forget('pre_registration');
         Session::forget('temp_photo_preview');
         Session::forget('temp_signature_preview');
+        Session::forget('temp_proof_preview');
     }
 
     /**

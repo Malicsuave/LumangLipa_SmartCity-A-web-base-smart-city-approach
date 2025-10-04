@@ -148,12 +148,9 @@
           <div class="col-md-4 text-center">
             <strong>Photo:</strong>
             <div class="mt-2 mb-2">
-              @if(session('temp_photo_preview'))
-                <img src="{{ session('temp_photo_preview') }}" alt="Photo Preview" style="max-width: 200px; max-height: 200px; border: 2px solid #dee2e6; border-radius: 10px;">
-              @elseif(isset($step3['photo']) && isset($step3['photo']['data']) && isset($step3['photo']['mime']))
-                <img src="data:{{ $step3['photo']['mime'] }};base64,{{ $step3['photo']['data'] }}" alt="Photo Preview" style="max-width: 200px; max-height: 200px; border: 2px solid #dee2e6; border-radius: 10px;">
-              @elseif(isset($step3['photo']))
-                <div class="alert alert-success">
+              @if(isset($step3['photo']) && is_string($step3['photo']))
+                <img src="{{ asset('storage/' . $step3['photo']) }}" alt="Photo Preview" style="max-width: 200px; max-height: 200px; border: 2px solid #dee2e6; border-radius: 10px;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <div class="alert alert-success" style="display: none;">
                   <i class="fas fa-check-circle"></i> Photo uploaded
                 </div>
               @else
@@ -166,12 +163,9 @@
           <div class="col-md-4 text-center">
             <strong>Signature:</strong>
             <div class="mt-2 mb-2">
-              @if(session('temp_signature_preview'))
-                <img src="{{ session('temp_signature_preview') }}" alt="Signature Preview" style="max-width: 200px; max-height: 100px; border: 2px solid #dee2e6; border-radius: 10px;">
-              @elseif(isset($step3['signature']) && isset($step3['signature']['data']) && isset($step3['signature']['mime']))
-                <img src="data:{{ $step3['signature']['mime'] }};base64,{{ $step3['signature']['data'] }}" alt="Signature Preview" style="max-width: 200px; max-height: 100px; border: 2px solid #dee2e6; border-radius: 10px;">
-              @elseif(isset($step3['signature']))
-                <div class="alert alert-success">
+              @if(isset($step3['signature']) && is_string($step3['signature']))
+                <img src="{{ asset('storage/' . $step3['signature']) }}" alt="Signature Preview" style="max-width: 200px; max-height: 100px; border: 2px solid #dee2e6; border-radius: 10px;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <div class="alert alert-success" style="display: none;">
                   <i class="fas fa-check-circle"></i> Signature uploaded
                 </div>
               @else
@@ -182,19 +176,25 @@
           <div class="col-md-4 text-center">
             <strong>Proof of Residency:</strong>
             <div class="mt-2 mb-2">
-              @if(session('temp_proof_preview'))
-                <img src="{{ session('temp_proof_preview') }}" alt="Proof of Residency Preview" style="max-width: 200px; max-height: 200px; border: 2px solid #dee2e6; border-radius: 10px; object-fit: contain;">
-              @elseif(isset($step3['proof_of_residency']) && isset($step3['proof_of_residency']['data']) && isset($step3['proof_of_residency']['mime']) && strpos($step3['proof_of_residency']['mime'], 'image/') === 0)
-                <img src="data:{{ $step3['proof_of_residency']['mime'] }};base64,{{ $step3['proof_of_residency']['data'] }}" alt="Proof of Residency Preview" style="max-width: 200px; max-height: 200px; border: 2px solid #dee2e6; border-radius: 10px; object-fit: contain;">
-              @elseif(isset($step3['proof_of_residency']))
-                <div class="alert alert-success">
-                  <i class="fas fa-check-circle"></i> 
-                  @if(isset($step3['proof_of_residency']['mime']) && $step3['proof_of_residency']['mime'] === 'application/pdf')
-                    PDF Document uploaded
-                  @else
-                    Document uploaded
-                  @endif
-                </div>
+              @if(isset($step3['proof_of_residency']) && is_string($step3['proof_of_residency']))
+                @php
+                  $extension = pathinfo($step3['proof_of_residency'], PATHINFO_EXTENSION);
+                  $isPdf = strtolower($extension) === 'pdf';
+                @endphp
+                @if($isPdf)
+                  <div class="alert alert-success">
+                    <i class="fas fa-file-pdf"></i> PDF Document uploaded
+                    <br>
+                    <a href="{{ asset('storage/' . $step3['proof_of_residency']) }}" target="_blank" class="btn btn-sm btn-info mt-2">
+                      <i class="fas fa-external-link-alt"></i> View PDF
+                    </a>
+                  </div>
+                @else
+                  <img src="{{ asset('storage/' . $step3['proof_of_residency']) }}" alt="Proof of Residency Preview" style="max-width: 200px; max-height: 200px; border: 2px solid #dee2e6; border-radius: 10px; object-fit: contain;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                  <div class="alert alert-success" style="display: none;">
+                    <i class="fas fa-check-circle"></i> Document uploaded
+                  </div>
+                @endif
               @else
                 <div class="alert alert-warning">
                   <i class="fas fa-exclamation-triangle"></i> No document uploaded

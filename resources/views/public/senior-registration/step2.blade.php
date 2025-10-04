@@ -128,7 +128,7 @@
     
     <div class="row">
       <div class="col-md-6 mt-2">
-        <a href="{{ route('public.senior-registration.step1') }}" class="btn btn-outline-secondary w-100">< Previous</a>
+        <a href="{{ route('public.senior-registration.step1') }}" class="btn btn-outline-secondary w-100">Previous</a>
       </div>
       <div class="col-md-6 mt-2">
         <button type="submit" class="btn bg-gradient-dark w-100">Next</button>

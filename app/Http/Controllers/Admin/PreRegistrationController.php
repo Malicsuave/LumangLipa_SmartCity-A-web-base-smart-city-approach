@@ -9,10 +9,12 @@ use App\Models\Resident;
 use App\Models\SeniorCitizen;
 use App\Notifications\PreRegistrationApproved;
 use App\Notifications\PreRegistrationRejected;
+use App\Notifications\SeniorPreRegistrationRejected;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class PreRegistrationController extends Controller
 {
@@ -187,39 +189,15 @@ class PreRegistrationController extends Controller
             $resident->citizenship_type = $preRegistration->citizenship_type;
             $resident->citizenship_country = $preRegistration->citizenship_country;
             $resident->profession_occupation = $preRegistration->profession_occupation;
-            $resident->monthly_income = $preRegistration->monthly_income;
             $resident->contact_number = $preRegistration->contact_number;
             $resident->email_address = $preRegistration->email_address;
             $resident->religion = $preRegistration->religion;
-            
-            // Map educational attainment to enum values
-            $educationMapping = [
-                'Elementary Level' => 'Elementary',
-                'Elementary Graduate' => 'Elementary',
-                'High School Level' => 'Highschool',
-                'High School Graduate' => 'Highschool',
-                'College Level' => 'College',
-                'College Graduate' => 'College',
-                'Post Graduate' => 'Post Graduate',
-                'Vocational' => 'Vocational',
-                'Not Applicable' => 'not applicable'
-            ];
-            $resident->educational_attainment = $educationMapping[$preRegistration->educational_attainment] ?? 'College';
-            
-            // Map education status to enum values
-            $educationStatusMapping = [
-                'Studying' => 'Undergraduate',
-                'Graduated' => 'Graduate',
-                'Stopped Schooling' => 'Undergraduate',
-                'Not Applicable' => 'not applicable'
-            ];
-            $resident->education_status = $educationStatusMapping[$preRegistration->education_status] ?? 'Graduate';
-            $resident->address = $preRegistration->address;
-            $resident->philsys_id = $preRegistration->philsys_id;
-            $resident->population_sectors = $preRegistration->population_sectors;
-            $resident->mother_first_name = $preRegistration->mother_first_name;
-            $resident->mother_middle_name = $preRegistration->mother_middle_name;
-            $resident->mother_last_name = $preRegistration->mother_last_name;
+            $resident->educational_attainment = $preRegistration->educational_attainment;
+            $resident->education_status = $preRegistration->education_status;
+            $resident->current_address = $preRegistration->address;
+            $resident->emergency_contact_name = $preRegistration->emergency_contact_name;
+            $resident->emergency_contact_relationship = $preRegistration->emergency_contact_relationship;
+            $resident->emergency_contact_number = $preRegistration->emergency_contact_number;
 
             // Move photos and signatures to resident directories
             \Log::info('Processing photo and signature files', [
@@ -239,9 +217,13 @@ class PreRegistrationController extends Controller
                 \Log::info('Signature moved', ['new_filename' => $resident->signature]);
             }
 
-            // Generate barangay ID and set status
+            // Generate barangay ID
             $resident->barangay_id = Resident::generateBarangayId();
-            $resident->status = 'active';
+            
+            // Set ID card status and dates (issued upon approval)
+            $resident->id_status = 'issued';
+            $resident->id_issued_at = now();
+            $resident->id_expires_at = now()->addYears(5); // ID valid for 5 years
             
             \Log::info('About to save resident record', ['registration_id' => $preRegistration->id]);
             $resident->save();
@@ -273,6 +255,10 @@ class PreRegistrationController extends Controller
                     'contact_number' => $resident->contact_number,
                     'email_address' => $resident->email_address,
                     'current_address' => $resident->current_address ?? $resident->address,
+                    'emergency_contact_name' => $resident->emergency_contact_name,
+                    'emergency_contact_relationship' => $resident->emergency_contact_relationship,
+                    'emergency_contact_number' => $resident->emergency_contact_number,
+                    'emergency_contact_address' => $resident->emergency_contact_address ?? null,
                     'photo' => $resident->photo,
                     'signature' => $resident->signature,
                     'senior_id_number' => SeniorCitizen::generateSeniorIdNumber(),
@@ -609,9 +595,14 @@ class PreRegistrationController extends Controller
             $seniorCitizen->birthplace = $seniorPreRegistration->birthplace;
             $seniorCitizen->sex = $seniorPreRegistration->sex;
             $seniorCitizen->civil_status = $seniorPreRegistration->civil_status;
+            $seniorCitizen->citizenship_type = $seniorPreRegistration->citizenship_type;
+            $seniorCitizen->citizenship_country = $seniorPreRegistration->citizenship_country;
+            $seniorCitizen->educational_attainment = $seniorPreRegistration->educational_attainment;
+            $seniorCitizen->religion = $seniorPreRegistration->religion;
+            $seniorCitizen->profession_occupation = $seniorPreRegistration->profession_occupation;
             $seniorCitizen->contact_number = $seniorPreRegistration->contact_number;
             $seniorCitizen->email_address = $seniorPreRegistration->email_address;
-            $seniorCitizen->address = $seniorPreRegistration->address;
+            $seniorCitizen->current_address = $seniorPreRegistration->address;
             $seniorCitizen->emergency_contact_name = $seniorPreRegistration->emergency_contact_name;
             $seniorCitizen->emergency_contact_relationship = $seniorPreRegistration->emergency_contact_relationship;
             $seniorCitizen->emergency_contact_number = $seniorPreRegistration->emergency_contact_number;
@@ -628,12 +619,17 @@ class PreRegistrationController extends Controller
             $seniorCitizen->philhealth_number = $seniorPreRegistration->philhealth_number;
             $seniorCitizen->has_senior_discount_card = $seniorPreRegistration->has_senior_discount_card;
             $seniorCitizen->services = $seniorPreRegistration->services;
-
-            // System fields
-            $seniorCitizen->status = 'active';
-            $seniorCitizen->approved_at = now();
-            $seniorCitizen->approved_by = auth()->id();
             
+            // Photo and signature
+            $seniorCitizen->photo = $seniorPreRegistration->photo;
+            $seniorCitizen->signature = $seniorPreRegistration->signature;
+
+            // Senior ID fields (issued upon approval)
+            $seniorCitizen->senior_id_number = SeniorCitizen::generateSeniorIdNumber();
+            $seniorCitizen->senior_id_status = 'issued';
+            $seniorCitizen->senior_id_issued_at = now();
+            $seniorCitizen->senior_id_expires_at = now()->addYears(5); // ID valid for 5 years
+
             $seniorCitizen->save();
 
             // Update senior pre-registration status
@@ -646,16 +642,15 @@ class PreRegistrationController extends Controller
 
             DB::commit();
 
-            // Send approval notification
-            \Illuminate\Support\Facades\Notification::route('mail', $seniorPreRegistration->email_address)
-                ->notify(new PreRegistrationApproved($seniorPreRegistration, $seniorCitizen, null, true));
+            // Generate and send digital ID via email
+            $this->generateAndSendSeniorDigitalId($seniorPreRegistration, $seniorCitizen);
 
             return redirect()->route('admin.pre-registrations.index')
                 ->with('success', 'Senior citizen pre-registration approved successfully. Senior citizen record created and notification sent.');
 
         } catch (\Exception $e) {
             DB::rollback();
-            \Log::error('Error approving senior registration: ' . $e->getMessage());
+            Log::error('Error approving senior registration: ' . $e->getMessage());
             return redirect()->back()
                 ->with('error', 'Error approving registration: ' . $e->getMessage());
         }
@@ -685,7 +680,7 @@ class PreRegistrationController extends Controller
 
             // Send rejection notification
             \Illuminate\Support\Facades\Notification::route('mail', $seniorPreRegistration->email_address)
-                ->notify(new PreRegistrationRejected($seniorPreRegistration));
+                ->notify(new SeniorPreRegistrationRejected($seniorPreRegistration));
 
             return redirect()->route('admin.pre-registrations.index')
                 ->with('success', 'Senior citizen pre-registration rejected successfully. Notification sent to applicant.');
@@ -693,6 +688,113 @@ class PreRegistrationController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()
                 ->with('error', 'Error rejecting registration: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete a senior pre-registration.
+     */
+    public function destroySenior(SeniorPreRegistration $seniorPreRegistration)
+    {
+        try {
+            // Delete associated photos
+            if ($seniorPreRegistration->photo) {
+                Storage::disk('public')->delete('pre-registrations/photos/' . $seniorPreRegistration->photo);
+            }
+            
+            if ($seniorPreRegistration->signature) {
+                Storage::disk('public')->delete('pre-registrations/signatures/' . $seniorPreRegistration->signature);
+            }
+
+            if ($seniorPreRegistration->proof_of_residency) {
+                Storage::disk('public')->delete('pre-registrations/documents/' . $seniorPreRegistration->proof_of_residency);
+            }
+
+            $seniorPreRegistration->delete();
+
+            return redirect()->route('admin.pre-registrations.index')
+                ->with('success', 'Senior citizen pre-registration deleted successfully.');
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Error deleting registration: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Generate and send senior citizen digital ID via email
+     */
+    private function generateAndSendSeniorDigitalId($seniorPreRegistration, $seniorCitizen)
+    {
+        try {
+            // Generate QR code for senior citizen
+            $qrData = json_encode([
+                'type' => 'senior_citizen',
+                'id' => $seniorCitizen->id,
+                'senior_id' => $seniorCitizen->senior_id_number,
+                'name' => $seniorCitizen->first_name . ' ' . $seniorCitizen->last_name,
+                'birthdate' => $seniorCitizen->birthdate,
+                'issued_at' => $seniorCitizen->senior_id_issued_at,
+                'expires_at' => $seniorCitizen->senior_id_expires_at,
+            ]);
+            
+            $qrCode = \App\Facades\QrCode::generateQrCode($qrData, 300);
+            
+            // If the QR code already has the data URI prefix, extract just the base64 part
+            if (strpos($qrCode, 'data:image/png;base64,') === 0) {
+                $qrCode = substr($qrCode, 22); // Remove the prefix
+            }
+
+            // Generate PDF using senior citizen ID template
+            $pdf = \Barryvdh\Snappy\Facades\SnappyPdf::loadView('admin.senior-citizens.id-for-image', [
+                'seniorCitizen' => $seniorCitizen,
+                'qrCode' => $qrCode,
+            ]);
+            
+            $pdf->setOptions([
+                'page-width' => '148mm',
+                'page-height' => '180mm',
+                'orientation' => 'Portrait',
+                'margin-top' => '8mm',
+                'margin-right' => '8mm',
+                'margin-bottom' => '8mm',
+                'margin-left' => '8mm',
+                'encoding' => 'UTF-8',
+                'enable-local-file-access' => true,
+                'disable-smart-shrinking' => true,
+                'dpi' => 300,
+                'image-quality' => 100,
+            ]);
+            
+            // Create temporary file for PDF
+            $tempPath = storage_path('app/temp');
+            if (!file_exists($tempPath)) {
+                mkdir($tempPath, 0755, true);
+            }
+            
+            $pdfFileName = 'senior_id_' . $seniorCitizen->id . '_' . time() . '.pdf';
+            $pdfPath = $tempPath . '/' . $pdfFileName;
+            
+            // Save PDF to temp directory
+            $pdf->save($pdfPath);
+            
+            // Send notification with PDF attached
+            \Illuminate\Support\Facades\Notification::route('mail', $seniorPreRegistration->email_address)
+                ->notify(new \App\Notifications\SeniorPreRegistrationApproved($seniorPreRegistration, $seniorCitizen, $pdfPath));
+            
+            // Clean up temp file after a delay
+            \Illuminate\Support\Facades\Queue::later(now()->addMinutes(5), function () use ($pdfPath) {
+                if (file_exists($pdfPath)) {
+                    unlink($pdfPath);
+                }
+            });
+            
+        } catch (\Exception $e) {
+            Log::error('Error sending senior digital ID: ' . $e->getMessage());
+            
+            // Send notification without attachment as fallback
+            \Illuminate\Support\Facades\Notification::route('mail', $seniorPreRegistration->email_address)
+                ->notify(new \App\Notifications\SeniorPreRegistrationApproved($seniorPreRegistration, $seniorCitizen));
         }
     }
 }

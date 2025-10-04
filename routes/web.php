@@ -220,8 +220,10 @@ Route::middleware([
             Route::get('/senior/{seniorPreRegistration}', [App\Http\Controllers\Admin\PreRegistrationController::class, 'showSenior'])->name('show-senior');
             Route::post('/{preRegistration}/approve', [App\Http\Controllers\Admin\PreRegistrationController::class, 'approve'])->name('approve');
             Route::post('/{preRegistration}/reject', [App\Http\Controllers\Admin\PreRegistrationController::class, 'reject'])->name('reject');
+            Route::delete('/{preRegistration}', [App\Http\Controllers\Admin\PreRegistrationController::class, 'destroy'])->name('destroy');
             Route::post('/senior/{seniorPreRegistration}/approve', [App\Http\Controllers\Admin\PreRegistrationController::class, 'approveSenior'])->name('approve-senior');
             Route::post('/senior/{seniorPreRegistration}/reject', [App\Http\Controllers\Admin\PreRegistrationController::class, 'rejectSenior'])->name('reject-senior');
+            Route::delete('/senior/{seniorPreRegistration}', [App\Http\Controllers\Admin\PreRegistrationController::class, 'destroySenior'])->name('destroy-senior');
         });
         
         // Resident Management Routes

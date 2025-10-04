@@ -51,6 +51,13 @@ class SeniorPreRegistration extends Model
         'birthplace',
         'sex',
         'civil_status',
+        'citizenship_type',
+        'citizenship_country',
+        'nationality',
+        'religion',
+        'educational_attainment',
+        'education_status',
+        'profession_occupation',
         
         // Step 2: Contact & Address
         'contact_number',
@@ -84,6 +91,9 @@ class SeniorPreRegistration extends Model
         'approved_by',
         'approved_at',
         'rejection_reason',
+        'rejected_at',
+        'rejected_by',
+        'senior_citizen_id',
     ];
 
     protected $casts = [

@@ -135,7 +135,17 @@
                                 @enderror
                             </div>
                         </div>
-
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="emergency_contact_address" class="form-label">Emergency Contact Address</label>
+                                <input type="text" class="form-control @error('emergency_contact_address') is-invalid @enderror" 
+                                       id="emergency_contact_address" name="emergency_contact_address" value="{{ old('emergency_contact_address', session('senior_registration.step2.emergency_contact_address')) }}" 
+                                       placeholder="Complete address of emergency contact">
+                                @error('emergency_contact_address')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Form Navigation -->

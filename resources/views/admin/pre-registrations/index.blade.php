@@ -106,26 +106,50 @@
                                     ];
                                     if ($registration->status === 'pending') {
                                         $dropdownItems[] = ['divider' => true];
-                                        $dropdownItems[] = [
-                                            'label' => 'Approve',
-                                            'icon' => 'fas fa-check',
-                                            'class' => '',
-                                            'attrs' => 'onclick="approveRegistration(' . $registration->id . ')"',
-                                        ];
-                                        $dropdownItems[] = [
-                                            'label' => 'Reject',
-                                            'icon' => 'fas fa-times',
-                                            'class' => '',
-                                            'attrs' => 'onclick="rejectRegistration(' . $registration->id . ')"',
-                                        ];
+                                        if ($registration->is_senior ?? false) {
+                                            $dropdownItems[] = [
+                                                'label' => 'Approve',
+                                                'icon' => 'fas fa-check',
+                                                'class' => '',
+                                                'attrs' => 'onclick="approveSeniorRegistration(' . $registration->id . ')"',
+                                            ];
+                                            $dropdownItems[] = [
+                                                'label' => 'Reject',
+                                                'icon' => 'fas fa-times',
+                                                'class' => '',
+                                                'attrs' => 'onclick="rejectSeniorRegistration(' . $registration->id . ')"',
+                                            ];
+                                        } else {
+                                            $dropdownItems[] = [
+                                                'label' => 'Approve',
+                                                'icon' => 'fas fa-check',
+                                                'class' => '',
+                                                'attrs' => 'onclick="approveRegistration(' . $registration->id . ')"',
+                                            ];
+                                            $dropdownItems[] = [
+                                                'label' => 'Reject',
+                                                'icon' => 'fas fa-times',
+                                                'class' => '',
+                                                'attrs' => 'onclick="rejectRegistration(' . $registration->id . ')"',
+                                            ];
+                                        }
                                     }
                                     $dropdownItems[] = ['divider' => true];
-                                    $dropdownItems[] = [
-                                        'label' => 'Delete',
-                                        'icon' => 'fas fa-trash',
-                                        'class' => '',
-                                        'attrs' => 'onclick="deleteRegistration(' . $registration->id . ')"',
-                                    ];
+                                    if ($registration->is_senior ?? false) {
+                                        $dropdownItems[] = [
+                                            'label' => 'Delete',
+                                            'icon' => 'fas fa-trash',
+                                            'class' => '',
+                                            'attrs' => 'onclick="deleteSeniorRegistration(' . $registration->id . ')"',
+                                        ];
+                                    } else {
+                                        $dropdownItems[] = [
+                                            'label' => 'Delete',
+                                            'icon' => 'fas fa-trash',
+                                            'class' => '',
+                                            'attrs' => 'onclick="deleteRegistration(' . $registration->id . ')"',
+                                        ];
+                                    }
                                 @endphp
                                 <tr>
                                     <td>
@@ -152,7 +176,7 @@
                                             <span class="badge badge-danger">Rejected</span>
                                         @endif
                                     </td>
-                                    <td>{{ $registration->created_at->format('M d, Y') }}</td>
+                                    <td>{{ $registration->created_at->format('M d, Y') }}<br><small class="text-muted">{{ $registration->created_at->format('h:i A') }}</small></td>
                                     <td>
                                         <div class="btn-group">
                                             <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -186,9 +210,15 @@
                                                     @endif
                                                 @endif
                                                 <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item" href="javascript:void(0)" onclick="deleteRegistration({{ $registration->id }})">
-                                                    <i class="fas fa-trash mr-2"></i>Delete
-                                                </a>
+                                                @if($registration->is_senior ?? false)
+                                                    <a class="dropdown-item" href="javascript:void(0)" onclick="deleteSeniorRegistration({{ $registration->id }})">
+                                                        <i class="fas fa-trash mr-2"></i>Delete
+                                                    </a>
+                                                @else
+                                                    <a class="dropdown-item" href="javascript:void(0)" onclick="deleteRegistration({{ $registration->id }})">
+                                                        <i class="fas fa-trash mr-2"></i>Delete
+                                                    </a>
+                                                @endif
                                             </div>
                                         </div>
                                     </td>
@@ -434,6 +464,17 @@ window.rejectSeniorRegistration = function(id) {
         $('#rejectModal').modal('show');
     } else {
         console.error('Reject form not found');
+    }
+};
+
+window.deleteSeniorRegistration = function(id) {
+    console.log('Delete senior function called for ID:', id);
+    const form = document.getElementById('deleteForm');
+    if (form) {
+        form.action = `/admin/pre-registrations/senior/${id}`;
+        $('#deleteModal').modal('show');
+    } else {
+        console.error('Delete form not found');
     }
 };
 

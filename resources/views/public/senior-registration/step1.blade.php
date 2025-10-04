@@ -6,6 +6,41 @@
 @section('step-indicator', 'Step 1 of 5')
 
 @section('form-content')
+<!-- Display validation errors -->
+@if ($errors->any())
+<div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+  <strong>Please correct the following errors:</strong>
+  <ul class="mb-0 mt-2">
+    @foreach ($errors->all() as $error)
+      <li>{{ $error }}</li>
+    @endforeach
+  </ul>
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+@endif
+
+<!-- Display success messages -->
+@if (session('success'))
+<div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+  {{ session('success') }}
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+@endif
+
+<!-- Display error messages -->
+@if (session('error'))
+<div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+  {{ session('error') }}
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+@endif
+
 <div class="card-header bg-white border-0 pb-0">
   <h5 class="personal-header"><i class="fas fa-user mr-2"></i>Personal Information</h5>
   <div class="mt-2 mb-2 text-muted">
@@ -20,7 +55,7 @@
               <div class="row mb-4">
                 <div class="col-md-12">
                   <label for="type_of_resident">Type of Resident <span class="text-danger">*</span></label>
-                  <select class="form-control custom-rounded-input" 
+                  <select class="form-control custom-rounded-input @error('type_of_resident') is-invalid @enderror" 
                           id="type_of_resident" 
                           name="type_of_resident" 
                           required>
@@ -29,7 +64,9 @@
                     <option value="Migrant" {{ old('type_of_resident', $step1['type_of_resident'] ?? '') == 'Migrant' ? 'selected' : '' }}>Migrant</option>
                     <option value="Transient" {{ old('type_of_resident', $step1['type_of_resident'] ?? '') == 'Transient' ? 'selected' : '' }}>Transient</option>
                   </select>
-                  <div class="validation-error" data-field="type_of_resident" style="display: none; color: #dc3545; font-size: 0.875em; margin-top: 0.25rem;"></div>
+                  @error('type_of_resident')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
                 </div>
               </div>
               <!-- Name Fields -->
@@ -39,11 +76,13 @@
                   <input type="text" 
                          name="first_name" 
                          id="first_name" 
-                         class="form-control custom-rounded-input"
+                         class="form-control custom-rounded-input @error('first_name') is-invalid @enderror"
                          placeholder="First Name"
                          value="{{ old('first_name', $step1['first_name'] ?? '') }}" 
                          required>
-                  <div class="validation-error" data-field="first_name" style="display: none; color: #dc3545; font-size: 0.875em; margin-top: 0.25rem;"></div>
+                  @error('first_name')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
                 </div>
                 <div class="col-md-6 mb-3">
                   <label for="middle_name">Middle Name</label>
@@ -61,11 +100,13 @@
                   <input type="text" 
                          name="last_name" 
                          id="last_name" 
-                         class="form-control custom-rounded-input"
+                         class="form-control custom-rounded-input @error('last_name') is-invalid @enderror"
                          placeholder="Last Name"
                          value="{{ old('last_name', $step1['last_name'] ?? '') }}" 
                          required>
-                  <div class="validation-error" data-field="last_name" style="display: none; color: #dc3545; font-size: 0.875em; margin-top: 0.25rem;"></div>
+                  @error('last_name')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
                 </div>
                 <div class="col-md-6 mb-3">
                   <label for="suffix">Suffix</label>
@@ -84,10 +125,12 @@
                   <input type="date" 
                          name="birthdate" 
                          id="birthdate" 
-                         class="form-control custom-rounded-input" 
+                         class="form-control custom-rounded-input @error('birthdate') is-invalid @enderror" 
                          value="{{ old('birthdate', $step1['birthdate'] ?? '') }}" 
                          required>
-                  <div class="validation-error" data-field="birthdate" style="display: none; color: #dc3545; font-size: 0.875em; margin-top: 0.25rem;"></div>
+                  @error('birthdate')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
                   <small class="form-text text-muted">You must be at least 60 years old</small>
                 </div>
                 <div class="col-md-6 mb-3">
@@ -95,18 +138,20 @@
                   <input type="text" 
                          name="birthplace" 
                          id="birthplace" 
-                         class="form-control custom-rounded-input" 
+                         class="form-control custom-rounded-input @error('birthplace') is-invalid @enderror" 
                          placeholder="City/Municipality, Province"
                          value="{{ old('birthplace', $step1['birthplace'] ?? '') }}" 
                          required>
-                  <div class="validation-error" data-field="birthplace" style="display: none; color: #dc3545; font-size: 0.875em; margin-top: 0.25rem;"></div>
+                  @error('birthplace')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
                 </div>
               </div>
               <!-- Gender and Civil Status -->
               <div class="row">
                 <div class="col-md-6 mb-3">
                   <label for="sex">Gender <span class="text-danger">*</span></label>
-                  <select class="form-control custom-rounded-input" 
+                  <select class="form-control custom-rounded-input @error('sex') is-invalid @enderror" 
                           id="sex" 
                           name="sex" 
                           required>
@@ -117,11 +162,13 @@
                     <option value="Transgender" {{ old('sex', $step1['sex'] ?? '') == 'Transgender' ? 'selected' : '' }}>Transgender</option>
                     <option value="Other" {{ old('sex', $step1['sex'] ?? '') == 'Other' ? 'selected' : '' }}>Other</option>
                   </select>
-                  <div class="validation-error" data-field="sex" style="display: none; color: #dc3545; font-size: 0.875em; margin-top: 0.25rem;"></div>
+                  @error('sex')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
                 </div>
                 <div class="col-md-6 mb-3">
                   <label for="civil_status">Civil Status <span class="text-danger">*</span></label>
-                                    <select class="form-control custom-rounded-input" 
+                                    <select class="form-control custom-rounded-input @error('civil_status') is-invalid @enderror" 
                           id="civil_status" 
                           name="civil_status" 
                           required>
@@ -132,7 +179,9 @@
                     <option value="Separated" {{ old('civil_status', $step1['civil_status'] ?? '') == 'Separated' ? 'selected' : '' }}>Separated</option>
                     <option value="Divorced" {{ old('civil_status', $step1['civil_status'] ?? '') == 'Divorced' ? 'selected' : '' }}>Divorced</option>
                   </select>
-                  <div class="validation-error" data-field="civil_status" style="display: none; color: #dc3545; font-size: 0.875em; margin-top: 0.25rem;"></div>
+                  @error('civil_status')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
                 </div>
               </div>
               <!-- Citizenship Information -->

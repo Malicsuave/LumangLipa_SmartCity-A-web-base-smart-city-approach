@@ -35,8 +35,15 @@ class SeniorRegistrationController extends Controller
             'suffix' => 'nullable|string|max:50',
             'birthdate' => 'required|date|before_or_equal:' . now()->subYears(60)->format('Y-m-d'),
             'birthplace' => 'required|string|max:255',
-            'sex' => 'required|in:Male,Female',
+            'sex' => 'required|in:Male,Female,Non-binary,Transgender,Other',
             'civil_status' => 'required|in:Single,Married,Widowed,Divorced,Separated',
+            'citizenship_type' => 'nullable|in:FILIPINO,DUAL,NATURALIZED,FOREIGN',
+            'citizenship_country' => 'nullable|string|max:255',
+            'nationality' => 'nullable|string|max:255',
+            'religion' => 'nullable|string|max:255',
+            'educational_attainment' => 'nullable|string|max:255',
+            'education_status' => 'nullable|string|max:255',
+            'profession_occupation' => 'nullable|string|max:255',
         ]);
 
         // Validate age is 60 or above
@@ -304,6 +311,13 @@ class SeniorRegistrationController extends Controller
                 'birthplace' => $step1['birthplace'],
                 'sex' => $step1['sex'],
                 'civil_status' => $step1['civil_status'],
+                'citizenship_type' => $step1['citizenship_type'] ?? null,
+                'citizenship_country' => $step1['citizenship_country'] ?? null,
+                'nationality' => $step1['nationality'] ?? null,
+                'religion' => $step1['religion'] ?? null,
+                'educational_attainment' => $step1['educational_attainment'] ?? null,
+                'education_status' => $step1['education_status'] ?? null,
+                'profession_occupation' => $step1['profession_occupation'] ?? null,
                 
                 // Step 2: Contact & Address Information
                 'contact_number' => $step2['contact_number'],
@@ -355,7 +369,8 @@ class SeniorRegistrationController extends Controller
             ]);
 
             return redirect()->route('public.senior-registration.success')
-                ->with('success', 'Your senior citizen pre-registration has been submitted successfully!');
+                ->with('success', 'Your senior citizen pre-registration has been submitted successfully!')
+                ->with('registration_id', $seniorRegistration->registration_id);
 
         } catch (\Exception $e) {
             DB::rollback();

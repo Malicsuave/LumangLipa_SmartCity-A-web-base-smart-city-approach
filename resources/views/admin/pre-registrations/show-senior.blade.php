@@ -2,20 +2,24 @@
 
 @section('title', 'Senior Pre-Registration Details - ' . $preRegistration->full_name)
 
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/admin-pre-registration-details.css') }}">
+@endpush
+
 @section('content')
 <!-- Content Header (Page header) -->
 <div class="content-header">
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <h1 class="m-0">Senior Citizen Pre-Registration Details</h1>
+                <h1 class="m-0">Senior Pre-Registration Details</h1>
                 <small class="text-muted">{{ $preRegistration->full_name }}</small>
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('admin.pre-registrations.index') }}">Pre-Registrations</a></li>
-                    <li class="breadcrumb-item active">{{ $preRegistration->full_name }}</li>
+                    <li class="breadcrumb-item active">Details</li>
                 </ol>
             </div>
         </div>
@@ -30,7 +34,7 @@
             <div class="col-md-8">
                 <div class="card card-primary card-outline">
                     <div class="card-body">
-                        <div class="row align-items-center">
+                        <div class="row align-items-center pre-registration-header">
                             <div class="col">
                                 <h4 class="mb-1">
                                     {{ $preRegistration->full_name }}
@@ -339,7 +343,7 @@
                                     
                                     @if($isImage)
                                         <img src="{{ asset($proofPath) }}" 
-                                             alt="Proof of Residency" class="img-thumbnail" style="max-width: 600px;"
+                                             alt="Proof of Residency" class="img-thumbnail img-fluid proof-of-residency-img"
                                              onerror="this.onerror=null; this.src='{{ asset('images/no-image.png') }}'; this.alt='Image not found';">
                                     @else
                                         <div class="alert alert-info">
@@ -368,7 +372,7 @@
                                     <div class="col-md-6 text-center mb-3">
                                         <h6 class="text-muted mb-2"><i class="fas fa-camera mr-1"></i>Photo</h6>
                                         <img src="{{ asset('storage/' . $preRegistration->photo) }}" 
-                                             alt="Registration Photo" class="img-thumbnail" style="max-width: 300px;">
+                                             alt="Registration Photo" class="img-thumbnail img-fluid id-card-image">
                                     </div>
                                     @endif
                                     
@@ -376,7 +380,7 @@
                                     <div class="col-md-6 text-center mb-3">
                                         <h6 class="text-muted mb-2"><i class="fas fa-signature mr-1"></i>Signature</h6>
                                         <img src="{{ asset('storage/' . $preRegistration->signature) }}" 
-                                             alt="Registration Signature" class="img-thumbnail" style="max-width: 300px;">
+                                             alt="Registration Signature" class="img-thumbnail img-fluid id-card-image">
                                     </div>
                                     @endif
                                 </div>
@@ -453,34 +457,27 @@
         </div>
 
         <!-- Approve Confirmation Modal -->
-        <div class="modal fade" id="approveModal">
-            <div class="modal-dialog">
+        <div class="modal fade" id="approveModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    <div class="modal-header bg-success">
-                        <h4 class="modal-title"><i class="fas fa-check-circle mr-2"></i>Approve Senior Registration</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
+                    <div class="modal-header">
+                        <h5 class="modal-title">Approve Registration</h5>
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span>&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <p>Are you sure you want to approve this senior citizen registration for <strong>{{ $preRegistration->full_name }}</strong>?</p>
-                        <div class="alert alert-info">
-                            <h6><i class="fas fa-info-circle mr-1"></i>This will:</h6>
-                            <ul class="mb-0">
-                                <li>Create a new senior citizen record in the system</li>
-                                <li>Generate a Senior Citizen ID</li>
-                                <li>Send the digital ID to the applicant's email @if($preRegistration->email_address)({{ $preRegistration->email_address }})@endif</li>
-                                <li>Send SMS notification to {{ $preRegistration->contact_number }}</li>
-                                <li>Register them for senior citizen benefits and services</li>
-                            </ul>
-                        </div>
+                        <p>Are you sure you want to approve this registration?</p>
+                        <p class="text-info">
+                            <i class="fas fa-info-circle"></i> This will create a senior citizen record and send a digital ID to the applicant's email.
+                        </p>
                     </div>
-                    <div class="modal-footer justify-content-between">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                        <form id="approveForm" method="POST" style="display: inline;">
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <form id="approveForm" method="POST" class="admin-inline-form">
                             @csrf
                             <button type="submit" class="btn btn-success">
-                                <i class="fas fa-check mr-1"></i> Approve Registration
+                                <i class="fas fa-check-circle mr-2"></i> Approve
                             </button>
                         </form>
                     </div>
@@ -489,31 +486,26 @@
         </div>
 
         <!-- Reject Modal -->
-        <div class="modal fade" id="rejectModal">
-            <div class="modal-dialog">
+        <div class="modal fade" id="rejectModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    <div class="modal-header bg-danger">
-                        <h4 class="modal-title"><i class="fas fa-times-circle mr-2"></i>Reject Senior Registration</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
+                    <div class="modal-header">
+                        <h5 class="modal-title">Reject Registration</h5>
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span>&times;</span>
                         </button>
                     </div>
                     <form id="rejectForm" method="POST">
                         @csrf
                         <div class="modal-body">
-                            <p>Please provide a reason for rejecting <strong>{{ $preRegistration->full_name }}</strong>'s registration:</p>
-                            <div class="form-group">
-                                <textarea class="form-control" name="rejection_reason" rows="3" 
-                                          placeholder="Enter reason for rejection..." required></textarea>
-                            </div>
-                            <div class="alert alert-warning">
-                                <i class="fas fa-exclamation-triangle mr-1"></i>The applicant will be notified via email and SMS about the rejection.
-                            </div>
+                            <p>Please provide a reason for rejecting this registration:</p>
+                            <textarea class="form-control" name="rejection_reason" rows="3" 
+                                      placeholder="Enter reason for rejection..." required></textarea>
                         </div>
-                        <div class="modal-footer justify-content-between">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                             <button type="submit" class="btn btn-danger">
-                                <i class="fas fa-times mr-1"></i> Reject Registration
+                                <i class="fas fa-times"></i> Reject
                             </button>
                         </div>
                     </form>
@@ -527,12 +519,20 @@
 @push('scripts')
 <script>
 function approveRegistration(id, type) {
-    document.getElementById('approveForm').action = `/admin/pre-registrations/${id}/approve?type=${type}`;
+    if (type === 'senior') {
+        document.getElementById('approveForm').action = `/admin/pre-registrations/senior/${id}/approve`;
+    } else {
+        document.getElementById('approveForm').action = `/admin/pre-registrations/${id}/approve`;
+    }
     $('#approveModal').modal('show');
 }
 
 function rejectRegistration(id, type) {
-    document.getElementById('rejectForm').action = `/admin/pre-registrations/${id}/reject?type=${type}`;
+    if (type === 'senior') {
+        document.getElementById('rejectForm').action = `/admin/pre-registrations/senior/${id}/reject`;
+    } else {
+        document.getElementById('rejectForm').action = `/admin/pre-registrations/${id}/reject`;
+    }
     $('#rejectModal').modal('show');
 }
 </script>

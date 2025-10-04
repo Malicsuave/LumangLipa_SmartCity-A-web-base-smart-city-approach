@@ -2,6 +2,10 @@
 
 @section('title', 'Pre-Registration Details - ' . $preRegistration->full_name)
 
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/admin-pre-registration-details.css') }}">
+@endpush
+
 @section('content')
 <!-- Content Header (Page header) -->
 <div class="content-header">
@@ -30,7 +34,7 @@
             <div class="col-md-8">
                 <div class="card card-primary card-outline">
                     <div class="card-body">
-                        <div class="row align-items-center">
+                        <div class="row align-items-center pre-registration-header">
                             <div class="col">
                                 <h4 class="mb-1">{{ $preRegistration->full_name }}</h4>
                                 <p class="text-muted mb-0">
@@ -115,6 +119,8 @@
                                             @endif
                                             @if($preRegistration->is_senior_citizen)
                                                 <br><span class="badge badge-warning mt-1"><i class="fas fa-user-check mr-1"></i>Senior Citizen</span>
+                                            @else
+                                                <br><span class="badge badge-info mt-1"><i class="fas fa-user mr-1"></i>Regular Resident</span>
                                             @endif
                                         </td>
                                     </tr>
@@ -162,6 +168,28 @@
                                     <tr>
                                         <td class="text-muted"><strong>Address:</strong></td>
                                         <td><i class="fas fa-map-marker-alt mr-1"></i>{{ $preRegistration->address }}</td>
+                                    </tr>
+                                </table>
+
+                                <h5 class="text-primary border-bottom pb-2 mb-3 mt-4">
+                                    <i class="fas fa-phone-alt mr-2"></i>Emergency Contact
+                                </h5>
+                                <table class="table table-sm table-borderless">
+                                    <tr>
+                                        <td width="40%" class="text-muted"><strong>Name:</strong></td>
+                                        <td>{{ $preRegistration->emergency_contact_name ?? 'N/A' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted"><strong>Relationship:</strong></td>
+                                        <td>{{ $preRegistration->emergency_contact_relationship ?? 'N/A' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted"><strong>Phone:</strong></td>
+                                        <td>{{ $preRegistration->emergency_contact_number ?? 'N/A' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted"><strong>Address:</strong></td>
+                                        <td>{{ $preRegistration->emergency_contact_address ?? 'N/A' }}</td>
                                     </tr>
                                 </table>
                             </div>
@@ -256,7 +284,7 @@
                                     
                                     @if($isImage)
                                         <img src="{{ asset($proofPath) }}" 
-                                             alt="Proof of Residency" class="img-thumbnail" style="max-width: 600px;"
+                                             alt="Proof of Residency" class="img-thumbnail img-fluid proof-of-residency-img"
                                              onerror="this.onerror=null; this.src='{{ asset('images/no-image.png') }}'; this.alt='Image not found';">
                                     @else
                                         <div class="alert alert-info">
@@ -285,7 +313,7 @@
                                     <div class="col-md-6 text-center mb-3">
                                         <h6 class="text-muted mb-2"><i class="fas fa-camera mr-1"></i>Photo</h6>
                                         <img src="{{ asset('storage/pre-registrations/photos/' . $preRegistration->photo) }}" 
-                                             alt="Registration Photo" class="img-thumbnail" style="max-width: 300px;">
+                                             alt="Registration Photo" class="img-thumbnail img-fluid id-card-image">
                                     </div>
                                     @endif
                                     
@@ -293,7 +321,7 @@
                                     <div class="col-md-6 text-center mb-3">
                                         <h6 class="text-muted mb-2"><i class="fas fa-signature mr-1"></i>Signature</h6>
                                         <img src="{{ asset('storage/pre-registrations/signatures/' . $preRegistration->signature) }}" 
-                                             alt="Registration Signature" class="img-thumbnail" style="max-width: 300px;">
+                                             alt="Registration Signature" class="img-thumbnail img-fluid id-card-image">
                                     </div>
                                     @endif
                                 </div>
@@ -371,36 +399,27 @@
         </div>
 
         <!-- Approve Confirmation Modal -->
-        <div class="modal fade" id="approveModal">
-            <div class="modal-dialog">
+        <div class="modal fade" id="approveModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    <div class="modal-header bg-success">
-                        <h4 class="modal-title"><i class="fas fa-check-circle mr-2"></i>Approve Registration</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
+                    <div class="modal-header">
+                        <h5 class="modal-title">Approve Registration</h5>
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span>&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <p>Are you sure you want to approve this registration for <strong>{{ $preRegistration->full_name }}</strong>?</p>
-                        <div class="alert alert-info">
-                            <h6><i class="fas fa-info-circle mr-1"></i>This will:</h6>
-                            <ul class="mb-0">
-                                <li>Create a new resident record in the system</li>
-                                <li>Generate a digital ID ({{ $preRegistration->is_senior_citizen ? 'Senior Citizen ID' : 'Resident ID' }})</li>
-                                <li>Send the digital ID to the applicant's email @if($preRegistration->email_address)({{ $preRegistration->email_address }})@endif</li>
-                                <li>Send SMS notification to {{ $preRegistration->contact_number }}</li>
-                                @if($preRegistration->is_senior_citizen)
-                                    <li>Register them as a senior citizen with benefits</li>
-                                @endif
-                            </ul>
-                        </div>
+                        <p>Are you sure you want to approve this registration?</p>
+                        <p class="text-info">
+                            <i class="fas fa-info-circle"></i> This will create a resident record and send a digital ID to the applicant's email.
+                        </p>
                     </div>
-                    <div class="modal-footer justify-content-between">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                        <form id="approveForm" method="POST" style="display: inline;">
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <form id="approveForm" method="POST" class="admin-inline-form">
                             @csrf
                             <button type="submit" class="btn btn-success">
-                                <i class="fas fa-check mr-1"></i> Approve Registration
+                                <i class="fas fa-check-circle mr-2"></i> Approve
                             </button>
                         </form>
                     </div>
@@ -409,31 +428,26 @@
         </div>
 
         <!-- Reject Modal -->
-        <div class="modal fade" id="rejectModal">
-            <div class="modal-dialog">
+        <div class="modal fade" id="rejectModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    <div class="modal-header bg-danger">
-                        <h4 class="modal-title"><i class="fas fa-times-circle mr-2"></i>Reject Registration</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
+                    <div class="modal-header">
+                        <h5 class="modal-title">Reject Registration</h5>
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span>&times;</span>
                         </button>
                     </div>
                     <form id="rejectForm" method="POST">
                         @csrf
                         <div class="modal-body">
-                            <p>Please provide a reason for rejecting <strong>{{ $preRegistration->full_name }}</strong>'s registration:</p>
-                            <div class="form-group">
-                                <textarea class="form-control" name="rejection_reason" rows="3" 
-                                          placeholder="Enter reason for rejection..." required></textarea>
-                            </div>
-                            <div class="alert alert-warning">
-                                <i class="fas fa-exclamation-triangle mr-1"></i>The applicant will be notified via email and SMS about the rejection.
-                            </div>
+                            <p>Please provide a reason for rejecting this registration:</p>
+                            <textarea class="form-control" name="rejection_reason" rows="3" 
+                                      placeholder="Enter reason for rejection..." required></textarea>
                         </div>
-                        <div class="modal-footer justify-content-between">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                             <button type="submit" class="btn btn-danger">
-                                <i class="fas fa-times mr-1"></i> Reject Registration
+                                <i class="fas fa-times"></i> Reject
                             </button>
                         </div>
                     </form>
