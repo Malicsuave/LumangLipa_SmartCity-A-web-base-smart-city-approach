@@ -26,27 +26,21 @@ class PreRegistration extends Model
     }
 
     /**
-     * Generate a unique registration ID with format: PRE-YYYY-MM-XXXXX
+     * Generate a unique registration ID with unified format: PRE-YYYY-MM-XX
      */
     public static function generateRegistrationId(): string
     {
         $date = now();
         $yearMonth = $date->format('Y-m');
         
-        // Get the last registration for this month
-        $lastRegistration = static::where('registration_id', 'LIKE', "PRE-{$yearMonth}-%")
-            ->orderBy('id', 'desc')
-            ->first();
+        // Get the count of ALL registrations (both regular and senior) for this month
+        $regularCount = static::where('registration_id', 'LIKE', "PRE-{$yearMonth}-%")->count();
+        $seniorCount = \App\Models\SeniorPreRegistration::where('registration_id', 'LIKE', "PRE-{$yearMonth}-%")->count();
         
-        if ($lastRegistration && preg_match('/PRE-\d{4}-\d{2}-(\d+)/', $lastRegistration->registration_id, $matches)) {
-            $lastNumber = (int) $matches[1];
-            $newNumber = $lastNumber + 1;
-        } else {
-            // Start from 1 for the first registration of the month
-            $newNumber = 1;
-        }
+        $totalCount = $regularCount + $seniorCount;
+        $newNumber = $totalCount + 1;
         
-        return sprintf('PRE-%s-%05d', $yearMonth, $newNumber);
+        return sprintf('PRE-%s-%02d', $yearMonth, $newNumber);
     }
 
     /**
@@ -77,6 +71,7 @@ class PreRegistration extends Model
         'emergency_contact_name',
         'emergency_contact_relationship',
         'emergency_contact_number',
+        'emergency_contact_address',
         'photo',
         'signature',
         'proof_of_residency',
@@ -167,7 +162,7 @@ class PreRegistration extends Model
      */
     public function getIsSeniorCitizenAttribute(): bool
     {
-        return $this->birthdate && $this->birthdate->diffInYears(now()) >= 60;
+        return $this->birthdate && Carbon::parse($this->birthdate)->diffInYears(now()) >= 60;
     }
 
     /**
@@ -175,7 +170,7 @@ class PreRegistration extends Model
      */
     public function getAgeAttribute(): int
     {
-        return $this->birthdate ? $this->birthdate->diffInYears(now()) : 0;
+        return $this->birthdate ? Carbon::parse($this->birthdate)->diffInYears(now()) : 0;
     }
 
     /**

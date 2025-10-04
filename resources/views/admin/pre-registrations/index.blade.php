@@ -133,8 +133,10 @@
                                     </td>
                                     <td>
                                         <strong>{{ $registration->full_name }}</strong>
-                                        @if($registration->is_senior_citizen)
+                                        @if($registration->is_senior ?? false)
                                             <br><small class="badge badge-warning">Senior Citizen</small>
+                                        @else
+                                            <br><small class="badge badge-info">Regular Resident</small>
                                         @endif
                                     </td>
                                     <td>{{ $registration->email_address }}</td>
@@ -157,16 +159,31 @@
                                                 Actions
                                             </button>
                                             <div class="dropdown-menu dropdown-menu-right">
-                                                <a class="dropdown-item" href="{{ route('admin.pre-registrations.show', $registration) }}">
-                                                    <i class="fas fa-eye mr-2"></i>View Details
-                                                </a>
+                                                @if($registration->is_senior ?? false)
+                                                    <a class="dropdown-item" href="{{ route('admin.pre-registrations.show-senior', $registration) }}">
+                                                        <i class="fas fa-eye mr-2"></i>View Details
+                                                    </a>
+                                                @else
+                                                    <a class="dropdown-item" href="{{ route('admin.pre-registrations.show', $registration) }}">
+                                                        <i class="fas fa-eye mr-2"></i>View Details
+                                                    </a>
+                                                @endif
                                                 @if($registration->status === 'pending')
-                                                    <a class="dropdown-item" href="javascript:void(0)" onclick="approveRegistration({{ $registration->id }})">
-                                                        <i class="fas fa-check mr-2"></i>Approve
-                                                    </a>
-                                                    <a class="dropdown-item" href="javascript:void(0)" onclick="rejectRegistration({{ $registration->id }})">
-                                                        <i class="fas fa-times mr-2"></i>Reject
-                                                    </a>
+                                                    @if($registration->is_senior ?? false)
+                                                        <a class="dropdown-item" href="javascript:void(0)" onclick="approveSeniorRegistration({{ $registration->id }})">
+                                                            <i class="fas fa-check mr-2"></i>Approve
+                                                        </a>
+                                                        <a class="dropdown-item" href="javascript:void(0)" onclick="rejectSeniorRegistration({{ $registration->id }})">
+                                                            <i class="fas fa-times mr-2"></i>Reject
+                                                        </a>
+                                                    @else
+                                                        <a class="dropdown-item" href="javascript:void(0)" onclick="approveRegistration({{ $registration->id }})">
+                                                            <i class="fas fa-check mr-2"></i>Approve
+                                                        </a>
+                                                        <a class="dropdown-item" href="javascript:void(0)" onclick="rejectRegistration({{ $registration->id }})">
+                                                            <i class="fas fa-times mr-2"></i>Reject
+                                                        </a>
+                                                    @endif
                                                 @endif
                                                 <div class="dropdown-divider"></div>
                                                 <a class="dropdown-item" href="javascript:void(0)" onclick="deleteRegistration({{ $registration->id }})">
@@ -180,6 +197,7 @@
                         </tbody>
                         <tfoot>
                             <tr>
+                                <th>Registration ID</th>
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Contact</th>
@@ -309,25 +327,27 @@
 <script src="{{ asset('js/admin/datatable-helpers.js') }}"></script>
 <script>
 $(function () {
-    // Initialize DataTable for pre-registrations table using the same helper as Documents
+    // Initialize DataTable for pre-registrations table - same config as Documents page
     const preRegistrationsTable = DataTableHelpers.initDataTable("#preRegistrationsTable", {
         buttons: ["copy", "csv", "excel", "pdf", "print", "colvis"],
-        order: [[ 6, "desc" ]],  // Order by Submitted date (descending)
+        order: [[ 7, "desc" ]],  // Order by Submitted date (descending) - column index 7
         pageLength: 10,
         lengthChange: true,
         lengthMenu: [ [10, 25, 50, 100, -1], [10, 25, 50, 100, "All"] ],
+        paging: true,
+        info: true,
+        searching: true,
         columnDefs: [
-            { "orderable": false, "targets": -1 },  // Actions column not orderable
-            { "responsivePriority": 1, "targets": 0 },  // Name (highest priority)
-            { "responsivePriority": 2, "targets": 5 },  // Status
-            { "responsivePriority": 3, "targets": 6 },  // Submitted date
-            { "responsivePriority": 4, "targets": 1 },  // Email
-            { "responsivePriority": 5, "targets": 4 },  // Type
-            { "responsivePriority": 6, "targets": 2 },  // Contact
-            { "responsivePriority": 7, "targets": 3 },  // Age
-            { "responsivePriority": 10, "targets": -1 } // Actions (lowest priority)
+            { "orderable": false, "targets": -1 },
+            { "responsivePriority": 1, "targets": 0 },
+            { "responsivePriority": 2, "targets": 1 },
+            { "responsivePriority": 3, "targets": 6 },
+            { "responsivePriority": 4, "targets": 2 },
+            { "responsivePriority": 5, "targets": 5 },
+            { "responsivePriority": 10, "targets": -1 }
         ],
-        dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+        dom: '<"row"<"col-sm-12 col-md-6"B><"col-sm-12 col-md-6"f>>' +
+             '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6">>' +
              '<"row"<"col-sm-12"tr>>' +
              '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
     });
@@ -390,6 +410,30 @@ window.deleteRegistration = function(id) {
         $('#deleteModal').modal('show');
     } else {
         console.error('Delete form not found');
+    }
+};
+
+// Senior registration functions
+window.approveSeniorRegistration = function(id) {
+    console.log('Approve senior function called for ID:', id);
+    const form = document.getElementById('approveForm');
+    if (form) {
+        const newAction = `/admin/pre-registrations/senior/${id}/approve`;
+        form.action = newAction;
+        $('#approveModal').modal('show');
+    } else {
+        console.error('Approve form not found');
+    }
+};
+
+window.rejectSeniorRegistration = function(id) {
+    console.log('Reject senior function called for ID:', id);
+    const form = document.getElementById('rejectForm');
+    if (form) {
+        form.action = `/admin/pre-registrations/senior/${id}/reject`;
+        $('#rejectModal').modal('show');
+    } else {
+        console.error('Reject form not found');
     }
 };
 

@@ -218,12 +218,12 @@
     <div class="row">
       <div class="col-md-6 mt-2">
         <a href="{{ route('public.pre-registration.step3') }}" class="btn btn-outline-secondary w-100">
-          <i class="fas fa-arrow-left"></i> Previous
+         Previous
         </a>
       </div>
       <div class="col-md-6 mt-2">
         <button type="submit" class="btn bg-gradient-dark w-100">
-          Continue <i class="fas fa-arrow-right ml-2"></i>
+          Continue 
         </button>
       </div>
     </div>

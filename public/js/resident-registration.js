@@ -1,6 +1,29 @@
 /**
- * Resident Registration Form - Shared JavaScript
- * Handles validation, form interactions, and Material Kit integration
+ * Unified Resident Registration Form JavaScript
+ * 
+ * This file handles validation, form interactions, and Material Kit integration
+ * for both regular resident registration and senior citizen registration forms.
+ * 
+ * Features:
+ * - Automatic form detection (residentPreReg* and seniorPreReg* forms)
+ * - Universal validation system supporting both Bootstrap invalid-feedback and custom validation-error divs
+ * - Server-side error handling with clean page load (errors show only after user interaction)
+ * - Age validation (1+ for regular residents, 60+ for senior citizens)
+ * - Citizenship country conditional validation
+ * - Phone number validation (Philippine format)
+ * - Email validation
+ * - Step 3 photo/signature upload functionality
+ * - Material Kit floating label integration
+ * 
+ * Usage in Blade templates:
+ * 1. Include in layout: <script src="{{ asset('js/resident-registration.js') }}"></script>
+ * 2. For enhanced validation, add to form page:
+ *    <script>
+ *      window.serverErrors = @json($errors->toArray());
+ *      window.hasFormSubmission = {{ old('_token') ? 'true' : 'false' }};
+ *    </script>
+ * 
+ * The script automatically detects form types and applies appropriate validation rules.
  */
 
 (function() {
@@ -50,7 +73,7 @@
    * Initialize form validation
    */
   function initializeFormValidation() {
-    const forms = document.querySelectorAll('form[id*="residentPreReg"]');
+    const forms = document.querySelectorAll('form[id*="residentPreReg"], form[id*="seniorPreReg"]');
     
     forms.forEach(function(form) {
       // Hide server-side validation errors on page load (they'll show after interaction)
@@ -69,12 +92,21 @@
           validateField(this);
         });
 
-        // Validate on change for select fields
+        // Validate on change for select fields - only after user makes a selection
         if (input.tagName === 'SELECT') {
           input.addEventListener('change', function() {
             touched = true;
             validateField(this);
           });
+          
+          // For select fields, clear errors on focus but don't validate
+          input.addEventListener('focus', function() {
+            touched = true;
+            clearAllErrorsForField(this.name || this.id);
+          });
+          
+          // Skip the general focus handler for select fields
+          return;
         }
 
         // Real-time validation for text inputs
@@ -174,19 +206,33 @@
         errorMessage = 'Birthdate cannot be in the future.';
       }
       
-      // Check minimum age (e.g., must be at least 1 year old)
-      const oneYearAgo = new Date();
-      oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-      if (selectedDate > oneYearAgo) {
-        isValid = false;
-        errorMessage = 'Please enter a valid birthdate.';
+      // Check minimum age based on form type
+      const isSeniorForm = document.querySelector('form[id*="seniorPreReg"]');
+      if (isSeniorForm) {
+        // Senior citizen must be 60+
+        const sixtyYearsAgo = new Date();
+        sixtyYearsAgo.setFullYear(sixtyYearsAgo.getFullYear() - 60);
+        if (selectedDate > sixtyYearsAgo) {
+          isValid = false;
+          errorMessage = 'You must be at least 60 years old to register as a senior citizen.';
+        }
+      } else {
+        // Regular resident must be at least 1 year old
+        const oneYearAgo = new Date();
+        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+        if (selectedDate > oneYearAgo) {
+          isValid = false;
+          errorMessage = 'Please enter a valid birthdate.';
+        }
       }
     }
 
-    // Select field validation
-    if (field.tagName === 'SELECT' && isRequired && !value) {
-      isValid = false;
-      errorMessage = 'Please select an option.';
+    // Select field validation - only show error if user has interacted and field is empty
+    if (field.tagName === 'SELECT' && isRequired) {
+      if (!value) {
+        isValid = false;
+        errorMessage = 'This field is required.';
+      }
     }
 
     // Apply validation state
@@ -207,23 +253,120 @@
    * Show error message below field
    */
   function showErrorMessage(field, message) {
+    // Remove all existing error messages first
     removeErrorMessage(field);
     
-    const feedback = document.createElement('div');
-    feedback.className = 'invalid-feedback';
-    feedback.textContent = message;
-    feedback.style.display = 'block';
-    
-    field.parentElement.appendChild(feedback);
+    // Only create one if none exists
+    const existingFeedback = field.parentElement.querySelector('.invalid-feedback');
+    if (!existingFeedback) {
+      const feedback = document.createElement('div');
+      feedback.className = 'invalid-feedback';
+      feedback.textContent = message;
+      feedback.style.display = 'block';
+      feedback.setAttribute('data-client', 'true'); // Mark as client-created
+      
+      field.parentElement.appendChild(feedback);
+    }
   }
 
   /**
    * Remove error message
    */
   function removeErrorMessage(field) {
-    const existingFeedback = field.parentElement.querySelector('.invalid-feedback:not([data-server])');
-    if (existingFeedback) {
-      existingFeedback.remove();
+    const allFeedback = field.parentElement.querySelectorAll('.invalid-feedback');
+    allFeedback.forEach(function(feedback) {
+      feedback.remove();
+    });
+  }
+
+  /**
+   * Show validation error (supports both systems)
+   */
+  function showValidationError(fieldName, message) {
+    const input = document.querySelector(`[name="${fieldName}"]`) || document.getElementById(fieldName);
+    
+    if (input) {
+      // First, aggressively clear ALL existing errors for this field
+      clearAllErrorsForField(fieldName);
+      
+      // Then add validation classes
+      input.classList.add('is-invalid');
+      input.classList.remove('is-valid');
+      
+      // Try custom validation error div first (senior citizen forms)
+      const errorDiv = document.querySelector(`[data-field="${fieldName}"]`);
+      if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+      } else {
+        // Fall back to standard invalid-feedback approach
+        showErrorMessage(input, message);
+      }
+    }
+  }
+  
+  /**
+   * Clear validation error (supports both systems)
+   */
+  function clearValidationError(fieldName) {
+    const input = document.querySelector(`[name="${fieldName}"]`) || document.getElementById(fieldName);
+    
+    if (input) {
+      input.classList.remove('is-invalid');
+      
+      // Clear all possible error sources for this field
+      clearAllErrorsForField(fieldName);
+    }
+  }
+  
+  /**
+   * Clear all possible error sources for a specific field
+   */
+  function clearAllErrorsForField(fieldName) {
+    const input = document.querySelector(`[name="${fieldName}"]`) || document.getElementById(fieldName);
+    if (!input) return;
+    
+    // Remove validation classes from the input
+    input.classList.remove('is-invalid', 'is-valid');
+    
+    // Clear custom validation error div (senior citizen forms)
+    const errorDiv = document.querySelector(`[data-field="${fieldName}"]`);
+    if (errorDiv) {
+      errorDiv.style.display = 'none';
+      errorDiv.textContent = '';
+    }
+    
+    // Clear any invalid-feedback in the same parent
+    const parentElement = input.parentElement;
+    const allFeedback = parentElement.querySelectorAll('.invalid-feedback');
+    allFeedback.forEach(function(feedback) {
+      feedback.remove(); // Completely remove instead of just hiding
+    });
+    
+    // Clear any validation-error elements
+    const validationErrors = parentElement.querySelectorAll('.validation-error');
+    validationErrors.forEach(function(error) {
+      error.style.display = 'none';
+      error.textContent = '';
+    });
+    
+    // Clear any elements with data-field attribute matching this field
+    const dataFieldErrors = document.querySelectorAll(`[data-field="${fieldName}"]`);
+    dataFieldErrors.forEach(function(error) {
+      error.style.display = 'none';
+      error.textContent = '';
+    });
+  }
+  
+  /**
+   * Add success styling (supports both systems)
+   */
+  function addSuccessStyling(fieldName) {
+    const input = document.querySelector(`[name="${fieldName}"]`) || document.getElementById(fieldName);
+    if (input) {
+      input.classList.remove('is-invalid');
+      input.classList.add('is-valid');
+      clearAllErrorsForField(fieldName);
     }
   }
 
@@ -238,7 +381,7 @@
         const countryField = document.querySelector('input[name="citizenship_country"]');
         const countryRequired = document.querySelector('.citizenship-country-required');
         
-        if (this.value === 'DUAL' || this.value === 'FOREIGN') {
+        if (this.value === 'DUAL' || this.value === 'FOREIGN' || this.value === 'NATURALIZED') {
           if (countryField) {
             countryField.setAttribute('required', 'required');
             if (countryRequired) countryRequired.style.display = 'inline';
@@ -253,8 +396,8 @@
         }
       });
       
-      // Trigger on page load
-      citizenshipType.dispatchEvent(new Event('change'));
+      // DO NOT trigger on page load to prevent validation errors showing immediately
+      // citizenshipType.dispatchEvent(new Event('change'));
     }
 
     // Age calculation from birthdate
@@ -293,8 +436,8 @@
    * Initialize Step 3 - Photo & Signature Upload
    */
   function initializeStep3PhotoUpload() {
-    // Check if we're on step 3
-    const step3Form = document.getElementById('residentPreRegStep3Form');
+    // Check if we're on step 3 (both resident and senior forms)
+    const step3Form = document.getElementById('residentPreRegStep3Form') || document.getElementById('seniorPreRegStep3Form');
     if (!step3Form) return;
 
     // Get all required elements
@@ -339,29 +482,25 @@
     let imageCapture = null;
     let currentFacingMode = 'user'; // 'user' = front camera, 'environment' = rear camera
 
-    // Set initial button styles (Upload mode active by default)
-    uploadModeBtn.style.backgroundColor = '#007bff';
-    uploadModeBtn.style.borderColor = '#007bff';
-    uploadModeBtn.style.color = 'white';
-    uploadModeBtn.style.border = '1px solid #007bff';
+    // Set initial button styles (Upload mode active by default) - override Material Kit CSS
+    function setUploadModeActive() {
+      uploadModeBtn.style.cssText = 'font-size: 0.75rem !important; padding: 4px 10px !important; line-height: 1.2 !important; background-color: #007bff !important; border: 1px solid #007bff !important; color: white !important;';
+      cameraModeBtn.style.cssText = 'font-size: 0.75rem !important; padding: 4px 10px !important; line-height: 1.2 !important; background-color: white !important; border: 1px solid #007bff !important; color: #007bff !important;';
+    }
 
-    cameraModeBtn.style.backgroundColor = 'white';
-    cameraModeBtn.style.borderColor = '#007bff';
-    cameraModeBtn.style.color = '#007bff';
-    cameraModeBtn.style.border = '1px solid #007bff';
+    function setCameraModeActive() {
+      cameraModeBtn.style.cssText = 'font-size: 0.75rem !important; padding: 4px 10px !important; line-height: 1.2 !important; background-color: #007bff !important; border: 1px solid #007bff !important; color: white !important;';
+      uploadModeBtn.style.cssText = 'font-size: 0.75rem !important; padding: 4px 10px !important; line-height: 1.2 !important; background-color: white !important; border: 1px solid #007bff !important; color: #007bff !important;';
+    }
+
+    // Set initial styles
+    setUploadModeActive();
 
     // Switch to upload mode
     uploadModeBtn.addEventListener('click', function() {
       uploadMode.style.display = 'block';
       cameraMode.style.display = 'none';
-      uploadModeBtn.style.backgroundColor = '#007bff';
-      uploadModeBtn.style.borderColor = '#007bff';
-      uploadModeBtn.style.color = 'white';
-      uploadModeBtn.style.border = '1px solid #007bff';
-      cameraModeBtn.style.backgroundColor = 'white';
-      cameraModeBtn.style.borderColor = '#007bff';
-      cameraModeBtn.style.color = '#007bff';
-      cameraModeBtn.style.border = '1px solid #007bff';
+      setUploadModeActive();
       stopCamera();
       photoInput.required = true;
       capturedPhotoData.value = '';
@@ -371,14 +510,7 @@
     cameraModeBtn.addEventListener('click', function() {
       uploadMode.style.display = 'none';
       cameraMode.style.display = 'block';
-      cameraModeBtn.style.backgroundColor = '#007bff';
-      cameraModeBtn.style.borderColor = '#007bff';
-      cameraModeBtn.style.color = 'white';
-      cameraModeBtn.style.border = '1px solid #007bff';
-      uploadModeBtn.style.backgroundColor = 'white';
-      uploadModeBtn.style.borderColor = '#007bff';
-      uploadModeBtn.style.color = '#007bff';
-      uploadModeBtn.style.border = '1px solid #007bff';
+      setCameraModeActive();
       photoInput.required = false;
       videoElement.style.display = 'block';
       captureBtn.style.display = 'none';
@@ -614,7 +746,11 @@
         console.error('Error converting photo:', error);
       }
       
-      uploadModeBtn.click();
+      // Switch back to upload mode with proper styling
+      uploadMode.style.display = 'block';
+      cameraMode.style.display = 'none';
+      setUploadModeActive();
+      stopCamera();
     });
 
     // Photo upload preview
@@ -777,10 +913,17 @@
         blockFeedback.style.display = 'none';
         blockFeedback.setAttribute('data-server', 'true');
       }
+      
+      // Hide any @error directive feedback
+      const errorFeedback = field.parentElement.querySelector('.invalid-feedback:not([data-field])');
+      if (errorFeedback && !errorFeedback.hasAttribute('data-client')) {
+        errorFeedback.style.display = 'none';
+        errorFeedback.setAttribute('data-server', 'true');
+      }
     });
     
     // SPECIAL FIX: Citizenship type field specifically
-    const citizenshipType = document.querySelector('#citizenship_type');
+    const citizenshipType = form.querySelector('#citizenship_type');
     if (citizenshipType) {
       citizenshipType.classList.remove('is-invalid');
       citizenshipType.style.borderColor = '#d2d6da';
@@ -791,13 +934,117 @@
         feedback.style.display = 'none';
       }
     }
+    
+    // Hide custom validation error containers used in senior citizen forms
+    const validationErrors = form.querySelectorAll('.validation-error[data-field]');
+    validationErrors.forEach(function(errorDiv) {
+      errorDiv.style.display = 'none';
+      errorDiv.textContent = '';
+    });
+    
+    // Hide all .invalid-feedback elements that are not custom validation containers
+    const allInvalidFeedback = form.querySelectorAll('.invalid-feedback:not([data-field]):not([data-client])');
+    allInvalidFeedback.forEach(function(feedback) {
+      if (!feedback.hasAttribute('data-server')) {
+        feedback.style.display = 'none';
+        feedback.setAttribute('data-server', 'true');
+      }
+    });
   }
   
   /**
    * Run immediately on page load to hide errors ASAP
    */
   (function() {
-    const forms = document.querySelectorAll('form[id*="residentPreReg"]');
+    // Function to aggressively hide all validation errors
+    function hideAllValidationErrors() {
+      // Remove all is-invalid classes
+      document.querySelectorAll('.is-invalid').forEach(function(element) {
+        element.classList.remove('is-invalid');
+        element.style.borderColor = '#d2d6da';
+        element.style.backgroundColor = '#fff';
+        element.style.backgroundImage = 'none';
+      });
+      
+      // Hide ALL invalid-feedback elements regardless of source
+      document.querySelectorAll('.invalid-feedback').forEach(function(feedback) {
+        feedback.style.display = 'none';
+        feedback.textContent = '';
+        // Remove dynamically created ones
+        if (feedback.hasAttribute('data-client')) {
+          feedback.remove();
+        }
+      });
+      
+      // Hide ALL validation-error elements (senior citizen forms)
+      document.querySelectorAll('.validation-error').forEach(function(error) {
+        error.style.display = 'none';
+        error.textContent = '';
+      });
+      
+      // Hide ALL elements with data-field attribute (custom validation containers)
+      document.querySelectorAll('[data-field]').forEach(function(error) {
+        error.style.display = 'none';
+        error.textContent = '';
+      });
+      
+      // Hide any other error containers that might exist
+      document.querySelectorAll('[class*="error"]').forEach(function(error) {
+        if (error.textContent.includes('This field is required') || 
+            error.textContent.includes('Please select an option') ||
+            error.textContent.includes('required') ||
+            error.style.color === 'rgb(220, 53, 69)' || // Bootstrap danger color
+            error.style.color === '#dc3545') {
+          error.style.display = 'none';
+          error.textContent = '';
+        }
+      });
+      
+      // Remove any duplicate text nodes that might contain error messages
+      document.querySelectorAll('*').forEach(function(element) {
+        if (element.childNodes.length > 0) {
+          element.childNodes.forEach(function(node) {
+            if (node.nodeType === Node.TEXT_NODE && 
+                (node.textContent.trim() === 'This field is required.' ||
+                 node.textContent.trim() === 'Please select an option.')) {
+              node.textContent = '';
+            }
+          });
+        }
+      });
+      
+      // SPECIAL: Clear server errors data that might be causing issues
+      if (typeof window.serverErrors !== 'undefined') {
+        // Don't completely remove it, but make sure validation doesn't trigger on load
+        console.log('Server errors detected, but hiding validation on page load');
+      }
+    }
+    
+    // Run immediately multiple times to catch all error sources
+    hideAllValidationErrors();
+    
+    // Run on DOM ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        hideAllValidationErrors();
+        // Run again after a short delay to catch any delayed errors
+        setTimeout(hideAllValidationErrors, 100);
+        setTimeout(hideAllValidationErrors, 500);
+      });
+    } else {
+      hideAllValidationErrors();
+      setTimeout(hideAllValidationErrors, 100);
+      setTimeout(hideAllValidationErrors, 500);
+    }
+    
+    // Run on window load
+    window.addEventListener('load', function() {
+      hideAllValidationErrors();
+      setTimeout(hideAllValidationErrors, 100);
+    });
+    
+    // Run the normal form-specific hiding for registration forms
+    const forms = document.querySelectorAll('form[id*="residentPreReg"], form[id*="seniorPreReg"]');
     forms.forEach(function(form) {
       hideServerSideErrors(form);
     });
@@ -851,7 +1098,383 @@
     validateField: validateField,
     initializeMaterialKit: initializeMaterialKit,
     initializeStep3PhotoUpload: initializeStep3PhotoUpload,
-    initializeOptionalFields: initializeOptionalFields
+    initializeOptionalFields: initializeOptionalFields,
+    showValidationError: showValidationError,
+    clearValidationError: clearValidationError,
+    addSuccessStyling: addSuccessStyling
   };
+
+  /**
+   * Initialize enhanced validation for forms with server-side errors
+   */
+  function initializeEnhancedValidation() {
+    // Check if we have server errors in the page (this will be set by the Blade template)
+    if (typeof window.serverErrors !== 'undefined' && typeof window.hasFormSubmission !== 'undefined') {
+      const serverErrors = window.serverErrors;
+      const hasFormSubmission = window.hasFormSubmission;
+      
+      // IMPORTANT: NEVER show any errors on initial page load, even if form was submitted
+      // Clear all server errors immediately
+      Object.keys(serverErrors).forEach(fieldName => {
+        clearAllErrorsForField(fieldName);
+      });
+      
+      // Also clear any validation error containers
+      document.querySelectorAll('[data-field]').forEach(function(errorDiv) {
+        errorDiv.style.display = 'none';
+        errorDiv.textContent = '';
+      });
+
+      // Determine form type and required fields
+      const isSeniorForm = document.querySelector('form[id*="seniorPreReg"]');
+      const isStep2Form = document.querySelector('form[id*="Step2"]');
+      
+      let requiredFields = [];
+      if (isSeniorForm && !isStep2Form) {
+        // Senior citizen step 1
+        requiredFields = ['type_of_resident', 'first_name', 'last_name', 'birthdate', 'birthplace', 'sex', 'civil_status', 'citizenship_type', 'educational_attainment', 'education_status'];
+      } else if (isStep2Form) {
+        // Step 2 (both regular and senior)
+        requiredFields = ['current_address', 'citizenship'];
+      } else {
+        // Regular resident step 1
+        requiredFields = ['type_of_resident', 'first_name', 'last_name', 'birthdate', 'birthplace', 'sex', 'civil_status', 'citizenship_type', 'educational_attainment', 'education_status'];
+      }
+
+      // Initialize step 2 specific validation
+      if (isStep2Form) {
+        initializeStep2Validation();
+      } else {
+        // Regular step 1 validation for required fields - only validate after user interaction
+        requiredFields.forEach(fieldName => {
+          const input = document.querySelector(`[name="${fieldName}"]`) || document.getElementById(fieldName);
+          if (input) {
+            let hasInteracted = false;
+            
+            // Clear error on focus and mark as interacted
+            input.addEventListener('focus', function() {
+              hasInteracted = true;
+              clearValidationError(fieldName);
+            });
+
+            // Validate on blur or change - only if user has interacted
+            const eventType = input.tagName.toLowerCase() === 'select' ? 'change' : 'blur';
+            input.addEventListener(eventType, function() {
+              if (hasInteracted) {
+                if (this.value.trim() === '') {
+                  showValidationError(fieldName, 'This field is required.');
+                } else {
+                  clearValidationError(fieldName);
+                  addSuccessStyling(fieldName);
+                }
+              }
+            });
+
+            // For select fields, don't validate on focus - only on change
+            if (input.tagName.toLowerCase() === 'select') {
+              input.addEventListener('focus', function() {
+                hasInteracted = true;
+                clearValidationError(fieldName);
+              });
+            }
+
+            // For text inputs, also validate on input - only if user has interacted
+            if (input.tagName.toLowerCase() === 'input') {
+              input.addEventListener('input', function() {
+                if (hasInteracted && this.value.trim() !== '') {
+                  clearValidationError(fieldName);
+                  addSuccessStyling(fieldName);
+                }
+              });
+            }
+          }
+        });
+      }
+
+      // Special validation for birthdate with age requirement - only after interaction
+      const birthdateInput = document.getElementById('birthdate');
+      if (birthdateInput) {
+        let birthdateInteracted = false;
+        
+        birthdateInput.addEventListener('focus', function() {
+          birthdateInteracted = true;
+        });
+        
+        birthdateInput.addEventListener('change', function() {
+          if (!birthdateInteracted) return; // Don't validate until user interacts
+          
+          const birthDate = new Date(this.value);
+          const today = new Date();
+          let age = today.getFullYear() - birthDate.getFullYear();
+          const monthDiff = today.getMonth() - birthDate.getMonth();
+          
+          if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+          }
+          
+          if (this.value === '') {
+            showValidationError('birthdate', 'This field is required.');
+          } else if (isSeniorForm && age < 60) {
+            showValidationError('birthdate', 'You must be at least 60 years old to register as a senior citizen.');
+          } else {
+            clearValidationError('birthdate');
+            addSuccessStyling('birthdate');
+          }
+        });
+      }
+
+      // Enhanced citizenship country conditional validation
+      const citizenshipType = document.getElementById('citizenship_type');
+      const citizenshipCountry = document.getElementById('citizenship_country');
+      const citizenshipCountryRequired = document.querySelector('.citizenship-country-required');
+      
+      if (citizenshipType && citizenshipCountry && citizenshipCountryRequired) {
+        citizenshipType.addEventListener('change', function() {
+          const requiresCountry = ['DUAL', 'NATURALIZED', 'FOREIGN'].includes(this.value);
+          
+          if (requiresCountry) {
+            citizenshipCountryRequired.style.display = 'inline';
+            citizenshipCountry.setAttribute('required', 'required');
+            citizenshipCountry.classList.remove('optional-field');
+            
+            // Validate country field if citizenship type requires it
+            if (citizenshipCountry.value.trim() === '') {
+              showValidationError('citizenship_country', 'Country is required for this citizenship type.');
+            } else {
+              clearValidationError('citizenship_country');
+              addSuccessStyling('citizenship_country');
+            }
+          } else {
+            citizenshipCountryRequired.style.display = 'none';
+            citizenshipCountry.removeAttribute('required');
+            citizenshipCountry.classList.add('optional-field');
+            clearValidationError('citizenship_country');
+            citizenshipCountry.classList.remove('is-valid', 'is-invalid');
+            citizenshipCountry.value = '';
+          }
+        });
+        
+        citizenshipCountry.addEventListener('input', function() {
+          const isRequired = citizenshipCountry.hasAttribute('required');
+          if (isRequired) {
+            if (this.value.trim() === '') {
+              showValidationError('citizenship_country', 'Country is required for this citizenship type.');
+            } else {
+              clearValidationError('citizenship_country');
+              addSuccessStyling('citizenship_country');
+            }
+          } else if (this.value.trim().length > 0) {
+            addSuccessStyling('citizenship_country');
+          } else {
+            this.classList.remove('is-valid', 'is-invalid');
+          }
+        });
+
+        // DO NOT trigger initial check - this causes the error to show on page load
+      }
+
+      // Optional fields validation (show success when filled)
+      const optionalFields = ['middle_name', 'suffix', 'religion', 'profession_occupation', 'profession', 'monthly_income', 'education'];
+      optionalFields.forEach(fieldName => {
+        const input = document.querySelector(`[name="${fieldName}"]`) || document.getElementById(fieldName);
+        if (input) {
+          const eventType = input.tagName.toLowerCase() === 'select' ? 'change' : 'input';
+          input.addEventListener(eventType, function() {
+            if (this.value.trim().length > 0) {
+              addSuccessStyling(fieldName);
+            } else {
+              this.classList.remove('is-valid', 'is-invalid');
+            }
+          });
+        }
+      });
+
+      // Enhanced form submission validation
+      const form = document.querySelector('form[id*="seniorPreReg"]') || document.querySelector('form[id*="residentPreReg"]');
+      if (form) {
+        form.addEventListener('submit', function(e) {
+          let hasErrors = false;
+
+          // Validate all required fields before submission
+          requiredFields.forEach(fieldName => {
+            const input = document.querySelector(`[name="${fieldName}"]`) || document.getElementById(fieldName);
+            if (input && input.value.trim() === '') {
+              showValidationError(fieldName, 'This field is required.');
+              hasErrors = true;
+            }
+          });
+
+          // Special validation for birthdate
+          if (birthdateInput && birthdateInput.value && isSeniorForm) {
+            const birthDate = new Date(birthdateInput.value);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+              age--;
+            }
+            
+            if (age < 60) {
+              showValidationError('birthdate', 'You must be at least 60 years old to register as a senior citizen.');
+              hasErrors = true;
+            }
+          }
+
+          // Validate citizenship country if required
+          if (citizenshipCountry && citizenshipCountry.hasAttribute('required') && citizenshipCountry.value.trim() === '') {
+            showValidationError('citizenship_country', 'Country is required for this citizenship type.');
+            hasErrors = true;
+          }
+
+          // Step 2 specific validations
+          if (isStep2Form) {
+            const contactNumber = document.getElementById('contact_number');
+            if (contactNumber && contactNumber.value.trim() !== '') {
+              if (contactNumber.value.length !== 11 || !contactNumber.value.startsWith('09')) {
+                showValidationError('contact_number', 'Contact number must be 11 digits starting with 09.');
+                hasErrors = true;
+              }
+            }
+
+            const emailInput = document.getElementById('email_address');
+            if (emailInput && emailInput.value.trim() !== '') {
+              const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+              if (!emailRegex.test(emailInput.value)) {
+                showValidationError('email_address', 'Please enter a valid email address.');
+                hasErrors = true;
+              }
+            }
+          }
+
+          if (hasErrors) {
+            e.preventDefault();
+            // Scroll to first error
+            const firstError = document.querySelector('.is-invalid');
+            if (firstError) {
+              firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              firstError.focus();
+            }
+          }
+        });
+      }
+    }
+  }
+
+  /**
+   * Initialize Step 2 specific validation
+   */
+  function initializeStep2Validation() {
+    // Show server-side error messages on page load
+    const allErrorMessages = document.querySelectorAll('.invalid-feedback[data-server]');
+    allErrorMessages.forEach(function(errorMsg) {
+      if (errorMsg.textContent.trim() !== '') {
+        errorMsg.style.setProperty('display', 'block', 'important');
+        const input = errorMsg.parentElement.querySelector('input, select, textarea');
+        if (input) {
+          input.classList.add('is-invalid');
+        }
+      }
+    });
+
+    // Phone number validation
+    const contactNumber = document.getElementById('contact_number');
+    if (contactNumber) {
+      contactNumber.addEventListener('input', function(e) {
+        // Remove non-digits
+        this.value = this.value.replace(/[^0-9]/g, '');
+        // Validate 11-digit number starting with 09
+        if (this.value.length === 0) {
+          clearValidationError('contact_number');
+          this.classList.remove('is-valid', 'is-invalid');
+        } else if (this.value.length !== 11) {
+          showValidationError('contact_number', 'Contact number must be 11 digits.');
+        } else if (!this.value.startsWith('09')) {
+          showValidationError('contact_number', 'Contact number must start with 09.');
+        } else {
+          clearValidationError('contact_number');
+          addSuccessStyling('contact_number');
+        }
+      });
+    }
+
+    // Email validation
+    const emailInput = document.getElementById('email_address');
+    if (emailInput) {
+      emailInput.addEventListener('input', function() {
+        if (this.value.trim() === '') {
+          // Optional field - remove validation styling when empty
+          this.classList.remove('is-valid', 'is-invalid');
+          clearValidationError('email_address');
+        } else {
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          const isValid = emailRegex.test(this.value);
+          if (isValid) {
+            clearValidationError('email_address');
+            addSuccessStyling('email_address');
+          } else {
+            showValidationError('email_address', 'Please enter a valid email address.');
+          }
+        }
+      });
+    }
+
+    // Required text fields
+    const requiredFields = ['current_address'];
+    requiredFields.forEach(function(fieldId) {
+      const field = document.getElementById(fieldId);
+      if (field) {
+        field.addEventListener('input', function() {
+          const isValid = this.value.trim().length > 0;
+          if (isValid) {
+            clearValidationError(fieldId);
+            addSuccessStyling(fieldId);
+          } else {
+            showValidationError(fieldId, 'This field is required.');
+          }
+        });
+        
+        field.addEventListener('blur', function() {
+          const isValid = this.value.trim().length > 0;
+          if (isValid) {
+            clearValidationError(fieldId);
+            addSuccessStyling(fieldId);
+          } else {
+            showValidationError(fieldId, 'This field is required.');
+          }
+        });
+      }
+    });
+
+    // Required select fields
+    const requiredSelects = ['citizenship'];
+    requiredSelects.forEach(function(selectId) {
+      const select = document.getElementById(selectId);
+      if (select) {
+        let selectTouched = false;
+        
+        select.addEventListener('focus', function() {
+          selectTouched = true;
+          clearValidationError(selectId);
+        });
+        
+        select.addEventListener('change', function() {
+          selectTouched = true;
+          const isValid = this.value !== '';
+          if (isValid) {
+            clearValidationError(selectId);
+            addSuccessStyling(selectId);
+          } else {
+            showValidationError(selectId, 'This field is required.');
+          }
+        });
+      }
+    });
+  }
+
+  // Initialize enhanced validation when DOM is ready
+  document.addEventListener('DOMContentLoaded', function() {
+    initializeEnhancedValidation();
+  });
 
 })();

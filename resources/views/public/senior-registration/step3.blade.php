@@ -1,16 +1,16 @@
 @extends('layouts.public.resident-registration')
 
-@section('title', 'Resident Pre-Registration - Step 3')
+@section('title', 'Senior Citizen Pre-Registration - Step 3')
 
-@section('form-title', 'Resident Pre-Registration')
-@section('step-indicator', 'Step 3 of 3')
+@section('form-title', 'Senior Citizen Pre-Registration')
+@section('step-indicator', 'Step 3 of 5')
 
 @section('form-content')
 <div class="card-header bg-white border-0 pb-0">
   <h5 class="personal-header"><i class="fas fa-camera mr-2"></i>Photo & Documents Upload</h5>
   <small class="text-muted">Upload your photo, signature (optional), and proof of residency document.</small>
 </div>
-<form role="form" id="residentPreRegStep3Form" method="POST" action="{{ route('public.pre-registration.step3.store') }}" enctype="multipart/form-data" autocomplete="off">
+<form role="form" id="seniorPreRegStep3Form" method="POST" action="{{ route('public.senior-registration.step3.store') }}" enctype="multipart/form-data" autocomplete="off">
   @csrf
   <div class="card-body">
     <div class="alert alert-info alert-dismissible fade show" role="alert" style="color: white; position: relative;">
@@ -43,19 +43,19 @@
           <div class="text-center mb-3">
             <div class="photo-preview-container" style="width: 300px; height: 300px; margin: 0 auto; border: 2px dashed #ddd; border-radius: 10px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
               <img id="photo-preview" src="#" alt="Photo Preview" 
-                   @if(session('temp_photo_preview')) 
+                   @if(isset($step3['photo']) && $step3['photo']) 
                    style="display: block; width: 100%; height: 100%; object-fit: cover;"
-                   data-preview="{{ session('temp_photo_preview') }}"
+                   data-preview="{{ asset('storage/' . $step3['photo']) }}"
                    @else
                    style="display: none; width: 100%; height: 100%; object-fit: cover;"
                    @endif>
-              <div id="photo-placeholder" style="text-align: center; color: #6c757d; @if(session('temp_photo_preview')) display: none; @endif">
+              <div id="photo-placeholder" style="text-align: center; color: #6c757d; @if(isset($step3['photo']) && $step3['photo']) display: none; @endif">
                 <i class="fas fa-user fa-4x mb-2"></i>
                 <p class="mb-0">2x2 ID Photo</p>
                 <small class="text-muted">Required</small>
               </div>
             </div>
-            @if(session('temp_photo_preview'))
+            @if(isset($step3['photo']) && $step3['photo'])
             <small class="text-success d-block mt-2">
               <i class="fas fa-check-circle"></i> Photo previously uploaded
             </small>
@@ -63,7 +63,8 @@
           </div>
           <div class="form-group mb-0">
             <input type="file" class="form-control @error('photo') is-invalid @enderror" 
-                   id="photo" name="photo" accept="image/*">
+                   id="photo" name="photo" accept="image/*" 
+                   @if(!isset($step3['photo']) || !$step3['photo']) required @endif>
             <small class="form-text text-muted d-block mt-2">
               <i class="fas fa-info-circle text-info"></i> Required - JPG, PNG (Max 2MB)
             </small>
@@ -135,21 +136,21 @@
       <div class="col-md-6">
         <h6 class="mb-3"><i class="fas fa-signature mr-2"></i>Signature <small class="text-muted">(Optional)</small></h6>
         <div class="text-center mb-3">
-          <div class="signature-preview-container" style="width: 300px; height: 150px; margin: 0 auto; border: 2px dashed #ddd; border-radius: 10px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
+                    <div class="signature-preview-container" style="width: 300px; height: 150px; margin: 0 auto; border: 2px dashed #ddd; border-radius: 10px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
             <img id="signature-preview" src="#" alt="Signature Preview" 
-                 @if(session('temp_signature_preview')) 
+                 @if(isset($step3['signature']) && $step3['signature']) 
                  style="display: block; width: 100%; height: 100%; object-fit: contain;"
-                 data-preview="{{ session('temp_signature_preview') }}"
+                 data-preview="{{ asset('storage/' . $step3['signature']) }}"
                  @else
                  style="display: none; width: 100%; height: 100%; object-fit: contain;"
                  @endif>
-            <div id="signature-placeholder" style="text-align: center; color: #6c757d; @if(session('temp_signature_preview')) display: none; @endif">
+            <div id="signature-placeholder" style="text-align: center; color: #6c757d; @if(isset($step3['signature']) && $step3['signature']) display: none; @endif">
               <i class="fas fa-signature mr-2"></i>
               <p class="mb-0">Your Signature</p>
               <small class="text-muted">Optional</small>
             </div>
           </div>
-          @if(session('temp_signature_preview'))
+          @if(isset($step3['signature']) && $step3['signature'])
           <small class="text-success d-block mt-2">
             <i class="fas fa-check-circle"></i> Signature previously uploaded
           </small>
@@ -178,13 +179,13 @@
             <div class="text-center mb-3">
               <div class="document-preview-container" style="width: 100%; max-width: 400px; height: 300px; margin: 0 auto; border: 2px dashed #ddd; border-radius: 10px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
                 <img id="proof-preview" src="#" alt="Proof of Residency Preview" 
-                     @if(session('temp_proof_preview')) 
+                     @if(isset($step3['proof_of_residency']) && $step3['proof_of_residency']) 
                      style="display: block; width: 100%; height: 100%; object-fit: contain;"
-                     data-preview="{{ session('temp_proof_preview') }}"
+                     data-preview="{{ asset('storage/' . $step3['proof_of_residency']) }}"
                      @else
                      style="display: none; width: 100%; height: 100%; object-fit: contain;"
                      @endif>
-                <div id="proof-placeholder" style="text-align: center; color: #6c757d; padding: 20px; @if(session('temp_proof_preview')) display: none; @endif">
+                <div id="proof-placeholder" style="text-align: center; color: #6c757d; padding: 20px; @if(isset($step3['proof_of_residency']) && $step3['proof_of_residency']) display: none; @endif">
                   <i class="fas fa-file-upload fa-3x mb-3"></i>
                   <p class="mb-2" style="font-weight: 600; font-size: 0.95rem;">Proof of Residency</p>
                   <small class="text-muted d-block mb-2">Required Document</small>
@@ -200,7 +201,7 @@
                   </div>
                 </div>
               </div>
-              @if(session('temp_proof_preview'))
+              @if(isset($step3['proof_of_residency']) && $step3['proof_of_residency'])
               <small class="text-success d-block mt-2">
                 <i class="fas fa-check-circle"></i> Document previously uploaded
               </small>
@@ -209,7 +210,7 @@
             <div class="form-group mb-0">
               <input type="file" class="form-control @error('proof_of_residency') is-invalid @enderror" 
                      id="proof_of_residency" name="proof_of_residency" accept="image/*,application/pdf" 
-                     @if(!session('temp_proof_preview')) required @endif>
+                     @if(!isset($step3['proof_of_residency']) || !$step3['proof_of_residency']) required @endif>
               <small class="form-text text-muted d-block mt-2">
                 <i class="fas fa-info-circle text-info"></i> Required - JPG, PNG, PDF (Max 5MB)
               </small>
@@ -267,8 +268,8 @@
     <!-- Navigation Buttons -->
     <div class="row">
       <div class="col-md-6 mt-2">
-        <a href="{{ route('public.pre-registration.step2') }}" class="btn btn-outline-secondary w-100">
-         Previous
+        <a href="{{ route('public.senior-registration.step2') }}" class="btn btn-outline-secondary w-100">
+          Previous
         </a>
       </div>
       <div class="col-md-6 mt-2">
@@ -282,3 +283,7 @@
 
 {{-- JavaScript functionality is handled in /public/js/resident-registration.js --}}
 @endsection
+
+@push('scripts')
+<script src="{{ asset('js/resident-registration.js') }}"></script>
+@endpush

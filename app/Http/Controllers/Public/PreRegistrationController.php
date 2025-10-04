@@ -31,6 +31,12 @@ class PreRegistrationController extends Controller
      */
     public function createStep1()
     {
+        // Clear any previous validation errors for a fresh start
+        $errors = session()->get('errors');
+        if ($errors) {
+            session()->forget('errors');
+        }
+        
         // Get saved step1 data from session (if exists)
         $step1 = Session::get('pre_registration.step1', []);
         
@@ -321,55 +327,79 @@ class PreRegistrationController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'final_confirmation' => 'required|accepted'
+        Log::info('Pre-registration store method called', [
+            'has_session_step1' => Session::has('pre_registration.step1'),
+            'has_session_step2' => Session::has('pre_registration.step2'),
+            'has_session_step3' => Session::has('pre_registration.step3'),
+            'request_data' => $request->all(),
+            'session_id' => session()->getId()
         ]);
+        
+        try {
+            $request->validate([
+                'final_confirmation' => 'required|accepted'
+            ]);
+            Log::info('Validation passed');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Validation failed', [
+                'errors' => $e->errors(),
+                'message' => $e->getMessage()
+            ]);
+            throw $e;
+        }
 
+        Log::info('Checking session data existence');
+        
         // Check if all required session data exists (step4 is optional)
         if (!Session::has('pre_registration.step1') || 
             !Session::has('pre_registration.step2') || 
             !Session::has('pre_registration.step3')) {
+            Log::warning('Session data incomplete, redirecting to step 1');
             return redirect()->route('public.pre-registration.step1')
                 ->with('error', 'Registration data is incomplete. Please start again.');
         }
         
-        // Get email address from session (can be null)
-        $emailAddress = Session::get('pre_registration.step2.email_address');
-        
-        // Check if email is still unique (might have been taken since step 2 was completed)
-        if ($emailAddress) {
-            $existingPreReg = PreRegistration::where('email_address', $emailAddress)->first();
-            $existingResident = Resident::where('email_address', $emailAddress)->first();
-            
-            if ($existingPreReg || $existingResident) {
-                return redirect()->back()
-                    ->with('error', 'This email address is already registered or pending registration. Please go back to step 2 and use a different email address.');
-            }
-        }
+        Log::info('Session data complete, proceeding to create registration');
 
         try {
+            Log::info('Starting pre-registration processing');
+            
             // Get all session data
             $step1 = Session::get('pre_registration.step1');
             $step2 = Session::get('pre_registration.step2');
             $step3 = Session::get('pre_registration.step3');
+            
+            Log::info('Session data retrieved', [
+                'step1_keys' => array_keys($step1),
+                'step2_keys' => array_keys($step2),
+                'step3_keys' => array_keys($step3)
+            ]);
 
             // Handle photo upload from step 3
             $photoFilename = null;
             if (isset($step3['photo'])) {
+                Log::info('Processing photo');
                 $photoFilename = $this->processPhoto($step3['photo']);
+                Log::info('Photo processed', ['filename' => $photoFilename]);
             }
 
             // Handle optional signature upload from step 3
             $signatureFilename = null;
             if (isset($step3['signature'])) {
+                Log::info('Processing signature');
                 $signatureFilename = $this->processSignature($step3['signature']);
+                Log::info('Signature processed', ['filename' => $signatureFilename]);
             }
             
             // Handle proof of residency upload from step 3
             $proofFilename = null;
             if (isset($step3['proof_of_residency'])) {
+                Log::info('Processing proof of residency');
                 $proofFilename = $this->processProofOfResidency($step3['proof_of_residency']);
+                Log::info('Proof of residency processed', ['filename' => $proofFilename]);
             }
+            
+            Log::info('About to create pre-registration record');
             
             // Create pre-registration record
             $preRegistration = PreRegistration::create([
@@ -396,7 +426,8 @@ class PreRegistrationController extends Controller
                 'address' => $step2['address'],
                 'emergency_contact_name' => $step2['emergency_contact_name'] ?? null,
                 'emergency_contact_relationship' => $step2['emergency_contact_relationship'] ?? null,
-                'emergency_contact_number' => $step2['contact_number'], // Use primary contact as emergency for now
+                'emergency_contact_number' => $step2['emergency_contact_number'] ?? $step2['contact_number'],
+                'emergency_contact_address' => $step2['emergency_contact_address'] ?? null,
                 
                 // Step 3 - Photos & Documents
                 'photo' => $photoFilename,
@@ -406,19 +437,28 @@ class PreRegistrationController extends Controller
                 // Status
                 'status' => 'pending',
             ]);
+            
+            Log::info('Pre-registration record created', ['id' => $preRegistration->id]);
 
             // Send SMS notification
             try {
+                Log::info('Attempting to send SMS notification');
                 $smsService = new SmsService();
                 $fullName = trim($step1['first_name'] . ' ' . $step1['last_name']);
                 $smsService->sendPreRegistrationConfirmation($step2['contact_number'], $fullName);
+                Log::info('SMS notification sent successfully');
             } catch (\Exception $e) {
                 Log::warning('SMS notification failed: ' . $e->getMessage());
                 // Don't fail the registration if SMS fails
             }
 
             // Clear all registration session data
+            Log::info('Clearing registration session data');
             $this->clearRegistrationData();
+
+            Log::info('Redirecting to success page', [
+                'registration_id' => $preRegistration->registration_id
+            ]);
 
             return redirect()->route('public.pre-registration.success')
                 ->with('success', 'Your registration has been submitted successfully! You will receive your ID via email once approved.')
@@ -429,6 +469,7 @@ class PreRegistrationController extends Controller
         } catch (\Exception $e) {
             // Log detailed error information
             Log::error('Pre-registration submission error: ' . $e->getMessage());
+            Log::error('Error file: ' . $e->getFile() . ' Line: ' . $e->getLine());
             Log::error('Error details: ' . $e->getTraceAsString());
             
             // If it's a PDO exception, log the SQL error code

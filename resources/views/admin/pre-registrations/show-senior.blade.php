@@ -1,6 +1,6 @@
 @extends('layouts.admin.master')
 
-@section('title', 'Pre-Registration Details - ' . $preRegistration->full_name)
+@section('title', 'Senior Pre-Registration Details - ' . $preRegistration->full_name)
 
 @section('content')
 <!-- Content Header (Page header) -->
@@ -8,7 +8,7 @@
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <h1 class="m-0">Pre-Registration Details</h1>
+                <h1 class="m-0">Senior Citizen Pre-Registration Details</h1>
                 <small class="text-muted">{{ $preRegistration->full_name }}</small>
             </div>
             <div class="col-sm-6">
@@ -32,9 +32,12 @@
                     <div class="card-body">
                         <div class="row align-items-center">
                             <div class="col">
-                                <h4 class="mb-1">{{ $preRegistration->full_name }}</h4>
+                                <h4 class="mb-1">
+                                    {{ $preRegistration->full_name }}
+                                    <span class="badge badge-warning ml-2"><i class="fas fa-user-check mr-1"></i>Senior Citizen</span>
+                                </h4>
                                 <p class="text-muted mb-0">
-                                    <i class="fas fa-hashtag mr-1"></i>Registration ID: <strong>{{ $preRegistration->registration_id ?? ($preRegistration->created_at ? 'PRE-' . $preRegistration->created_at->format('Y-m') . '-' . str_pad($preRegistration->id, 5, '0', STR_PAD_LEFT) : 'PRE-' . str_pad($preRegistration->id, 5, '0', STR_PAD_LEFT)) }}</strong>
+                                    <i class="fas fa-hashtag mr-1"></i>Registration ID: <strong>{{ $preRegistration->registration_id }}</strong>
                                 </p>
                             </div>
                             <div class="col-auto">
@@ -62,19 +65,19 @@
                     <div class="card-body text-center p-3">
                         @if($preRegistration->status === 'pending')
                             <button type="button" class="btn btn-success btn-block mb-2" 
-                                    onclick="approveRegistration({{ $preRegistration->id }})">
+                                    onclick="approveRegistration({{ $preRegistration->id }}, 'senior')">
                                 <i class="fas fa-check mr-1"></i> Approve Registration
                             </button>
                             <button type="button" class="btn btn-danger btn-block" 
-                                    onclick="rejectRegistration({{ $preRegistration->id }})">
+                                    onclick="rejectRegistration({{ $preRegistration->id }}, 'senior')">
                                 <i class="fas fa-times mr-1"></i> Reject Registration
                             </button>
                         @else
                             <p class="text-muted mb-2">Registration has been {{ $preRegistration->status }}</p>
-                            @if($preRegistration->status === 'approved' && $preRegistration->resident)
-                                <a href="{{ route('admin.residents.show', $preRegistration->resident) }}" 
+                            @if($preRegistration->status === 'approved' && $preRegistration->senior_citizen_id)
+                                <a href="{{ route('admin.senior-citizens.show', $preRegistration->senior_citizen_id) }}" 
                                    class="btn btn-primary btn-block">
-                                    <i class="fas fa-user mr-1"></i> View Resident Record
+                                    <i class="fas fa-user-check mr-1"></i> View Senior Citizen Record
                                 </a>
                             @endif
                         @endif
@@ -109,13 +112,9 @@
                                     <tr>
                                         <td class="text-muted"><strong>Birthdate:</strong></td>
                                         <td>
-                                            {{ $preRegistration->birthdate ? $preRegistration->birthdate->format('F d, Y') : 'N/A' }} 
-                                            @if($preRegistration->birthdate)
-                                                <small class="text-muted">({{ $preRegistration->age }} years old)</small>
-                                            @endif
-                                            @if($preRegistration->is_senior_citizen)
-                                                <br><span class="badge badge-warning mt-1"><i class="fas fa-user-check mr-1"></i>Senior Citizen</span>
-                                            @endif
+                                            {{ $preRegistration->birthdate->format('F d, Y') }} 
+                                            <small class="text-muted">({{ $preRegistration->age }} years old)</small>
+                                            <br><span class="badge badge-warning mt-1"><i class="fas fa-user-check mr-1"></i>Senior Citizen</span>
                                         </td>
                                     </tr>
                                     <tr>
@@ -164,6 +163,28 @@
                                         <td><i class="fas fa-map-marker-alt mr-1"></i>{{ $preRegistration->address }}</td>
                                     </tr>
                                 </table>
+
+                                <h5 class="text-primary border-bottom pb-2 mb-3 mt-4">
+                                    <i class="fas fa-phone-alt mr-2"></i>Emergency Contact
+                                </h5>
+                                <table class="table table-sm table-borderless">
+                                    <tr>
+                                        <td width="40%" class="text-muted"><strong>Name:</strong></td>
+                                        <td>{{ $preRegistration->emergency_contact_name ?? 'N/A' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted"><strong>Relationship:</strong></td>
+                                        <td>{{ $preRegistration->emergency_contact_relationship ?? 'N/A' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted"><strong>Phone:</strong></td>
+                                        <td>{{ $preRegistration->emergency_contact_number ?? 'N/A' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted"><strong>Address:</strong></td>
+                                        <td>{{ $preRegistration->emergency_contact_address ?? 'N/A' }}</td>
+                                    </tr>
+                                </table>
                             </div>
 
                             <!-- Citizenship & Work Information -->
@@ -183,14 +204,8 @@
                                     </tr>
                                     <tr>
                                         <td class="text-muted"><strong>Occupation:</strong></td>
-                                        <td>{{ $preRegistration->profession_occupation }}</td>
+                                        <td>{{ $preRegistration->profession_occupation ?? 'N/A' }}</td>
                                     </tr>
-                                    @if($preRegistration->monthly_income)
-                                    <tr>
-                                        <td class="text-muted"><strong>Monthly Income:</strong></td>
-                                        <td>₱{{ number_format($preRegistration->monthly_income, 2) }}</td>
-                                    </tr>
-                                    @endif
                                 </table>
                             </div>
 
@@ -211,32 +226,100 @@
                                 </table>
                             </div>
 
-                            <!-- Mother's Information -->
-                            @if($preRegistration->mother_full_name)
+                            <!-- Senior Citizen Specific Information -->
                             <div class="col-md-6 mb-4">
                                 <h5 class="text-primary border-bottom pb-2 mb-3">
-                                    <i class="fas fa-female mr-2"></i>Mother's Information
+                                    <i class="fas fa-heartbeat mr-2"></i>Health Information
                                 </h5>
                                 <table class="table table-sm table-borderless">
                                     <tr>
-                                        <td width="40%" class="text-muted"><strong>Name:</strong></td>
-                                        <td>{{ $preRegistration->mother_full_name }}</td>
+                                        <td width="40%" class="text-muted"><strong>Health Condition:</strong></td>
+                                        <td>{{ $preRegistration->health_condition ?? 'N/A' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted"><strong>Mobility Status:</strong></td>
+                                        <td>{{ $preRegistration->mobility_status ?? 'N/A' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted"><strong>Medical Conditions:</strong></td>
+                                        <td>{{ $preRegistration->medical_conditions ?? 'None' }}</td>
                                     </tr>
                                 </table>
                             </div>
-                            @endif
 
-                            <!-- Population Sectors -->
-                            @if($preRegistration->population_sectors && is_array($preRegistration->population_sectors) && count($preRegistration->population_sectors) > 0)
+                            <!-- Pension & Benefits Information -->
                             <div class="col-md-6 mb-4">
                                 <h5 class="text-primary border-bottom pb-2 mb-3">
-                                    <i class="fas fa-users mr-2"></i>Population Sectors
+                                    <i class="fas fa-money-bill-wave mr-2"></i>Pension & Benefits
+                                </h5>
+                                <table class="table table-sm table-borderless">
+                                    <tr>
+                                        <td width="40%" class="text-muted"><strong>Receiving Pension:</strong></td>
+                                        <td>
+                                            @if($preRegistration->receiving_pension)
+                                                <span class="badge badge-success">Yes</span>
+                                            @else
+                                                <span class="badge badge-secondary">No</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    @if($preRegistration->receiving_pension)
+                                    <tr>
+                                        <td class="text-muted"><strong>Pension Type:</strong></td>
+                                        <td>{{ $preRegistration->pension_type ?? 'N/A' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted"><strong>Pension Amount:</strong></td>
+                                        <td>₱{{ number_format($preRegistration->pension_amount ?? 0, 2) }}</td>
+                                    </tr>
+                                    @endif
+                                    <tr>
+                                        <td class="text-muted"><strong>PhilHealth:</strong></td>
+                                        <td>
+                                            @if($preRegistration->has_philhealth)
+                                                <span class="badge badge-success">Yes</span>
+                                                @if($preRegistration->philhealth_number)
+                                                    <br><small class="text-muted">{{ $preRegistration->philhealth_number }}</small>
+                                                @endif
+                                            @else
+                                                <span class="badge badge-secondary">No</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted"><strong>Senior Discount Card:</strong></td>
+                                        <td>
+                                            @if($preRegistration->has_senior_discount_card)
+                                                <span class="badge badge-success">Yes</span>
+                                            @else
+                                                <span class="badge badge-secondary">No</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <!-- Services Requested -->
+                            @if($preRegistration->services && is_array($preRegistration->services) && count($preRegistration->services) > 0)
+                            <div class="col-md-12 mb-4">
+                                <h5 class="text-primary border-bottom pb-2 mb-3">
+                                    <i class="fas fa-hands-helping mr-2"></i>Services Requested
                                 </h5>
                                 <div>
-                                    @foreach($preRegistration->population_sectors as $sector)
-                                        <span class="badge badge-info mr-1 mb-1">{{ $sector }}</span>
+                                    @foreach($preRegistration->services as $service)
+                                        <span class="badge badge-info mr-1 mb-1">{{ ucwords(str_replace('_', ' ', $service)) }}</span>
                                     @endforeach
                                 </div>
+                            </div>
+                            @endif
+
+                            <!-- Notes -->
+                            @if($preRegistration->notes)
+                            <div class="col-md-12 mb-4">
+                                <h5 class="text-primary border-bottom pb-2 mb-3">
+                                    <i class="fas fa-sticky-note mr-2"></i>Additional Notes
+                                </h5>
+                                <p class="mb-0">{{ $preRegistration->notes }}</p>
                             </div>
                             @endif
                         </div>
@@ -250,7 +333,7 @@
                                 </h5>
                                 <div class="text-center">
                                     @php
-                                        $proofPath = 'storage/pre-registrations/proof-of-residency/' . $preRegistration->proof_of_residency;
+                                        $proofPath = 'storage/' . $preRegistration->proof_of_residency;
                                         $isImage = in_array(pathinfo($preRegistration->proof_of_residency, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png', 'gif']);
                                     @endphp
                                     
@@ -284,7 +367,7 @@
                                     @if($preRegistration->photo)
                                     <div class="col-md-6 text-center mb-3">
                                         <h6 class="text-muted mb-2"><i class="fas fa-camera mr-1"></i>Photo</h6>
-                                        <img src="{{ asset('storage/pre-registrations/photos/' . $preRegistration->photo) }}" 
+                                        <img src="{{ asset('storage/' . $preRegistration->photo) }}" 
                                              alt="Registration Photo" class="img-thumbnail" style="max-width: 300px;">
                                     </div>
                                     @endif
@@ -292,7 +375,7 @@
                                     @if($preRegistration->signature)
                                     <div class="col-md-6 text-center mb-3">
                                         <h6 class="text-muted mb-2"><i class="fas fa-signature mr-1"></i>Signature</h6>
-                                        <img src="{{ asset('storage/pre-registrations/signatures/' . $preRegistration->signature) }}" 
+                                        <img src="{{ asset('storage/' . $preRegistration->signature) }}" 
                                              alt="Registration Signature" class="img-thumbnail" style="max-width: 300px;">
                                     </div>
                                     @endif
@@ -305,7 +388,6 @@
         </div>
 
         <div class="row">
-
             <!-- Registration Timeline -->
             <div class="col-md-12 mb-3">
                 <div class="card card-primary">
@@ -317,8 +399,8 @@
                             <div>
                                 <i class="fas fa-file-alt bg-primary"></i>
                                 <div class="timeline-item">
-                                    <span class="time"><i class="fas fa-clock mr-1"></i>{{ $preRegistration->created_at ? $preRegistration->created_at->format('M d, Y g:i A') : 'N/A' }}</span>
-                                    <h3 class="timeline-header">Registration Submitted</h3>
+                                    <span class="time"><i class="fas fa-clock mr-1"></i>{{ $preRegistration->created_at->format('M d, Y g:i A') }}</span>
+                                    <h3 class="timeline-header">Senior Citizen Registration Submitted</h3>
                                     <div class="timeline-body">
                                         Pre-registration application was submitted by {{ $preRegistration->full_name }}
                                     </div>
@@ -329,14 +411,14 @@
                             <div>
                                 <i class="fas fa-check-circle bg-success"></i>
                                 <div class="timeline-item">
-                                    <span class="time"><i class="fas fa-clock mr-1"></i>{{ $preRegistration->approved_at ? $preRegistration->approved_at->format('M d, Y g:i A') : 'N/A' }}</span>
+                                    <span class="time"><i class="fas fa-clock mr-1"></i>{{ $preRegistration->approved_at->format('M d, Y g:i A') }}</span>
                                     <h3 class="timeline-header">Registration Approved</h3>
                                     <div class="timeline-body">
                                         @if($preRegistration->approvedBy)
                                             Approved by <strong>{{ $preRegistration->approvedBy->name }}</strong>
                                         @endif
-                                        @if($preRegistration->resident)
-                                            <br><span class="badge badge-success mt-1"><i class="fas fa-check mr-1"></i>Resident record created & digital ID sent</span>
+                                        @if($preRegistration->senior_citizen_id)
+                                            <br><span class="badge badge-success mt-1"><i class="fas fa-check mr-1"></i>Senior citizen record created & ID sent</span>
                                         @endif
                                     </div>
                                 </div>
@@ -345,7 +427,7 @@
                             <div>
                                 <i class="fas fa-times-circle bg-danger"></i>
                                 <div class="timeline-item">
-                                    <span class="time"><i class="fas fa-clock mr-1"></i>{{ $preRegistration->rejected_at ? $preRegistration->rejected_at->format('M d, Y g:i A') : 'N/A' }}</span>
+                                    <span class="time"><i class="fas fa-clock mr-1"></i>{{ $preRegistration->rejected_at->format('M d, Y g:i A') }}</span>
                                     <h3 class="timeline-header text-danger">Registration Rejected</h3>
                                     <div class="timeline-body">
                                         @if($preRegistration->rejectedBy)
@@ -375,23 +457,21 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header bg-success">
-                        <h4 class="modal-title"><i class="fas fa-check-circle mr-2"></i>Approve Registration</h4>
+                        <h4 class="modal-title"><i class="fas fa-check-circle mr-2"></i>Approve Senior Registration</h4>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <p>Are you sure you want to approve this registration for <strong>{{ $preRegistration->full_name }}</strong>?</p>
+                        <p>Are you sure you want to approve this senior citizen registration for <strong>{{ $preRegistration->full_name }}</strong>?</p>
                         <div class="alert alert-info">
                             <h6><i class="fas fa-info-circle mr-1"></i>This will:</h6>
                             <ul class="mb-0">
-                                <li>Create a new resident record in the system</li>
-                                <li>Generate a digital ID ({{ $preRegistration->is_senior_citizen ? 'Senior Citizen ID' : 'Resident ID' }})</li>
+                                <li>Create a new senior citizen record in the system</li>
+                                <li>Generate a Senior Citizen ID</li>
                                 <li>Send the digital ID to the applicant's email @if($preRegistration->email_address)({{ $preRegistration->email_address }})@endif</li>
                                 <li>Send SMS notification to {{ $preRegistration->contact_number }}</li>
-                                @if($preRegistration->is_senior_citizen)
-                                    <li>Register them as a senior citizen with benefits</li>
-                                @endif
+                                <li>Register them for senior citizen benefits and services</li>
                             </ul>
                         </div>
                     </div>
@@ -413,7 +493,7 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header bg-danger">
-                        <h4 class="modal-title"><i class="fas fa-times-circle mr-2"></i>Reject Registration</h4>
+                        <h4 class="modal-title"><i class="fas fa-times-circle mr-2"></i>Reject Senior Registration</h4>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -446,13 +526,13 @@
 
 @push('scripts')
 <script>
-function approveRegistration(id) {
-    document.getElementById('approveForm').action = `/admin/pre-registrations/${id}/approve`;
+function approveRegistration(id, type) {
+    document.getElementById('approveForm').action = `/admin/pre-registrations/${id}/approve?type=${type}`;
     $('#approveModal').modal('show');
 }
 
-function rejectRegistration(id) {
-    document.getElementById('rejectForm').action = `/admin/pre-registrations/${id}/reject`;
+function rejectRegistration(id, type) {
+    document.getElementById('rejectForm').action = `/admin/pre-registrations/${id}/reject?type=${type}`;
     $('#rejectModal').modal('show');
 }
 </script>

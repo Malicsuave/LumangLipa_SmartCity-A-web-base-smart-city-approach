@@ -31,7 +31,10 @@
                   <small class="form-text text-muted">
                     <i class="fas fa-info-circle text-info"></i> You can use a family member's email if you don't have one. Digital ID will be sent here when approved.
                   </small>
-                  @error('email_address')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                  @error('email_address')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                  <div id="email-validation-error" style="display: none; color: #dc3545; font-size: 0.875rem; margin-top: 0.25rem;">
+                    Please enter a valid email address
+                  </div>
                 </div>
               </div>
               <!-- Current Address -->
@@ -90,10 +93,12 @@
                 </div>
               </div>
               
-              <div class="row">
-                <div class="col-md-6 mt-2">
-                  <a href="{{ route('public.pre-registration.step1') }}" class="btn btn-outline-secondary w-100">Previous</a>
-                </div>
+             <div class="row">
+      <div class="col-md-6 mt-2">
+        <a href="{{ route('public.pre-registration.step1') }}" class="btn btn-outline-secondary w-100">
+           Previous
+        </a>
+      </div>
                 <div class="col-md-6 mt-2">
                   <button type="submit" class="btn bg-gradient-dark w-100">Next</button>
                 </div>
@@ -105,4 +110,59 @@
     </div>
   </div>
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const emailInput = document.getElementById('email_address');
+    const emailError = document.getElementById('email-validation-error');
+    const form = document.getElementById('residentPreRegStep2Form');
+    
+    // Email validation regex
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    // Real-time validation on input
+    emailInput.addEventListener('input', function() {
+        const value = this.value.trim();
+        
+        if (value === '') {
+            // Empty is allowed (optional field)
+            this.classList.remove('is-invalid');
+            emailError.style.display = 'none';
+        } else if (!emailRegex.test(value)) {
+            // Invalid email format
+            this.classList.add('is-invalid');
+            emailError.style.display = 'block';
+        } else {
+            // Valid email
+            this.classList.remove('is-invalid');
+            emailError.style.display = 'none';
+        }
+    });
+    
+    // Validate on blur (when user leaves the field)
+    emailInput.addEventListener('blur', function() {
+        const value = this.value.trim();
+        
+        if (value !== '' && !emailRegex.test(value)) {
+            this.classList.add('is-invalid');
+            emailError.style.display = 'block';
+        }
+    });
+    
+    // Validate on form submit
+    form.addEventListener('submit', function(e) {
+        const value = emailInput.value.trim();
+        
+        if (value !== '' && !emailRegex.test(value)) {
+            e.preventDefault();
+            emailInput.classList.add('is-invalid');
+            emailError.style.display = 'block';
+            emailInput.focus();
+            return false;
+        }
+    });
+});
+</script>
+@endpush
 @endsection

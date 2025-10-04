@@ -95,6 +95,8 @@ textarea.form-control:disabled,
 .form-control:disabled {
   background-color: #e9ecef !important;
   opacity: 1 !important;
+  color: #6c757d !important;
+  cursor: not-allowed !important;
 }
 
 /* Readonly state */
@@ -197,4 +199,189 @@ textarea.optional-field.has-value:focus {
   border-color: #66bb6a !important;
   background-color: #fff !important;
   box-shadow: 0 0 0 2px rgba(102, 187, 106, 0.25) !important;
+}
+
+/* FontAwesome Icon Fix - Ensure FA icons display properly */
+.fas, .far, .fab, .fal, .fad, .fa {
+  font-family: "Font Awesome 6 Free", "Font Awesome 6 Pro", "Font Awesome 6 Brands" !important;
+  font-weight: 900 !important;
+  font-style: normal !important;
+  font-variant: normal !important;
+  text-rendering: auto !important;
+  line-height: 1 !important;
+  display: inline-block !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+
+.far {
+  font-weight: 400 !important;
+}
+
+.fab {
+  font-weight: 400 !important;
+  font-family: "Font Awesome 6 Brands" !important;
+}
+
+/* Specific icon fixes */
+.fa-phone:before { content: "\f095" !important; }
+.fa-user-shield:before { content: "\f505" !important; }
+.fa-heartbeat:before { content: "\f21e" !important; }
+.fa-money-check-alt:before { content: "\f53d" !important; }
+.fa-concierge-bell:before { content: "\f562" !important; }
+.fa-camera:before { content: "\f030" !important; }
+.fa-file-upload:before { content: "\f574" !important; }
+.fa-arrow-left:before { content: "\f060" !important; }
+.fa-arrow-right:before { content: "\f061" !important; }
+.fa-info-circle:before { content: "\f05a" !important; }
+
+/* Disabled Input Styling - Darker Grey Background */
+.form-control:disabled,
+.form-control[disabled],
+input.form-control:disabled,
+input.form-control[disabled],
+select.form-control:disabled,
+select.form-control[disabled],
+textarea.form-control:disabled,
+textarea.form-control[disabled],
+input[type="text"].form-control:disabled,
+input[type="number"].form-control:disabled,
+.card .form-control:disabled,
+.card-body .form-control:disabled,
+.row .form-control:disabled,
+.col-md-6 .form-control:disabled,
+.col-md-12 .form-control:disabled {
+  background-color: #e9ecef !important;
+  color: #6c757d !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+  border-color: #d2d6da !important;
+}
+
+/* Disabled Input Group Styling */
+.input-group .form-control:disabled,
+.input-group .form-control[disabled],
+.input-group input.form-control:disabled,
+.input-group input[type="number"].form-control:disabled,
+div.input-group .form-control:disabled,
+div.input-group input.form-control:disabled {
+  background-color: #e9ecef !important;
+  color: #6c757d !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+  border-color: #d2d6da !important;
+}
+
+/* Input Group Text for Disabled Fields - Keep Normal Styling */
+.input-group .form-control:disabled + .input-group-text,
+.input-group .form-control[disabled] + .input-group-text {
+  background-color: #e9ecef !important;
+  color: #495057 !important;
+  border-color: #d2d6da !important;
+}
+
+/* Input Group Text - Ensure Peso Sign is Visible */
+.input-group-text {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background-color: #e9ecef !important;
+  border: 1px solid #d2d6da !important;
+  color: #495057 !important;
+  font-size: 0.875rem !important;
+  padding: 0.5rem 0.75rem !important;
+  white-space: nowrap !important;
+  border-radius: 0.375rem 0 0 0.375rem !important;
+  min-width: 45px !important;
+  height: auto !important;
+  line-height: 1.4 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* Input Group Prepend Styling */
+.input-group-prepend {
+  display: flex !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* Input Group Container */
+.input-group {
+  position: relative !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: stretch !important;
+  width: 100% !important;
+}
+
+.input-group-prepend .input-group-text {
+  border-right: none !important;
+  background-color: #e9ecef !important;
+  color: #495057 !important;
+  font-weight: 500 !important;
+}
+
+/* Input Group with Prepend - Adjust Input Styling */
+.input-group .form-control {
+  border-left: none !important;
+  border-radius: 0 0.375rem 0.375rem 0 !important;
+}
+
+.input-group .form-control:focus {
+  border-left: none !important;
+  box-shadow: none !important;
+}
+
+/* Disabled Input Group Specific Styling */
+.input-group .form-control:disabled + .input-group-append .input-group-text,
+.input-group-prepend .input-group-text {
+  background-color: #e9ecef !important;
+  color: #495057 !important;
+  border-color: #d2d6da !important;
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Force peso sign visibility specifically */
+.input-group-prepend .input-group-text:contains("₱"),
+.input-group-text:contains("₱"),
+span.input-group-text:contains("₱") {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  background-color: #e9ecef !important;
+  color: #495057 !important;
+  font-weight: bold !important;
+}
+
+/* Specific targeting for pension amount and other form fields */
+#pension_type:disabled,
+#pension_amount:disabled,
+#philhealth_number:disabled,
+input#pension_amount:disabled,
+select#pension_type:disabled,
+input#philhealth_number:disabled {
+  background-color: #e9ecef !important;
+  color: #6c757d !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+  border-color: #d2d6da !important;
+}
+
+/* Enabled state for pension and philhealth fields */
+#pension_type:not(:disabled),
+#pension_amount:not(:disabled),
+#philhealth_number:not(:disabled),
+input#pension_amount:not(:disabled),
+select#pension_type:not(:disabled),
+input#philhealth_number:not(:disabled) {
+  background-color: #fff !important;
+  color: #495057 !important;
+  opacity: 1 !important;
+  cursor: text !important;
+  border-color: #d2d6da !important;
 }

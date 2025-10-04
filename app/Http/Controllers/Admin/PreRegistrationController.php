@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\PreRegistration;
+use App\Models\SeniorPreRegistration;
 use App\Models\Resident;
 use App\Models\SeniorCitizen;
 use App\Notifications\PreRegistrationApproved;
@@ -20,8 +21,72 @@ class PreRegistrationController extends Controller
      */
     public function index(Request $request)
     {
-        $query = PreRegistration::query();
+        // Get both regular and senior registrations
+        $regularQuery = PreRegistration::query();
+        $seniorQuery = SeniorPreRegistration::query();
 
+        // Apply filters to both queries
+        $this->applyFilters($regularQuery, $request);
+        $this->applyFilters($seniorQuery, $request);
+
+        // Get the data from both queries
+        $regularRegistrations = $regularQuery->get()->map(function ($registration) {
+            $registration->is_senior = false;
+            $registration->registration_type = 'Regular';
+            return $registration;
+        });
+
+        $seniorRegistrations = $seniorQuery->get()->map(function ($registration) {
+            $registration->is_senior = true;
+            $registration->registration_type = 'Senior Citizen';
+            return $registration;
+        });
+
+        // Combine and sort the collections
+        $allRegistrations = $regularRegistrations->concat($seniorRegistrations);
+        
+        // Apply sorting
+        $sortField = $request->get('sort', 'created_at');
+        $sortDirection = $request->get('direction', 'desc');
+        
+        if ($sortField === 'age') {
+            // Sort by birthdate in reverse order for age
+            $allRegistrations = $allRegistrations->sortBy(function ($registration) {
+                return $registration->birthdate;
+            }, SORT_REGULAR, $sortDirection === 'desc');
+        } else {
+            $allRegistrations = $allRegistrations->sortBy($sortField, SORT_REGULAR, $sortDirection === 'desc');
+        }
+
+        // Manual pagination since we're combining collections
+        $perPage = 20;
+        $currentPage = $request->get('page', 1);
+        $currentItems = $allRegistrations->slice(($currentPage - 1) * $perPage, $perPage)->values();
+        
+        $preRegistrations = new \Illuminate\Pagination\LengthAwarePaginator(
+            $currentItems,
+            $allRegistrations->count(),
+            $perPage,
+            $currentPage,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
+        // Get combined statistics
+        $stats = [
+            'total' => PreRegistration::count() + SeniorPreRegistration::count(),
+            'pending' => PreRegistration::where('status', 'pending')->count() + SeniorPreRegistration::where('status', 'pending')->count(),
+            'approved' => PreRegistration::where('status', 'approved')->count() + SeniorPreRegistration::where('status', 'approved')->count(),
+            'rejected' => PreRegistration::where('status', 'rejected')->count() + SeniorPreRegistration::where('status', 'rejected')->count(),
+        ];
+
+        return view('admin.pre-registrations.index', compact('preRegistrations', 'stats'));
+    }
+
+    /**
+     * Apply filters to a query builder
+     */
+    private function applyFilters($query, Request $request)
+    {
         // Filter by status
         if ($request->has('status') && !empty($request->status)) {
             $query->where('status', $request->status);
@@ -31,34 +96,17 @@ class PreRegistrationController extends Controller
         if ($request->has('type_of_resident') && !empty($request->type_of_resident)) {
             $query->where('type_of_resident', $request->type_of_resident);
         }
+        
         // Filter by gender
         if ($request->has('gender') && !empty($request->gender)) {
             $query->where('sex', $request->gender);
         }
+        
         // Filter by civil status
         if ($request->has('civil_status') && !empty($request->civil_status)) {
             $query->where('civil_status', $request->civil_status);
         }
-        // Filter by education
-        if ($request->has('education') && !empty($request->education)) {
-            $query->where('educational_attainment', $request->education);
-        }
-        // Filter by age group
-        if ($request->has('age_group') && !empty($request->age_group)) {
-            $now = Carbon::now();
-            switch ($request->age_group) {
-                case '0-17':
-                    $query->whereDate('birthdate', '>=', $now->copy()->subYears(17));
-                    break;
-                case '18-59':
-                    $query->whereDate('birthdate', '<', $now->copy()->subYears(17))
-                          ->whereDate('birthdate', '>', $now->copy()->subYears(60));
-                    break;
-                case '60+':
-                    $query->whereDate('birthdate', '<=', $now->copy()->subYears(60));
-                    break;
-            }
-        }
+        
         // Filter by date range
         if ($request->has('date_from') && !empty($request->date_from)) {
             $query->whereDate('created_at', '>=', $request->date_from);
@@ -70,42 +118,13 @@ class PreRegistrationController extends Controller
         // Search functionality
         if ($request->has('search') && !empty($request->search)) {
             $search = $request->search;
-            $query->search($search);
+            $query->where(function ($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhere('email_address', 'like', "%{$search}%")
+                  ->orWhere('contact_number', 'like', "%{$search}%");
+            });
         }
-
-        // Sorting functionality
-        $sortField = $request->get('sort', 'created_at');
-        $sortDirection = $request->get('direction', 'desc');
-        
-        // Define allowed sort fields for security
-        $allowedSortFields = [
-            'id', 'first_name', 'last_name', 'email_address', 'contact_number', 
-            'birthdate', 'type_of_resident', 'status', 'created_at'
-        ];
-        
-        // Handle special case for age sorting
-        if ($sortField === 'age') {
-            // Sort by birthdate in reverse order (older birthdate = higher age)
-            $query->orderBy('birthdate', $sortDirection === 'asc' ? 'desc' : 'asc');
-        } elseif (in_array($sortField, $allowedSortFields)) {
-            $query->orderBy($sortField, $sortDirection);
-        } else {
-            // Default sorting
-            $query->orderBy('created_at', 'desc');
-        }
-
-        $preRegistrations = $query->paginate(20);
-        $preRegistrations->appends($request->query());
-
-        // Get statistics
-        $stats = [
-            'total' => PreRegistration::count(),
-            'pending' => PreRegistration::where('status', 'pending')->count(),
-            'approved' => PreRegistration::where('status', 'approved')->count(),
-            'rejected' => PreRegistration::where('status', 'rejected')->count(),
-        ];
-
-        return view('admin.pre-registrations.index', compact('preRegistrations', 'stats'));
     }
 
     /**
@@ -114,6 +133,16 @@ class PreRegistrationController extends Controller
     public function show(PreRegistration $preRegistration)
     {
         return view('admin.pre-registrations.show', compact('preRegistration'));
+    }
+
+    /**
+     * Display the specified senior pre-registration.
+     */
+    public function showSenior(SeniorPreRegistration $seniorPreRegistration)
+    {
+        // Use the same variable name as the view expects
+        $preRegistration = $seniorPreRegistration;
+        return view('admin.pre-registrations.show-senior', compact('preRegistration'));
     }
 
     /**
@@ -219,7 +248,7 @@ class PreRegistrationController extends Controller
             \Log::info('Resident record saved successfully', ['resident_id' => $resident->id]);
 
             // Check if resident is a senior citizen (60 years or older)
-            $age = $resident->birthdate->diffInYears(now());
+            $age = Carbon::parse($resident->birthdate)->diffInYears(now());
             \Log::info('Checking age for senior citizen status', ['age' => $age]);
             
             if ($age >= 60) {
@@ -252,6 +281,12 @@ class PreRegistrationController extends Controller
                     'senior_id_expires_at' => now()->addYears(5),
                 ]);
                 
+                \Log::info('Senior citizen record created', [
+                    'senior_id' => $seniorCitizen->id,
+                    'senior_id_number' => $seniorCitizen->senior_id_number,
+                    'senior_id_status' => $seniorCitizen->senior_id_status
+                ]);
+                
                 // Add senior citizen to population sectors if not already present
                 $sectors = $resident->population_sectors ?? [];
                 
@@ -265,9 +300,6 @@ class PreRegistrationController extends Controller
                     $resident->population_sectors = $sectors;
                     $resident->save();
                 }
-                
-                $seniorCitizen->save();
-                \Log::info('Senior citizen record created', ['senior_id' => $seniorCitizen->id]);
             }
 
             // Update pre-registration status
@@ -548,6 +580,119 @@ class PreRegistrationController extends Controller
             
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Error sending digital ID: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Approve a senior pre-registration and create senior citizen record.
+     */
+    public function approveSenior(SeniorPreRegistration $seniorPreRegistration)
+    {
+        if ($seniorPreRegistration->status !== 'pending') {
+            return redirect()->back()
+                ->with('error', 'Only pending registrations can be approved.');
+        }
+
+        DB::beginTransaction();
+
+        try {
+            // Create senior citizen record directly from senior pre-registration
+            $seniorCitizen = new SeniorCitizen();
+            
+            // Copy data from senior pre-registration
+            $seniorCitizen->type_of_resident = $seniorPreRegistration->type_of_resident;
+            $seniorCitizen->first_name = $seniorPreRegistration->first_name;
+            $seniorCitizen->middle_name = $seniorPreRegistration->middle_name;
+            $seniorCitizen->last_name = $seniorPreRegistration->last_name;
+            $seniorCitizen->suffix = $seniorPreRegistration->suffix;
+            $seniorCitizen->birthdate = $seniorPreRegistration->birthdate;
+            $seniorCitizen->birthplace = $seniorPreRegistration->birthplace;
+            $seniorCitizen->sex = $seniorPreRegistration->sex;
+            $seniorCitizen->civil_status = $seniorPreRegistration->civil_status;
+            $seniorCitizen->contact_number = $seniorPreRegistration->contact_number;
+            $seniorCitizen->email_address = $seniorPreRegistration->email_address;
+            $seniorCitizen->address = $seniorPreRegistration->address;
+            $seniorCitizen->emergency_contact_name = $seniorPreRegistration->emergency_contact_name;
+            $seniorCitizen->emergency_contact_relationship = $seniorPreRegistration->emergency_contact_relationship;
+            $seniorCitizen->emergency_contact_number = $seniorPreRegistration->emergency_contact_number;
+            $seniorCitizen->emergency_contact_address = $seniorPreRegistration->emergency_contact_address;
+            
+            // Senior-specific fields
+            $seniorCitizen->health_condition = $seniorPreRegistration->health_condition;
+            $seniorCitizen->mobility_status = $seniorPreRegistration->mobility_status;
+            $seniorCitizen->medical_conditions = $seniorPreRegistration->medical_conditions;
+            $seniorCitizen->receiving_pension = $seniorPreRegistration->receiving_pension;
+            $seniorCitizen->pension_type = $seniorPreRegistration->pension_type;
+            $seniorCitizen->pension_amount = $seniorPreRegistration->pension_amount;
+            $seniorCitizen->has_philhealth = $seniorPreRegistration->has_philhealth;
+            $seniorCitizen->philhealth_number = $seniorPreRegistration->philhealth_number;
+            $seniorCitizen->has_senior_discount_card = $seniorPreRegistration->has_senior_discount_card;
+            $seniorCitizen->services = $seniorPreRegistration->services;
+
+            // System fields
+            $seniorCitizen->status = 'active';
+            $seniorCitizen->approved_at = now();
+            $seniorCitizen->approved_by = auth()->id();
+            
+            $seniorCitizen->save();
+
+            // Update senior pre-registration status
+            $seniorPreRegistration->update([
+                'status' => 'approved',
+                'approved_at' => now(),
+                'approved_by' => auth()->id(),
+                'senior_citizen_id' => $seniorCitizen->id,
+            ]);
+
+            DB::commit();
+
+            // Send approval notification
+            \Illuminate\Support\Facades\Notification::route('mail', $seniorPreRegistration->email_address)
+                ->notify(new PreRegistrationApproved($seniorPreRegistration, $seniorCitizen, null, true));
+
+            return redirect()->route('admin.pre-registrations.index')
+                ->with('success', 'Senior citizen pre-registration approved successfully. Senior citizen record created and notification sent.');
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            \Log::error('Error approving senior registration: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'Error approving registration: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Reject a senior pre-registration.
+     */
+    public function rejectSenior(Request $request, SeniorPreRegistration $seniorPreRegistration)
+    {
+        if ($seniorPreRegistration->status !== 'pending') {
+            return redirect()->back()
+                ->with('error', 'Only pending registrations can be rejected.');
+        }
+
+        $request->validate([
+            'rejection_reason' => 'required|string|max:500'
+        ]);
+
+        try {
+            $seniorPreRegistration->update([
+                'status' => 'rejected',
+                'rejected_at' => now(),
+                'rejected_by' => auth()->id(),
+                'rejection_reason' => $request->rejection_reason,
+            ]);
+
+            // Send rejection notification
+            \Illuminate\Support\Facades\Notification::route('mail', $seniorPreRegistration->email_address)
+                ->notify(new PreRegistrationRejected($seniorPreRegistration));
+
+            return redirect()->route('admin.pre-registrations.index')
+                ->with('success', 'Senior citizen pre-registration rejected successfully. Notification sent to applicant.');
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Error rejecting registration: ' . $e->getMessage());
         }
     }
 }
