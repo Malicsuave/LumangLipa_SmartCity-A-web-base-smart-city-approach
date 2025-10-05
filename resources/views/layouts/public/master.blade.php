@@ -7,8 +7,7 @@
     <meta name="description" content="Lumanglipa Barangay Management System">
     <meta name="author" content="">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="icon" href="{{ asset('favicon.ico') }}">
-    <link rel="icon" type="image/png" href="{{ asset('assets/css/favicon.png') }}">
+    <link rel="icon" href="{{ asset('images/logo-bg.jpg') }}">
     <title>@yield('title', 'Barangay Lumanglipa')</title>
 
     <!-- Fonts and icons -->
