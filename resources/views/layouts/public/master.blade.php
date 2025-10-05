@@ -268,6 +268,7 @@
                             <button class="quick-action-btn" onclick="sendQuickMessage('Contact information')">Contact Info</button>
                             <button class="quick-action-btn" onclick="sendQuickMessage('Office hours')">Office Hours</button>
                             <button class="quick-action-btn" onclick="sendQuickMessage('File Complaint')">File Complaint</button>
+                            <button class="quick-action-btn" onclick="window.barangayChatbot.escalateToAgent()" style="background: #007bff; color: white; font-weight: 600;">💬 Talk to Agent</button>
                         </div>
                     </div>
                 </div>
