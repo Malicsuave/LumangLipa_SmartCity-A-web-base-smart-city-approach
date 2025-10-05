@@ -328,23 +328,26 @@ class ResidentIdController extends Controller
             'page-width' => '148mm',    // Same as senior citizen ID
             'page-height' => '180mm',   // Same as senior citizen ID
             'orientation' => 'Portrait',
-            'margin-top' => '8mm',
-            'margin-right' => '8mm',
-            'margin-bottom' => '8mm',
-            'margin-left' => '8mm',
+            'margin-top' => '5mm',
+            'margin-right' => '5mm',
+            'margin-bottom' => '5mm',
+            'margin-left' => '5mm',
             'encoding' => 'UTF-8',
             'enable-local-file-access' => true,
             'disable-smart-shrinking' => true,
+            'print-media-type' => true,
+            'no-outline' => true,
+            'disable-external-links' => true,
+            'disable-internal-links' => true,
+            'disable-javascript' => true,
+            'no-images' => false,
             'dpi' => 300,
             'image-quality' => 100,
             'zoom' => 1.0,
+            'viewport-size' => '1280x1024',
+            'javascript-delay' => 0,
             'load-error-handling' => 'ignore',
-            'load-media-error-handling' => 'ignore',
-            'enable-external-links' => true,
-            'enable-internal-links' => true,
-            'javascript-delay' => 1000,
-            'no-stop-slow-scripts' => true,
-            'debug-javascript' => true
+            'load-media-error-handling' => 'ignore'
         ]);
         
         // Record download activity

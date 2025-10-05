@@ -4,26 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resident ID Card</title>
-    <!-- Import Google Fonts for Poppins and Open Sans -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Open+Sans:wght@400;500;600;700&display=swap');
-        
         @page {
-            margin: 8mm;
+            margin: 5mm;
             padding: 0;
             size: 148mm 180mm; /* Custom size: shorter height */
         }
         
         body {
-            font-family: 'Poppins', 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: Arial, Helvetica, sans-serif;
             margin: 0;
             padding: 0;
             background-color: white;
+            font-size: 12px;
+            line-height: 1.2;
         }
         
         * {
-            font-family: 'Poppins', 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+            font-family: Arial, Helvetica, sans-serif !important;
+            box-sizing: border-box;
         }
         
         /* Document header - professional info above the ID cards */
@@ -507,8 +506,15 @@
                             <img src="data:image/png;base64,{{ $qrCode }}" alt="QR Code" class="img-fluid" style="width: 150px; height: 150px;">
                         </div>
                         <div class="id-signature mt-2 text-center">
-                            @if($resident->signature_path)
-                                <img src="{{ $resident->signature_path }}" alt="Signature">
+                            @if($resident->signature)
+                                @php
+                                    $signaturePath = storage_path('app/public/residents/signatures/' . $resident->signature);
+                                @endphp
+                                @if(file_exists($signaturePath))
+                                    <img src="data:image/png;base64,{{ base64_encode(file_get_contents($signaturePath)) }}" alt="Signature" style="max-height: 30px; max-width: 100px; margin: 0 auto; display: block;">
+                                @else
+                                    <div class="no-signature"></div>
+                                @endif
                             @else
                                 <div class="no-signature"></div>
                             @endif
