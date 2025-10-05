@@ -3,19 +3,32 @@
 @section('title', 'Request Document')
 
 @section('content')
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card shadow-lg border-0" style="border-radius: 15px;">
-                <div class="card-header bg-primary text-white text-center" style="border-radius: 15px 15px 0 0;">
-                    <h3 class="mb-0">
-                        <i class="fas fa-file-alt me-2"></i>
-                        Document Request
-                    </h3>
-                    <p class="mb-0 mt-2">Request official barangay documents online</p>
-                </div>
-                
-                <div class="card-body p-4">
+<!-- QR Code Scanner Library -->
+<script src="https://unpkg.com/html5-qrcode"></script>
+<!-- Hero Section with Background -->
+<section class="position-relative" style="background: #eaf4fb; padding-top: 6rem; margin-top: -20px;">
+    <div class="container py-4">
+        <div class="text-center mb-4">
+            <h1 class="fw-bold mb-2" style="color: #2A7BC4; font-size: 2.2rem;">Document Request</h1>
+            <p class="text-muted" style="font-size: 1rem;">Request official barangay documents online</p>
+        </div>
+    </div>
+</section>
+
+<div class="card card-body blur shadow-blur mx-3 mx-md-4 mt-n4" style="border-radius: 18px;">
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card border-0 shadow-lg" style="border: 2px solid #2A7BC4 !important; border-radius: 18px; overflow: hidden; background: #ffffff;">
+                    <div class="card-header text-center py-4" style="background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8b 100%); color: white; border: none;">
+                        <div class="d-flex align-items-center justify-content-center mb-2">
+                            <i class="fas fa-file-alt me-3" style="font-size: 2rem;"></i>
+                            <h2 class="mb-0 fw-bold">Document Services</h2>
+                        </div>
+                        <p class="mb-0 opacity-9">Complete the form below to request official documents from Barangay Lumanglipa</p>
+                    </div>
+                    
+                    <div class="card-body p-5" style="background: #ffffff;">
                     <!-- Success Alert -->
                     <div id="successAlert" class="alert alert-success alert-dismissible fade" role="alert" style="display: none;">
                         <i class="fas fa-check-circle me-2"></i>
@@ -35,26 +48,81 @@
                         
                         <!-- Barangay ID Section -->
                         <div class="mb-4">
-                            <label for="barangay_id" class="form-label fw-bold">
+                            <label class="form-label fw-bold">
                                 <i class="fas fa-id-card text-primary me-2"></i>
-                                Barangay ID
+                                Identity Verification <span class="text-danger">*Required</span>
                             </label>
-                            <div class="input-group">
-                                <input type="text" 
-                                       class="form-control form-control-lg" 
-                                       id="barangay_id" 
-                                       name="barangay_id" 
-                                       placeholder="Enter your Barangay ID"
-                                       required>
-                                <button type="button" 
-                                        class="btn btn-outline-primary" 
-                                        id="checkResidentBtn">
-                                    <i class="fas fa-search"></i> Verify
-                                </button>
+                            
+                            <!-- Verification Method Toggle -->
+                            <div class="mb-3">
+                                <div class="btn-group w-100" role="group" aria-label="Verification method">
+                                    <input type="radio" class="btn-check" name="verification_method" id="manual_input" value="manual" checked>
+                                    <label class="btn btn-outline-primary" for="manual_input">
+                                        <i class="fas fa-keyboard me-2"></i>Manual Input
+                                    </label>
+                                    <input type="radio" class="btn-check" name="verification_method" id="qr_scan" value="qr">
+                                    <label class="btn btn-outline-primary" for="qr_scan">
+                                        <i class="fas fa-qrcode me-2"></i>QR Code
+                                    </label>
+                                </div>
                             </div>
-                            <div class="form-text">
-                                <i class="fas fa-info-circle text-info"></i>
-                                Enter your registered Barangay ID to verify your information
+                            <!-- Barangay ID Section -->
+                    <div class="mb-4">
+                        <label for="barangay_id" class="form-label fw-bold">
+                            <i class="fas fa-id-card text-primary me-2"></i>
+                            Barangay ID <span class="text-danger">*Required</span>
+                        </label>
+
+                            <!-- Manual Input Section -->
+                            <div id="manualInputSection">
+                                <div class="input-group">
+                                    <input type="text" 
+                                           class="form-control form-control-lg" 
+                                           id="barangay_id" 
+                                           name="barangay_id" 
+                                           placeholder="Enter your Barangay ID"
+                                           required>
+                                    <button type="button" 
+                                            class="btn btn-outline-primary" 
+                                            id="checkResidentBtn">
+                                        <i class="fas fa-search"></i> Verify
+                                    </button>
+                                </div>
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle text-info"></i>
+                                    Enter your registered Barangay ID to verify your information
+                                </div>
+                            </div>
+
+                            <!-- QR Code Section -->
+                            <div id="qrCodeSection" style="display: none;">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <button type="button" class="btn btn-primary btn-lg w-100" id="scanQrBtn">
+                                            <i class="fas fa-camera me-2"></i>
+                                            Scan QR Code
+                                        </button>
+                                        <div class="form-text text-center mt-2">
+                                            <i class="fas fa-info-circle text-info"></i>
+                                            Use camera to scan QR code
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <input type="file" 
+                                               class="form-control form-control-lg" 
+                                               id="qr_upload" 
+                                               accept="image/*"
+                                               style="display: none;">
+                                        <button type="button" class="btn btn-outline-primary btn-lg w-100" id="uploadQrBtn">
+                                            <i class="fas fa-upload me-2"></i>
+                                            Upload QR Code
+                                        </button>
+                                        <div class="form-text text-center mt-2">
+                                            <i class="fas fa-info-circle text-info"></i>
+                                            Upload QR code image
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>                        <!-- Resident Information Display -->
                         <div id="residentInfo" class="card border-success mb-4" style="display: none;">
@@ -151,8 +219,8 @@
                             <div class="blur-overlay">
                                 <div class="blur-message">
                                     <i class="fas fa-shield-alt fa-2x text-warning mb-2"></i>
-                                    <h5>Email Verification Required</h5>
-                                    <p class="mb-0">Please verify your email with OTP to access the form</p>
+                                    <h5>Identity Verification Required</h5>
+                                    <p class="mb-0">Please verify your identity using Barangay ID or QR Code to access the form</p>
                                 </div>
                             </div>
 
@@ -160,7 +228,7 @@
                             <div class="mb-4">
                                 <label for="document_type" class="form-label fw-bold">
                                     <i class="fas fa-file-text text-primary me-2"></i>
-                                    Document Type
+                                    Document Type <span class="text-danger">*Required</span>
                                 </label>
                                 <select class="form-select form-select-lg" id="document_type" name="document_type" required disabled>
                                     <option value="">Select Document Type</option>
@@ -180,7 +248,7 @@
                             <div class="mb-4">
                                 <label for="purpose" class="form-label fw-bold">
                                     <i class="fas fa-clipboard-list text-primary me-2"></i>
-                                    Purpose
+                                    Purpose <span class="text-danger">*Required</span>
                                 </label>
                                 <textarea class="form-control" 
                                           id="purpose" 
@@ -196,7 +264,7 @@
                             </div>
 
                             <!-- GCash Payment Instructions -->
-                            <div class="mb-4">
+                            <div class="mb-4" id="paymentSection">
                                 <label class="form-label fw-bold">
                                     <i class="fas fa-money-bill-wave text-success me-2"></i>
                                     Payment Instructions
@@ -208,10 +276,10 @@
                             </div>
 
                             <!-- Receipt Upload -->
-                            <div class="mb-4">
+                            <div class="mb-4" id="receiptSection">
                                 <label for="receipt" class="form-label fw-bold">
                                     <i class="fas fa-receipt text-primary me-2"></i>
-                                    Upload GCash Payment Receipt <span class="text-danger">*</span>
+                                    Upload GCash Payment Receipt <span class="text-danger">*Required</span>
                                 </label>
                                 <input type="file" class="form-control" id="receipt" name="receipt" accept="image/*,.pdf" required>
                                 <div class="form-text">
@@ -220,7 +288,7 @@
                             </div>
 
                             <!-- Submit Button -->
-                            <div class="d-grid">
+                            <div class="d-grid" id="submitButtonSection" style="display: none !important;">
                                 <button type="submit" 
                                         class="btn btn-primary btn-lg" 
                                         id="submitBtn"
@@ -239,8 +307,8 @@
                             Important Information
                         </h5>                        <ul class="list-unstyled mb-0">
                             <li class="mb-2">
-                                <i class="fas fa-shield-alt text-primary me-2"></i>
-                                Email verification with OTP is required for all document requests
+                                <i class="fas fa-check text-success me-2"></i>
+                                Identity verification is required for all document requests (QR code verification skips email OTP)
                             </li>
                             <li class="mb-2">
                                 <i class="fas fa-check text-success me-2"></i>
@@ -265,6 +333,42 @@
         </div>
     </div>
 </div>
+
+<!-- QR Code Scanner Modal -->
+<div class="modal fade" id="qrScannerModal" tabindex="-1" aria-labelledby="qrScannerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="qrScannerModalLabel">
+                    <i class="fas fa-qrcode me-2"></i>
+                    Scan QR Code
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <p class="text-muted">Position your QR code within the camera frame</p>
+                    <div id="scannerStatus" class="alert alert-info" style="display: none;">
+                        <i class="fas fa-camera me-2"></i>
+                        <span id="statusText">Initializing camera...</span>
+                    </div>
+                </div>
+                <div class="row justify-content-center">
+                    <div class="col-12">
+                        <div id="qr-reader" style="width: 100%; min-height: 400px; border: 2px dashed #ddd; border-radius: 8px; position: relative;"></div>
+                    </div>
+                </div>
+                <div class="text-center mt-3">
+                    <small class="text-muted d-block mb-2">Make sure your camera is allowed and QR code is well-lit</small>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
 
 <style>
 .card {
@@ -292,8 +396,15 @@
 }
 
 #submitBtn:disabled {
-    background: #6c757d;
+    background: #6c757d !important;
+    border-color: #6c757d !important;
     cursor: not-allowed;
+    opacity: 1;
+}
+
+#submitBtn:not(:disabled) {
+    background: linear-gradient(45deg, #0d6efd, #0a58ca) !important;
+    border-color: #0d6efd !important;
 }
 
 .alert {
@@ -391,6 +502,150 @@
         transform: translateY(0);
     }
 }
+
+/* QR Code Scanner Styles */
+.btn-check:checked + .btn-outline-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: white;
+}
+
+#qr-reader {
+    border: 2px dashed #0d6efd;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+}
+
+#qr-reader video {
+    border-radius: 8px;
+    width: 100% !important;
+    height: auto !important;
+}
+
+.qr-success {
+    background-color: #d1e7dd;
+    border: 2px solid #198754;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+}
+
+.verification-method-toggle {
+    transition: all 0.3s ease;
+}
+
+#qrCodeSection, #manualInputSection {
+    transition: all 0.3s ease;
+}
+
+/* Scanner status styles */
+#scannerStatus {
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+#scannerStatus i {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+/* File upload hover effect */
+#uploadQrBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+#scanQrBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* QR scanner modal styles */
+#qrScannerModal .modal-content {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+#qrScannerModal .modal-header {
+    background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8b 100%);
+    color: white;
+    border-radius: 12px 12px 0 0;
+    border: none;
+}
+
+#qrScannerModal .btn-close {
+    filter: invert(1);
+}
+
+/* QR Reader styling */
+#qr-reader {
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+#qr-reader video {
+    border-radius: 8px;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+}
+
+#qr-reader canvas {
+    border-radius: 8px;
+}
+
+/* Loading animation for QR reader */
+#qr-reader:empty::before {
+    content: 'Preparing camera...';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #6c757d;
+    font-size: 16px;
+    text-align: center;
+}
+
+/* Scanner status improvements */
+#scannerStatus {
+    margin-bottom: 15px;
+    border: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+#scannerStatus.alert-info {
+    background-color: #cff4fc;
+    color: #055160;
+    border: 1px solid #b6effb;
+}
+
+#scannerStatus.alert-success {
+    background-color: #d1e7dd;
+    color: #0f5132;
+    border: 1px solid #badbcc;
+}
+
+#scannerStatus.alert-danger {
+    background-color: #f8d7da;
+    color: #842029;
+    border: 1px solid #f5c2c7;
+}
+
+#scannerStatus.alert-warning {
+    background-color: #fff3cd;
+    color: #664d03;
+    border: 1px solid #ffecb5;
+}
 </style>
 
 <script>
@@ -411,13 +666,408 @@ document.addEventListener('DOMContentLoaded', function() {
     const successAlert = document.getElementById('successAlert');
     const errorAlert = document.getElementById('errorAlert');
     
+    // QR Code elements
+    const manualInputRadio = document.getElementById('manual_input');
+    const qrScanRadio = document.getElementById('qr_scan');
+    const manualInputSection = document.getElementById('manualInputSection');
+    const qrCodeSection = document.getElementById('qrCodeSection');
+    const scanQrBtn = document.getElementById('scanQrBtn');
+    const uploadQrBtn = document.getElementById('uploadQrBtn');
+    const qrUploadInput = document.getElementById('qr_upload');
+    const qrScannerModal = new bootstrap.Modal(document.getElementById('qrScannerModal'));
+    
     let residentVerified = false;
     let otpVerified = false;
+    let qrVerified = false; // QR verification bypasses OTP
     let otpTimer = null;
     let otpExpiryTime = null;
+    let html5QrCode = null;
 
-    // Initialize form with blur effect
+    // Initialize form with blur effect and hidden submit button
     formFieldsSection.classList.add('blurred');
+    
+    // Ensure submit button is hidden initially
+    const submitButtonSection = document.getElementById('submitButtonSection');
+    if (submitButtonSection) {
+        submitButtonSection.style.setProperty('display', 'none', 'important');
+    }
+
+    // Verification method toggle
+    manualInputRadio.addEventListener('change', function() {
+        if (this.checked) {
+            if (manualInputSection) manualInputSection.style.display = 'block';
+            if (qrCodeSection) qrCodeSection.style.display = 'none';
+            resetFormFields(); // Reset form fields but keep radio button selection
+        }
+    });
+
+    qrScanRadio.addEventListener('change', function() {
+        if (this.checked) {
+            if (manualInputSection) manualInputSection.style.display = 'none';
+            if (qrCodeSection) qrCodeSection.style.display = 'block';
+            resetFormFields(); // Reset form fields but keep radio button selection
+        }
+    });
+
+    // QR Code Upload functionality
+    uploadQrBtn.addEventListener('click', function() {
+        qrUploadInput.click();
+    });
+
+    qrUploadInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            // Validate file size (10MB max)
+            if (file.size > 10 * 1024 * 1024) {
+                showError('File size too large. Please select an image under 10MB.');
+                qrUploadInput.value = '';
+                return;
+            }
+            
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                showError('Please select a valid image file.');
+                qrUploadInput.value = '';
+                return;
+            }
+            
+            uploadQrBtn.disabled = true;
+            uploadQrBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+            
+            // Create FormData to send file to server
+            const formData = new FormData();
+            formData.append('qr_image', file);
+            
+            // Send to server API for QR code decoding
+            fetch('{{ route("documents.decode-qr") }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('QR decode response:', data); // Debug log
+                
+                if (data.success) {
+                    console.log('QR data received:', data.qr_data); // Debug log
+                    console.log('Debug info:', data.debug_info); // Debug log
+                    
+                    handleQrCodeData(data.qr_data);
+                    showSuccess('QR Code uploaded and processed successfully!');
+                } else {
+                    console.error('QR decode failed:', data.message); // Debug log
+                    showError(data.message || 'Failed to decode QR code. Please ensure the image contains a valid QR code.');
+                }
+            })
+            .catch(error => {
+                console.error('QR Code decode failed:', error);
+                showError('Failed to process QR code. Please check your internet connection and try again.');
+            })
+            .finally(() => {
+                uploadQrBtn.disabled = false;
+                uploadQrBtn.innerHTML = '<i class="fas fa-upload me-2"></i>Upload QR Code';
+                qrUploadInput.value = '';
+            });
+        }
+    });
+
+    // Live QR Code Scanner
+    scanQrBtn.addEventListener('click', function() {
+        qrScannerModal.show();
+        // Wait for modal to be fully shown before starting scanner
+        setTimeout(() => {
+            startQrScanner();
+        }, 500);
+    });
+
+    // Handle QR scanner modal close
+    document.getElementById('qrScannerModal').addEventListener('hidden.bs.modal', function() {
+        stopQrScanner();
+    });
+
+        function startQrScanner() {
+        // Check if HTML5-QRCode library is loaded
+        if (typeof Html5Qrcode === 'undefined') {
+            console.error('HTML5-QRCode library not loaded');
+            showError('QR Scanner library not loaded. Please refresh the page and try again.');
+            qrScannerModal.hide();
+            return;
+        }
+
+        if (html5QrCode) {
+            html5QrCode.stop().then(() => {
+                initializeScanner();
+            }).catch(err => {
+                console.log('Error stopping previous scanner:', err);
+                initializeScanner();
+            });
+        } else {
+            initializeScanner();
+        }
+    }
+
+    function initializeScanner() {
+        const scannerStatus = document.getElementById('scannerStatus');
+        const statusText = document.getElementById('statusText');
+        const qrReaderDiv = document.getElementById('qr-reader');
+        
+        // Clear any existing content
+        qrReaderDiv.innerHTML = '';
+        
+        if (scannerStatus) {
+            scannerStatus.style.display = 'block';
+            statusText.textContent = 'Requesting camera access...';
+            scannerStatus.className = 'alert alert-info';
+        }
+        
+        try {
+            html5QrCode = new Html5Qrcode("qr-reader");
+            
+            Html5Qrcode.getCameras().then(devices => {
+                console.log('Available cameras:', devices);
+                
+                if (devices && devices.length > 0) {
+                    statusText.textContent = 'Starting camera...';
+                    
+                    // Use back camera if available, otherwise use first camera
+                    let selectedCamera = devices[0];
+                    for (let device of devices) {
+                        if (device.label && device.label.toLowerCase().includes('back')) {
+                            selectedCamera = device;
+                            break;
+                        }
+                    }
+                    
+                    const config = {
+                        fps: 10,
+                        qrbox: function(viewfinderWidth, viewfinderHeight) {
+                            let minEdgePercentage = 0.7; // 70% of the smaller edge
+                            let minEdgeSize = Math.min(viewfinderWidth, viewfinderHeight);
+                            let qrboxSize = Math.floor(minEdgeSize * minEdgePercentage);
+                            return {
+                                width: qrboxSize,
+                                height: qrboxSize
+                            };
+                        },
+                        aspectRatio: 1.0,
+                        disableFlip: false
+                    };
+                    
+                    html5QrCode.start(
+                        selectedCamera.id,
+                        config,
+                        (qrCodeMessage) => {
+                            console.log('QR Code detected:', qrCodeMessage);
+                            statusText.textContent = 'QR Code detected! Processing...';
+                            handleQrCodeData(qrCodeMessage);
+                            qrScannerModal.hide();
+                            showSuccess('QR Code scanned successfully!');
+                        },
+                        (errorMessage) => {
+                            // This is called continuously during scanning, so we only log serious errors
+                            if (errorMessage.includes('NotAllowedError') || errorMessage.includes('Permission denied')) {
+                                console.error('Camera permission error:', errorMessage);
+                                statusText.textContent = 'Camera permission denied';
+                                scannerStatus.className = 'alert alert-danger';
+                                showError('Camera permission denied. Please allow camera access and try again.');
+                                setTimeout(() => qrScannerModal.hide(), 3000);
+                            }
+                        }
+                    ).then(() => {
+                        statusText.textContent = 'Camera ready! Position QR code in view...';
+                        scannerStatus.className = 'alert alert-success';
+                        console.log('QR Scanner started successfully');
+                    }).catch(err => {
+                        console.error('Unable to start scanner:', err);
+                        statusText.textContent = 'Camera start failed';
+                        scannerStatus.className = 'alert alert-danger';
+                        
+                        let errorMsg = 'Unable to access camera. Please check your camera permissions.';
+                        if (err.name === 'NotAllowedError') {
+                            errorMsg = 'Camera access denied. Please allow camera permissions and try again.';
+                        } else if (err.name === 'NotFoundError') {
+                            errorMsg = 'No camera found. Please use the upload option instead.';
+                        } else if (err.name === 'NotSupportedError') {
+                            errorMsg = 'Camera not supported on this device. Please use the upload option instead.';
+                        }
+                        showError(errorMsg);
+                        setTimeout(() => qrScannerModal.hide(), 3000);
+                    });
+                } else {
+                    statusText.textContent = 'No cameras found';
+                    scannerStatus.className = 'alert alert-warning';
+                    showError('No cameras found on this device. Please use the upload option instead.');
+                    setTimeout(() => qrScannerModal.hide(), 3000);
+                }
+            }).catch(err => {
+                console.error('Unable to get cameras:', err);
+                statusText.textContent = 'Camera detection failed';
+                scannerStatus.className = 'alert alert-danger';
+                showError('Unable to detect cameras. Please check your camera permissions or use the upload option.');
+                setTimeout(() => qrScannerModal.hide(), 3000);
+            });
+        } catch (err) {
+            console.error('Scanner initialization failed:', err);
+            statusText.textContent = 'Scanner initialization failed';
+            scannerStatus.className = 'alert alert-danger';
+            showError('QR Scanner initialization failed. Please use the upload option instead.');
+            setTimeout(() => qrScannerModal.hide(), 3000);
+        }
+    }
+
+    function stopQrScanner() {
+        if (html5QrCode) {
+            html5QrCode.stop().then(() => {
+                html5QrCode = null;
+            }).catch(err => {
+                console.error('Error stopping scanner:', err);
+                html5QrCode = null;
+            });
+        }
+        
+        // Reset scanner status
+        const scannerStatus = document.getElementById('scannerStatus');
+        const statusText = document.getElementById('statusText');
+        if (scannerStatus) {
+            scannerStatus.style.display = 'none';
+            scannerStatus.className = 'alert alert-info';
+            statusText.textContent = 'Initializing camera...';
+        }
+    }
+
+    function handleQrCodeData(qrData) {
+        console.log('Processing QR data:', qrData); // Debug log
+        console.log('QR data type:', typeof qrData); // Debug log
+        console.log('QR data length:', qrData ? qrData.length : 'null'); // Debug log
+        
+        try {
+            // Assuming QR code contains the barangay ID
+            // You can modify this logic based on your QR code format
+            let barangayId = qrData.trim();
+            
+            console.log('Extracted Barangay ID:', barangayId); // Debug log
+            
+            // If QR contains JSON or other format, parse it here
+            // Example: const data = JSON.parse(qrData); barangayId = data.barangay_id;
+            
+            // Try to parse as JSON first
+            try {
+                const parsedData = JSON.parse(qrData);
+                console.log('Parsed JSON data:', parsedData); // Debug log
+                
+                if (parsedData.barangay_id) {
+                    barangayId = parsedData.barangay_id;
+                    console.log('Found barangay_id in JSON:', barangayId); // Debug log
+                } else if (parsedData.id) {
+                    barangayId = parsedData.id;
+                    console.log('Found id in JSON:', barangayId); // Debug log
+                }
+            } catch (jsonError) {
+                console.log('QR data is not JSON, using as plain text:', barangayId); // Debug log
+            }
+            
+            barangayIdInput.value = barangayId;
+            qrVerified = true;
+            
+            // Automatically verify resident with QR data
+            verifyResidentWithQr(barangayId);
+            
+        } catch (error) {
+            console.error('Error processing QR data:', error);
+            showError('Invalid QR code format. Please try again.');
+        }
+    }
+
+    function verifyResidentWithQr(barangayId) {
+        fetch('{{ route("documents.check-resident") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({ 
+                barangay_id: barangayId,
+                qr_verified: true // Flag to indicate QR verification
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('residentName').textContent = data.resident.name;
+                document.getElementById('residentAddress').textContent = data.resident.address;
+                document.getElementById('residentAge').textContent = data.resident.age;
+                document.getElementById('residentContact').textContent = data.resident.contact_number || 'N/A';
+                
+                residentInfo.style.display = 'block';
+                residentVerified = true;
+                
+                // Skip OTP verification for QR code users
+                otpVerified = true;
+                qrVerified = true; // Set QR verification flag
+                
+                // Show QR verification success instead of OTP section
+                showQrVerificationSuccess();
+                
+                // Enable form fields immediately
+                enableFormFields();
+                
+                showSuccess('QR Code verified successfully! You can now proceed with your document request.');
+                hideError();
+            } else {
+                showError(data.message || 'Invalid QR code or resident not found');
+                resetForm();
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showError('An error occurred while verifying the QR code');
+            resetForm();
+        });
+    }
+
+    function showQrVerificationSuccess() {
+        otpSection.style.display = 'block';
+        otpSection.innerHTML = `
+            <div class="card border-success mb-4">
+                <div class="card-header bg-success bg-opacity-10">
+                    <h6 class="mb-0 text-success">
+                        <i class="fas fa-qrcode me-2"></i>
+                        QR Code Verified Successfully
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-success mb-0">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Your identity has been verified using QR code. No additional email verification required.
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function enableFormFields() {
+        // Remove blur effect and enable form fields
+        formFieldsSection.classList.remove('blurred');
+        formFieldsSection.classList.add('form-fields-reveal');
+        
+        documentTypeSelect.disabled = false;
+        purposeTextarea.disabled = false;
+        
+        // Show submit button section
+        const submitButtonSection = document.getElementById('submitButtonSection');
+        if (submitButtonSection) {
+            submitButtonSection.style.setProperty('display', 'block', 'important');
+        }
+        
+        checkFormValidity();
+    }
 
     // Check resident function
     checkResidentBtn.addEventListener('click', function() {
@@ -446,8 +1096,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('residentAge').textContent = data.resident.age;
                 document.getElementById('residentContact').textContent = data.resident.contact_number || 'N/A';
                 
-                residentInfo.style.display = 'block';
-                otpSection.style.display = 'block';
+                if (residentInfo) residentInfo.style.display = 'block';
+                if (otpSection) otpSection.style.display = 'block';
                 residentVerified = true;
                 
                 // Change button to show "Found" in green
@@ -494,8 +1144,10 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             if (data.success) {
                 document.getElementById('emailHint').textContent = data.email_hint;
-                document.getElementById('otpRequestStep').style.display = 'none';
-                document.getElementById('otpVerifyStep').style.display = 'block';
+                const otpRequestStep = document.getElementById('otpRequestStep');
+                const otpVerifyStep = document.getElementById('otpVerifyStep');
+                if (otpRequestStep) otpRequestStep.style.display = 'none';
+                if (otpVerifyStep) otpVerifyStep.style.display = 'block';
                 
                 // Set expiry time and start countdown
                 otpExpiryTime = new Date(data.expires_at);
@@ -543,8 +1195,10 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())        .then(data => {
             if (data.success) {
                 otpVerified = true;
-                document.getElementById('otpVerifyStep').style.display = 'none';
-                document.getElementById('otpVerifiedStep').style.display = 'block';
+                const otpVerifyStep = document.getElementById('otpVerifyStep');
+                const otpVerifiedStep = document.getElementById('otpVerifiedStep');
+                if (otpVerifyStep) otpVerifyStep.style.display = 'none';
+                if (otpVerifiedStep) otpVerifiedStep.style.display = 'block';
                 
                 // Remove blur effect and enable form fields
                 formFieldsSection.classList.remove('blurred');
@@ -552,6 +1206,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 documentTypeSelect.disabled = false;
                 purposeTextarea.disabled = false;
+                
+                // Show submit button section
+                const submitButtonSection = document.getElementById('submitButtonSection');
+                if (submitButtonSection) {
+                    submitButtonSection.style.setProperty('display', 'block', 'important');
+                }
                 
                 // Stop timer
                 if (otpTimer) {
@@ -576,8 +1236,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Resend OTP
     resendOtpBtn.addEventListener('click', function() {
-        document.getElementById('otpVerifyStep').style.display = 'none';
-        document.getElementById('otpRequestStep').style.display = 'block';
+        const otpVerifyStep = document.getElementById('otpVerifyStep');
+        const otpRequestStep = document.getElementById('otpRequestStep');
+        if (otpVerifyStep) otpVerifyStep.style.display = 'none';
+        if (otpRequestStep) otpRequestStep.style.display = 'block';
         otpCodeInput.value = '';
         
         if (otpTimer) {
@@ -617,8 +1279,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Form validation
     function checkFormValidity() {
         const receiptInput = document.getElementById('receipt');
+        // All users need receipt upload, QR only skips OTP verification
         const isValid = residentVerified && 
-                       otpVerified &&
+                       (otpVerified || qrVerified) &&
                        documentTypeSelect.value && 
                        purposeTextarea.value.trim() &&
                        receiptInput.files.length > 0;
@@ -634,16 +1297,17 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         
         if (!residentVerified) {
-            showError('Please verify your Barangay ID first');
+            showError('Please verify your identity first');
             return;
         }
 
-        if (!otpVerified) {
-            showError('Please verify your email with the OTP first');
+        if (!otpVerified && !qrVerified) {
+            showError('Please complete the verification process first');
             return;
         }
 
         const receiptInput = document.getElementById('receipt');
+        // All users need to upload receipt regardless of verification method
         if (!receiptInput.files.length) {
             showError('Please upload your GCash payment receipt.');
             return;
@@ -657,6 +1321,7 @@ document.addEventListener('DOMContentLoaded', function() {
         formData.append('document_type', documentTypeSelect.value);
         formData.append('purpose', purposeTextarea.value);
         formData.append('receipt', receiptInput.files[0]);
+        formData.append('verification_method', qrVerified ? 'qr' : 'manual');
 
         fetch('{{ route("documents.store") }}', {
             method: 'POST',
@@ -665,8 +1330,30 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: formData
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers);
+            
+            if (!response.ok) {
+                // Try to get the error response body
+                return response.text().then(text => {
+                    console.error('Response text:', text);
+                    let errorData;
+                    try {
+                        errorData = JSON.parse(text);
+                        console.error('Parsed error data:', errorData);
+                    } catch (parseError) {
+                        console.error('Could not parse response as JSON:', parseError);
+                        errorData = { message: text || `HTTP error! status: ${response.status}` };
+                    }
+                    throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+                });
+            }
+            
+            return response.json();
+        })
         .then(data => {
+            console.log('Response data:', data);
             if (data.success) {
                 showSuccess(data.message);
                 form.reset();
@@ -681,8 +1368,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            showError('An error occurred while submitting the request');
+            console.error('Detailed error:', error);
+            console.error('Error type:', error.constructor.name);
+            console.error('Error message:', error.message);
+            showError('An error occurred while submitting the request: ' + error.message);
         })
         .finally(() => {
             submitBtn.disabled = false;
@@ -690,32 +1379,177 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    function resetForm() {
-        residentInfo.style.display = 'none';
-        otpSection.style.display = 'none';
-        documentTypeSelect.disabled = true;
-        purposeTextarea.disabled = true;
-        submitBtn.disabled = true;
+    function resetFormFields() {
+        // Reset form fields but keep radio button selection
+        
+        // Clear input fields
+        if (barangayIdInput) barangayIdInput.value = '';
+        if (otpCodeInput) otpCodeInput.value = '';
+        if (nameInput) nameInput.value = '';
+        if (birthdateInput) birthdateInput.value = '';
+        if (ageInput) ageInput.value = '';
+        if (sexSelect) sexSelect.value = '';
+        if (civilStatusSelect) civilStatusSelect.value = '';
+        if (addressInput) addressInput.value = '';
+        if (contactNumberInput) contactNumberInput.value = '';
+        
+        // Clear and disable form fields 
+        if (nameInput) {
+            nameInput.disabled = true;
+            nameInput.value = '';
+        }
+        if (birthdateInput) {
+            birthdateInput.disabled = true;
+            birthdateInput.value = '';
+        }
+        if (ageInput) {
+            ageInput.disabled = true;
+            ageInput.value = '';
+        }
+        if (sexSelect) {
+            sexSelect.disabled = true;
+            sexSelect.value = '';
+        }
+        if (civilStatusSelect) {
+            civilStatusSelect.disabled = true;
+            civilStatusSelect.value = '';
+        }
+        if (addressInput) {
+            addressInput.disabled = true;
+            addressInput.value = '';
+        }
+        if (contactNumberInput) {
+            contactNumberInput.disabled = true;
+            contactNumberInput.value = '';
+        }
+        
+        if (documentTypeSelect) {
+            documentTypeSelect.disabled = true;
+            documentTypeSelect.value = '';
+        }
+        if (purposeTextarea) {
+            purposeTextarea.disabled = true;
+            purposeTextarea.value = '';
+        }
+        if (submitBtn) submitBtn.disabled = true;
         residentVerified = false;
         otpVerified = false;
-        documentTypeSelect.value = '';
-        purposeTextarea.value = '';
+        qrVerified = false;
+        
+        // Clear file input
+        const receiptInput = document.getElementById('receipt');
+        if (receiptInput) receiptInput.value = '';
+        
+        // Reset blur effects
+        if (formFieldsSection) {
+            formFieldsSection.classList.add('blurred');
+            formFieldsSection.classList.remove('form-fields-reveal');
+        }
         
         // Reset OTP section
-        document.getElementById('otpRequestStep').style.display = 'block';
-        document.getElementById('otpVerifyStep').style.display = 'none';
-        document.getElementById('otpVerifiedStep').style.display = 'none';
-        otpCodeInput.value = '';
+        const otpRequestStep = document.getElementById('otpRequestStep');
+        const otpVerifyStep = document.getElementById('otpVerifyStep');
+        const otpVerifiedStep = document.getElementById('otpVerifiedStep');
+        
+        if (otpRequestStep) otpRequestStep.style.display = 'block';
+        if (otpVerifyStep) otpVerifyStep.style.display = 'none';
+        if (otpVerifiedStep) otpVerifiedStep.style.display = 'none';
+        if (otpCodeInput) otpCodeInput.value = '';
         
         if (otpTimer) {
             clearInterval(otpTimer);
         }
         
         // Reset verification button to original state
-        checkResidentBtn.innerHTML = '<i class="fas fa-search"></i> Verify';
-        checkResidentBtn.classList.remove('btn-success');
-        checkResidentBtn.classList.add('btn-outline-primary');
-        checkResidentBtn.disabled = false;
+        if (checkResidentBtn) {
+            checkResidentBtn.innerHTML = '<i class="fas fa-search"></i> Verify';
+            checkResidentBtn.classList.remove('btn-success');
+            checkResidentBtn.classList.add('btn-outline-primary');
+            checkResidentBtn.disabled = false;
+        }
+        
+        // Reset QR upload input
+        if (qrUploadInput) qrUploadInput.value = '';
+        
+        // Stop QR scanner if running
+        stopQrScanner();
+    }
+
+    function resetForm() {
+        if (residentInfo) residentInfo.style.display = 'none';
+        if (otpSection) otpSection.style.display = 'none';
+        
+        // Hide submit button section
+        const submitButtonSection = document.getElementById('submitButtonSection');
+        if (submitButtonSection) {
+            submitButtonSection.style.setProperty('display', 'none', 'important');
+        }
+        
+        if (documentTypeSelect) {
+            documentTypeSelect.disabled = true;
+            documentTypeSelect.value = '';
+        }
+        if (purposeTextarea) {
+            purposeTextarea.disabled = true;
+            purposeTextarea.value = '';
+        }
+        if (submitBtn) submitBtn.disabled = true;
+        residentVerified = false;
+        otpVerified = false;
+        qrVerified = false;
+        
+        // Clear file input
+        const receiptInput = document.getElementById('receipt');
+        if (receiptInput) receiptInput.value = '';
+        
+        // Reset blur effects
+        if (formFieldsSection) {
+            formFieldsSection.classList.add('blurred');
+            formFieldsSection.classList.remove('form-fields-reveal');
+        }
+        
+        // Reset OTP section
+        const otpRequestStep = document.getElementById('otpRequestStep');
+        const otpVerifyStep = document.getElementById('otpVerifyStep');
+        const otpVerifiedStep = document.getElementById('otpVerifiedStep');
+        
+        if (otpRequestStep) otpRequestStep.style.display = 'block';
+        if (otpVerifyStep) otpVerifyStep.style.display = 'none';
+        if (otpVerifiedStep) otpVerifiedStep.style.display = 'none';
+        if (otpCodeInput) otpCodeInput.value = '';
+        
+        if (otpTimer) {
+            clearInterval(otpTimer);
+        }
+        
+        // Reset verification button to original state
+        if (checkResidentBtn) {
+            checkResidentBtn.innerHTML = '<i class="fas fa-search"></i> Verify';
+            checkResidentBtn.classList.remove('btn-success');
+            checkResidentBtn.classList.add('btn-outline-primary');
+            checkResidentBtn.disabled = false;
+        }
+        
+        // Reset QR upload input
+        if (qrUploadInput) qrUploadInput.value = '';
+        
+        // Reset verification method to Manual Input
+        if (manualInputRadio) {
+            manualInputRadio.checked = true;
+        }
+        if (qrScanRadio) {
+            qrScanRadio.checked = false;
+        }
+        
+        // Show Manual Input section and hide QR Code section
+        if (manualInputSection) manualInputSection.style.display = 'block';
+        if (qrCodeSection) qrCodeSection.style.display = 'none';
+        
+        // Clear barangay ID input
+        if (barangayIdInput) barangayIdInput.value = '';
+        
+        // Stop QR scanner if running
+        stopQrScanner();
     }
 
     function showSuccess(message) {

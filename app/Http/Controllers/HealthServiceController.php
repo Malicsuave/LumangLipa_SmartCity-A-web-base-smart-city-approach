@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\HealthServiceRequest;
-use App\Models\Resident;
-use App\Models\HealthMeeting;
-use App\Services\OtpService;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
+use App\Models\Resident;
+use App\Models\HealthServiceRequest;
+use App\Services\OtpService;
 use Carbon\Carbon;
+use Zxing\QrReader;
 
 class HealthServiceController extends Controller
 {
@@ -17,217 +19,6 @@ class HealthServiceController extends Controller
     public function __construct(OtpService $otpService)
     {
         $this->otpService = $otpService;
-    }
-    public function adminDashboard()
-    {
-        // Get statistics for the dashboard
-        $totalRequests = HealthServiceRequest::count();
-        $pendingRequests = HealthServiceRequest::where('status', 'pending')->count();
-        $completedRequests = HealthServiceRequest::where('status', 'completed')
-            ->whereMonth('completed_at', now()->month)
-            ->count();
-        
-        // Get recent requests for display
-        $recentRequests = HealthServiceRequest::with('resident')
-            ->orderBy('requested_at', 'desc')
-            ->limit(5)
-            ->get();
-        
-        return view('admin.health', compact('totalRequests', 'pendingRequests', 'completedRequests', 'recentRequests'));
-    }
-
-    public function index(Request $request)
-    {
-        $query = HealthServiceRequest::with(['resident', 'approver']);
-        
-        // Search functionality
-        if ($request->has('search') && !empty($request->search)) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('purpose', 'like', "%{$search}%")
-                    ->orWhere('barangay_id', 'like', "%{$search}%")
-                    ->orWhereHas('resident', function ($residentQuery) use ($search) {
-                        $residentQuery->where('first_name', 'like', "%{$search}%")
-                            ->orWhere('middle_name', 'like', "%{$search}%")
-                            ->orWhere('last_name', 'like', "%{$search}%");
-                    });
-            });
-        }
-        
-        // Status filter
-        if ($request->has('status') && !empty($request->status)) {
-            $query->where('status', $request->status);
-        }
-        
-        // Service type filter
-        if ($request->has('service_type') && !empty($request->service_type)) {
-            $query->where('service_type', $request->service_type);
-        }
-        
-        // Date range filters
-        if ($request->has('date_from') && !empty($request->date_from)) {
-            $query->whereDate('requested_at', '>=', $request->date_from);
-        }
-        
-        if ($request->has('date_to') && !empty($request->date_to)) {
-            $query->whereDate('requested_at', '<=', $request->date_to);
-        }
-        
-        // Sorting functionality
-        $sortField = $request->get('sort', 'requested_at');
-        $sortDirection = $request->get('direction', 'desc');
-        
-        // Define allowed sort fields for security
-        $allowedSortFields = [
-            'id', 'service_type', 'status', 'requested_at', 'barangay_id'
-        ];
-        
-        if (in_array($sortField, $allowedSortFields)) {
-            $query->orderBy($sortField, $sortDirection);
-        } else {
-            // Default sorting
-            $query->orderBy('requested_at', 'desc');
-        }
-
-        $healthRequests = $query->paginate(10);
-        
-        // Append query parameters to pagination links
-        $healthRequests->appends($request->query());
-
-        return view('admin.health-services', compact('healthRequests'));
-    }
-
-    public function create()
-    {
-        $serviceTypes = [
-            'medical_consultation' => 'Medical Consultation',
-            'blood_pressure_check' => 'Blood Pressure Check',
-            'vaccination' => 'Vaccination',
-            'prenatal_checkup' => 'Prenatal Checkup',
-            'health_certificate' => 'Health Certificate',
-            'medicine_distribution' => 'Medicine Distribution',
-            'first_aid' => 'First Aid',
-            'health_education' => 'Health Education',
-            'other' => 'Other Health Service'
-        ];
-
-        return view('public.forms.health-request', compact('serviceTypes'));
-    }
-
-    public function store(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'barangay_id' => 'required|string|exists:residents,barangay_id',
-            'service_type' => 'required|string',
-            'purpose' => 'required|string|max:500',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        // Check if resident exists
-        $resident = Resident::where('barangay_id', $request->barangay_id)->first();
-        if (!$resident) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Resident not found with the provided Barangay ID.'
-            ], 404);
-        }
-
-        // Check if OTP has been verified
-        if (!$this->otpService->hasValidOtp($request->barangay_id, 'health_verification')) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Please verify your identity with the OTP sent to your email before submitting the request.'
-            ], 422);
-        }
-
-        // Create health service request
-        $healthRequest = HealthServiceRequest::create([
-            'barangay_id' => $request->barangay_id,
-            'service_type' => $request->service_type,
-            'purpose' => $request->purpose,
-            'status' => 'pending',
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Health service request submitted successfully!',
-            'data' => [
-                'request_id' => $healthRequest->id,
-                'resident_name' => $resident->first_name . ' ' . $resident->last_name,
-                'service_type' => $healthRequest->service_type,
-                'status' => $healthRequest->status
-            ]
-        ]);
-    }
-
-    public function show($id)
-    {
-        $healthRequest = HealthServiceRequest::with(['resident', 'approver'])->findOrFail($id);
-        return response()->json($healthRequest);
-    }
-
-    public function approve($id)
-    {
-        $healthRequest = HealthServiceRequest::findOrFail($id);
-        
-        $healthRequest->update([
-            'status' => 'approved',
-            'approved_at' => now(),
-            'approved_by' => auth()->id(),
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Health service request approved successfully!'
-        ]);
-    }
-
-    public function complete($id)
-    {
-        $healthRequest = HealthServiceRequest::findOrFail($id);
-        
-        $healthRequest->update([
-            'status' => 'completed',
-            'completed_at' => now(),
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Health service request completed successfully!'
-        ]);
-    }
-
-    public function reject(Request $request, $id)
-    {
-        $validator = Validator::make($request->all(), [
-            'rejection_reason' => 'required|string|max:500',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        $healthRequest = HealthServiceRequest::findOrFail($id);
-        
-        $healthRequest->update([
-            'status' => 'rejected',
-            'rejection_reason' => $request->rejection_reason,
-            'approved_by' => auth()->id(),
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Health service request rejected successfully!'
-        ]);
     }
 
     public function checkResident(Request $request)
@@ -244,59 +35,28 @@ class HealthServiceController extends Controller
         }
 
         $resident = Resident::where('barangay_id', $request->barangay_id)->first();
-        
+
         if (!$resident) {
             return response()->json([
                 'success' => false,
-                'message' => 'No resident found with the provided Barangay ID.'
+                'message' => 'No resident found with this Barangay ID'
             ], 404);
         }
+
+        $age = $resident->birthdate ? Carbon::parse($resident->birthdate)->age : null;
 
         return response()->json([
             'success' => true,
             'resident' => [
                 'name' => trim("{$resident->first_name} {$resident->middle_name} {$resident->last_name}"),
                 'address' => $resident->address,
-                'barangay_id' => $resident->barangay_id,
-                'age' => $resident->birthdate ? \Carbon\Carbon::parse($resident->birthdate)->age : 'N/A',
-                'contact_number' => $resident->contact_number,
+                'age' => $age ?? 'N/A',
+                'contact' => $resident->contact_number,
+                'email' => $resident->email
             ]
         ]);
     }
 
-    public function scheduleMeeting(Request $request, $id)
-    {
-        $validator = Validator::make($request->all(), [
-            'meeting_title' => 'required|string|max:255',
-            'meeting_date' => 'required|date|after:now',
-            'meeting_location' => 'required|string|max:255',
-            'meeting_notes' => 'nullable|string|max:1000',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        $healthRequest = HealthServiceRequest::findOrFail($id);
-        
-        // Update health service request status to scheduled
-        $healthRequest->update([
-            'status' => 'scheduled',
-            'scheduled_at' => $request->meeting_date,
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Health service meeting scheduled successfully!'
-        ]);
-    }
-
-    /**
-     * Send OTP for health service verification
-     */
     public function sendOtp(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -315,9 +75,6 @@ class HealthServiceController extends Controller
         return response()->json($result);
     }
 
-    /**
-     * Verify OTP for health service
-     */
     public function verifyOtp(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -342,10 +99,315 @@ class HealthServiceController extends Controller
                 'address' => $resident->address,
                 'barangay_id' => $resident->barangay_id,
                 'age' => $resident->birthdate ? Carbon::parse($resident->birthdate)->age : 'N/A',
-                'contact_number' => $resident->contact_number,
+                'contact' => $resident->contact_number,
+                'email' => $resident->email
             ];
         }
 
         return response()->json($result);
+    }
+
+    public function store(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'barangay_id' => 'required|string',
+                'service_type' => 'required|string',
+                'appointment_type' => 'required|string|in:walk-in,scheduled',
+                'health_concern' => 'required|string',
+                'priority' => 'required|string|in:low,medium,high,emergency',
+                'symptoms' => 'nullable|string',
+                'preferred_date' => 'nullable|date|after:today',
+                'preferred_time' => 'nullable|string',
+                'verification_method' => 'required|string|in:manual,qr'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $resident = Resident::where('barangay_id', $request->barangay_id)->first();
+
+            if (!$resident) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Resident not found.'
+                ], 404);
+            }
+
+            // Create health service request using the existing table structure
+            $healthService = HealthServiceRequest::create([
+                'barangay_id' => $request->barangay_id,
+                'service_type' => $request->service_type,
+                'priority' => $request->priority,
+                'purpose' => $request->health_concern, // Map health_concern to purpose field in DB
+                'health_concern' => $request->health_concern,
+                'symptoms' => $request->symptoms,
+                'status' => 'pending',
+                'requested_at' => now(),
+                'scheduled_at' => $request->appointment_type === 'scheduled' && $request->preferred_date && $request->preferred_time 
+                    ? $request->preferred_date . ' ' . $request->preferred_time 
+                    : null
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Health service request submitted successfully!',
+                'data' => [
+                    'request_id' => $healthService->id,
+                    'resident_name' => $resident->first_name . ' ' . $resident->last_name,
+                    'service_type' => $healthService->service_type,
+                    'appointment_type' => $request->appointment_type,
+                    'status' => $healthService->status
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Health Service - Store Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to submit health service request. Please try again.'
+            ], 500);
+        }
+    }
+
+    public function adminDashboard()
+    {
+        try {
+            $healthServices = HealthServiceRequest::with('resident')
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            $stats = [
+                'total' => HealthServiceRequest::count(),
+                'pending' => HealthServiceRequest::where('status', 'pending')->count(),
+                'approved' => HealthServiceRequest::where('status', 'approved')->count(),
+                'completed' => HealthServiceRequest::where('status', 'completed')->count(),
+                'rejected' => HealthServiceRequest::where('status', 'rejected')->count()
+            ];
+
+            return view('admin.health.dashboard', compact('healthServices', 'stats'));
+        } catch (\Exception $e) {
+            Log::error('Health Service - Admin Dashboard Error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error loading health services dashboard.');
+        }
+    }
+
+    public function index()
+    {
+        try {
+            $healthServices = HealthServiceRequest::with('resident')
+                ->orderBy('created_at', 'desc')
+                ->paginate(10);
+
+            return view('admin.health.index', compact('healthServices'));
+        } catch (\Exception $e) {
+            Log::error('Health Service - Index Error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error loading health services.');
+        }
+    }
+
+    public function show($id)
+    {
+        try {
+            $healthService = HealthServiceRequest::with('resident')->findOrFail($id);
+            return view('admin.health.show', compact('healthService'));
+        } catch (\Exception $e) {
+            Log::error('Health Service - Show Error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Health service not found.');
+        }
+    }
+
+    public function approve($id)
+    {
+        try {
+            $healthService = HealthServiceRequest::findOrFail($id);
+            $healthService->update([
+                'status' => 'approved',
+                'approved_at' => now(),
+                'approved_by' => auth()->id()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Health service request approved successfully.'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Health Service - Approve Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error approving health service request.'
+            ], 500);
+        }
+    }
+
+    public function complete($id)
+    {
+        try {
+            $healthService = HealthServiceRequest::findOrFail($id);
+            $healthService->update([
+                'status' => 'completed',
+                'completed_at' => now()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Health service marked as completed.'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Health Service - Complete Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error completing health service.'
+            ], 500);
+        }
+    }
+
+    public function reject($id)
+    {
+        try {
+            $healthService = HealthServiceRequest::findOrFail($id);
+            $healthService->update(['status' => 'rejected']);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Health service request rejected.'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Health Service - Reject Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error rejecting health service request.'
+            ], 500);
+        }
+    }
+
+    public function decodeQr(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'qr_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:10240', // 10MB max
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid image file. Please upload a valid image (JPEG, PNG, JPG, GIF) under 10MB.',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $image = $request->file('qr_image');
+            
+            // Log for debugging
+            Log::info('Health QR Code decode attempt', [
+                'file_name' => $image->getClientOriginalName(),
+                'file_size' => $image->getSize(),
+                'mime_type' => $image->getMimeType()
+            ]);
+            
+            $qrData = $this->decodeQrFromImage($image);
+            
+            if ($qrData) {
+                // Log successful decode
+                Log::info('Health QR Code decoded successfully', [
+                    'qr_data' => $qrData,
+                    'data_length' => strlen($qrData)
+                ]);
+                
+                return response()->json([
+                    'success' => true,
+                    'qr_data' => $qrData,
+                    'message' => 'QR code decoded successfully',
+                    'debug_info' => [
+                        'data_length' => strlen($qrData),
+                        'data_preview' => substr($qrData, 0, 50) . (strlen($qrData) > 50 ? '...' : '')
+                    ]
+                ]);
+            } else {
+                Log::warning('Health QR Code decode failed - no data extracted');
+                
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Could not decode QR code from the image. Please ensure the image contains a clear, valid QR code.'
+                ], 400);
+            }
+            
+        } catch (\Exception $e) {
+            Log::error('Health QR Code decode error: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while processing the QR code. Please try again.',
+                'error_details' => config('app.debug') ? $e->getMessage() : null
+            ], 500);
+        }
+    }
+
+    /**
+     * Decode QR code from image using external service or library
+     */
+    private function decodeQrFromImage($imageFile)
+    {
+        try {
+            // Store the uploaded file temporarily
+            $tempPath = $imageFile->store('temp', 'local');
+            $fullPath = storage_path('app/' . $tempPath);
+            
+            Log::info('Health QR decode attempt', [
+                'temp_path' => $tempPath,
+                'full_path' => $fullPath,
+                'file_exists' => file_exists($fullPath)
+            ]);
+            
+            // Method 1: Use the PHP QR code library
+            $qrcode = new QrReader($fullPath);
+            $qrData = $qrcode->text();
+            
+            Log::info('Health QR Reader result', [
+                'raw_result' => $qrData,
+                'result_type' => gettype($qrData),
+                'is_empty' => empty($qrData),
+                'length' => $qrData ? strlen($qrData) : 0
+            ]);
+            
+            // Clean up temp file
+            Storage::disk('local')->delete($tempPath);
+            
+            if ($qrData && !empty(trim($qrData))) {
+                $cleanData = trim($qrData);
+                Log::info('Health QR decode success', ['clean_data' => $cleanData]);
+                return $cleanData;
+            }
+            
+            // If the library didn't work, log and return null
+            Log::warning('Health QR code could not be decoded from image - empty result');
+            return null;
+            
+        } catch (\Exception $e) {
+            Log::error('Health QR decode error: ' . $e->getMessage(), [
+                'error_type' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
+            
+            // Clean up temp file if it exists
+            if (isset($tempPath)) {
+                try {
+                    Storage::disk('local')->delete($tempPath);
+                } catch (\Exception $cleanupError) {
+                    Log::error('Failed to cleanup temp file: ' . $cleanupError->getMessage());
+                }
+            }
+            
+            return null;
+        }
     }
 }

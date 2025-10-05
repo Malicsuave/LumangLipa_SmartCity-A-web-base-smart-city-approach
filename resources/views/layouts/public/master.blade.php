@@ -15,17 +15,28 @@
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
     <link href="{{ asset('assets/css/nucleo-icons.css') }}" rel="stylesheet" />
     <link href="{{ asset('assets/css/nucleo-svg.css') }}" rel="stylesheet" />
+<<<<<<< HEAD
     <!-- Replace FA Kit (403) with CDN CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+=======
+    <!-- Use same FontAwesome as admin for consistency -->
+    <link rel="stylesheet" href="{{ asset('adminlte/plugins/fontawesome-free/css/all.min.css') }}">
+    <!-- Backup CDN FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" />
+>>>>>>> chatbotqueue
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
  
 
     <!-- CSS Files -->
     @stack('styles')
     <link id="pagestyle" href="{{ asset('assets/css/material-kit.css') }}" rel="stylesheet" />
+<<<<<<< HEAD
     <!-- Material Kit Override - MUST load after Material Kit -->
     <link rel="stylesheet" href="{{ asset('css/material-kit-override.css') }}?v={{ time() }}">
     <link rel="stylesheet" href="{{ asset('css/chatbot.css?v=2') }}">
+=======
+    <link rel="stylesheet" href="{{ asset('css/chatbot.css') }}?v={{ time() }}">
+>>>>>>> chatbotqueue
     <style>
       .navbar-toggler,
       .navbar-toggler:focus,
@@ -105,6 +116,7 @@
                                         <li><a class="dropdown-item" href="{{ route('health.request') }}">Health Services</a></li>
                                         <li><a class="dropdown-item" href="{{ route('documents.request') }}">Document Request</a></li>
                                         <li><a class="dropdown-item" href="{{ route('complaints.create') }}">File a Complaint</a></li>
+                                        <li><a class="dropdown-item" href="{{ route('blotter.request') }}">Blotter Report</a></li>
                                     </ul>
                                 </li>
                                 <li class="nav-item mx-2">
@@ -266,7 +278,7 @@
             <div class="chatbot-header">
                 <h4><i class="fas fa-robot me-2"></i>Barangay Assistant</h4>
                 <button class="chatbot-close" id="chatbotClose" style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;background:transparent;border:none;outline:none;cursor:pointer;">
-                    <i class="fas fa-times" style="font-size:1.3rem;color:#2A7BC4;"></i>
+                    <i class="fas fa-times" style="color:white;font-size:16px;"></i>
                 </button>
             </div>
             <div class="chatbot-messages" id="chatbotMessages">

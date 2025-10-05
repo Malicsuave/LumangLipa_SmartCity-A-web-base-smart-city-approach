@@ -2,17 +2,38 @@ class BarangayChatbot {
     constructor() {
         this.isOpen = false;
         this.isTyping = false;
+        this.questionHistory = [];
+        this.satisfactionCheckShown = false;
+        this.agentEscalationOffered = false;
+        this.userSession = this.generateUserSession();
+        
+        // Agent mode properties
+        this.isAgentMode = false;
+        this.agentSessionId = null;
+        this.agentPollInterval = null;
+        this.lastMessageCheck = null;
+        this.queuePosition = null;
+        this.queueStatus = 'waiting'; // 'waiting', 'active', 'completed'
+        this.queueStatusElement = null;
+        
         this.init();
         this.knowledgeBase = this.initKnowledgeBase();
     }
 
     init() {
+        console.log('[USER CHATBOT] Initializing user chatbot');
         this.toggle = document.getElementById('chatbotToggle');
         this.window = document.getElementById('chatbotWindow');
         this.close = document.getElementById('chatbotClose');
         this.input = document.getElementById('chatbotInput');
         this.send = document.getElementById('chatbotSend');
         this.messages = document.getElementById('chatbotMessages');
+
+        // Check if all required elements exist
+        if (!this.toggle || !this.window || !this.input || !this.send || !this.messages) {
+            console.error('[USER CHATBOT] Missing required elements, aborting initialization');
+            return;
+        }
 
         this.bindEvents();
     }
@@ -69,6 +90,14 @@ class BarangayChatbot {
         const message = this.input.value.trim();
         if (!message || this.isTyping) return;
 
+        // If in agent mode, send to agent instead
+        if (this.isAgentMode && this.agentSessionId) {
+            this.addMessage(message, 'user', null);
+            this.input.value = '';
+            this.sendMessageToAgent(message);
+            return;
+        }
+
         const body = document.body;
         const strict = body.getAttribute('data-chatbot-strict') === '1';
         const hasKey = body.getAttribute('data-chatbot-has-key') === '1';
@@ -76,6 +105,9 @@ class BarangayChatbot {
             this.addMessage('AI is unavailable right now. Please try again later or contact the barangay.', 'bot');
             return;
         }
+
+        // Track question for satisfaction checking
+        this.trackQuestion(message);
 
         this.addMessage(message, 'user');
         this.input.value = '';
@@ -97,6 +129,8 @@ class BarangayChatbot {
                         this.addMessage(barangayIdResponse, 'bot');
                     } else {
                         this.addMessage(aiText, 'bot');
+                        // Check if we should offer agent escalation
+                        this.checkSatisfactionAndOfferAgent(message, aiText);
                     }
                 } else {
                     this.processMessage(message);
@@ -184,19 +218,39 @@ class BarangayChatbot {
         return filipinoHints.some(w => t.includes(w)) ? 'tl' : 'en';
     }
 
-    addMessage(content, sender) {
+    addMessage(content, sender, timestamp = null) {
+        // Check for duplicate messages in agent mode (to prevent duplicates from polling)
+        if (this.isAgentMode && sender === 'bot' && timestamp) {
+            const existingMessages = this.messages.querySelectorAll('.message.bot');
+            for (let msg of existingMessages) {
+                const msgContent = msg.querySelector('.message-content').innerHTML;
+                const msgTimestamp = msg.getAttribute('data-timestamp');
+                if (msgContent === content && msgTimestamp === timestamp) {
+                    return; // Skip duplicate message
+                }
+            }
+        }
+        
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${sender}`;
         
-        const avatar = document.createElement('div');
-        avatar.className = 'message-avatar';
-        avatar.innerHTML = sender === 'bot' ? '<i class="fas fa-robot"></i>' : '<i class="fas fa-user"></i>';
+        // Add timestamp attribute for duplicate checking
+        if (timestamp) {
+            messageDiv.setAttribute('data-timestamp', timestamp);
+        }
+        
+        // Only add avatar for bot messages, not for user messages
+        if (sender === 'bot') {
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.innerHTML = '<i class="fas fa-robot"></i>';
+            messageDiv.appendChild(avatar);
+        }
         
         const messageContent = document.createElement('div');
         messageContent.className = 'message-content';
         messageContent.innerHTML = content;
         
-        messageDiv.appendChild(avatar);
         messageDiv.appendChild(messageContent);
         
         this.messages.appendChild(messageDiv);
@@ -488,6 +542,397 @@ class BarangayChatbot {
     scrollToBottom() {
         this.messages.scrollTop = this.messages.scrollHeight;
     }
+
+    // Generate unique user session
+    generateUserSession() {
+        return 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    // Track questions for satisfaction checking
+    trackQuestion(question) {
+        const normalizedQuestion = question.toLowerCase().trim();
+        this.questionHistory.push({
+            question: normalizedQuestion,
+            timestamp: Date.now()
+        });
+
+        // Keep only last 10 questions
+        if (this.questionHistory.length > 10) {
+            this.questionHistory = this.questionHistory.slice(-10);
+        }
+    }
+
+    // Check if user satisfaction should be assessed and offer agent
+    checkSatisfactionAndOfferAgent(question, response) {
+        if (this.agentEscalationOffered) return;
+
+        const normalizedQuestion = question.toLowerCase().trim();
+        
+        // Count similar questions in recent history
+        const recentQuestions = this.questionHistory.filter(h => 
+            Date.now() - h.timestamp < 300000 // Last 5 minutes
+        );
+
+        const similarQuestions = recentQuestions.filter(h => 
+            this.calculateSimilarity(h.question, normalizedQuestion) > 0.7
+        ).length;
+
+        // If user asked similar question 3 times, offer agent
+        if (similarQuestions >= 3 && !this.satisfactionCheckShown) {
+            this.satisfactionCheckShown = true;
+            setTimeout(() => {
+                this.offerAgentEscalation();
+            }, 2000);
+        }
+    }
+
+    // Calculate similarity between two strings
+    calculateSimilarity(str1, str2) {
+        const words1 = str1.split(' ');
+        const words2 = str2.split(' ');
+        const intersection = words1.filter(word => words2.includes(word));
+        const union = [...new Set([...words1, ...words2])];
+        return intersection.length / union.length;
+    }
+
+    // Offer agent escalation
+    offerAgentEscalation() {
+        const message = `
+            <div style="padding: 15px; border: 2px solid #ffc107; border-radius: 10px; background: #fff3cd; margin: 10px 0;">
+                <h5 style="color: #856404; margin: 0 0 10px 0;">🤔 Need More Help?</h5>
+                <p style="color: #856404; margin: 0 0 15px 0;">
+                    I notice you've asked similar questions. Are you satisfied with my responses, or would you like to talk to a barangay staff member?
+                </p>
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <button class="quick-action-btn" onclick="window.barangayChatbot.handleSatisfactionResponse('satisfied')" 
+                            style="background: #28a745; color: white;">✅ I'm Satisfied</button>
+                    <button class="quick-action-btn" onclick="window.barangayChatbot.handleSatisfactionResponse('agent')" 
+                            style="background: #007bff; color: white;">💬 Talk to Agent</button>
+                </div>
+            </div>
+        `;
+        this.addMessage(message, 'bot');
+    }
+
+    // Handle satisfaction response
+    handleSatisfactionResponse(response) {
+        if (response === 'satisfied') {
+            this.addMessage('Great! I\'m glad I could help. Feel free to ask if you have any other questions!', 'bot');
+        } else if (response === 'agent') {
+            this.escalateToAgent();
+        }
+    }
+
+    // Escalate to human agent
+    async escalateToAgent() {
+        this.agentEscalationOffered = true;
+        
+        this.addMessage('Connecting you to a barangay staff member. Please wait...', 'bot');
+        this.showTyping();
+
+        try {
+            const response = await fetch('/api/agent-conversation/escalate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    user_session: this.userSession,
+                    conversation_history: this.getConversationHistory(),
+                    escalation_reason: 'User requested agent after repeated questions'
+                })
+            });
+
+            const data = await response.json();
+            
+            this.hideTyping();
+            
+            if (data.success) {
+                // Show queue position
+                if (data.queue_status === 'waiting') {
+                    this.addMessage(`
+                        <div style="padding: 15px; border: 2px solid #ffc107; border-radius: 10px; background: #fff3cd; margin: 10px 0;">
+                            <h5 style="color: #856404; margin: 0 0 10px 0;">⏳ You're in the Queue</h5>
+                            <p style="color: #856404; margin: 0;">
+                                You are <strong>#${data.queue_position}</strong> in line to talk to an agent.
+                                Please wait while an agent becomes available.
+                            </p>
+                            <div id="queueStatusIndicator" style="margin-top: 10px; padding: 8px; background: white; border-radius: 5px; text-align: center; font-weight: bold;">
+                                Queue Position: <span id="queuePositionNumber">${data.queue_position}</span>
+                            </div>
+                        </div>
+                    `, 'bot');
+                    
+                    this.queuePosition = data.queue_position;
+                    this.queueStatus = 'waiting';
+                } else if (data.queue_status === 'active') {
+                    this.addMessage(`
+                        <div style="padding: 15px; border: 2px solid #28a745; border-radius: 10px; background: #d4edda; margin: 10px 0;">
+                            <h5 style="color: #155724; margin: 0 0 10px 0;">✅ Connected to Agent</h5>
+                            <p style="color: #155724; margin: 0;">
+                                You're now connected to a barangay staff member. They will respond to your messages.
+                                Please continue asking your questions here.
+                            </p>
+                        </div>
+                    `, 'bot');
+                    
+                    this.queueStatus = 'active';
+                }
+                
+                // Change the chatbot behavior to agent mode
+                this.switchToAgentMode(data.session_id);
+            } else {
+                this.addMessage('Sorry, unable to connect to an agent right now. Please try again later or contact the barangay office directly.', 'bot');
+            }
+        } catch (error) {
+            this.hideTyping();
+            console.error('Error escalating to agent:', error);
+            this.addMessage('Sorry, there was an error connecting to an agent. Please try again later.', 'bot');
+        }
+    }
+
+    // Switch to agent conversation mode
+    switchToAgentMode(sessionId) {
+        this.agentSessionId = sessionId;
+        this.isAgentMode = true;
+        
+        // Initialize last message check time to current time to avoid loading old messages
+        this.lastMessageCheck = new Date().toISOString();
+        
+        // Start polling for agent responses
+        this.startAgentPolling();
+        
+        // Update UI to show agent mode
+        const header = this.window.querySelector('.chatbot-header h4');
+        if (header) {
+            header.innerHTML = '💬 Talking to Agent';
+        }
+    }
+
+    // Start polling for agent responses
+    startAgentPolling() {
+        if (this.agentPollInterval) {
+            clearInterval(this.agentPollInterval);
+        }
+        
+        this.agentPollInterval = setInterval(() => {
+            // Check queue status for updates (waiting -> active -> completed)
+            this.checkQueueStatus();
+            
+            // Only check for messages if conversation is active
+            if (this.queueStatus === 'active') {
+                this.checkForAgentMessages();
+            }
+        }, 3000);
+    }
+
+    // Check queue status and update position
+    async checkQueueStatus() {
+        if (!this.agentSessionId) return;
+
+        try {
+            const response = await fetch(`/api/agent-conversation/${this.agentSessionId}/queue-status`, {
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                // Check if conversation was completed by admin
+                if (data.queue_status === 'completed' && this.queueStatus !== 'completed') {
+                    this.queueStatus = 'completed';
+                    this.addMessage(`
+                        <div style="padding: 15px; border: 2px solid #17a2b8; border-radius: 10px; background: #d1ecf1; margin: 10px 0;">
+                            <h5 style="color: #0c5460; margin: 0 0 10px 0;">✓ Conversation Ended</h5>
+                            <p style="color: #0c5460; margin: 0;">
+                                The agent has ended this conversation. Thank you for contacting us!
+                            </p>
+                            <p style="color: #0c5460; margin: 10px 0 0 0; font-size: 13px;">
+                                If you have more questions, feel free to start a new conversation.
+                            </p>
+                        </div>
+                    `, 'bot');
+                    
+                    // Update header
+                    const header = this.window.querySelector('.chatbot-header h4');
+                    if (header) {
+                        header.innerHTML = '💬 Barangay Chatbot';
+                    }
+                    
+                    // Stop polling
+                    if (this.agentPollInterval) {
+                        clearInterval(this.agentPollInterval);
+                        this.agentPollInterval = null;
+                    }
+                    
+                    // Reset agent mode after a delay to allow user to see the message
+                    setTimeout(() => {
+                        this.isAgentMode = false;
+                        this.agentSessionId = null;
+                    }, 2000);
+                    
+                    return; // Exit early
+                }
+                
+                // Check if status changed from waiting to active
+                if (this.queueStatus === 'waiting' && data.queue_status === 'active') {
+                    this.queueStatus = 'active';
+                    this.addMessage(`
+                        <div style="padding: 15px; border: 2px solid #28a745; border-radius: 10px; background: #d4edda; margin: 10px 0;">
+                            <h5 style="color: #155724; margin: 0 0 10px 0;">✅ Agent Connected!</h5>
+                            <p style="color: #155724; margin: 0;">
+                                An agent is now available. You can start chatting!
+                            </p>
+                        </div>
+                    `, 'bot');
+                    
+                    // Update header
+                    const header = this.window.querySelector('.chatbot-header h4');
+                    if (header) {
+                        header.innerHTML = '💬 Talking to Agent';
+                    }
+                } else if (data.queue_status === 'waiting' && data.queue_position !== this.queuePosition) {
+                    // Update queue position
+                    this.queuePosition = data.queue_position;
+                    const positionElement = document.getElementById('queuePositionNumber');
+                    if (positionElement) {
+                        positionElement.textContent = data.queue_position;
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error checking queue status:', error);
+        }
+    }
+
+    // Check for new agent messages
+    async checkForAgentMessages() {
+        if (!this.agentSessionId) return;
+
+        try {
+            // Build URL with since parameter if we have a last check time
+            let url = `/api/agent-conversation/${this.agentSessionId}/new-messages`;
+            if (this.lastMessageCheck) {
+                url += `?since=${encodeURIComponent(this.lastMessageCheck)}`;
+            }
+
+            const response = await fetch(url, {
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            });
+
+            const data = await response.json();
+            
+            if (data.success && data.messages.length > 0) {
+                data.messages.forEach(msg => {
+                    if (msg.sender_type === 'admin') {
+                        this.addMessage(msg.message, 'bot', msg.created_at);
+                    }
+                });
+                
+                // Update last check time to the timestamp of the newest message
+                const newestMessage = data.messages[data.messages.length - 1];
+                this.lastMessageCheck = newestMessage.created_at;
+            } else {
+                // Update last check time even if no new messages
+                this.lastMessageCheck = new Date().toISOString();
+            }
+        } catch (error) {
+            console.error('Error checking for agent messages:', error);
+        }
+    }
+
+    // Send user message to agent
+    async sendMessageToAgent(message) {
+        console.log('[USER CHATBOT] Sending message to agent:', message, 'Session:', this.agentSessionId);
+        if (!this.agentSessionId) {
+            console.error('[USER CHATBOT] No agent session ID available');
+            this.addMessage('Error: Not connected to agent. Please try escalating again.', 'bot');
+            return;
+        }
+
+        // Block sending messages if conversation is completed
+        if (this.queueStatus === 'completed') {
+            this.addMessage(`
+                <div style="padding: 10px; border: 1px solid #17a2b8; border-radius: 5px; background: #d1ecf1; color: #0c5460;">
+                    ✓ This conversation has ended. Please start a new conversation if you need more help.
+                </div>
+            `, 'bot');
+            return;
+        }
+
+        // Block sending messages if still in queue
+        if (this.queueStatus === 'waiting') {
+            this.addMessage(`
+                <div style="padding: 10px; border: 1px solid #ffc107; border-radius: 5px; background: #fff3cd; color: #856404;">
+                    ⏳ Please wait for your turn. You are #${this.queuePosition} in line.
+                </div>
+            `, 'bot');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/agent-conversation/send-user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    session_id: this.agentSessionId,
+                    message: message,
+                    user_session: this.userSession
+                })
+            });
+
+            const data = await response.json();
+            
+            if (!data.success) {
+                console.error('Failed to send message to agent:', data.message);
+                
+                // Check if it's a queue-related error
+                if (data.queue_position) {
+                    this.addMessage(`
+                        <div style="padding: 10px; border: 1px solid #ffc107; border-radius: 5px; background: #fff3cd; color: #856404;">
+                            ⏳ Please wait for your turn. You are #${data.queue_position} in line.
+                        </div>
+                    `, 'bot');
+                } else {
+                    this.addMessage('Message failed to send. Please try again.', 'bot');
+                }
+            } else {
+                console.log('Message sent to agent successfully');
+            }
+        } catch (error) {
+            console.error('Error sending message to agent:', error);
+            this.addMessage('Connection error. Please check your internet and try again.', 'bot');
+        }
+    }
+
+    // Get conversation history for escalation
+    getConversationHistory() {
+        const messages = this.messages.querySelectorAll('.message');
+        return Array.from(messages).slice(-10).map(msg => {
+            const sender = msg.classList.contains('user') ? 'user' : 'bot';
+            const content = msg.querySelector('.message-content').textContent;
+            return { sender, content };
+        }).filter(msg => {
+            // Exclude escalation-related bot messages that shouldn't be seen by admin
+            if (msg.sender === 'bot') {
+                const content = msg.content.toLowerCase();
+                return !content.includes('connecting you to a barangay staff') &&
+                       !content.includes('connected to agent') &&
+                       !content.includes('would you like to talk to a barangay staff') &&
+                       !content.includes('talk to agent') &&
+                       !content.includes('need more help');
+            }
+            return true;
+        });
+    }
 }
 
 // Quick message function for action buttons
@@ -505,7 +950,13 @@ function sendQuickMessage(message) {
 
 // Initialize chatbot when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-    window.barangayChatbot = new BarangayChatbot();
-    // Make chatbot globally accessible for button callbacks
-    window.chatbot = window.barangayChatbot;
+    // Check if user chatbot elements exist before initializing
+    if (document.getElementById('chatbotToggle')) {
+        console.log('[USER CHATBOT] Initializing User Chatbot...');
+        window.barangayChatbot = new BarangayChatbot();
+        // Make chatbot globally accessible for button callbacks
+        window.chatbot = window.barangayChatbot;
+    } else {
+        console.log('[USER CHATBOT] Elements not found, skipping initialization');
+    }
 });

@@ -185,6 +185,119 @@
         </div>
     </div>
 </section>
+
+<!-- Added space between announcements and officials -->
+<div style="height: 85px;"></div>
+
+<!-- Barangay Officials Section -->
+<section class="container">
+    <div class="d-flex flex-wrap justify-content-between align-items-end mb-4 gap-2">
+        <div>
+            <h2 class="fw-bold mb-1" style="color:#2A7BC4; font-size: 2rem;">Barangay Officials</h2>
+            <p class="text-muted mb-0" style="font-size:.9rem;">Meet our key leaders</p>
+        </div>
+        <a href="{{ route('public.officials') }}" class="btn btn-outline-primary btn-sm" style="border-radius:8px; background-color:#2A7BC4; color:#fff; border:none;">View All Officials</a>
+    </div>
+    
+    <!-- Key Officials Layout -->
+    <div class="key-officials">
+        @php
+            $captain = $officials->where('position', 'Captain')->first();
+            $secretary = $officials->where('position', 'Secretary')->first();
+            $treasurer = $officials->where('position', 'Treasurer')->first();
+            $skChairman = $officials->where('position', 'SK Chairman')->first();
+        @endphp
+        
+        <!-- Barangay Captain (Center Top) -->
+        @if($captain)
+        <div class="captain-section mb-5">
+            <div class="d-flex justify-content-center">
+                <div class="official-card captain-card" style="max-width: 280px;">
+                    <div style="position:relative; background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); height: 200px; display: flex; align-items: center; justify-content: center; border-radius:18px 18px 0 0;">
+                        @if($captain->profile_pic_url)
+                            <img src="{{ $captain->profile_pic_url }}" alt="{{ $captain->name }}" style="width:130px; height:130px; object-fit:cover; border-radius:50%; border: 4px solid #fff; box-shadow: 0 6px 12px rgba(0,0,0,0.3);">
+                        @else
+                            <div style="width:130px; height:130px; background:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; border: 4px solid #fff; box-shadow: 0 6px 12px rgba(0,0,0,0.3);">
+                                <span style="font-size:2.8rem; font-weight:bold; color:#2A7BC4;">{{ $captain->initials }}</span>
+                            </div>
+                        @endif
+                        <span class="badge bg-dark" style="position:absolute; top:15px; right:15px; font-size:0.75rem; padding:6px 12px;">BARANGAY CAPTAIN</span>
+                    </div>
+                    <div class="card-body text-center p-4" style="background:#fff; border-radius:0 0 18px 18px; border:2px solid #FFD700; border-top:none;">
+                        <h5 class="fw-bold mb-1" style="color:#1e293b; font-size:1.1rem;">HON. {{ $captain->name }}</h5>
+                        <p class="text-muted mb-0" style="font-size:0.9rem; font-weight:600;">Barangay Captain</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
+
+        <!-- Key Staff (Bottom Row) -->
+        <div class="key-staff-section">
+            <div class="row g-4 justify-content-center">
+                @if($secretary)
+                <div class="col-lg-4 col-md-6 d-flex justify-content-center">
+                    <div class="official-card staff-card" style="max-width: 220px;">
+                        <div style="position:relative; background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8c 100%); height: 170px; display: flex; align-items: center; justify-content: center; border-radius:15px 15px 0 0;">
+                            @if($secretary->profile_pic_url)
+                                <img src="{{ $secretary->profile_pic_url }}" alt="{{ $secretary->name }}" style="width:110px; height:110px; object-fit:cover; border-radius:50%; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+                            @else
+                                <div style="width:110px; height:110px; background:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+                                    <span style="font-size:2.2rem; font-weight:bold; color:#2A7BC4;">{{ $secretary->initials }}</span>
+                                </div>
+                            @endif
+                        </div>
+                        <div class="card-body text-center p-3" style="background:#fff; border-radius:0 0 15px 15px; border:2px solid #2A7BC4; border-top:none;">
+                            <h6 class="fw-bold mb-1" style="color:#1e293b; font-size:1rem;">{{ $secretary->name }}</h6>
+                            <p class="text-muted mb-0" style="font-size:0.85rem; font-weight:600;">Secretary</p>
+                        </div>
+                    </div>
+                </div>
+                @endif
+
+                @if($treasurer)
+                <div class="col-lg-4 col-md-6 d-flex justify-content-center">
+                    <div class="official-card staff-card" style="max-width: 220px;">
+                        <div style="position:relative; background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8c 100%); height: 170px; display: flex; align-items: center; justify-content: center; border-radius:15px 15px 0 0;">
+                            @if($treasurer->profile_pic_url)
+                                <img src="{{ $treasurer->profile_pic_url }}" alt="{{ $treasurer->name }}" style="width:110px; height:110px; object-fit:cover; border-radius:50%; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+                            @else
+                                <div style="width:110px; height:110px; background:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+                                    <span style="font-size:2.2rem; font-weight:bold; color:#2A7BC4;">{{ $treasurer->initials }}</span>
+                                </div>
+                            @endif
+                        </div>
+                        <div class="card-body text-center p-3" style="background:#fff; border-radius:0 0 15px 15px; border:2px solid #2A7BC4; border-top:none;">
+                            <h6 class="fw-bold mb-1" style="color:#1e293b; font-size:1rem;">{{ $treasurer->name }}</h6>
+                            <p class="text-muted mb-0" style="font-size:0.85rem; font-weight:600;">Treasurer</p>
+                        </div>
+                    </div>
+                </div>
+                @endif
+
+                @if($skChairman)
+                <div class="col-lg-4 col-md-6 d-flex justify-content-center">
+                    <div class="official-card staff-card" style="max-width: 220px;">
+                        <div style="position:relative; background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8c 100%); height: 170px; display: flex; align-items: center; justify-content: center; border-radius:15px 15px 0 0;">
+                            @if($skChairman->profile_pic_url)
+                                <img src="{{ $skChairman->profile_pic_url }}" alt="{{ $skChairman->name }}" style="width:110px; height:110px; object-fit:cover; border-radius:50%; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+                            @else
+                                <div style="width:110px; height:110px; background:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+                                    <span style="font-size:2.2rem; font-weight:bold; color:#2A7BC4;">{{ $skChairman->initials }}</span>
+                                </div>
+                            @endif
+                        </div>
+                        <div class="card-body text-center p-3" style="background:#fff; border-radius:0 0 15px 15px; border:2px solid #2A7BC4; border-top:none;">
+                            <h6 class="fw-bold mb-1" style="color:#1e293b; font-size:1rem;">HON. {{ $skChairman->name }}</h6>
+                            <p class="text-muted mb-0" style="font-size:0.85rem; font-weight:600;">SK Chairman</p>
+                        </div>
+                    </div>
+                </div>
+                @endif
+            </div>
+        </div>
+    </div>
+</section>
     
 </div>
 

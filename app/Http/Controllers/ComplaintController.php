@@ -8,6 +8,8 @@ use App\Models\Resident;
 use App\Models\ComplaintMeeting;
 use App\Services\OtpService;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
+use Zxing\QrReader;
 use Carbon\Carbon;
 
 class ComplaintController extends Controller
@@ -115,12 +117,17 @@ class ComplaintController extends Controller
         ];
 
         return view('public/forms/complaint-request', compact('complaintTypes'));
-    }    public function store(Request $request)
-    {        $validator = Validator::make($request->all(), [
+    }
+    
+    public function store(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
             'barangay_id' => 'required|string|exists:residents,barangay_id',
             'complaint_type' => 'required|string',
             'subject' => 'required|string|max:255',
             'description' => 'required|string|max:1000',
+            'priority' => 'required|string|in:low,medium,high,emergency',
+            'location' => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -139,8 +146,9 @@ class ComplaintController extends Controller
             ], 404);
         }
 
-        // Check if OTP has been verified
-        if (!$this->otpService->hasValidOtp($request->barangay_id, 'complaint_verification')) {
+        // Check if OTP has been verified or QR code was used
+        $verification_method = $request->input('verification_method', 'manual');
+        if ($verification_method === 'manual' && !$this->otpService->hasValidOtp($request->barangay_id, 'complaint_verification')) {
             return response()->json([
                 'success' => false,
                 'message' => 'Please verify your identity with the OTP sent to your email before submitting the complaint.'
@@ -153,7 +161,12 @@ class ComplaintController extends Controller
             'complaint_type' => $request->complaint_type,
             'subject' => $request->subject,
             'description' => $request->description,
+            'incident_date' => now()->toDateString(), // Set current date since we don't collect it
+            'incident_location' => $request->location ?: 'Not specified',
+            'involved_parties' => '', // Not collected in current form
+            'incident_details' => $request->description, // Use description as incident details
             'status' => 'pending',
+            'filed_at' => now()->toDateString(),
         ]);
 
         return response()->json([
@@ -356,5 +369,60 @@ class ComplaintController extends Controller
         }
 
         return response()->json($result);
+    }
+
+    public function decodeQr(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'qr_image' => 'required|image|max:10240', // 10MB max
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid image file',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $image = $request->file('qr_image');
+            $imagePath = $image->store('temp', 'public');
+            $fullPath = storage_path('app/public/' . $imagePath);
+
+            // Read QR code from image
+            $qrcode = new QrReader($fullPath);
+            $qrData = $qrcode->text();
+
+            // Clean up temporary file
+            Storage::disk('public')->delete($imagePath);
+
+            if (!$qrData) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No QR code found in the image or QR code is not readable'
+                ], 400);
+            }
+
+            // Debug information
+            $debugInfo = [
+                'raw_qr_data' => $qrData,
+                'qr_data_length' => strlen($qrData),
+                'qr_data_type' => gettype($qrData)
+            ];
+
+            return response()->json([
+                'success' => true,
+                'message' => 'QR code decoded successfully',
+                'qr_data' => $qrData,
+                'debug_info' => $debugInfo
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to process QR code: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

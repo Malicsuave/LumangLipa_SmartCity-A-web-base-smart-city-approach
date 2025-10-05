@@ -14,10 +14,13 @@ use App\Http\Controllers\Admin\AccessRequestController;
 use App\Http\Controllers\Admin\SeniorCitizenController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\ComplaintMeetingController;
+use App\Http\Controllers\BlotterController;
 use App\Http\Controllers\HealthServiceController;
 use App\Http\Controllers\HealthMeetingController;
 use App\Http\Controllers\Admin\GadController;
 use App\Http\Controllers\UserActivityController;
+use App\Http\Controllers\Admin\AgentConversationController as AdminAgentConversationController;
+use App\Http\Controllers\AgentConversationController as UserAgentConversationController;
 use App\Http\Controllers\Admin\UserActivityController as AdminUserActivityController;
 use App\Http\Controllers\Admin\SecurityController;
 use App\Http\Controllers\Admin\AuditLogController;
@@ -113,14 +116,20 @@ Route::post('/request-document', [App\Http\Controllers\DocumentRequestController
 Route::post('/check-resident', [App\Http\Controllers\DocumentRequestController::class, 'checkResident'])->name('documents.check-resident');
 Route::post('/send-otp', [App\Http\Controllers\DocumentRequestController::class, 'sendOtp'])->name('documents.send-otp');
 Route::post('/verify-otp', [App\Http\Controllers\DocumentRequestController::class, 'verifyOtp'])->name('documents.verify-otp');
+Route::post('/decode-qr', [App\Http\Controllers\DocumentRequestController::class, 'decodeQr'])->name('documents.decode-qr');
 Route::get('/verify/{uuid}', [App\Http\Controllers\DocumentVerificationController::class, 'show'])->name('documents.verify');
 
-// Health Service Public Routes
-Route::get('/health/request', [App\Http\Controllers\HealthServiceController::class, 'create'])->name('health.request');
-Route::post('/health/request', [App\Http\Controllers\HealthServiceController::class, 'store'])->name('health.store');
+// Health Request Public Routes
+Route::get('/health/request', function () {
+    return view('public.forms.health-request');
+})->name('health.request');
 Route::post('/health/check-resident', [App\Http\Controllers\HealthServiceController::class, 'checkResident'])->name('health.check-resident');
 Route::post('/health/send-otp', [App\Http\Controllers\HealthServiceController::class, 'sendOtp'])->name('health.send-otp');
 Route::post('/health/verify-otp', [App\Http\Controllers\HealthServiceController::class, 'verifyOtp'])->name('health.verify-otp');
+Route::post('/health/decode-qr', [App\Http\Controllers\HealthServiceController::class, 'decodeQr'])->name('health.decode-qr');
+Route::post('/health/request', [App\Http\Controllers\HealthServiceController::class, 'store'])->name('health.store');
+
+
 
 // Complaint Public Routes
 Route::get('/complaints/file', [App\Http\Controllers\ComplaintController::class, 'create'])->name('complaints.create');
@@ -128,6 +137,15 @@ Route::post('/complaints/file', [App\Http\Controllers\ComplaintController::class
 Route::post('/complaints/check-resident', [App\Http\Controllers\ComplaintController::class, 'checkResident'])->name('complaints.check-resident');
 Route::post('/complaints/send-otp', [App\Http\Controllers\ComplaintController::class, 'sendOtp'])->name('complaints.send-otp');
 Route::post('/complaints/verify-otp', [App\Http\Controllers\ComplaintController::class, 'verifyOtp'])->name('complaints.verify-otp');
+Route::post('/complaints/decode-qr', [App\Http\Controllers\ComplaintController::class, 'decodeQr'])->name('complaints.decode-qr');
+
+// Blotter Report Public Routes
+Route::get('/blotter/request', [App\Http\Controllers\BlotterController::class, 'create'])->name('blotter.request');
+Route::post('/blotter/request', [App\Http\Controllers\BlotterController::class, 'store'])->name('blotter.store');
+Route::post('/blotter/check-resident', [App\Http\Controllers\BlotterController::class, 'checkResident'])->name('blotter.check-resident');
+Route::post('/blotter/send-otp', [App\Http\Controllers\BlotterController::class, 'sendOtp'])->name('blotter.send-otp');
+Route::post('/blotter/verify-otp', [App\Http\Controllers\BlotterController::class, 'verifyOtp'])->name('blotter.verify-otp');
+Route::post('/blotter/decode-qr', [App\Http\Controllers\BlotterController::class, 'decodeQr'])->name('blotter.decode-qr');
 
 // Resident ID full preview route
 Route::get('/resident/{resident}/id/full-preview', [ResidentIdController::class, 'fullPreview'])->name('id.full-preview');
@@ -598,102 +616,7 @@ Route::get('/debug-access-requests', function () {
     }
 })->middleware('auth');
 
-// Test route for live chat functionality
-Route::get('/test-live-chat', function () {
-    try {
-        echo "<h1>Live Chat System Test</h1>";
-        echo "<style>body{font-family:sans-serif;padding:20px;} .success{color:green;} .error{color:red;}</style>";
-        
-        // Test 1: Check database connection
-        echo "<h2>Test 1: Database Connection</h2>";
-        $pdo = \Illuminate\Support\Facades\DB::connection()->getPdo();
-        echo "<p class='success'>✓ Database connection successful</p>";
-        
-        // Test 2: Check table structure
-        echo "<h2>Test 2: Table Structure</h2>";
-        $columns = \Illuminate\Support\Facades\DB::select("SHOW COLUMNS FROM admin_chat_messages");
-        echo "<p class='success'>✓ Table exists with columns: ";
-        foreach ($columns as $column) {
-            echo $column->Field . " ";
-        }
-        echo "</p>";
-        
-        // Test 3: Test model
-        echo "<h2>Test 3: Model Test</h2>";
-        $message = new App\Models\AdminChatMessage();
-        echo "<p class='success'>✓ AdminChatMessage model loaded successfully</p>";
-        
-        // Test 4: Create test escalation
-        echo "<h2>Test 4: Create Test Escalation</h2>";
-        $conversationId = 'escalation_test_' . time();
-        $testMessage = App\Models\AdminChatMessage::create([
-            'conversation_id' => $conversationId,
-            'sender_id' => 'test_user_ip',
-            'sender_type' => 'user',
-            'message' => 'I am not satisfied with the AI response. I need human help!'
-        ]);
-        
-        echo "<p class='success'>✓ Test escalation created with ID: " . $testMessage->getAttribute('id') . "</p>";
-        
-        // Test 5: Test scopes
-        echo "<h2>Test 5: Test Scopes</h2>";
-        $escalations = App\Models\AdminChatMessage::escalations()->count();
-        echo "<p class='success'>✓ Escalations scope works: found " . $escalations . " escalation conversations</p>";
-        
-        $conversationMessages = App\Models\AdminChatMessage::byConversation($conversationId)->count();
-        echo "<p class='success'>✓ ByConversation scope works: found " . $conversationMessages . " messages in test conversation</p>";
-        
-        // Test 6: Test controller
-        echo "<h2>Test 6: Controller Test</h2>";
-        $controller = new App\Http\Controllers\LiveChatController();
-        
-        // Test escalateToAdmin method
-        $request = new Illuminate\Http\Request();
-        $request->merge(['user_message' => 'Another test escalation message']);
-        $request->server->set('REMOTE_ADDR', '192.168.1.100');
-        
-        $response = $controller->escalateToAdmin($request);
-        $data = json_decode($response->getContent(), true);
-        
-        if ($data['success']) {
-            echo "<p class='success'>✓ escalateToAdmin method works: Session ID " . $data['session_id'] . "</p>";
-            
-            // Test getActiveEscalations method
-            $escalationsResponse = $controller->getActiveEscalations();
-            $escalationsData = json_decode($escalationsResponse->getContent(), true);
-            
-            if ($escalationsData['success']) {
-                echo "<p class='success'>✓ getActiveEscalations method works: Found " . count($escalationsData['escalations']) . " escalations</p>";
-                
-                // Show escalation details
-                echo "<h3>Escalation Details:</h3>";
-                foreach ($escalationsData['escalations'] as $index => $escalation) {
-                    echo "<div style='background:#f0f0f0;padding:10px;margin:5px;border-radius:5px;'>";
-                    echo "<strong>Escalation " . ($index + 1) . ":</strong><br>";
-                    echo "Session ID: " . $escalation['session_id'] . "<br>";
-                    echo "User IP: " . $escalation['user_ip'] . "<br>";
-                    echo "Escalated: " . $escalation['escalated_at'] . "<br>";
-                    echo "Last Message: " . $escalation['last_message'] . "<br>";
-                    echo "Message Count: " . $escalation['message_count'] . "<br>";
-                    echo "</div>";
-                }
-            } else {
-                echo "<p class='error'>✗ getActiveEscalations method failed: " . $escalationsData['error'] . "</p>";
-            }
-        } else {
-            echo "<p class='error'>✗ escalateToAdmin method failed: " . $data['error'] . "</p>";
-        }
-        
-        echo "<h2>Summary</h2>";
-        echo "<p class='success'>All tests completed! Live chat system is working with the existing database structure.</p>";
-        
-    } catch (\Exception $e) {
-        echo "<h2 class='error'>Error</h2>";
-        echo "<pre class='error'>" . $e->getMessage() . "\n" . $e->getTraceAsString() . "</pre>";
-    }
-});
-
-// Debug route for escalations API
+// Public Pre-Registration Routes - Multi-step
 Route::get('/debug-escalations', function () {
     $controller = new App\Http\Controllers\LiveChatController();
     return $controller->getActiveEscalations();
@@ -742,6 +665,7 @@ Route::post('/admin/residents/{resident}/restore', [ResidentController::class, '
 Route::post('/admin/residents/id/{resident}/upload-photo', [ResidentIdController::class, 'uploadPhoto'])->name('admin.residents.id.upload-photo');
 Route::post('/admin/residents/id/{resident}/upload-signature', [ResidentIdController::class, 'uploadSignature'])->name('admin.residents.id.upload-signature');
 
+<<<<<<< HEAD
 // Test SMS Route (Remove this in production)
 Route::get('/test-sms', function() {
     if (config('app.env') !== 'local') {
@@ -781,3 +705,32 @@ Route::get('/test-sms', function() {
         ], 500);
     }
 })->name('test.sms');
+=======
+// Single-form Barangay Officials Management
+Route::middleware(['role:Barangay Captain,Barangay Secretary'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('officials/edit-single', [App\Http\Controllers\Admin\BarangayOfficialController::class, 'edit'])->name('officials.edit-single');
+    Route::post('officials/edit-single', [App\Http\Controllers\Admin\BarangayOfficialController::class, 'update'])->name('officials.update-single');
+    Route::delete('officials/photo/{field}', [App\Http\Controllers\Admin\BarangayOfficialController::class, 'deletePhoto'])->name('officials.delete-photo');
+    
+   
+});
+
+// Admin Agent Conversation API Routes (for admin chatbot)
+Route::middleware('auth')->prefix('api/admin/agent-conversation')->group(function () {
+    Route::get('/active', [AdminAgentConversationController::class, 'getActiveConversations']);
+    Route::get('/{sessionId}/messages', [AdminAgentConversationController::class, 'getConversationMessages']);
+    Route::post('/send', [AdminAgentConversationController::class, 'sendMessage']);
+    Route::post('/{sessionId}/mark-read', [AdminAgentConversationController::class, 'markAsRead']);
+    Route::get('/{sessionId}/new-messages', [AdminAgentConversationController::class, 'getNewMessages']);
+    Route::post('/complete-and-next', [AdminAgentConversationController::class, 'completeAndNext']);
+    Route::post('/accept-next', [AdminAgentConversationController::class, 'acceptNextUser']);
+});
+
+// User Agent Conversation API Routes (for user escalation)
+Route::prefix('api/agent-conversation')->group(function () {
+    Route::post('/escalate', [UserAgentConversationController::class, 'escalateToAgent']);
+    Route::post('/send-user', [UserAgentConversationController::class, 'sendUserMessage']);
+    Route::get('/{sessionId}/new-messages', [UserAgentConversationController::class, 'getNewMessagesForUser']);
+    Route::get('/{sessionId}/queue-status', [UserAgentConversationController::class, 'getQueueStatus']);
+});
+>>>>>>> chatbotqueue
