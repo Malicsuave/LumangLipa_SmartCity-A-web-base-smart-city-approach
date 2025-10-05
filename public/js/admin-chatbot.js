@@ -118,11 +118,14 @@ class AdminChatbot {
             const data = await response.json();
             
             if (data.success) {
-                this.displayConversationsList(data.conversations);
-                
-                // Update notification badge
-                const totalUnread = data.conversations.reduce((sum, conv) => sum + (conv.unread_count || 0), 0);
-                this.updateNotificationBadge(totalUnread);
+                // Check if admin has an active conversation or should see queue
+                if (data.active_conversation) {
+                    // Admin has an active conversation - show it
+                    this.displayActiveConversation(data.active_conversation, data.queue_count);
+                } else {
+                    // No active conversation - show queue option
+                    this.displayQueueOption(data.queue_count);
+                }
             }
         } catch (error) {
             console.error('Error loading conversations:', error);
@@ -135,55 +138,88 @@ class AdminChatbot {
         }
     }
 
-    displayConversationsList(conversations) {
-        if (conversations.length === 0) {
-            this.conversationsList.innerHTML = `
-                <div style="padding: 20px; text-align: center; color: #666; font-size: 14px;">
-                    <i class="fas fa-inbox" style="font-size: 24px; margin-bottom: 10px; display: block; color: #ccc;"></i>
-                    No conversations yet
+    displayActiveConversation(conversation, queueCount) {
+        const userName = `User ${conversation.user_session.substring(0, 8)}`;
+        const lastMessage = conversation.last_message ? conversation.last_message.substring(0, 40) + '...' : 'No messages';
+        const unreadCount = conversation.unread_count || 0;
+        const timeAgo = this.timeAgo(conversation.last_activity);
+        
+        this.conversationsList.innerHTML = `
+            <div style="padding: 15px; background: #e3f2fd; border-bottom: 2px solid #007bff;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h6 style="margin: 0; color: #0056b3;">
+                        <i class="fas fa-comments"></i> Active Conversation
+                    </h6>
+                    <span style="background: #007bff; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px;">
+                        ${queueCount} in queue
+                    </span>
                 </div>
-            `;
-            return;
-        }
-
-        let html = '';
-        conversations.forEach(conv => {
-            const userName = `User ${conv.user_session.substring(0, 8)}`;
-            const lastMessage = conv.last_message ? conv.last_message.substring(0, 40) + '...' : 'No messages';
-            const unreadCount = conv.unread_count || 0;
-            const timeAgo = this.timeAgo(conv.last_activity);
+            </div>
             
-            html += `
-                <div class="conversation-item" data-session-id="${conv.session_id}" data-user-name="${userName}" 
-                     style="padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; align-items: center; transition: background-color 0.2s;"
-                     onmouseover="this.style.backgroundColor='#f8f9fa'" 
-                     onmouseout="this.style.backgroundColor='transparent'"
-                     onclick="window.adminChatbot.openConversation('${conv.session_id}', '${userName}')">
-                    
-                    <div style="width: 40px; height: 40px; border-radius: 50%; background: #007bff; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
-                        <i class="fas fa-user" style="color: white; font-size: 16px;"></i>
+            <div class="conversation-item" data-session-id="${conversation.session_id}" data-user-name="${userName}" 
+                 style="padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; align-items: center; transition: background-color 0.2s; background: #f8f9fa;"
+                 onmouseover="this.style.backgroundColor='#e9ecef'" 
+                 onmouseout="this.style.backgroundColor='#f8f9fa'"
+                 onclick="window.adminChatbot.openConversation('${conversation.session_id}', '${userName}')">
+                
+                <div style="width: 40px; height: 40px; border-radius: 50%; background: #28a745; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
+                    <i class="fas fa-user" style="color: white; font-size: 16px;"></i>
+                </div>
+                
+                <div style="flex: 1; min-width: 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <div style="font-weight: bold; font-size: 14px; color: #333;">${userName}</div>
+                        <div style="font-size: 12px; color: #666;">${timeAgo}</div>
                     </div>
-                    
-                    <div style="flex: 1; min-width: 0;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                            <div style="font-weight: ${unreadCount > 0 ? 'bold' : 'normal'}; font-size: 14px; color: #333;">${userName}</div>
-                            <div style="font-size: 12px; color: #666;">${timeAgo}</div>
-                        </div>
-                        <div style="font-size: 13px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                            ${lastMessage}
-                        </div>
+                    <div style="font-size: 13px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        ${lastMessage}
                     </div>
-                    
-                    ${unreadCount > 0 ? `
-                        <div style="width: 20px; height: 20px; border-radius: 50%; background: #dc3545; color: white; font-size: 11px; display: flex; align-items: center; justify-content: center; margin-left: 8px;">
-                            ${unreadCount > 99 ? '99+' : unreadCount}
-                        </div>
-                    ` : ''}
+                </div>
+                
+                ${unreadCount > 0 ? `
+                    <div style="width: 20px; height: 20px; border-radius: 50%; background: #dc3545; color: white; font-size: 11px; display: flex; align-items: center; justify-content: center; margin-left: 8px;">
+                        ${unreadCount > 99 ? '99+' : unreadCount}
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    }
+
+    displayQueueOption(queueCount) {
+        if (queueCount === 0) {
+            this.conversationsList.innerHTML = `
+                <div style="padding: 40px 20px; text-align: center; color: #666; font-size: 14px;">
+                    <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 15px; display: block; color: #ccc;"></i>
+                    <h5 style="color: #999; margin-bottom: 10px;">No Users Waiting</h5>
+                    <p style="color: #aaa; font-size: 13px;">When users request to talk to an agent, they will appear here.</p>
                 </div>
             `;
-        });
+        } else {
+            this.conversationsList.innerHTML = `
+                <div style="padding: 30px 20px; text-align: center;">
+                    <div style="width: 80px; height: 80px; border-radius: 50%; background: #007bff; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+                        <i class="fas fa-users" style="color: white; font-size: 36px;"></i>
+                    </div>
+                    <h5 style="color: #333; margin-bottom: 10px;">
+                        <strong>${queueCount}</strong> User${queueCount > 1 ? 's' : ''} Waiting
+                    </h5>
+                    <p style="color: #666; font-size: 13px; margin-bottom: 20px;">
+                        Users are waiting to talk to an agent
+                    </p>
+                    <button onclick="window.adminChatbot.acceptNextUser()" 
+                            style="background: #28a745; color: white; border: none; padding: 12px 30px; border-radius: 25px; font-size: 14px; font-weight: bold; cursor: pointer; transition: background 0.2s;"
+                            onmouseover="this.style.background='#218838'"
+                            onmouseout="this.style.background='#28a745'">
+                        <i class="fas fa-phone-alt"></i> Accept Next User
+                    </button>
+                </div>
+            `;
+        }
+    }
 
-        this.conversationsList.innerHTML = html;
+    displayConversationsList(conversations) {
+        // This method is deprecated - now using displayActiveConversation and displayQueueOption
+        console.warn('displayConversationsList is deprecated');
     }
 
     openConversation(sessionId, userName) {
@@ -425,6 +461,80 @@ class AdminChatbot {
         const badge = this.toggle.querySelector('.notification-badge');
         if (badge) {
             badge.remove();
+        }
+    }
+
+    async acceptNextUser() {
+        try {
+            const response = await fetch('/api/admin/agent-conversation/accept-next', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                // Open the new conversation
+                const userName = `User ${data.user_session.substring(0, 8)}`;
+                this.showChatView(data.session_id, userName);
+                
+                // Show success message in chat
+                this.addMessageToChat('You are now connected with this user.', true);
+            } else {
+                alert(data.message || 'Failed to accept user');
+            }
+        } catch (error) {
+            console.error('Error accepting next user:', error);
+            alert('Error accepting user. Please try again.');
+        }
+    }
+
+    async completeAndNext() {
+        if (!this.currentConversationId) {
+            alert('No active conversation');
+            return;
+        }
+
+        if (!confirm('Are you sure you want to complete this conversation and move to the next user?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/admin/agent-conversation/complete-and-next', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    session_id: this.currentConversationId
+                })
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                if (data.has_next) {
+                    // Open the next conversation
+                    const userName = `User ${data.user_session.substring(0, 8)}`;
+                    this.showChatView(data.session_id, userName);
+                    
+                    // Show message
+                    this.addMessageToChat('Connected to next user in queue.', true);
+                } else {
+                    // No more users in queue
+                    alert('Conversation completed. No more users in queue.');
+                    this.showInboxView();
+                }
+            } else {
+                alert(data.message || 'Failed to complete conversation');
+            }
+        } catch (error) {
+            console.error('Error completing conversation:', error);
+            alert('Error completing conversation. Please try again.');
         }
     }
 

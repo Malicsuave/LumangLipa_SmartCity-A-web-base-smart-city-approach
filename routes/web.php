@@ -678,6 +678,8 @@ Route::middleware('auth')->prefix('api/admin/agent-conversation')->group(functio
     Route::post('/send', [AdminAgentConversationController::class, 'sendMessage']);
     Route::post('/{sessionId}/mark-read', [AdminAgentConversationController::class, 'markAsRead']);
     Route::get('/{sessionId}/new-messages', [AdminAgentConversationController::class, 'getNewMessages']);
+    Route::post('/complete-and-next', [AdminAgentConversationController::class, 'completeAndNext']);
+    Route::post('/accept-next', [AdminAgentConversationController::class, 'acceptNextUser']);
 });
 
 // User Agent Conversation API Routes (for user escalation)
@@ -685,4 +687,5 @@ Route::prefix('api/agent-conversation')->group(function () {
     Route::post('/escalate', [UserAgentConversationController::class, 'escalateToAgent']);
     Route::post('/send-user', [UserAgentConversationController::class, 'sendUserMessage']);
     Route::get('/{sessionId}/new-messages', [UserAgentConversationController::class, 'getNewMessagesForUser']);
+    Route::get('/{sessionId}/queue-status', [UserAgentConversationController::class, 'getQueueStatus']);
 });

@@ -12,6 +12,9 @@ class BarangayChatbot {
         this.agentSessionId = null;
         this.agentPollInterval = null;
         this.lastMessageCheck = null;
+        this.queuePosition = null;
+        this.queueStatus = 'waiting'; // 'waiting', 'active', 'completed'
+        this.queueStatusElement = null;
         
         this.init();
         this.knowledgeBase = this.initKnowledgeBase();
@@ -646,15 +649,36 @@ class BarangayChatbot {
             this.hideTyping();
             
             if (data.success) {
-                this.addMessage(`
-                    <div style="padding: 15px; border: 2px solid #28a745; border-radius: 10px; background: #d4edda; margin: 10px 0;">
-                        <h5 style="color: #155724; margin: 0 0 10px 0;">✅ Connected to Agent</h5>
-                        <p style="color: #155724; margin: 0;">
-                            You're now connected to a barangay staff member. They will respond to your messages as soon as possible. 
-                            Please continue asking your questions here.
-                        </p>
-                    </div>
-                `, 'bot');
+                // Show queue position
+                if (data.queue_status === 'waiting') {
+                    this.addMessage(`
+                        <div style="padding: 15px; border: 2px solid #ffc107; border-radius: 10px; background: #fff3cd; margin: 10px 0;">
+                            <h5 style="color: #856404; margin: 0 0 10px 0;">⏳ You're in the Queue</h5>
+                            <p style="color: #856404; margin: 0;">
+                                You are <strong>#${data.queue_position}</strong> in line to talk to an agent.
+                                Please wait while an agent becomes available.
+                            </p>
+                            <div id="queueStatusIndicator" style="margin-top: 10px; padding: 8px; background: white; border-radius: 5px; text-align: center; font-weight: bold;">
+                                Queue Position: <span id="queuePositionNumber">${data.queue_position}</span>
+                            </div>
+                        </div>
+                    `, 'bot');
+                    
+                    this.queuePosition = data.queue_position;
+                    this.queueStatus = 'waiting';
+                } else if (data.queue_status === 'active') {
+                    this.addMessage(`
+                        <div style="padding: 15px; border: 2px solid #28a745; border-radius: 10px; background: #d4edda; margin: 10px 0;">
+                            <h5 style="color: #155724; margin: 0 0 10px 0;">✅ Connected to Agent</h5>
+                            <p style="color: #155724; margin: 0;">
+                                You're now connected to a barangay staff member. They will respond to your messages.
+                                Please continue asking your questions here.
+                            </p>
+                        </div>
+                    `, 'bot');
+                    
+                    this.queueStatus = 'active';
+                }
                 
                 // Change the chatbot behavior to agent mode
                 this.switchToAgentMode(data.session_id);
@@ -693,8 +717,95 @@ class BarangayChatbot {
         }
         
         this.agentPollInterval = setInterval(() => {
-            this.checkForAgentMessages();
+            // Check queue status for updates (waiting -> active -> completed)
+            this.checkQueueStatus();
+            
+            // Only check for messages if conversation is active
+            if (this.queueStatus === 'active') {
+                this.checkForAgentMessages();
+            }
         }, 3000);
+    }
+
+    // Check queue status and update position
+    async checkQueueStatus() {
+        if (!this.agentSessionId) return;
+
+        try {
+            const response = await fetch(`/api/agent-conversation/${this.agentSessionId}/queue-status`, {
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                // Check if conversation was completed by admin
+                if (data.queue_status === 'completed' && this.queueStatus !== 'completed') {
+                    this.queueStatus = 'completed';
+                    this.addMessage(`
+                        <div style="padding: 15px; border: 2px solid #17a2b8; border-radius: 10px; background: #d1ecf1; margin: 10px 0;">
+                            <h5 style="color: #0c5460; margin: 0 0 10px 0;">✓ Conversation Ended</h5>
+                            <p style="color: #0c5460; margin: 0;">
+                                The agent has ended this conversation. Thank you for contacting us!
+                            </p>
+                            <p style="color: #0c5460; margin: 10px 0 0 0; font-size: 13px;">
+                                If you have more questions, feel free to start a new conversation.
+                            </p>
+                        </div>
+                    `, 'bot');
+                    
+                    // Update header
+                    const header = this.window.querySelector('.chatbot-header h4');
+                    if (header) {
+                        header.innerHTML = '💬 Barangay Chatbot';
+                    }
+                    
+                    // Stop polling
+                    if (this.agentPollInterval) {
+                        clearInterval(this.agentPollInterval);
+                        this.agentPollInterval = null;
+                    }
+                    
+                    // Reset agent mode after a delay to allow user to see the message
+                    setTimeout(() => {
+                        this.isAgentMode = false;
+                        this.agentSessionId = null;
+                    }, 2000);
+                    
+                    return; // Exit early
+                }
+                
+                // Check if status changed from waiting to active
+                if (this.queueStatus === 'waiting' && data.queue_status === 'active') {
+                    this.queueStatus = 'active';
+                    this.addMessage(`
+                        <div style="padding: 15px; border: 2px solid #28a745; border-radius: 10px; background: #d4edda; margin: 10px 0;">
+                            <h5 style="color: #155724; margin: 0 0 10px 0;">✅ Agent Connected!</h5>
+                            <p style="color: #155724; margin: 0;">
+                                An agent is now available. You can start chatting!
+                            </p>
+                        </div>
+                    `, 'bot');
+                    
+                    // Update header
+                    const header = this.window.querySelector('.chatbot-header h4');
+                    if (header) {
+                        header.innerHTML = '💬 Talking to Agent';
+                    }
+                } else if (data.queue_status === 'waiting' && data.queue_position !== this.queuePosition) {
+                    // Update queue position
+                    this.queuePosition = data.queue_position;
+                    const positionElement = document.getElementById('queuePositionNumber');
+                    if (positionElement) {
+                        positionElement.textContent = data.queue_position;
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error checking queue status:', error);
+        }
     }
 
     // Check for new agent messages
@@ -744,6 +855,26 @@ class BarangayChatbot {
             return;
         }
 
+        // Block sending messages if conversation is completed
+        if (this.queueStatus === 'completed') {
+            this.addMessage(`
+                <div style="padding: 10px; border: 1px solid #17a2b8; border-radius: 5px; background: #d1ecf1; color: #0c5460;">
+                    ✓ This conversation has ended. Please start a new conversation if you need more help.
+                </div>
+            `, 'bot');
+            return;
+        }
+
+        // Block sending messages if still in queue
+        if (this.queueStatus === 'waiting') {
+            this.addMessage(`
+                <div style="padding: 10px; border: 1px solid #ffc107; border-radius: 5px; background: #fff3cd; color: #856404;">
+                    ⏳ Please wait for your turn. You are #${this.queuePosition} in line.
+                </div>
+            `, 'bot');
+            return;
+        }
+
         try {
             const response = await fetch('/api/agent-conversation/send-user', {
                 method: 'POST',
@@ -762,7 +893,17 @@ class BarangayChatbot {
             
             if (!data.success) {
                 console.error('Failed to send message to agent:', data.message);
-                this.addMessage('Message failed to send. Please try again.', 'bot');
+                
+                // Check if it's a queue-related error
+                if (data.queue_position) {
+                    this.addMessage(`
+                        <div style="padding: 10px; border: 1px solid #ffc107; border-radius: 5px; background: #fff3cd; color: #856404;">
+                            ⏳ Please wait for your turn. You are #${data.queue_position} in line.
+                        </div>
+                    `, 'bot');
+                } else {
+                    this.addMessage('Message failed to send. Please try again.', 'bot');
+                }
             } else {
                 console.log('Message sent to agent successfully');
             }

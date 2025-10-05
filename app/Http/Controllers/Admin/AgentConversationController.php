@@ -20,21 +20,31 @@ class AgentConversationController extends Controller
     public function getActiveConversations()
     {
         try {
-            $conversations = AgentConversation::select([
+            // Get the admin's current active conversation
+            $activeConversation = AgentConversation::select([
                 'session_id',
                 'user_session',
                 DB::raw('MAX(created_at) as last_activity'),
                 DB::raw('COUNT(CASE WHEN sender_type = "user" AND is_read = false THEN 1 END) as unread_count'),
-                DB::raw('(SELECT message FROM agent_conversations ac2 WHERE ac2.session_id = agent_conversations.session_id AND (ac2.sender_type = "user" OR (ac2.sender_type = "admin" AND ac2.message NOT LIKE "[SYSTEM]%")) ORDER BY created_at DESC LIMIT 1) as last_message')
+                DB::raw('(SELECT message FROM agent_conversations ac2 WHERE ac2.session_id = agent_conversations.session_id AND ac2.sender_type = "user" AND ac2.message NOT LIKE "[QUEUE_ENTRY]%" ORDER BY created_at DESC LIMIT 1) as last_message'),
+                DB::raw('MAX(queue_status) as queue_status')
             ])
-            ->active()
+            ->where('assigned_admin_id', auth()->id())
+            ->where('queue_status', 'active')
             ->groupBy('session_id', 'user_session')
             ->orderBy('last_activity', 'desc')
-            ->get();
+            ->first();
+
+            // Get waiting queue count
+            $queueCount = AgentConversation::select('session_id')
+                ->distinct()
+                ->where('queue_status', 'waiting')
+                ->count();
 
             return response()->json([
                 'success' => true,
-                'conversations' => $conversations
+                'active_conversation' => $activeConversation,
+                'queue_count' => $queueCount
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -87,13 +97,28 @@ class AgentConversationController extends Controller
                 'message' => 'required|string|max:1000'
             ]);
 
+            // Get conversation details
+            $conversation = AgentConversation::where('session_id', $validated['session_id'])->first();
+            
+            if (!$conversation) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Conversation not found'
+                ], 404);
+            }
+
             AgentConversation::create([
                 'session_id' => $validated['session_id'],
                 'message' => $validated['message'],
                 'sender_type' => 'admin',
                 'admin_id' => auth()->id(),
-                'user_session' => $this->getUserSessionFromSessionId($validated['session_id']),
-                'is_read' => true // Admin messages are automatically marked as read
+                'user_session' => $conversation->user_session,
+                'is_read' => true,
+                'queue_status' => 'active',
+                'assigned_admin_id' => auth()->id(),
+                'queue_position' => $conversation->queue_position,
+                'queued_at' => $conversation->queued_at,
+                'assigned_at' => $conversation->assigned_at
             ]);
 
             return response()->json([
@@ -141,6 +166,7 @@ class AgentConversationController extends Controller
             $newMessages = AgentConversation::bySession($sessionId)
                 ->where('created_at', '>', $lastCheck)
                 ->where('sender_type', 'user') // Only user messages for admin notifications
+                ->where('message', 'not like', '[QUEUE_ENTRY]%') // Exclude queue entry messages
                 ->orderBy('created_at', 'asc')
                 ->get(['message', 'sender_type', 'created_at']);
 
@@ -157,11 +183,97 @@ class AgentConversationController extends Controller
     }
 
     /**
-     * Get user session from session ID
+     * Complete current conversation and get next user from queue
      */
-    private function getUserSessionFromSessionId($sessionId)
+    public function completeAndNext(Request $request)
     {
-        $conversation = AgentConversation::where('session_id', $sessionId)->first();
-        return $conversation ? $conversation->user_session : $sessionId;
+        try {
+            $validated = $request->validate([
+                'session_id' => 'required|string'
+            ]);
+
+            // Complete the current conversation
+            $currentConversation = AgentConversation::where('session_id', $validated['session_id'])
+                ->where('assigned_admin_id', auth()->id())
+                ->first();
+
+            if ($currentConversation) {
+                $currentConversation->completeConversation();
+            }
+
+            // Get next user from queue
+            $nextConversation = AgentConversation::getNextInQueue();
+
+            if ($nextConversation) {
+                // Activate the conversation for this admin
+                $nextConversation->activateConversation(auth()->id());
+
+                return response()->json([
+                    'success' => true,
+                    'has_next' => true,
+                    'session_id' => $nextConversation->session_id,
+                    'user_session' => $nextConversation->user_session,
+                    'message' => 'Conversation activated'
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'has_next' => false,
+                'message' => 'No users in queue'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get next user'
+            ], 500);
+        }
+    }
+
+    /**
+     * Accept next user from queue
+     */
+    public function acceptNextUser()
+    {
+        try {
+            // Check if admin already has an active conversation
+            $hasActive = AgentConversation::where('assigned_admin_id', auth()->id())
+                ->where('queue_status', 'active')
+                ->exists();
+
+            if ($hasActive) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You already have an active conversation. Please complete it first.'
+                ], 400);
+            }
+
+            // Get next user from queue
+            $nextConversation = AgentConversation::getNextInQueue();
+
+            if (!$nextConversation) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No users in queue'
+                ], 404);
+            }
+
+            // Activate the conversation for this admin
+            $nextConversation->activateConversation(auth()->id());
+
+            return response()->json([
+                'success' => true,
+                'session_id' => $nextConversation->session_id,
+                'user_session' => $nextConversation->user_session,
+                'message' => 'Conversation activated'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to accept user'
+            ], 500);
+        }
     }
 }

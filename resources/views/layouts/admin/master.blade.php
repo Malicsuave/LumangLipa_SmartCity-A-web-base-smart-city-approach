@@ -879,14 +879,22 @@ $(document).ready(function() {
             
             <!-- Chat View (hidden initially) -->
             <div id="chatView" style="display: none; height: 100%; flex-direction: column;">
-                <div id="chatHeader" style="padding: 15px; border-bottom: 1px solid #eee; background: #f8f9fa; display: flex; align-items: center;">
-                    <button id="backToInbox" style="background: none; border: none; margin-right: 10px; color: #007bff; cursor: pointer;">
-                        <i class="fas fa-arrow-left"></i>
-                    </button>
-                    <div>
-                        <div id="chatUserName" style="font-weight: bold; font-size: 14px;"></div>
-                        <div id="chatUserStatus" style="font-size: 12px; color: #666;"></div>
+                <div id="chatHeader" style="padding: 15px; border-bottom: 1px solid #eee; background: #f8f9fa; display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center;">
+                        <button id="backToInbox" style="background: none; border: none; margin-right: 10px; color: #007bff; cursor: pointer;">
+                            <i class="fas fa-arrow-left"></i>
+                        </button>
+                        <div>
+                            <div id="chatUserName" style="font-weight: bold; font-size: 14px;"></div>
+                            <div id="chatUserStatus" style="font-size: 12px; color: #666;"></div>
+                        </div>
                     </div>
+                    <button id="completeAndNextBtn" onclick="window.adminChatbot.completeAndNext()" 
+                            style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 5px;"
+                            onmouseover="this.style.background='#218838'"
+                            onmouseout="this.style.background='#28a745'">
+                        <i class="fas fa-check"></i> Complete & Next
+                    </button>
                 </div>
                 
                 <div id="chatMessages" style="flex: 1; padding: 15px; overflow-y: auto; min-height: 200px; max-height: calc(100% - 120px);">
