@@ -28,14 +28,31 @@ class SeniorPreRegistration extends Model
         $date = now();
         $yearMonth = $date->format('Y-m');
         
-        // Get the count of ALL registrations (both regular and senior) for this month
-        $regularCount = \App\Models\PreRegistration::where('registration_id', 'LIKE', "PRE-{$yearMonth}-%")->count();
-        $seniorCount = static::where('registration_id', 'LIKE', "PRE-{$yearMonth}-%")->count();
+        // Keep trying until we find a unique ID
+        $attempt = 1;
+        do {
+            // Get the count of ALL registrations (both regular and senior) for this month
+            $regularCount = \App\Models\PreRegistration::where('registration_id', 'LIKE', "PRE-{$yearMonth}-%")->count();
+            $seniorCount = static::where('registration_id', 'LIKE', "PRE-{$yearMonth}-%")->count();
+            
+            $totalCount = $regularCount + $seniorCount;
+            $newNumber = $totalCount + $attempt;
+            
+            $registrationId = sprintf('PRE-%s-%02d', $yearMonth, $newNumber);
+            
+            // Check if this ID already exists in either table
+            $existsInRegular = \App\Models\PreRegistration::where('registration_id', $registrationId)->exists();
+            $existsInSenior = static::where('registration_id', $registrationId)->exists();
+            
+            if (!$existsInRegular && !$existsInSenior) {
+                return $registrationId;
+            }
+            
+            $attempt++;
+        } while ($attempt <= 100); // Prevent infinite loop
         
-        $totalCount = $regularCount + $seniorCount;
-        $newNumber = $totalCount + 1;
-        
-        return sprintf('PRE-%s-%02d', $yearMonth, $newNumber);
+        // Fallback with timestamp if all else fails
+        return sprintf('PRE-%s-%s', $yearMonth, time());
     }
 
     protected $fillable = [
