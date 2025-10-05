@@ -349,12 +349,7 @@
             </a>
           </li>
 
-          <li class="nav-item">
-            <a href="{{ route('admin.officials.edit-single') }}" class="nav-link {{ Request::routeIs('admin.officials.edit-single') ? 'active' : '' }}">
-              <i class="nav-icon fas fa-user-tie"></i>
-              <p>Officials</p>
-            </a>
-          </li>
+         
 
           <li class="nav-item">
             <a href="{{ route('admin.health') }}" class="nav-link {{ Request::routeIs('admin.health') ? 'active' : '' }}">

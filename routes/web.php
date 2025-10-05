@@ -665,7 +665,6 @@ Route::post('/admin/residents/{resident}/restore', [ResidentController::class, '
 Route::post('/admin/residents/id/{resident}/upload-photo', [ResidentIdController::class, 'uploadPhoto'])->name('admin.residents.id.upload-photo');
 Route::post('/admin/residents/id/{resident}/upload-signature', [ResidentIdController::class, 'uploadSignature'])->name('admin.residents.id.upload-signature');
 
-<<<<<<< HEAD
 // Test SMS Route (Remove this in production)
 Route::get('/test-sms', function() {
     if (config('app.env') !== 'local') {
@@ -705,7 +704,6 @@ Route::get('/test-sms', function() {
         ], 500);
     }
 })->name('test.sms');
-=======
 // Single-form Barangay Officials Management
 Route::middleware(['role:Barangay Captain,Barangay Secretary'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('officials/edit-single', [App\Http\Controllers\Admin\BarangayOfficialController::class, 'edit'])->name('officials.edit-single');
@@ -733,4 +731,3 @@ Route::prefix('api/agent-conversation')->group(function () {
     Route::get('/{sessionId}/new-messages', [UserAgentConversationController::class, 'getNewMessagesForUser']);
     Route::get('/{sessionId}/queue-status', [UserAgentConversationController::class, 'getQueueStatus']);
 });
->>>>>>> chatbotqueue

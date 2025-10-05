@@ -14,29 +14,22 @@
     <!-- Fonts and icons -->
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
     <link href="{{ asset('assets/css/nucleo-icons.css') }}" rel="stylesheet" />
-    <link href="{{ asset('assets/css/nucleo-svg.css') }}" rel="stylesheet" />
-<<<<<<< HEAD
-    <!-- Replace FA Kit (403) with CDN CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-=======
+        <link href="{{ asset('assets/css/nucleo-svg.css') }}" rel="stylesheet" />
     <!-- Use same FontAwesome as admin for consistency -->
     <link rel="stylesheet" href="{{ asset('adminlte/plugins/fontawesome-free/css/all.min.css') }}">
     <!-- Backup CDN FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" />
->>>>>>> chatbotqueue
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
  
 
     <!-- CSS Files -->
     @stack('styles')
     <link id="pagestyle" href="{{ asset('assets/css/material-kit.css') }}" rel="stylesheet" />
-<<<<<<< HEAD
-    <!-- Material Kit Override - MUST load after Material Kit -->
-    <link rel="stylesheet" href="{{ asset('css/material-kit-override.css') }}?v={{ time() }}">
-    <link rel="stylesheet" href="{{ asset('css/chatbot.css?v=2') }}">
-=======
+        @stack('styles')
+    <link id="pagestyle" href="{{ asset('assets/css/material-kit.css') }}" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('css/chatbot.css') }}?v={{ time() }}">
->>>>>>> chatbotqueue
+    <style>
     <style>
       .navbar-toggler,
       .navbar-toggler:focus,
