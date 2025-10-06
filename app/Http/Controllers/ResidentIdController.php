@@ -205,16 +205,7 @@ class ResidentIdController extends Controller
                 $pdf->setOptions([
                     'page-width' => '148mm',
                     'page-height' => '180mm',
-                    'orientation' => 'Portrait',
-                    'margin-top' => '8mm',
-                    'margin-right' => '8mm',
-                    'margin-bottom' => '8mm',
-                    'margin-left' => '8mm',
-                    'encoding' => 'UTF-8',
-                    'enable-local-file-access' => true,
-                    'disable-smart-shrinking' => true,
-                    'dpi' => 300,
-                    'image-quality' => 100,
+                    'enable-local-file-access' => true
                 ]);
                 
                 // Create temporary file for PDF
