@@ -31,33 +31,52 @@
             color-adjust: exact !important;
         }
         
-        /* Document header - professional info above the ID cards */
+        /* Document header - align spacing/theme with Senior Citizen ID */
         .document-header {
             text-align: center;
-            margin-bottom: 10px;
-            padding: 6px;
-            border-bottom: 2px solid #003366;
+            margin-bottom: 8px;
+            padding: 8px;
+            border-bottom: 2px solid #001a4e;
         }
         
         .document-title {
-            color: #003366;
-            font-size: 16px;
+            color: #001a4e;
+            font-size: 18px;
             font-weight: bold;
-            margin: 2px 0;
+            margin: 3px 0;
         }
         
         .document-subtitle {
-            color: #555;
-            font-size: 11px;
+            color: #666;
+            font-size: 12px;
             margin: 1px 0;
         }
         
         .document-info {
             display: flex;
-            justify-content: space-between;
-            margin-bottom: 6px;
-            font-size: 10px;
+            width: 100%;
+            margin-top: 0;
+            margin-bottom: 40px;
+            font-size: 8px;
             color: #666;
+            line-height: 1.1;
+        }
+        .document-info span {
+            font-size: 9.1px;
+        }
+        .document-info span:nth-child(1) {
+            flex: none;
+        }
+        .document-info span:nth-child(2) {
+            flex: none;
+            margin-left: 32px;
+        }
+        .document-info span:nth-child(3) {
+            flex: 1;
+            text-align: right;
+            justify-content: flex-end;
+            display: flex;
+            margin-left: 32px;
         }
         
         /* ID card styling with blue theme */
@@ -73,7 +92,13 @@
             overflow: hidden;
             position: relative;
             background: white;
+            min-height: 135px;
+            max-height: 135px;
             margin-bottom: 10px;
+        }
+        /* Extra gap between front and back cards */
+        .id-card + .id-card {
+            margin-top: 40px; /* Increased from 14px to 40px for more space between front and back */
         }
         
         /* Transparent background logo for front side - optimized for patched qt */
@@ -97,11 +122,11 @@
         .id-card-header {
             background: linear-gradient(to right, #e3f2fd, #1976d2);
             background-color: #e3f2fd;
-            padding: 4px;
+            padding: 3px;
             border-bottom: 1px solid #1976d2;
             position: relative;
             z-index: 2;
-            height: 40px;
+            height: 32px;
             border-radius: 6px 6px 0 0;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
@@ -119,28 +144,28 @@
             background: transparent;
         }
         .barangay-logo-left {
-            width: 36px !important;
-            height: 36px !important;
-            min-width: 36px !important;
-            min-height: 36px !important;
-            max-width: 36px !important;
-            max-height: 36px !important;
+            width: 28px !important;
+            height: 28px !important;
+            min-width: 28px !important;
+            min-height: 28px !important;
+            max-width: 28px !important;
+            max-height: 28px !important;
             object-fit: cover !important;
             object-position: center !important;
             display: block !important;
             aspect-ratio: 1 / 1 !important;
             flex-shrink: 0 !important;
             margin: auto;
-            margin-right: 3px;
+            margin-right: 2px;
         }
         
         .barangay-logo-right {
-            width: 27px !important;
-            height: 27px !important;
-            min-width: 27px !important;
-            min-height: 27px !important;
-            max-width: 27px !important;
-            max-height: 27px !important;
+            width: 20px !important;
+            height: 20px !important;
+            min-width: 20px !important;
+            min-height: 20px !imp4ortant;
+            max-width: 20px !important;
+            max-height: 20px !important;
             object-fit: cover !important;
             object-position: center !important;
             display: block !important;
@@ -150,13 +175,13 @@
         }
         
         .barangay-logo-right {
-            margin-left: 3px;
+            margin-left: 2px;
         }
         
         .header-logo-cell {
-            width: 38px;
-            min-width: 38px;
-            max-width: 38px;
+            width: 30px;
+            min-width: 30px;
+            max-width: 30px;
             text-align: center;
             vertical-align: middle;
             padding: 0;
@@ -164,7 +189,7 @@
         
         .header-title-cell {
             text-align: center;
-            padding: 0 8px;
+            padding: 0 6px;
         }
         
         .id-card-title {
@@ -172,16 +197,16 @@
             color: #003366 !important;
         }
         .id-card-title h6 {
-            margin: 0.5px 0;
+            margin: 0.3px 0;
             padding: 0;
             font-weight: bold;
-            font-size: 8px;
+            font-size: 7px;
             color: #003366 !important;
-            line-height: 1.1;
+            line-height: 1.0;
             font-family: 'Arial', 'Helvetica', sans-serif !important;
         }
         .id-card-title h6.small {
-            font-size: 7px;
+            font-size: 6px;
             color: #003366 !important;
             font-weight: normal;
         }
@@ -298,7 +323,7 @@
         
         /* Spacing between fields */
         .id-card-details .mb-2 {
-            margin-bottom: 4px !important;
+            margin-bottom: 3px !important;
         }
         
         /* Address text wrapping fixes - Enhanced for long addresses */
@@ -315,8 +340,8 @@
         
         /* Enhanced address field for very long addresses */
         .address-text {
-            font-size: 7px !important;
-            line-height: 1.1 !important;
+            font-size: 5.5px !important;
+            line-height: 0.95 !important;
             word-wrap: break-word !important;
             word-break: break-all !important;
             white-space: normal !important;
@@ -324,9 +349,11 @@
             hyphens: auto !important;
             max-width: 100% !important;
             display: block !important;
+            max-height: 32px !important;
+            overflow: visible !important;
             /* Add word spacing for better readability */
             word-spacing: -0.5px !important;
-            letter-spacing: -0.2px !important;
+            letter-spacing: -0.3px !important;
             /* Ensure it fits within the cell */
             box-sizing: border-box !important;
             padding: 0 !important;
@@ -355,11 +382,11 @@
         .id-card-back {
             background: #fafafa;
             min-height: 135px;
+            max-height: 135px;
         }
         .id-card-back-body {
             padding: 7px 9px;
             text-align: left;
-            min-height: 95px;
         }
         .id-card-back-details {
             font-size: 7px;
@@ -445,6 +472,7 @@
         
         .footer-info {
             display: flex;
+            flex-direction: row;
             justify-content: space-between;
             margin-bottom: 2px;
         }
@@ -452,7 +480,9 @@
         .footer-note {
             text-align: center;
             font-style: italic;
-            margin-top: 6px;
+            margin-top: 40px;
+            font-size: 10px;
+            color: #999;
         }
         
         /* Security features info */
@@ -460,7 +490,7 @@
             background: #f8f9fa;
             padding: 5px;
             border-left: 3px solid #001a4e; /* Changed from #007bff to dark navy */
-            margin: 6px 0;
+            margin: 70px 0 6px 0; /* Reduced top margin to ensure single-page PDF */
             font-size: 10px;
         }
     </style>
@@ -470,7 +500,7 @@
     <div class="document-header">
         <div class="document-title">RESIDENT IDENTIFICATION CARD</div>
         <div class="document-subtitle">Republic of the Philippines</div>
-        <div class="document-subtitle">Province of Batangas - Barangay Lumanglipa</div>
+        <div class="document-subtitle">Province of Batangas - Municipality of Mataasnakahoy - Barangay Lumanglipa</div>
     </div>
     
     <!-- Document Information -->
@@ -525,7 +555,7 @@
                                 </div>
                                 <div class="mb-2">
                                     <strong>Tirahan/Address</strong><br>
-                                    <span class="address-text" style="font-size: 7px; line-height: 1.1; word-wrap: break-word; word-break: break-all; white-space: normal; overflow-wrap: anywhere; hyphens: auto; max-width: 100%; display: block; word-spacing: -0.5px; letter-spacing: -0.2px; box-sizing: border-box; padding: 0; margin: 0;">{{ $resident->address ?: ($resident->current_address ?: 'Sitio Malinggao Bato, Barangay Lumanglipa, Mataasnakahoy, Batangas') }}</span>
+                                    <span class="address-text" style="font-size: 5.5px; line-height: 0.95; word-wrap: break-word; word-break: break-all; white-space: normal; overflow-wrap: anywhere; hyphens: auto; max-width: 100%; display: block; word-spacing: -0.5px; letter-spacing: -0.3px; box-sizing: border-box; padding: 0; margin: 0; max-height: 32px; overflow: visible;">{{ $resident->address ?: ($resident->current_address ?: 'Sitio Malinggao Bato, Barangay Lumanglipa, Mataasnakahoy, Batangas') }}</span>
                                 </div>
                             </div>
                         </td>
@@ -649,16 +679,7 @@
         <strong>Security Features:</strong> This document contains QR code verification and official seals. Any unauthorized reproduction is prohibited by law.
     </div>
     
-    <!-- Document Footer - Professional info below the ID cards -->
-    <div class="document-footer">
-        <div class="footer-info">
-            <span>Issued by: Barangay Lumanglipa Office</span>
-            <span>Contact: {{ $resident->contact_number ?: 'N/A' }}</span>
-        </div>
-        <div class="footer-info">
-            <span>Address: Mataasnakahoy, Batangas</span>
-            <span>Reference: {{ $resident->barangay_id }}</span>
-        </div>
+    
         <div class="footer-note">
             Non-Official Government Document. Handle with care and report if lost or stolen.
             <br>Generated: {{ date('F d, Y') }} | Valid until: {{ $resident->id_expires_at ? \Carbon\Carbon::parse($resident->id_expires_at)->format('F d, Y') : date('F d, Y', strtotime('+3 years')) }}

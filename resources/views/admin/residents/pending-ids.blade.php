@@ -1,6 +1,12 @@
 @extends('layouts.admin.master')
 
 
+@section('breadcrumbs')
+<li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
+<li class="breadcrumb-item"><a href="{{ route('admin.residents.index') }}">Residents</a></li>
+<li class="breadcrumb-item active" aria-current="page">ID Card Management</li>
+@endsection
+
 @section('content')
 <div class="row">
     <div class="col-md-12 mb-4">
@@ -14,10 +20,7 @@
                     <i class="fas fa-users mr-2"></i>
                     All Residents
                 </a>
-                <a href="{{ route('admin.residents.bulk-upload') }}" class="btn btn-outline-secondary ml-2">
-                    <i class="fas fa-upload mr-2"></i>
-                    Bulk Upload
-                </a>
+
             </div>
         </div>
 

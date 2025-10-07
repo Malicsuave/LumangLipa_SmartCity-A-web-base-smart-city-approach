@@ -6,23 +6,29 @@
     <title>Senior Citizen ID Card</title>
     <style>
         @page {
-            margin: 5mm;
+            margin: 3mm;
             padding: 0;
-            size: 148mm 180mm; /* Custom size: shorter height */
+            size: 148mm 190mm;
         }
         
         body {
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: 'Arial', 'Helvetica', sans-serif;
             margin: 0;
-            padding: 0;
-            background-color: white;
-            font-size: 12px;
-            line-height: 1.2;
+            padding: 2mm;
+            background-color: #ffffff;
+            font-size: 11px;
+            line-height: 1.3;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
         }
         
         * {
-            font-family: Arial, Helvetica, sans-serif !important;
+            font-family: 'Arial', 'Helvetica', sans-serif !important;
             box-sizing: border-box;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
         }
         
         /* Document header - professional info above the ID cards */
@@ -30,11 +36,11 @@
             text-align: center;
             margin-bottom: 12px;
             padding: 8px;
-            border-bottom: 2px solid #001a4e; /* Navy blue for document header border */
+            border-bottom: 2px solid #001a4e;
         }
         
         .document-title {
-            color: #001a4e; /* Navy blue for document header */
+            color: #001a4e;
             font-size: 18px;
             font-weight: bold;
             margin: 3px 0;
@@ -48,173 +54,123 @@
         
         .document-info {
             display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 11px;
+            width: 100%;
+            margin-top: 0;
+            margin-bottom: 40px;
+            font-size: 8px;
             color: #666;
+            line-height: 1.1;
         }
+        .document-info span { font-size: 9.1px; }
+        .document-info span:nth-child(1) { flex: none; }
+        .document-info span:nth-child(2) { flex: none; margin-left: 32px; }
+        .document-info span:nth-child(3) { flex: 1; text-align: right; justify-content: flex-end; display: flex; margin-left: 32px; }
         
         /* ID card styling with blue theme */
         .id-card-container {
-            max-width: 450px;
+            max-width: 240px;
             margin: 0 auto;
             position: relative;
         }
         .id-card {
             width: 100%;
-            border: 1px solid #ccc;
+            border: 1px solid #ddd;
             border-radius: 8px;
             overflow: hidden;
             position: relative;
             background: white;
-            min-height: 250px;
-            height: auto;
-            margin-bottom: 20px;
+            min-height: 135px;
+            max-height: 135px;
+            margin-bottom: 10px;
         }
+        /* Extra gap between front and back cards */
+        .id-card + .id-card { margin-top: 40px; }
         
-        /* Transparent background logo for front side - match senior citizen exactly */
+        /* Transparent background logo for front side - optimized for patched qt */
         .id-card-front-bg {
             position: absolute;
-            top: 60%; /* Same as senior citizen ID */
+            top: 55%;
             left: 50%;
-            transform: translate(-50%, -50%);
-            width: 280px; /* Exact same size as senior citizen */
-            height: 280px; /* Exact same size as senior citizen */
-            opacity: 0.08; /* Same opacity as senior citizen */
+            width: 220px;
+            height: 220px;
+            margin-left: -110px;
+            margin-top: -110px;
+            opacity: 0.05;
             z-index: 1;
-            pointer-events: none;
         }
         
-        .id-card-front-bg img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
+        .id-card-front-bg img { width: 100%; height: 100%; }
         
         .id-card-header {
-            background: linear-gradient(to right, #fff8e1, #ffe082); /* Yellow gradient to match preview */
-            padding: 5px;
-            border-bottom: 1px solid #ffca28; /* Yellow border to match preview */
-            display: flex;
-            align-items: center;
+            background: linear-gradient(to right, #fff8e1, #ffe082); /* retain yellow */
+            background-color: #fff8e1;
+            padding: 3px;
+            border-bottom: 1px solid #ffca28;
             position: relative;
             z-index: 2;
+            height: 32px;
+            border-radius: 6px 6px 0 0;
         }
+        .id-card-header table { width: 100%; height: 100%; border-collapse: collapse; background: transparent; }
+        .id-card-header td { vertical-align: middle; padding: 0; background: transparent; }
         .barangay-logo-left {
-            width: 45px;
-            height: 45px;
-            object-fit: cover;
-            margin-left: 5px;
-            margin-top: 2px;
-            margin-bottom: 2px;
+            width: 28px !important;
+            height: 28px !important;
+            min-width: 28px !important;
+            min-height: 28px !important;
+            max-width: 28px !important;
+            max-height: 28px !important;
+            object-fit: cover !important;
+            object-position: center !important;
+            display: block !important;
+            aspect-ratio: 1 / 1 !important;
+            flex-shrink: 0 !important;
+            margin: auto;
+            margin-right: 2px;
         }
-        
         .barangay-logo-right {
-            width: 45px;
-            height: 45px;
-            object-fit: cover;
-            margin-right: 5px;
-            margin-top: 2px;
-            margin-bottom: 2px;
-            margin-left: auto;
+            width: 20px !important;
+            height: 20px !important;
+            min-width: 20px !important;
+            min-height: 20px !important;
+            max-width: 20px !important;
+            max-height: 20px !important;
+            object-fit: cover !important;
+            object-position: center !important;
+            display: block !important;
+            aspect-ratio: 1 / 1 !important;
+            flex-shrink: 0 !important;
+            margin: auto;
+            margin-left: 2px;
         }
-        
-        .id-card-title {
-            text-align: center;
-            flex: 1;
-            color: #f57f17 !important; /* Orange color for senior citizen to match preview */
-        }
-        .id-card-title h6 {
-            margin: 0;
-            font-weight: bold;
-            font-size: 12px;
-            color: #f57f17 !important; /* Orange color for senior citizen to match preview */
-        }
-        .id-card-title h6.small {
-            font-size: 10px;
-            color: #f57f17 !important; /* Orange color for senior citizen to match preview */
-        }
-        .id-card-body {
-            padding: 15px;
-            text-align: left;
-            position: relative;
-            z-index: 2;
-        }
-        .row {
-            display: flex;
-            flex-wrap: wrap;
-        }
+        .header-logo-cell { width: 30px; min-width: 30px; max-width: 30px; text-align: center; vertical-align: middle; padding: 0; }
+        .header-title-cell { text-align: center; padding: 0 6px; }
+        .id-card-title { text-align: center; color: #003366 !important; }
+        .id-card-title h6 { margin: 0.3px 0; padding: 0; font-weight: bold; font-size: 7px; color: #003366 !important; line-height: 1.0; }
+        .id-card-title h6.small { font-size: 6px; color: #003366 !important; font-weight: normal; }
+        .id-card-body { padding: 7px 9px; text-align: left; position: relative; z-index: 2; }
+        /* Use table layout instead of flexbox */
+        .row { width: 100%; display: table; table-layout: fixed; }
         .no-gutters {
             margin-right: 0;
             margin-left: 0;
         }
-        .col-md-8 {
-            flex: 0 0 66.666667%;
-            max-width: 66.666667%;
-        }
-        .col-md-4 {
-            flex: 0 0 33.333333%;
-            max-width: 33.333333%;
-        }
-        .col-7 {
-            flex: 0 0 58.333333%;
-            max-width: 58.333333%;
-        }
-        .col-5 {
-            flex: 0 0 41.666667%;
-            max-width: 41.666667%;
-        }
-        .col-6 {
-            flex: 0 0 50%;
-            max-width: 50%;
-        }
-        .id-card-photo-container {
-            width: 90px;
-            height: 90px;
-            overflow: hidden;
-            border: 2px solid #f57f17;
-            border-radius: 5px;
-            margin: 10px auto 5px auto;
-            background: white;
-        }
+        .col-md-8, .col-7 { display: table-cell; width: 60%; vertical-align: top; padding-right: 8px; }
+        .col-md-4, .col-5 { display: table-cell; width: 40%; vertical-align: top; padding-left: 4px; }
+        .col-6 { display: table-cell; width: 50%; vertical-align: top; }
+        table { border-collapse: collapse; border-spacing: 0; }
+        table td { border: none; padding: 0; }
+        .id-card-photo-container { width: 56px; height: 56px; overflow: hidden; border: 2px solid #f57f17; border-radius: 5px; margin: 0 auto 4px auto; background: #ffffff; display: block; }
         .id-card-photo-container img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-        .no-photo {
-            width: 88px;
-            height: 88px;
-            background-color: #e0e0e0;
-            text-align: center;
-            vertical-align: middle;
-            color: #666;
-            font-size: 12px;
-            font-weight: bold;
-            border: 1px solid #999;
-            line-height: 88px;
-            position: relative;
-        }
-        .id-card-details {
-            font-size: 11px;
-            padding-left: 20px;
-            font-family: 'Poppins', 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
-        }
+        .no-photo { width: 56px; height: 56px; background-color: #f0f0f0; text-align: center; color: #999; font-size: 7px; font-weight: bold; border: 1px solid #ccc; line-height: 56px; }
+        .id-card-details { font-size: 7px; padding-left: 0; line-height: 1.3; }
         
-        /* Font styling for all text elements - navy blue text */
-        .id-card-details strong {
-            font-weight: bold !important;
-            font-size: 11px !important;
-            color: #001a4e !important; /* Navy blue for text */
-            font-family: 'Poppins', 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
-        }
-        
-        .id-card-details span {
-            font-weight: normal !important;
-            font-size: 11px !important;
-            color: #001a4e !important; /* Navy blue for text */
-            font-family: 'Poppins', 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
-        }
+        .id-card-details strong { font-weight: bold; color: #000; font-size: 6px; }
+        .id-card-details span { font-weight: normal; color: #000; font-size: 7px; }
         
       
         /* Address text wrapping fixes - Enhanced for long addresses */
@@ -230,124 +186,45 @@
         }
         
         /* Enhanced address field for very long addresses */
-        .address-text {
-            font-size: 9px !important;
-            line-height: 1.1 !important;
-            word-wrap: break-word !important;
-            word-break: break-all !important;
-            white-space: normal !important;
-            overflow-wrap: anywhere !important;
-            hyphens: auto !important;
-            max-width: 100% !important;
-            display: block !important;
-            /* Add word spacing for better readability */
-            word-spacing: -0.5px !important;
-            letter-spacing: -0.2px !important;
-            /* Ensure it fits within the cell */
-            box-sizing: border-box !important;
-            padding: 0 !important;
-            margin: 0 !important;
-        }
-        .idno {
-            font-weight: bold;
-            color: #001a4e !important; /* Navy blue for text */
-            font-size: 12px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+        .address-text { font-size: 5.5px !important; line-height: 0.95 !important; word-wrap: break-word !important; word-break: break-all !important; white-space: normal !important; overflow-wrap: anywhere !important; hyphens: auto !important; max-width: 100% !important; display: block !important; word-spacing: -0.5px !important; letter-spacing: -0.3px !important; box-sizing: border-box !important; padding: 0 !important; margin: 0 !important; max-height: 32px !important; overflow: visible !important; }
+        .idno { font-weight: bold; color: #001a4e !important; font-size: 8px; }
         .text-center {
             text-align: center;
         }
-        .mt-2 {
-            margin-top: 10px;
-        }
-        .mb-2 {
-            margin-bottom: 8px;
-        }
-        .text-uppercase {
-            text-transform: uppercase;
-            font-family: 'Poppins', 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
-        }
-        .font-weight-bold {
-            font-weight: bold !important;
-            color: #001a4e !important; /* Navy blue for text */
-            font-family: 'Poppins', 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
-        }
+        .mt-2 { margin-top: 6px; }
+        .mb-2 { margin-bottom: 4px; }
+        .text-uppercase { text-transform: uppercase; font-family: 'Arial', 'Helvetica', sans-serif !important; }
+        .font-weight-bold { font-weight: bold !important; color: #000 !important; }
         
-        /* Specific styling for name field to match preview exactly */
+        /* Name styling aligned with resident ID */
         .id-card-details .text-uppercase.font-weight-bold {
             font-weight: bold !important;
-            color: #001a4e !important; /* Navy blue for text */
-            font-family: 'Poppins', 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
-            font-size: 11px !important;
+            color: #000 !important;
+            font-family: 'Arial', 'Helvetica', sans-serif !important;
+            font-size: 7px !important;
         }
         
         /* Back side styles */
-        .id-card-back {
-            background: #f5f5f5;
-        }
-        .id-card-back-body {
-            padding: 15px;
-            text-align: left;
-        }
-        .id-card-back-details {
-            font-size: 11px;
-            padding-left: 10px;
-            font-family: 'Poppins', 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
-        }
+        .id-card-back { background: #fafafa; min-height: 135px; max-height: 135px; }
+        .id-card-back-body { padding: 7px 9px; text-align: left; }
+        .id-card-back-details { font-size: 7px; padding-left: 0; line-height: 1.3; }
         
         /* Back side font styling - navy blue text */
-        .id-card-back-details strong {
-            font-weight: bold !important;
-            font-size: 11px !important;
-            color: #001a4e !important; /* Navy blue for text */
-            font-family: 'Poppins', 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
-        }
-        
-        .id-card-back-details span {
-            font-weight: normal !important;
-            font-size: 11px !important;
-            color: #001a4e !important; /* Navy blue for text */
-            font-family: 'Poppins', 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
-        }
-        .qr-code-container {
-            text-align: center;
-            margin: 10px auto;
-        }
-        .qr-code-container img {
-            width: 150px;
-            height: 150px;
-        }
+        .id-card-back-details strong { font-weight: bold; color: #000; font-size: 6px; }
+        .id-card-back-details span { font-weight: normal; color: #000; font-size: 7px; }
+        .qr-code-container { text-align: center; margin: 4px auto; width: 78px; height: 78px; padding: 0; }
+        .qr-code-container img { width: 78px !important; height: 78px !important; display: block; margin: 0 auto; object-fit: contain; image-rendering: crisp-edges; image-rendering: -webkit-optimize-contrast; }
         .id-signature {
             margin-top: 5px;
             text-align: center;
         }
-        .signature-line {
-            width: 100px;
-            height: 1px;
-            background: #333;
-            margin: 3px auto;
-        }
-        .id-signature img {
-            display: block;
-            max-height: 30px;
-            max-width: 100px;
-            margin: 0 auto;
-        }
-        .no-signature {
-            width: 100px;
-            height: 30px;
-            border-bottom: 1px dashed #aaa;
-            margin: 0 auto;
-        }
-        .small {
-            font-size: 85%;
-            margin-top: -2px;
-        }
+        .signature-line { width: 75px; height: 1px; background: #333; margin: 3px auto; }
+        .id-signature img { display: block; max-height: 22px; max-width: 75px; margin: 0 auto; }
+        .no-signature { width: 75px; height: 22px; border-bottom: 1px dashed #aaa; margin: 0 auto; }
+        .small { font-size: 7px; margin-top: 1px; font-weight: normal; }
         strong {
             font-weight: bold;
-            color: #001a4e !important; /* Navy blue for text */
+            color: #000 !important;
         }
         .d-flex {
             display: flex;
@@ -378,15 +255,17 @@
         .footer-note {
             text-align: center;
             font-style: italic;
-            margin-top: 6px;
+            margin-top: 40px;
+            font-size: 10px;
+            color: #999;
         }
         
         /* Security features info */
         .security-info {
             background: #f8f9fa;
             padding: 5px;
-            border-left: 3px solid #001a4e; /* Navy blue for security info border */
-            margin: 6px 0;
+            border-left: 3px solid #001a4e;
+            margin: 70px 0 6px 0;
             font-size: 10px;
         }
     </style>
@@ -413,13 +292,23 @@
                 <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo.png'))) }}" alt="Barangay Logo">
             </div>
             <div class="id-card-header">
-                <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo.png'))) }}" alt="Barangay Logo" class="barangay-logo-left">
-                <div class="id-card-title">
-                    <h6 class="mb-0">Barangay Lumanglipa</h6>
-                    <h6 class="small mb-0">Mataasnakahoy, Batangas</h6>
-                    <h6 class="mb-0">Senior Citizen Card</h6>
-                </div>
-                <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/citylogo.png'))) }}" alt="City Logo" class="barangay-logo-right">
+                <table>
+                    <tr>
+                        <td class="header-logo-cell">
+                            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo.png'))) }}" alt="Barangay Logo" class="barangay-logo-left">
+                        </td>
+                        <td class="header-title-cell">
+                            <div class="id-card-title">
+                                <h6 class="mb-0">Barangay Lumanglipa</h6>
+                                <h6 class="small mb-0">Mataasnakahoy, Batangas</h6>
+                                <h6 class="mb-0">Senior Citizen Card</h6>
+                            </div>
+                        </td>
+                        <td class="header-logo-cell">
+                            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/kahoylogo.png'))) }}" alt="City Logo" class="barangay-logo-right">
+                        </td>
+                    </tr>
+                </table>
             </div>
             <div class="id-card-body">
                 <table style="width: 100%; table-layout: fixed; border: none;">
@@ -440,7 +329,7 @@
                                 </div>
                                 <div class="mb-2">
                                     <strong>Tirahan/Address</strong><br>
-                                    <span class="address-text" style="font-size: 9px; line-height: 1.1; word-wrap: break-word; word-break: break-all; white-space: normal; overflow-wrap: anywhere; hyphens: auto; max-width: 100%; display: block; word-spacing: -0.5px; letter-spacing: -0.2px; box-sizing: border-box; padding: 0; margin: 0;">{{ $seniorCitizen->current_address ?: 'Sitio Malinggao Bato, Barangay Lumanglipa, Mataasnakahoy, Batangas' }}</span>
+                                    <span class="address-text">{{ $seniorCitizen->current_address ?: 'Sitio Malinggao Bato, Barangay Lumanglipa, Mataasnakahoy, Batangas' }}</span>
                                 </div>
                             </div>
                         </td>
@@ -449,19 +338,28 @@
                                 <tr>
                                     <td style="text-align: center;">
                                         @if($seniorCitizen->photo)
-                                            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(storage_path('app/public/' . $seniorCitizen->photo))) }}" alt="{{ $seniorCitizen->full_name }}" style="width: 88px; height: 88px; border: 2px solid #f57f17; border-radius: 5px;">
+                                            @php $scPhoto = storage_path('app/public/' . $seniorCitizen->photo); @endphp
+                                            @if(file_exists($scPhoto))
+                                                <img src="data:image/png;base64,{{ base64_encode(file_get_contents($scPhoto)) }}" alt="{{ $seniorCitizen->full_name }}" style="width: 52px; height: 52px; border: 1px solid #f57f17; border-radius: 5px;">
+                                            @else
+                                                <table style="width: 52px; height: 52px; background-color: #cccccc; border: 1px solid #999999; margin: 0 auto;">
+                                                    <tr>
+                                                        <td style="text-align: center; vertical-align: middle; font-size: 6px; color: #666666; font-weight: bold;">NO PHOTO</td>
+                                                    </tr>
+                                                </table>
+                                            @endif
                                         @else
-                                            <table style="width: 88px; height: 88px; background-color: #cccccc; border: 2px solid #999999; margin: 0 auto;">
+                                            <table style="width: 52px; height: 52px; background-color: #cccccc; border: 2px solid #f57f17; margin: 0 auto;">
                                                 <tr>
-                                                    <td style="text-align: center; vertical-align: middle; font-size: 10px; color: #666666; font-weight: bold;">NO PHOTO</td>
+                                                    <td style="text-align: center; vertical-align: middle; font-size: 6px; color: #666666; font-weight: bold;">NO PHOTO</td>
                                                 </tr>
                                             </table>
                                         @endif
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td style="text-align: center; padding-top: 8px;">
-                                        <div style="border: 1px solid #cccccc; border-radius: 4px; padding: 4px 8px; background-color: #ffffff; display: inline-block; font-size: 10px; white-space: nowrap; overflow: hidden; max-width: 100%;">
+                                    <td style="text-align: center; padding-top: 5px;">
+                                        <div style="border: 1px solid #cccccc; border-radius: 3px; padding: 2px 5px; background-color: #ffffff; display: inline-block; font-size: 7px; white-space: nowrap; overflow: hidden; max-width: 100%;">
                                             <span style="font-weight: bold; color: #001a4e;">
                                                 @if($seniorCitizen->senior_id_number)
                                                     {{ $seniorCitizen->senior_id_number }}
@@ -552,15 +450,7 @@
     </div>
     
     <!-- Document Footer - Professional info below the ID cards -->
-    <div class="document-footer">
-        <div class="footer-info">
-            <span>Issued by: Barangay Lumanglipa Office</span>
-            <span>Contact: {{ $seniorCitizen->contact_number ?: 'N/A' }}</span>
-        </div>
-        <div class="footer-info">
-            <span>Address: Mataasnakahoy, Batangas</span>
-            <span>Reference: DOC-{{ date('Y') }}-{{ str_pad($seniorCitizen->id, 6, '0', STR_PAD_LEFT) }}</span>
-        </div>
+  
         <div class="footer-note">
             Official barangay document for local transactions only. Handle with care and report if lost or stolen.
             <br>Generated: {{ date('F d, Y') }} | Valid until: {{ $seniorCitizen->senior_id_expires_at ? $seniorCitizen->senior_id_expires_at->format('F d, Y') : date('F d, Y', strtotime('+5 years')) }}
