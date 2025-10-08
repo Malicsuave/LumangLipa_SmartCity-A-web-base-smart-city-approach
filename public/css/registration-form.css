@@ -18,6 +18,21 @@
     box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
 }
 
+.form-control.is-valid:focus,
+input.form-control.is-valid:focus,
+select.form-control.is-valid:focus,
+textarea.form-control.is-valid:focus {
+  border-color: #28a745 !important;
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
+}
+.form-control:focus.is-valid,
+input.form-control:focus.is-valid,
+select.form-control:focus.is-valid,
+textarea.form-control:focus.is-valid {
+  border-color: #28a745 !important;
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
+}
+
 .invalid-feedback {
     display: block;
     color: #dc3545;

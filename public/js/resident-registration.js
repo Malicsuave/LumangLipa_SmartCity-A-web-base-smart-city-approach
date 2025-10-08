@@ -112,9 +112,7 @@
         // Real-time validation for text inputs
         if (input.type === 'text' || input.type === 'email' || input.type === 'tel') {
           input.addEventListener('input', function() {
-            if (touched || this.classList.contains('is-invalid') || this.classList.contains('is-valid')) {
-              validateField(this);
-            }
+            validateField(this); // Always validate on input
           });
         }
         
