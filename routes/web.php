@@ -665,45 +665,6 @@ Route::post('/admin/residents/{resident}/restore', [ResidentController::class, '
 Route::post('/admin/residents/id/{resident}/upload-photo', [ResidentIdController::class, 'uploadPhoto'])->name('admin.residents.id.upload-photo');
 Route::post('/admin/residents/id/{resident}/upload-signature', [ResidentIdController::class, 'uploadSignature'])->name('admin.residents.id.upload-signature');
 
-// Test SMS Route (Remove this in production)
-Route::get('/test-sms', function() {
-    if (config('app.env') !== 'local') {
-        abort(404);
-    }
-    
-    try {
-        $sms = new \App\Services\SmsService();
-        
-        // Test with a phone number - CHANGE THIS to your number!
-        $testPhone = '09777726493'; // ⚠️ CHANGE THIS to YOUR actual number to receive test SMS
-        $testMessage = 'Test SMS from Barangay Lumanglipa! Date: ' . now()->format('M d, Y h:i A');
-        
-        $carrier = $sms->detectCarrier($testPhone);
-        $result = $sms->send($testPhone, $testMessage);
-        
-        if ($result) {
-            return response()->json([
-                'status' => 'success',
-                'message' => 'SMS sent successfully!',
-                'phone' => $testPhone,
-                'carrier' => $carrier,
-                'note' => 'Check your phone in a few seconds. If using Globe/Smart/Sun, you should receive it.'
-            ]);
-        } else {
-            return response()->json([
-                'status' => 'failed',
-                'message' => 'SMS failed to send',
-                'carrier' => $carrier,
-                'note' => 'Check storage/logs/laravel.log for details'
-            ]);
-        }
-    } catch (\Exception $e) {
-        return response()->json([
-            'status' => 'error',
-            'message' => $e->getMessage()
-        ], 500);
-    }
-})->name('test.sms');
 // Single-form Barangay Officials Management
 Route::middleware(['role:Barangay Captain,Barangay Secretary'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('officials/edit-single', [App\Http\Controllers\Admin\BarangayOfficialController::class, 'edit'])->name('officials.edit-single');

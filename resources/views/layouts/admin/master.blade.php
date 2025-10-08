@@ -1126,6 +1126,71 @@ $(document).ready(function() {
 });
 </script>
 
+<!-- Admin Floating Chatbot (inbox style) -->
+@auth
+<div class="chatbot-container">
+    <div class="chatbot-window" id="adminChatbotWindow">
+        <div class="chatbot-header">
+            <h4>💬 Messages</h4>
+            <button class="chatbot-close" id="adminChatbotClose" style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;background:transparent;border:none;outline:none;cursor:pointer;">
+                <i class="fas fa-times" style="color:white;font-size:16px;"></i>
+            </button>
+        </div>
+        
+        <!-- Conversations List (Inbox Style) -->
+        <div class="chatbot-messages" id="adminChatbotMessages" style="padding: 0;">
+            <div id="conversationsList" style="display: block;">
+                <!-- Conversation items will be loaded here -->
+                <div style="padding: 20px; text-align: center; color: #666; font-size: 14px;">
+                    <i class="fas fa-inbox" style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
+                    Loading conversations...
+                </div>
+            </div>
+            
+            <!-- Chat View (hidden initially) -->
+            <div id="chatView" style="display: none; height: 100%; flex-direction: column;">
+                <div id="chatHeader" style="padding: 15px; border-bottom: 1px solid #eee; background: #f8f9fa; display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center;">
+                        <button id="backToInbox" style="background: none; border: none; margin-right: 10px; color: #007bff; cursor: pointer;">
+                            <i class="fas fa-arrow-left"></i>
+                        </button>
+                        <div>
+                            <div id="chatUserName" style="font-weight: bold; font-size: 14px;"></div>
+                            <div id="chatUserStatus" style="font-size: 12px; color: #666;"></div>
+                        </div>
+                    </div>
+                    <button id="completeAndNextBtn" onclick="window.adminChatbot.completeAndNext()" 
+                            style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 5px;"
+                            onmouseover="this.style.background='#218838'"
+                            onmouseout="this.style.background='#28a745'">
+                        <i class="fas fa-check"></i> Complete & Next
+                    </button>
+                </div>
+                
+                <div id="chatMessages" style="flex: 1; padding: 15px; overflow-y: auto; min-height: 200px; max-height: calc(100% - 120px);">
+                    <!-- Chat messages will appear here -->
+                </div>
+                
+                <div class="chatbot-input-area">
+                    <input type="text" class="chatbot-input" id="adminChatbotInput" 
+                           placeholder="Type your message..." maxlength="500">
+                    <button class="chatbot-send" id="adminChatbotSend">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <button class="chatbot-toggle" id="adminChatbotToggle" style="position:relative;">
+        <div class="chatbot-pulse"></div>
+        <i class="fas fa-envelope"></i>
+    </button>
+</div>
+
+<script src="{{ asset('js/admin-chatbot.js') }}?v={{ time() }}"></script>
+@endauth
+
 <!-- Mobile Sidebar Styles -->
 <style>
 .mobile-sidebar-overlay {

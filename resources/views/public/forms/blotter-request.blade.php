@@ -912,38 +912,29 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             html5QrCode = new Html5Qrcode("qr-reader");
             
-            Html5Qrcode.getCameras().then(devices => {
-                console.log('Available cameras:', devices);
-                
-                if (devices && devices.length > 0) {
-                    statusText.textContent = 'Starting camera...';
-                    
-                    // Use back camera if available, otherwise use first camera
-                    let selectedCamera = devices[0];
-                    for (let device of devices) {
-                        if (device.label && device.label.toLowerCase().includes('back')) {
-                            selectedCamera = device;
-                            break;
-                        }
-                    }
-                    
-                    const config = {
-                        fps: 10,
-                        qrbox: function(viewfinderWidth, viewfinderHeight) {
-                            let minEdgePercentage = 0.7; // 70% of the smaller edge
-                            let minEdgeSize = Math.min(viewfinderWidth, viewfinderHeight);
-                            let qrboxSize = Math.floor(minEdgeSize * minEdgePercentage);
-                            return {
-                                width: qrboxSize,
-                                height: qrboxSize
-                            };
-                        },
-                        aspectRatio: 1.0,
-                        disableFlip: false
+            // Use facingMode for better mobile compatibility
+            statusText.textContent = 'Starting camera...';
+            
+            const config = {
+                fps: 10,
+                qrbox: function(viewfinderWidth, viewfinderHeight) {
+                    let minEdgePercentage = 0.7; // 70% of the smaller edge
+                    let minEdgeSize = Math.min(viewfinderWidth, viewfinderHeight);
+                    let qrboxSize = Math.floor(minEdgeSize * minEdgePercentage);
+                    return {
+                        width: qrboxSize,
+                        height: qrboxSize
                     };
-                    
-                    html5QrCode.start(
-                        selectedCamera.id,
+                },
+                aspectRatio: 1.0,
+                disableFlip: false
+            };
+            
+            // Try to use back camera on mobile devices
+            const cameraId = { facingMode: "environment" };
+            
+            html5QrCode.start(
+                cameraId,
                         config,
                         (qrCodeMessage) => {
                             console.log('QR Code detected:', qrCodeMessage);
@@ -982,19 +973,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         showError(errorMsg);
                         setTimeout(() => qrScannerModal.hide(), 3000);
                     });
-                } else {
-                    statusText.textContent = 'No cameras found';
-                    scannerStatus.className = 'alert alert-warning';
-                    showError('No cameras found on this device. Please use the upload option instead.');
-                    setTimeout(() => qrScannerModal.hide(), 3000);
-                }
-            }).catch(err => {
-                console.error('Unable to get cameras:', err);
-                statusText.textContent = 'Camera detection failed';
-                scannerStatus.className = 'alert alert-danger';
-                showError('Unable to detect cameras. Please check your camera permissions or use the upload option.');
-                setTimeout(() => qrScannerModal.hide(), 3000);
-            });
         } catch (err) {
             console.error('Scanner initialization failed:', err);
             statusText.textContent = 'Scanner initialization failed';
