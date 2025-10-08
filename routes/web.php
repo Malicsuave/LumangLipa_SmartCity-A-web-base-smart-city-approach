@@ -12,9 +12,6 @@ use App\Http\Controllers\ResidentController;
 use App\Http\Controllers\ResidentIdController;
 use App\Http\Controllers\Admin\AccessRequestController;
 use App\Http\Controllers\Admin\SeniorCitizenController;
-use App\Http\Controllers\ComplaintController;
-use App\Http\Controllers\ComplaintMeetingController;
-use App\Http\Controllers\BlotterController;
 use App\Http\Controllers\HealthServiceController;
 use App\Http\Controllers\HealthMeetingController;
 use App\Http\Controllers\Admin\GadController;
@@ -133,21 +130,13 @@ Route::post('/health/request', [App\Http\Controllers\HealthServiceController::cl
 
 
 
-// Complaint Public Routes
-Route::get('/complaints/file', [App\Http\Controllers\ComplaintController::class, 'create'])->name('complaints.create');
-Route::post('/complaints/file', [App\Http\Controllers\ComplaintController::class, 'store'])->name('complaints.store');
-Route::post('/complaints/check-resident', [App\Http\Controllers\ComplaintController::class, 'checkResident'])->name('complaints.check-resident');
-Route::post('/complaints/send-otp', [App\Http\Controllers\ComplaintController::class, 'sendOtp'])->name('complaints.send-otp');
-Route::post('/complaints/verify-otp', [App\Http\Controllers\ComplaintController::class, 'verifyOtp'])->name('complaints.verify-otp');
-Route::post('/complaints/decode-qr', [App\Http\Controllers\ComplaintController::class, 'decodeQr'])->name('complaints.decode-qr');
-
-// Blotter Report Public Routes
-Route::get('/blotter/request', [App\Http\Controllers\BlotterController::class, 'create'])->name('blotter.request');
-Route::post('/blotter/request', [App\Http\Controllers\BlotterController::class, 'store'])->name('blotter.store');
-Route::post('/blotter/check-resident', [App\Http\Controllers\BlotterController::class, 'checkResident'])->name('blotter.check-resident');
-Route::post('/blotter/send-otp', [App\Http\Controllers\BlotterController::class, 'sendOtp'])->name('blotter.send-otp');
-Route::post('/blotter/verify-otp', [App\Http\Controllers\BlotterController::class, 'verifyOtp'])->name('blotter.verify-otp');
-Route::post('/blotter/decode-qr', [App\Http\Controllers\BlotterController::class, 'decodeQr'])->name('blotter.decode-qr');
+// Blotter/Complaint Public Routes (Unified System)
+Route::get('/blotter-complaint/request', [App\Http\Controllers\BlotterComplaintController::class, 'create'])->name('blotter-complaint.request');
+Route::post('/blotter-complaint/store', [App\Http\Controllers\BlotterComplaintController::class, 'store'])->name('blotter-complaint.store');
+Route::post('/blotter-complaint/check-resident', [App\Http\Controllers\BlotterComplaintController::class, 'checkResident'])->name('blotter-complaint.check-resident');
+Route::post('/blotter-complaint/send-otp', [App\Http\Controllers\BlotterComplaintController::class, 'sendOtp'])->name('blotter-complaint.send-otp');
+Route::post('/blotter-complaint/verify-otp', [App\Http\Controllers\BlotterComplaintController::class, 'verifyOtp'])->name('blotter-complaint.verify-otp');
+Route::post('/blotter-complaint/decode-qr', [App\Http\Controllers\BlotterComplaintController::class, 'decodeQr'])->name('blotter-complaint.decode-qr');
 
 // Resident ID full preview route
 Route::get('/resident/{resident}/id/full-preview', [ResidentIdController::class, 'fullPreview'])->name('id.full-preview');
@@ -378,24 +367,6 @@ Route::middleware([
             Route::get('/api/all', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'getAllSeniorCitizensApi'])->name('api.all');
         });
     });
-
-    // Complaint Manager routes
-    Route::middleware('role:Complaint Manager,Barangay Captain,Barangay Secretary')->group(function () {
-        // Complaint Management Routes
-        Route::get('/admin/complaints', [App\Http\Controllers\ComplaintController::class, 'adminDashboard'])->name('admin.complaints');
-        Route::get('/admin/complaint-management', [App\Http\Controllers\ComplaintController::class, 'index'])->name('admin.complaint-management');
-        Route::get('/admin/complaints/{complaint}', [App\Http\Controllers\ComplaintController::class, 'show'])->name('admin.complaints.show');
-        Route::post('/admin/complaints/{complaint}/approve', [App\Http\Controllers\ComplaintController::class, 'approve'])->name('admin.complaints.approve');
-        Route::post('/admin/complaints/{complaint}/resolve', [App\Http\Controllers\ComplaintController::class, 'resolve'])->name('admin.complaints.resolve');
-        Route::post('/admin/complaints/{complaint}/dismiss', [App\Http\Controllers\ComplaintController::class, 'dismiss'])->name('admin.complaints.dismiss');
-        
-        // Complaint Meeting Management Routes
-        Route::prefix('admin/complaint-meetings')->name('admin.complaint-meetings.')->group(function() {
-            Route::post('/', [App\Http\Controllers\ComplaintMeetingController::class, 'store'])->name('store');
-            Route::post('/{id}/complete', [App\Http\Controllers\ComplaintMeetingController::class, 'complete'])->name('complete');
-            Route::post('/{id}/cancel', [App\Http\Controllers\ComplaintMeetingController::class, 'cancel'])->name('cancel');
-        });
-    });
     
     // Health Worker routes
     Route::middleware('role:Health Worker,Barangay Captain,Barangay Secretary')->group(function () {
@@ -450,24 +421,6 @@ Route::middleware([
             Route::get('/senior-citizens', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'reports'])->name('senior-citizens');
             Route::get('/archived-residents', [ResidentController::class, 'archivedReports'])->name('archived-residents');
             Route::get('/documents', [App\Http\Controllers\DocumentRequestController::class, 'reports'])->name('documents');
-        });
-    });
-
-    // Complaint Manager routes
-    Route::middleware('role:Complaint Manager,Barangay Captain,Barangay Secretary')->group(function () {
-        // Complaint Management Routes
-        Route::get('/admin/complaints', [App\Http\Controllers\ComplaintController::class, 'adminDashboard'])->name('admin.complaints');
-        Route::get('/admin/complaint-management', [App\Http\Controllers\ComplaintController::class, 'index'])->name('admin.complaint-management');
-        Route::get('/admin/complaints/{complaint}', [App\Http\Controllers\ComplaintController::class, 'show'])->name('admin.complaints.show');
-        Route::post('/admin/complaints/{complaint}/approve', [App\Http\Controllers\ComplaintController::class, 'approve'])->name('admin.complaints.approve');
-        Route::post('/admin/complaints/{complaint}/resolve', [App\Http\Controllers\ComplaintController::class, 'resolve'])->name('admin.complaints.resolve');
-        Route::post('/admin/complaints/{complaint}/dismiss', [App\Http\Controllers\ComplaintController::class, 'dismiss'])->name('admin.complaints.dismiss');
-        
-        // Complaint Meeting Management Routes
-        Route::prefix('admin/complaint-meetings')->name('admin.complaint-meetings.')->group(function() {
-            Route::post('/', [App\Http\Controllers\ComplaintMeetingController::class, 'store'])->name('store');
-            Route::post('/{id}/complete', [App\Http\Controllers\ComplaintMeetingController::class, 'complete'])->name('complete');
-            Route::post('/{id}/cancel', [App\Http\Controllers\ComplaintMeetingController::class, 'cancel'])->name('cancel');
         });
     });
     

@@ -103,8 +103,7 @@
                                     <ul class="dropdown-menu dropdown-menu-animation ms-n3 dropdown-md p-3 border-radius-xl mt-0 mt-lg-3" aria-labelledby="dropdownMenuServices">
                                         <li><a class="dropdown-item" href="{{ route('health.request') }}">Health Services</a></li>
                                         <li><a class="dropdown-item" href="{{ route('documents.request') }}">Document Request</a></li>
-                                        <li><a class="dropdown-item" href="{{ route('complaints.create') }}">File a Complaint</a></li>
-                                        <li><a class="dropdown-item" href="{{ route('blotter.request') }}">Blotter Report</a></li>
+                                        <li><a class="dropdown-item" href="{{ route('blotter-complaint.request') }}">Blotter/Complaint Report</a></li>
                                     </ul>
                                 </li>
                                 <li class="nav-item mx-2">
@@ -195,7 +194,7 @@
                 <a class="nav-link" href="{{ route('documents.request') }}">Document Request</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="{{ route('complaints.create') }}">File a Complaint</a>
+                <a class="nav-link" href="{{ route('blotter-complaint.request') }}">Blotter/Complaint Report</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="{{ route('public.pre-registration.step1') }}">Register</a>
@@ -267,7 +266,7 @@
                             <button class="quick-action-btn" onclick="sendQuickMessage('Health services')">Health Services</button>
                             <button class="quick-action-btn" onclick="sendQuickMessage('Contact information')">Contact Info</button>
                             <button class="quick-action-btn" onclick="sendQuickMessage('Office hours')">Office Hours</button>
-                            <button class="quick-action-btn" onclick="sendQuickMessage('File Complaint')">File Complaint</button>
+                            <button class="quick-action-btn" onclick="sendQuickMessage('Blotter or Complaint')">Blotter/Complaint</button>
                             <button class="quick-action-btn" onclick="window.barangayChatbot.escalateToAgent()" style="background: #007bff; color: white; font-weight: 600;">💬 Talk to Agent</button>
                         </div>
                     </div>
