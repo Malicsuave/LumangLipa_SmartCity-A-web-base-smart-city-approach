@@ -550,12 +550,22 @@
                                 </div>
                                 
                                 <div class="mb-2">
-                                    <strong>Telepono/Phone</strong><br>
-                                    <span>{{ $resident->contact_number ?: 'N/A' }}</span>
+                                    <table style="width: 100%; border-collapse: collapse;">
+                                        <tr>
+                                            <td style="width: 50%; vertical-align: top; padding-right: 5px;">
+                                                <strong>Telepono/Phone</strong><br>
+                                                <span>{{ $resident->contact_number ?: 'N/A' }}</span>
+                                            </td>
+                                            <td style="width: 50%; vertical-align: top; padding-left: 5px;">
+                                                <strong>Purok</strong><br>
+                                                <span>{{ $resident->purok ?: 'N/A' }}</span>
+                                            </td>
+                                        </tr>
+                                    </table>
                                 </div>
                                 <div class="mb-2">
                                     <strong>Tirahan/Address</strong><br>
-                                    <span class="address-text" style="font-size: 5.5px; line-height: 0.95; word-wrap: break-word; word-break: break-all; white-space: normal; overflow-wrap: anywhere; hyphens: auto; max-width: 100%; display: block; word-spacing: -0.5px; letter-spacing: -0.3px; box-sizing: border-box; padding: 0; margin: 0; max-height: 32px; overflow: visible;">{{ $resident->address ?: ($resident->current_address ?: 'Sitio Malinggao Bato, Barangay Lumanglipa, Mataasnakahoy, Batangas') }}</span>
+                                    <span class="address-text" style="font-size: 5.5px; line-height: 0.95; word-wrap: break-word; word-break: break-all; white-space: normal; overflow-wrap: anywhere; hyphens: auto; max-width: 100%; display: block; word-spacing: -0.5px; letter-spacing: -0.3px; box-sizing: border-box; padding: 0; margin: 0; max-height: 32px; overflow: visible;">{{ $resident->current_address ?: 'Sitio Malinggao Bato, Barangay Lumanglipa, Mataasnakahoy, Batangas' }}</span>
                                 </div>
                             </div>
                         </td>

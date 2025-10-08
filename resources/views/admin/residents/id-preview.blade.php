@@ -144,12 +144,22 @@
                                                         <span>{{ $resident->birthdate ? $resident->birthdate->format('M d, Y') : 'N/A' }}</span>
                                                     </div>
                                                     <div class="mb-2">
-                                                        <strong>Telepono/Phone</strong><br>
-                                                        <span>{{ $resident->contact_number ?: 'N/A' }}</span>
+                                                        <table style="width: 100%; border-collapse: collapse;">
+                                                            <tr>
+                                                                <td style="width: 50%; vertical-align: top; padding-right: 5px;">
+                                                                    <strong>Telepono/Phone</strong><br>
+                                                                    <span>{{ $resident->contact_number ?: 'N/A' }}</span>
+                                                                </td>
+                                                                <td style="width: 50%; vertical-align: top; padding-left: 5px;">
+                                                                    <strong>Purok</strong><br>
+                                                                    <span>{{ $resident->purok ?: 'N/A' }}</span>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
                                                     </div>
                                                     <div class="mb-2">
                                                         <strong>Tirahan/Address</strong><br>
-                                                        <span class="address-text" style="font-size: 9px; line-height: 1.1; word-wrap: break-word; word-break: break-all; white-space: normal; overflow-wrap: anywhere; hyphens: auto; max-width: 100%; display: block; word-spacing: -0.5px; letter-spacing: -0.2px; box-sizing: border-box; padding: 0; margin: 0;">{{ $resident->address ?: ($resident->current_address ?: 'Sitio Malinggao Bato, Barangay Lumanglipa, Mataasnakahoy, Batangas') }}</span>
+                                                        <span class="address-text" style="font-size: 9px; line-height: 1.1; word-wrap: break-word; word-break: break-all; white-space: normal; overflow-wrap: anywhere; hyphens: auto; max-width: 100%; display: block; word-spacing: -0.5px; letter-spacing: -0.2px; box-sizing: border-box; padding: 0; margin: 0;">{{ $resident->current_address ?: 'Sitio Malinggao Bato, Barangay Lumanglipa, Mataasnakahoy, Batangas' }}</span>
                                                     </div>
                                                 </div>
                                             </td>

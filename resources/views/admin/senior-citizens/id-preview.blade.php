@@ -147,8 +147,18 @@
                                                         <span>{{ $seniorCitizen->birthdate ? \Carbon\Carbon::parse($seniorCitizen->birthdate)->format('M d, Y') : 'N/A' }}</span>
                                                     </div>
                                                     <div class="mb-2">
-                                                        <strong>Telepono/Phone</strong><br>
-                                                        <span>{{ $seniorCitizen->contact_number ?: 'N/A' }}</span>
+                                                        <table style="width: 100%; border-collapse: collapse;">
+                                                            <tr>
+                                                                <td style="width: 50%; vertical-align: top; padding-right: 5px;">
+                                                                    <strong>Telepono/Phone</strong><br>
+                                                                    <span>{{ $seniorCitizen->contact_number ?: 'N/A' }}</span>
+                                                                </td>
+                                                                <td style="width: 50%; vertical-align: top; padding-left: 5px;">
+                                                                    <strong>Purok</strong><br>
+                                                                    <span>{{ $seniorCitizen->purok ?: 'N/A' }}</span>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
                                                     </div>
                                                     <div class="mb-2">
                                                         <strong>Tirahan/Address</strong><br>

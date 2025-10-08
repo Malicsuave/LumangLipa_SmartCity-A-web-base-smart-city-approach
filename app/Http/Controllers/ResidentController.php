@@ -249,6 +249,8 @@ class ResidentController extends Controller
             'contact_number' => 'required|numeric|digits:11',
             'email_address' => 'nullable|email|max:255',
             'current_address' => 'required|string|max:500',
+            'purok' => 'required|string|max:100',
+            'custom_purok' => 'required_if:purok,Other|nullable|string|max:100',
             'emergency_contact_name' => 'required|string|max:255',
             'emergency_contact_relationship' => 'required|string|max:100',
             'emergency_contact_number' => 'required|numeric|digits:11',
@@ -260,12 +262,20 @@ class ResidentController extends Controller
             'contact_number.digits' => 'The contact number must be exactly 11 digits.',
             'email_address.email' => 'Please enter a valid email address.',
             'current_address.required' => 'The current address field is required.',
+            'purok.required' => 'Please select a purok.',
+            'custom_purok.required_if' => 'Please specify the purok/sitio name.',
             'emergency_contact_name.required' => 'The emergency contact name is required.',
             'emergency_contact_relationship.required' => 'Please select the relationship to emergency contact.',
             'emergency_contact_number.required' => 'The emergency contact number is required.',
             'emergency_contact_number.numeric' => 'The emergency contact number must contain only numbers.',
             'emergency_contact_number.digits' => 'The emergency contact number must be exactly 11 digits.',
         ]);
+
+        // Handle custom purok
+        if ($validated['purok'] === 'Other') {
+            $validated['purok'] = $validated['custom_purok'];
+        }
+        unset($validated['custom_purok']);
 
         // Store validated data in session
         Session::put('registration.step2', $validated);
@@ -466,6 +476,7 @@ class ResidentController extends Controller
             $resident->contact_number = Session::get('registration.step2.contact_number');
             $resident->email_address = Session::get('registration.step2.email_address');
             $resident->current_address = Session::get('registration.step2.current_address'); // Fixed: use current_address column
+            $resident->purok = Session::get('registration.step2.purok');
             
             // Additional fields from Step 1
             $resident->citizenship_type = Session::get('registration.step1.citizenship_type');

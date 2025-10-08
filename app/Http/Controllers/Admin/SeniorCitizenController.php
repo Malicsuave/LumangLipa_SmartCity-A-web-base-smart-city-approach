@@ -326,6 +326,8 @@ class SeniorCitizenController extends Controller
             'contact_number' => 'required|numeric|digits:11|regex:/^09\d{9}$/',
             'email_address' => 'nullable|email|max:255',
             'current_address' => 'required|string|max:500',
+            'purok' => 'required|string|max:100',
+            'custom_purok' => 'required_if:purok,Other|nullable|string|max:100',
             'emergency_contact_name' => 'required|string|max:255',
             'emergency_contact_relationship' => 'required|string|max:100',
             'emergency_contact_number' => 'required|numeric|digits:11|regex:/^09\d{9}$/',
@@ -334,13 +336,22 @@ class SeniorCitizenController extends Controller
             'contact_number.numeric' => 'The contact number must contain only numbers.',
             'contact_number.digits' => 'The contact number must be exactly 11 digits.',
             'contact_number.regex' => 'The contact number must be a valid Philippine mobile number (09XXXXXXXXX).',
+            'purok.required' => 'Please select a purok.',
+            'custom_purok.required_if' => 'Please specify the purok/sitio name.',
             'emergency_contact_number.required' => 'The emergency contact number is required.',
             'emergency_contact_number.numeric' => 'The emergency contact number must contain only numbers.',
             'emergency_contact_number.digits' => 'The emergency contact number must be exactly 11 digits.',
             'emergency_contact_number.regex' => 'The emergency contact number must be a valid Philippine mobile number (09XXXXXXXXX).',
         ]);
 
-        session(['senior_registration.step2' => $request->except('_token')]);
+        // Handle custom purok
+        $step2Data = $request->except('_token');
+        if ($step2Data['purok'] === 'Other') {
+            $step2Data['purok'] = $step2Data['custom_purok'];
+        }
+        unset($step2Data['custom_purok']);
+
+        session(['senior_registration.step2' => $step2Data]);
         
         return redirect()->route('admin.senior-citizens.register.step3')
             ->with('success', 'Contact information saved successfully!');
@@ -524,6 +535,7 @@ class SeniorCitizenController extends Controller
                 'contact_number' => $step2['contact_number'],
                 'email_address' => $step2['email_address'] ?? null,
                 'current_address' => $step2['current_address'],
+                'purok' => $step2['purok'],
                 
                 // Step 3: Photos and Signature
                 'photo' => $step3['photo'] ?? null,
