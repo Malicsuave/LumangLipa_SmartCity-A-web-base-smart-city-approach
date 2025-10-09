@@ -92,6 +92,8 @@
                                         <li><a class="dropdown-item" href="{{ route('public.about') }}">About Barangay</a></li>
                                         <li><a class="dropdown-item" href="{{ route('public.officials') }}">Officials</a></li>
                                         <li><a class="dropdown-item" href="{{ route('public.announcements') }}">Announcements</a></li>
+                                        <li><a class="dropdown-item" href="{{ route('public.announcements') }}">Announcements</a></li>
+                                    </ul>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-hover mx-2">

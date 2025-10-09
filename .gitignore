@@ -21,3 +21,4 @@ yarn-error.log
 storage/framework/views/
 /storage/logs/
 storage/logs/*.log
+storage/framework/cache/*
