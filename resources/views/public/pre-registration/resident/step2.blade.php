@@ -7,7 +7,8 @@
 
 @section('form-content')
 <div class="card-header bg-white border-0 pb-0">
-  <h5 class="personal-header"><i class="fas fa-phone mr-2"></i>Contact & Education Information</h5>
+  <h5 class="personal-header"><i class="fas fa-phone mr-2"></i>Contact & Address Information</h5>
+  <small class="text-muted">Provide your contact details, address, and emergency contact information.</small>
 </div>
           <form role="form" id="residentPreRegStep2Form" method="POST" action="{{ route('public.pre-registration.step2.store') }}" autocomplete="off">
             @csrf
@@ -16,47 +17,52 @@
               <div class="row mb-4">
                 <div class="col-md-6 mb-3">
                   <label for="contact_number">Contact Number <span class="text-danger">*</span></label>
-                  <input type="tel" name="contact_number" id="contact_number" placeholder="09XXXXXXXXX"
-                    class="form-control @error('contact_number') is-invalid @enderror" 
-                    value="{{ old('contact_number', $step2['contact_number'] ?? '') }}" required>
-                  @error('contact_number')<div class="invalid-feedback" data-server>{{ $message }}</div>@enderror
+                  <input type="text" name="contact_number" id="contact_number" placeholder="09XXXXXXXXX"
+                    class="form-control rounded-pill @error('contact_number') is-invalid @enderror" 
+                    value="{{ old('contact_number', $step2['contact_number'] ?? '') }}" 
+                    maxlength="11" pattern="[0-9]{11}" required>
+                  @error('contact_number')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
                 <div class="col-md-6 mb-3">
                   <label for="email_address">Email Address <small class="text-muted">(Optional)</small></label>
-                  <input type="email" name="email_address" id="email_address" placeholder="email@example.com (Optional)"
-                    class="form-control @error('email_address') is-invalid @enderror" 
+                  <input type="email" name="email_address" id="email_address" placeholder="email@example.com"
+                    class="form-control rounded-pill @error('email_address') is-invalid @enderror" 
                     value="{{ old('email_address', $step2['email_address'] ?? '') }}">
-                  @error('email_address')<div class="invalid-feedback" data-server>{{ $message }}</div>@enderror
-                  <small class="form-text text-muted">Used for notifications and document delivery</small>
+                  <small class="form-text text-muted">
+                    <i class="fas fa-info-circle text-info"></i> You can use a family member's email if you don't have one. Digital ID will be sent here when approved.
+                  </small>
+                  @error('email_address')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                  <div id="email-validation-error" style="display: none; color: #dc3545; font-size: 0.875rem; margin-top: 0.25rem;">
+                    Please enter a valid email address
+                  </div>
                 </div>
               </div>
-              
               <!-- Current Address -->
               <div class="row mb-4">
                 <div class="col-md-12">
-                  <label for="current_address">Current Address <span class="text-danger">*</span></label>
-                  <textarea name="current_address" id="current_address" rows="3" placeholder="House No., Street, Purok/Sitio"
-                    class="form-control @error('current_address') is-invalid @enderror" required>{{ old('current_address', $step2['current_address'] ?? '') }}</textarea>
-                  @error('current_address')<div class="invalid-feedback" data-server>{{ $message }}</div>@enderror
+                  <label for="address">Current Address <span class="text-danger">*</span></label>
+                  <textarea name="address" id="address" rows="3" placeholder="Enter your complete address"
+                    class="form-control @error('address') is-invalid @enderror" required>{{ old('address', $step2['address'] ?? '') }}</textarea>
+                  @error('address')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
               </div>
-              
               <!-- Emergency Contact -->
               <hr>
               <h5 class="emergency-header mb-3"><i class="fas fa-user-shield mr-2"></i>Emergency Contact</h5>
+              <small class="text-muted d-block mb-3">Person to contact in case of emergency</small>
               <div class="row mb-4">
                 <div class="col-md-6 mb-3">
                   <label for="emergency_contact_name">Contact Person <span class="text-danger">*</span></label>
-                  <input type="text" name="emergency_contact_name" id="emergency_contact_name" placeholder="Full name of emergency contact"
-                    class="form-control @error('emergency_contact_name') is-invalid @enderror" 
+                  <input type="text" name="emergency_contact_name" id="emergency_contact_name" placeholder="Contact Person Name"
+                    class="form-control rounded-pill @error('emergency_contact_name') is-invalid @enderror" 
                     value="{{ old('emergency_contact_name', $step2['emergency_contact_name'] ?? '') }}" required>
-                  @error('emergency_contact_name')<div class="invalid-feedback" data-server>{{ $message }}</div>@enderror
+                  @error('emergency_contact_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
                 <div class="col-md-6 mb-3">
                   <label for="emergency_contact_relationship">Relationship <span class="text-danger">*</span></label>
                   <select name="emergency_contact_relationship" id="emergency_contact_relationship"
-                    class="form-control @error('emergency_contact_relationship') is-invalid @enderror" 
-                    required>
+                    class="form-control selectpicker rounded-pill @error('emergency_contact_relationship') is-invalid @enderror" 
+                    required data-style="btn-white">
                     <option value="">Select relationship</option>
                     <option value="Parent" {{ old('emergency_contact_relationship', $step2['emergency_contact_relationship'] ?? '') == 'Parent' ? 'selected' : '' }}>Parent</option>
                     <option value="Spouse" {{ old('emergency_contact_relationship', $step2['emergency_contact_relationship'] ?? '') == 'Spouse' ? 'selected' : '' }}>Spouse</option>
@@ -66,36 +72,35 @@
                     <option value="Friend" {{ old('emergency_contact_relationship', $step2['emergency_contact_relationship'] ?? '') == 'Friend' ? 'selected' : '' }}>Friend</option>
                     <option value="Other" {{ old('emergency_contact_relationship', $step2['emergency_contact_relationship'] ?? '') == 'Other' ? 'selected' : '' }}>Other</option>
                   </select>
-                  @error('emergency_contact_relationship')<div class="invalid-feedback" data-server>{{ $message }}</div>@enderror
+                  @error('emergency_contact_relationship')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
               </div>
-              
               <div class="row mb-4">
                 <div class="col-md-6 mb-3">
-                  <label for="emergency_contact_number">Emergency Contact Number <span class="text-danger">*</span></label>
-                  <input type="tel" name="emergency_contact_number" id="emergency_contact_number" placeholder="09XXXXXXXXX"
-                    class="form-control @error('emergency_contact_number') is-invalid @enderror" 
-                    value="{{ old('emergency_contact_number', $step2['emergency_contact_number'] ?? '') }}" required>
-                  @error('emergency_contact_number')<div class="invalid-feedback" data-server>{{ $message }}</div>@enderror
+                  <label for="emergency_contact_number">Contact Number <span class="text-danger">*</span></label>
+                  <input type="text" name="emergency_contact_number" id="emergency_contact_number" placeholder="09XXXXXXXXX"
+                    class="form-control rounded-pill @error('emergency_contact_number') is-invalid @enderror" 
+                    value="{{ old('emergency_contact_number', $step2['emergency_contact_number'] ?? '') }}" 
+                    maxlength="11" pattern="[0-9]{11}" required>
+                  @error('emergency_contact_number')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
                 <div class="col-md-6 mb-3">
-                  <label for="emergency_contact_address">Emergency Contact Address</label>
-                  <textarea name="emergency_contact_address" id="emergency_contact_address" rows="2" placeholder="Address of emergency contact (optional)"
-                    class="form-control @error('emergency_contact_address') is-invalid @enderror">{{ old('emergency_contact_address', $step2['emergency_contact_address'] ?? '') }}</textarea>
-                  @error('emergency_contact_address')<div class="invalid-feedback" data-server>{{ $message }}</div>@enderror
+                  <label for="emergency_contact_address">Address <span class="text-danger">*</span></label>
+                  <input type="text" name="emergency_contact_address" id="emergency_contact_address" placeholder="Enter address"
+                    class="form-control rounded-pill @error('emergency_contact_address') is-invalid @enderror" 
+                    value="{{ old('emergency_contact_address', $step2['emergency_contact_address'] ?? '') }}" required>
+                  @error('emergency_contact_address')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
               </div>
               
-              <div class="row">
+             <div class="row">
+      <div class="col-md-6 mt-2">
+        <a href="{{ route('public.pre-registration.step1') }}" class="btn btn-outline-secondary w-100">
+           Previous
+        </a>
+      </div>
                 <div class="col-md-6 mt-2">
-                  <a href="{{ route('public.pre-registration.step1') }}" class="btn btn-outline-secondary w-100">
-                    <i class="fas fa-arrow-left"></i> Previous
-                  </a>
-                </div>
-                <div class="col-md-6 mt-2">
-                  <button type="submit" class="btn bg-gradient-dark w-100">
-                    Continue to Step 3 <i class="fas fa-arrow-right ml-2"></i>
-                  </button>
+                  <button type="submit" class="btn bg-gradient-dark w-100">Next</button>
                 </div>
               </div>
             </div>
@@ -105,4 +110,59 @@
     </div>
   </div>
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const emailInput = document.getElementById('email_address');
+    const emailError = document.getElementById('email-validation-error');
+    const form = document.getElementById('residentPreRegStep2Form');
+    
+    // Email validation regex
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    // Real-time validation on input
+    emailInput.addEventListener('input', function() {
+        const value = this.value.trim();
+        
+        if (value === '') {
+            // Empty is allowed (optional field)
+            this.classList.remove('is-invalid');
+            emailError.style.display = 'none';
+        } else if (!emailRegex.test(value)) {
+            // Invalid email format
+            this.classList.add('is-invalid');
+            emailError.style.display = 'block';
+        } else {
+            // Valid email
+            this.classList.remove('is-invalid');
+            emailError.style.display = 'none';
+        }
+    });
+    
+    // Validate on blur (when user leaves the field)
+    emailInput.addEventListener('blur', function() {
+        const value = this.value.trim();
+        
+        if (value !== '' && !emailRegex.test(value)) {
+            this.classList.add('is-invalid');
+            emailError.style.display = 'block';
+        }
+    });
+    
+    // Validate on form submit
+    form.addEventListener('submit', function(e) {
+        const value = emailInput.value.trim();
+        
+        if (value !== '' && !emailRegex.test(value)) {
+            e.preventDefault();
+            emailInput.classList.add('is-invalid');
+            emailError.style.display = 'block';
+            emailInput.focus();
+            return false;
+        }
+    });
+});
+</script>
+@endpush
 @endsection

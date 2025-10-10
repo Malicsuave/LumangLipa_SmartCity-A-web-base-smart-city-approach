@@ -43,6 +43,7 @@ class Resident extends Model
         'contact_number',
         'email_address',
         'current_address',
+        'purok',
         'emergency_contact_name',
         'emergency_contact_relationship',
         'emergency_contact_number',

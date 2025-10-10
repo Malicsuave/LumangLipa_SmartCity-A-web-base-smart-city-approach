@@ -185,9 +185,8 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label for="email_address">Email Address <small class="text-muted">(Optional)</small></label>
-                                    <input type="email" class="form-control @error('email_address') is-invalid @enderror" id="email_address" name="email_address" value="{{ old('email_address', $resident->email_address) }}">
-                                    <small class="form-text text-muted">Used for notifications</small>
+                                    <label for="email_address">Email Address <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control @error('email_address') is-invalid @enderror" id="email_address" name="email_address" value="{{ old('email_address', $resident->email_address) }}" required>
                                     @error('email_address')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror

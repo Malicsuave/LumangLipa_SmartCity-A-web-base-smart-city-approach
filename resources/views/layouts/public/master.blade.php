@@ -7,8 +7,7 @@
     <meta name="description" content="Lumanglipa Barangay Management System">
     <meta name="author" content="">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="icon" href="{{ asset('favicon.ico') }}">
-    <link rel="icon" type="image/png" href="{{ asset('assets/css/favicon.png') }}">
+    <link rel="icon" href="{{ asset('images/logo-bg.jpg') }}">
     <title>@yield('title', 'Barangay Lumanglipa')</title>
 
     <!-- Fonts and icons -->
@@ -23,6 +22,7 @@
  
 
     <!-- CSS Files -->
+    @stack('styles')
     <link id="pagestyle" href="{{ asset('assets/css/material-kit.css') }}" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('css/chatbot.css') }}?v={{ time() }}">
     <style>
@@ -111,14 +111,28 @@
                                         <span class="material-symbols-rounded opacity-6 align-middle me-2 text-md" style="font-variation-settings: 'wght' 100;">call</span> Contact
                                     </a>
                                 </li>
-                                <li class="nav-item mx-2">
-                                    <a class="nav-link d-flex align-items-center fw-bold" href="{{ route('public.pre-registration.step1') }}">
-                                        <span class="material-symbols-rounded opacity-6 align-middle me-2 text-md" style="font-variation-settings: 'wght' 100;">person_add</span> Register
+                                <li class="nav-item dropdown dropdown-hover mx-2">
+                                    <a class="nav-link ps-2 d-flex cursor-pointer align-items-center fw-bold" id="dropdownMenuRegister" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <span class="material-symbols-rounded opacity-6 align-middle me-2 text-md" style="font-variation-settings: 'wght' 100;">person_add</span>
+                                        Register
+                                        <img src="{{ asset('assets/img/down-arrow-dark.svg') }}" alt="down-arrow" class="arrow ms-auto ms-md-2">
                                     </a>
+                                    <ul class="dropdown-menu dropdown-menu-animation ms-n3 dropdown-md p-3 border-radius-xl mt-0 mt-lg-3" aria-labelledby="dropdownMenuRegister">
+                                        <li><a class="dropdown-item" href="{{ route('public.pre-registration.step1') }}">Register Resident</a></li>
+                                        <li><a class="dropdown-item" href="{{ route('public.senior-registration.step1') }}">Register Senior Citizen</a></li>
+                                    </ul>
                                 </li>
-                                  <li class="nav-item my-auto ms-3 ms-lg-0">
-    <a href="{{route('login') }}" class="btn mb-0 mt-2 mt-md-0" style="background-color:#2A7BC4; color:#fff; border:none; border-radius:8px; font-weight:600;">Login</a>
-</li>
+                                <li class="nav-item my-auto ms-3 ms-lg-0">
+                                    @auth
+                                        <a href="{{ route('dashboard') }}" class="btn mb-0 mt-2 mt-md-0 d-flex align-items-center" style="background-color:#2A7BC4; color:#fff; border:none; border-radius:8px; font-weight:600;">
+                                            <span class="material-symbols-rounded me-1" style="font-size:16px;">dashboard</span>Dashboard
+                                        </a>
+                                    @else
+                                        <a href="{{ route('login') }}" class="btn mb-0 mt-2 mt-md-0 d-flex align-items-center" style="background-color:#2A7BC4; color:#fff; border:none; border-radius:8px; font-weight:600;">
+                                            <span class="material-symbols-rounded me-1" style="font-size:16px;">login</span>Login
+                                        </a>
+                                    @endauth
+                                </li>
                             </ul>
                         </div>
                     </div>

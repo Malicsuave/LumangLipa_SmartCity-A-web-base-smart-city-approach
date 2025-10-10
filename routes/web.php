@@ -102,8 +102,6 @@ Route::prefix('senior-registration')->name('public.senior-registration.')->group
     Route::post('step3', [\App\Http\Controllers\Public\SeniorRegistrationController::class, 'storeStep3'])->name('step3.store');
     Route::get('step4', [\App\Http\Controllers\Public\SeniorRegistrationController::class, 'createStep4'])->name('step4');
     Route::post('step4', [\App\Http\Controllers\Public\SeniorRegistrationController::class, 'storeStep4'])->name('step4.store');
-    Route::get('step5', [\App\Http\Controllers\Public\SeniorRegistrationController::class, 'createStep5'])->name('step5');
-    Route::post('step5', [\App\Http\Controllers\Public\SeniorRegistrationController::class, 'storeStep5'])->name('step5.store');
     Route::get('review', [\App\Http\Controllers\Public\SeniorRegistrationController::class, 'createReview'])->name('review');
     Route::post('submit', [\App\Http\Controllers\Public\SeniorRegistrationController::class, 'store'])->name('submit');
     Route::get('success', [\App\Http\Controllers\Public\SeniorRegistrationController::class, 'success'])->name('success');
@@ -226,8 +224,13 @@ Route::middleware([
         Route::prefix('admin/pre-registrations')->name('admin.pre-registrations.')->group(function() {
             Route::get('/', [App\Http\Controllers\Admin\PreRegistrationController::class, 'index'])->name('index');
             Route::get('/{preRegistration}', [App\Http\Controllers\Admin\PreRegistrationController::class, 'show'])->name('show');
+            Route::get('/senior/{seniorPreRegistration}', [App\Http\Controllers\Admin\PreRegistrationController::class, 'showSenior'])->name('show-senior');
             Route::post('/{preRegistration}/approve', [App\Http\Controllers\Admin\PreRegistrationController::class, 'approve'])->name('approve');
             Route::post('/{preRegistration}/reject', [App\Http\Controllers\Admin\PreRegistrationController::class, 'reject'])->name('reject');
+            Route::delete('/{preRegistration}', [App\Http\Controllers\Admin\PreRegistrationController::class, 'destroy'])->name('destroy');
+            Route::post('/senior/{seniorPreRegistration}/approve', [App\Http\Controllers\Admin\PreRegistrationController::class, 'approveSenior'])->name('approve-senior');
+            Route::post('/senior/{seniorPreRegistration}/reject', [App\Http\Controllers\Admin\PreRegistrationController::class, 'rejectSenior'])->name('reject-senior');
+            Route::delete('/senior/{seniorPreRegistration}', [App\Http\Controllers\Admin\PreRegistrationController::class, 'destroySenior'])->name('destroy-senior');
         });
         
         // Resident Management Routes

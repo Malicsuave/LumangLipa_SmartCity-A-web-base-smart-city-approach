@@ -21,3 +21,6 @@ yarn-error.log
 storage/framework/views/
 /storage/logs/
 storage/logs/*.log
+storage/framework/cache/*
+storage/framework/cache/data/*
+storage/app/mpdf/mpdf/ttfontdata/*

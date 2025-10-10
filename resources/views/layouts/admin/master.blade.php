@@ -151,6 +151,11 @@
             <span class="float-right text-muted text-sm">1 hr</span>
           </a>
           <div class="dropdown-divider"></div>
+          <a href="{{ route('admin.complaints') }}" class="dropdown-item">
+            <i class="fas fa-exclamation-triangle mr-2"></i> Complaints
+            <span class="float-right text-muted text-sm">2 hrs</span>
+          </a>
+          <div class="dropdown-divider"></div>
           <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
         </div>
       </li>
@@ -344,17 +349,19 @@
             </a>
           </li>
 
-          <li class="nav-item">
-            <a href="{{ route('admin.officials.edit-single') }}" class="nav-link {{ Request::routeIs('admin.officials.edit-single') ? 'active' : '' }}">
-              <i class="nav-icon fas fa-user-tie"></i>
-              <p>Officials</p>
-            </a>
-          </li>
+         
 
           <li class="nav-item">
             <a href="{{ route('admin.health') }}" class="nav-link {{ Request::routeIs('admin.health') ? 'active' : '' }}">
               <i class="nav-icon fas fa-heartbeat"></i>
               <p>Health Services</p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a href="{{ route('admin.complaints') }}" class="nav-link {{ Request::routeIs('admin.complaints') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-exclamation-triangle"></i>
+              <p>Complaints</p>
             </a>
           </li>
 
@@ -569,6 +576,75 @@
 <script src="{{ asset('adminlte/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js') }}"></script>
 <!-- AdminLTE App -->
 <script src="{{ asset('adminlte/js/adminlte.min.js') }}"></script>
+<!-- Mobile Debug Script - Load before other scripts -->
+<script>
+// Mobile Debug Logger (console only - no visual indicator)
+window.mobileDebug = {
+    log: function(message, data) {
+        if (window.innerWidth <= 768) {
+            console.log('[MOBILE DEBUG]', message, data || '');
+            // Visual debug indicator removed - functionality preserved
+        }
+    }
+};
+
+// Check if AdminLTE is loading
+document.addEventListener('DOMContentLoaded', function() {
+    mobileDebug.log('DOM Loaded');
+    
+    // Check jQuery
+    if (typeof $ === 'undefined') {
+        mobileDebug.log('ERROR: jQuery not loaded!');
+        return;
+    } else {
+        mobileDebug.log('✓ jQuery loaded: v' + $.fn.jquery);
+    }
+    
+    // Check Bootstrap
+    if (typeof $.fn.dropdown === 'undefined') {
+        mobileDebug.log('ERROR: Bootstrap JS not loaded!');
+    } else {
+        mobileDebug.log('✓ Bootstrap loaded');
+    }
+    
+    // Check AdminLTE
+    if (typeof $.AdminLTE === 'undefined') {
+        mobileDebug.log('ERROR: AdminLTE not loaded!');
+    } else {
+        mobileDebug.log('✓ AdminLTE loaded');
+    }
+    
+    // Force initialize AdminLTE components
+    setTimeout(function() {
+        try {
+            // Force initialize all AdminLTE widgets
+            $('[data-widget]').each(function() {
+                const widget = $(this).data('widget');
+                mobileDebug.log('Initializing widget: ' + widget);
+                
+                if (widget === 'pushmenu' && typeof $.fn.PushMenu !== 'undefined') {
+                    $(this).PushMenu();
+                }
+                if (widget === 'treeview' && typeof $.fn.Treeview !== 'undefined') {
+                    $(this).Treeview();
+                }
+                if (widget === 'dropdown' && typeof $.fn.dropdown !== 'undefined') {
+                    $(this).dropdown();
+                }
+            });
+            
+            mobileDebug.log('✓ AdminLTE widgets initialized');
+        } catch (error) {
+            mobileDebug.log('ERROR initializing widgets: ' + error.message);
+        }
+    }, 500);
+});
+
+// Error tracking
+window.addEventListener('error', function(e) {
+    mobileDebug.log('JS ERROR: ' + e.message + ' at ' + e.filename + ':' + e.lineno);
+});
+</script>
 <!-- Toastr JS for global notifications -->
 <script src="{{ asset('adminlte/plugins/toastr/toastr.min.js') }}"></script>
 <!-- Global Toastr Configuration -->
@@ -842,6 +918,408 @@ $(document).ready(function() {
     // Debug logging (remove in production)
     console.log('AdminLTE Customization Panel initialized successfully');
 });
+
+// Comprehensive Mobile Fix for AdminLTE
+$(document).ready(function() {
+    // Mobile device detection
+    function isMobile() {
+        return window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    }
+    
+    if (isMobile()) {
+        mobileDebug.log('Mobile device detected, applying fixes...');
+        
+        // Fix 1: Ensure touch events work for all interactive elements
+        $('body').addClass('touch-device');
+        
+        // Fix 2: Force dropdown functionality
+        $('.dropdown-toggle').off('click.mobile').on('click.mobile touchstart.mobile', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const $this = $(this);
+            const $dropdown = $this.next('.dropdown-menu');
+            
+            // Close other dropdowns
+            $('.dropdown-menu').not($dropdown).hide();
+            
+            // Toggle current dropdown
+            $dropdown.toggle();
+            
+            mobileDebug.log('Dropdown toggled for: ' + $this.text().trim());
+        });
+        
+        // Fix 3: Sidebar treeview (nav-treeview) functionality
+        $('.nav-link').off('click.mobile-tree').on('click.mobile-tree', function(e) {
+            const $this = $(this);
+            const $parent = $this.parent('.nav-item');
+            const $treeview = $parent.find('.nav-treeview');
+            
+            if ($treeview.length > 0) {
+                e.preventDefault();
+                
+                // Toggle the menu-open class
+                $parent.toggleClass('menu-open');
+                
+                // Slide toggle the treeview
+                $treeview.slideToggle(300);
+                
+                mobileDebug.log('Treeview toggled: ' + $this.find('p').text());
+            }
+        });
+        
+        // Fix 4: Control sidebar (customize panel)
+        $('[data-widget="control-sidebar"]').off('click.mobile-control').on('click.mobile-control', function(e) {
+            e.preventDefault();
+            const $controlSidebar = $('.control-sidebar');
+            $('body').toggleClass('control-sidebar-slide-open');
+            mobileDebug.log('Control sidebar toggled');
+        });
+        
+        // Fix 5: Fullscreen functionality
+        $('[data-widget="fullscreen"]').off('click.mobile-fullscreen').on('click.mobile-fullscreen', function(e) {
+            e.preventDefault();
+            
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().then(() => {
+                    $(this).find('i').removeClass('fa-expand-arrows-alt').addClass('fa-compress-arrows-alt');
+                    mobileDebug.log('Entered fullscreen');
+                }).catch(err => {
+                    mobileDebug.log('Fullscreen error: ' + err.message);
+                });
+            } else {
+                document.exitFullscreen().then(() => {
+                    $(this).find('i').removeClass('fa-compress-arrows-alt').addClass('fa-expand-arrows-alt');
+                    mobileDebug.log('Exited fullscreen');
+                });
+            }
+        });
+        
+        // Fix 6: Navbar search
+        $('[data-widget="navbar-search"]').off('click.mobile-search').on('click.mobile-search', function(e) {
+            e.preventDefault();
+            $('.navbar-search-block').toggle();
+            const isVisible = $('.navbar-search-block').is(':visible');
+            if (isVisible) {
+                $('.navbar-search-block input').focus();
+            }
+            mobileDebug.log('Navbar search toggled: ' + isVisible);
+        });
+        
+        // Fix 7: Close dropdowns when clicking outside
+        $(document).off('click.mobile-close').on('click.mobile-close', function(e) {
+            if (!$(e.target).closest('.dropdown').length) {
+                $('.dropdown-menu').hide();
+            }
+            if (!$(e.target).closest('.navbar-search-block, [data-widget="navbar-search"]').length) {
+                $('.navbar-search-block').hide();
+            }
+        });
+        
+        // Fix 8: Ensure all AdminLTE widgets are properly initialized
+        setTimeout(function() {
+            // Re-initialize AdminLTE
+            if (typeof $.AdminLTE !== 'undefined' && $.AdminLTE.init) {
+                $.AdminLTE.init();
+                mobileDebug.log('AdminLTE re-initialized');
+            }
+            
+            // Force re-bind all data-widget elements
+            $('[data-widget]').each(function() {
+                const $this = $(this);
+                const widget = $this.data('widget');
+                
+                try {
+                    if (widget === 'pushmenu' && typeof $.fn.PushMenu !== 'undefined') {
+                        $this.PushMenu();
+                    } else if (widget === 'treeview' && typeof $.fn.Treeview !== 'undefined') {
+                        $this.Treeview();
+                    }
+                } catch (error) {
+                    mobileDebug.log('Widget init error for ' + widget + ': ' + error.message);
+                }
+            });
+        }, 1000);
+    }
+    
+    // Enhanced mobile support for sidebar toggle
+    function initMobileSidebar() {
+        // Check if we're on mobile/tablet
+        function isMobile() {
+            return window.innerWidth <= 768;
+        }
+        
+        // Force sidebar to work on mobile devices
+                // Enhanced mobile support for sidebar toggle with touch events
+        $('[data-widget="pushmenu"]').off('click.mobileFix touchstart.mobileFix').on('click.mobileFix touchstart.mobileFix', function(e) {
+            if (isMobile()) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                var $body = $('body');
+                
+                // Toggle sidebar collapse state
+                if ($body.hasClass('sidebar-open')) {
+                    $body.removeClass('sidebar-open').addClass('sidebar-collapse');
+                } else if ($body.hasClass('sidebar-collapse')) {
+                    $body.removeClass('sidebar-collapse').addClass('sidebar-open');
+                } else {
+                    // Default state - open the sidebar
+                    $body.addClass('sidebar-open').removeClass('sidebar-collapse');
+                }
+                
+                // Add mobile overlay
+                if (!$('.mobile-sidebar-overlay').length) {
+                    $('body').append('<div class="mobile-sidebar-overlay"></div>');
+                }
+                
+                if ($body.hasClass('sidebar-open')) {
+                    $('.mobile-sidebar-overlay').fadeIn(200);
+                    $body.css('overflow', 'hidden');
+                } else {
+                    $('.mobile-sidebar-overlay').fadeOut(200);
+                    $body.css('overflow', '');
+                }
+            }
+        });
+        
+        // Close sidebar when clicking overlay
+        $(document).off('click.mobileOverlay').on('click.mobileOverlay', '.mobile-sidebar-overlay', function() {
+            $('body').removeClass('sidebar-open').addClass('sidebar-collapse');
+            $(this).fadeOut(200);
+            $('body').css('overflow', '');
+        });
+        
+        // Handle window resize
+        $(window).off('resize.mobileSidebar').on('resize.mobileSidebar', function() {
+            if (!isMobile()) {
+                $('.mobile-sidebar-overlay').remove();
+                $('body').css('overflow', '');
+            }
+        });
+        
+        // Ensure AdminLTE pushmenu widget is properly initialized
+        if (typeof $.fn.PushMenu !== 'undefined') {
+            $('[data-widget="pushmenu"]').PushMenu('init');
+        }
+        
+        // Fallback for touch devices - ensure button is properly clickable
+        $('[data-widget="pushmenu"]').css({
+            'touch-action': 'manipulation',
+            'user-select': 'none',
+            '-webkit-user-select': 'none',
+            '-moz-user-select': 'none',
+            '-ms-user-select': 'none'
+        });
+        
+        // Debug logging for mobile
+        if (isMobile()) {
+            console.log('Mobile sidebar initialized for screen width:', window.innerWidth);
+        }
+    }
+    
+    // Initialize mobile sidebar after AdminLTE loads
+    setTimeout(initMobileSidebar, 100);
+    
+    // Reinitialize if AdminLTE reloads
+    $(document).on('adminlte.ready', initMobileSidebar);
+});
+</script>
+
+<!-- Admin Floating Chatbot (inbox style) -->
+@auth
+<div class="chatbot-container">
+    <div class="chatbot-window" id="adminChatbotWindow">
+        <div class="chatbot-header">
+            <h4>💬 Messages</h4>
+            <button class="chatbot-close" id="adminChatbotClose" style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;background:transparent;border:none;outline:none;cursor:pointer;">
+                <i class="fas fa-times" style="color:white;font-size:16px;"></i>
+            </button>
+        </div>
+        
+        <!-- Conversations List (Inbox Style) -->
+        <div class="chatbot-messages" id="adminChatbotMessages" style="padding: 0;">
+            <div id="conversationsList" style="display: block;">
+                <!-- Conversation items will be loaded here -->
+                <div style="padding: 20px; text-align: center; color: #666; font-size: 14px;">
+                    <i class="fas fa-inbox" style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
+                    Loading conversations...
+                </div>
+            </div>
+            
+            <!-- Chat View (hidden initially) -->
+            <div id="chatView" style="display: none; height: 100%; flex-direction: column;">
+                <div id="chatHeader" style="padding: 15px; border-bottom: 1px solid #eee; background: #f8f9fa; display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center;">
+                        <button id="backToInbox" style="background: none; border: none; margin-right: 10px; color: #007bff; cursor: pointer;">
+                            <i class="fas fa-arrow-left"></i>
+                        </button>
+                        <div>
+                            <div id="chatUserName" style="font-weight: bold; font-size: 14px;"></div>
+                            <div id="chatUserStatus" style="font-size: 12px; color: #666;"></div>
+                        </div>
+                    </div>
+                    <button id="completeAndNextBtn" onclick="window.adminChatbot.completeAndNext()" 
+                            style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 5px;"
+                            onmouseover="this.style.background='#218838'"
+                            onmouseout="this.style.background='#28a745'">
+                        <i class="fas fa-check"></i> Complete & Next
+                    </button>
+                </div>
+                
+                <div id="chatMessages" style="flex: 1; padding: 15px; overflow-y: auto; min-height: 200px; max-height: calc(100% - 120px);">
+                    <!-- Chat messages will appear here -->
+                </div>
+                
+                <div class="chatbot-input-area">
+                    <input type="text" class="chatbot-input" id="adminChatbotInput" 
+                           placeholder="Type your message..." maxlength="500">
+                    <button class="chatbot-send" id="adminChatbotSend">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <button class="chatbot-toggle" id="adminChatbotToggle" style="position:relative;">
+        <div class="chatbot-pulse"></div>
+        <i class="fas fa-envelope"></i>
+    </button>
+</div>
+
+<script src="{{ asset('js/admin-chatbot.js') }}?v={{ time() }}"></script>
+@endauth
+
+<!-- Mobile Sidebar Styles -->
+<style>
+.mobile-sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1039;
+    display: none;
+}
+
+/* Mobile-specific fixes */
+@media (max-width: 768px) {
+    /* Sidebar fixes */
+    .sidebar-open .main-sidebar {
+        transform: translateX(0) !important;
+        margin-left: 0 !important;
+    }
+    
+    .sidebar-collapse .main-sidebar {
+        transform: translateX(-250px) !important;
+    }
+    
+    .main-sidebar {
+        transition: transform 0.3s ease-in-out !important;
+    }
+    
+    /* Ensure sidebar is accessible on mobile */
+    body.sidebar-open .main-sidebar {
+        position: fixed !important;
+        height: 100vh !important;
+        z-index: 1040 !important;
+    }
+    
+    /* Fix content area on mobile when sidebar is open */
+    body.sidebar-open .content-wrapper,
+    body.sidebar-open .main-footer {
+        margin-left: 0 !important;
+    }
+    
+    /* Touch-friendly interactive elements */
+    .touch-device .nav-link,
+    .touch-device .dropdown-toggle,
+    .touch-device [data-widget],
+    .touch-device .btn {
+        min-height: 44px !important;
+        display: flex !important;
+        align-items: center !important;
+        touch-action: manipulation !important;
+        -webkit-tap-highlight-color: rgba(0,0,0,0.1) !important;
+    }
+    
+    /* Fix dropdown menus on mobile */
+    .dropdown-menu {
+        position: absolute !important;
+        display: none;
+        min-width: 200px;
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.175);
+        z-index: 1000;
+    }
+    
+    .dropdown-menu.show,
+    .dropdown-menu:target {
+        display: block !important;
+    }
+    
+    /* Fix navbar search on mobile */
+    .navbar-search-block {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #dee2e6;
+        padding: 10px;
+        z-index: 1050;
+        display: none;
+    }
+    
+    /* Control sidebar improvements */
+    .control-sidebar {
+        position: fixed !important;
+        top: 0 !important;
+        right: -400px !important;
+        width: 300px !important;
+        height: 100vh !important;
+        transition: right 0.3s ease-in-out !important;
+        z-index: 1041 !important;
+    }
+    
+    body.control-sidebar-slide-open .control-sidebar {
+        right: 0 !important;
+    }
+    
+    /* Tree view improvements */
+    .nav-treeview {
+        display: none;
+        background-color: rgba(255,255,255,0.1);
+        padding-left: 20px;
+    }
+    
+    .menu-open .nav-treeview {
+        display: block;
+    }
+    
+    /* Better button spacing */
+    .navbar-nav .nav-item .nav-link {
+        padding: 0.75rem 1rem !important;
+    }
+    
+    /* Fullscreen button fix */
+    [data-widget="fullscreen"] {
+        cursor: pointer !important;
+    }
+}
+
+/* Debug indicator styles */
+#debug-indicator {
+    font-family: monospace !important;
+    z-index: 99999 !important;
+    pointer-events: none !important;
+    opacity: 0.9 !important;
+}
+</style>
 </script>
 
 <!-- Admin Floating Chatbot (inbox style) -->

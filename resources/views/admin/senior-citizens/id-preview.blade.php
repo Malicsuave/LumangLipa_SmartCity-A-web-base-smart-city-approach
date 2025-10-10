@@ -147,8 +147,18 @@
                                                         <span>{{ $seniorCitizen->birthdate ? \Carbon\Carbon::parse($seniorCitizen->birthdate)->format('M d, Y') : 'N/A' }}</span>
                                                     </div>
                                                     <div class="mb-2">
-                                                        <strong>Telepono/Phone</strong><br>
-                                                        <span>{{ $seniorCitizen->contact_number ?: 'N/A' }}</span>
+                                                        <table style="width: 100%; border-collapse: collapse;">
+                                                            <tr>
+                                                                <td style="width: 50%; vertical-align: top; padding-right: 5px;">
+                                                                    <strong>Telepono/Phone</strong><br>
+                                                                    <span>{{ $seniorCitizen->contact_number ?: 'N/A' }}</span>
+                                                                </td>
+                                                                <td style="width: 50%; vertical-align: top; padding-left: 5px;">
+                                                                    <strong>Purok</strong><br>
+                                                                    <span>{{ $seniorCitizen->purok ?: 'N/A' }}</span>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
                                                     </div>
                                                     <div class="mb-2">
                                                         <strong>Tirahan/Address</strong><br>
@@ -267,12 +277,12 @@
         max-width: 450px;
         margin: 0 auto;
         position: relative;
-        font-family: 'Poppins', 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        font-family: 'Arial', 'Helvetica', sans-serif;
     }
     
     /* Force all elements in ID card to use PDF fonts */
     .id-card * {
-        font-family: 'Poppins', 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+        font-family: 'Arial', 'Helvetica', sans-serif !important;
     }
     .id-card {
         width: 100%;
@@ -336,17 +346,17 @@
     .id-card-title {
         text-align: center;
         flex: 1;
-        color: #f57f17 !important; /* Orange color for senior citizen */
+        color: #003366 !important;
     }
     .id-card-title h6 {
         margin: 0;
         font-weight: bold;
         font-size: 12px;
-        color: #f57f17 !important; /* Orange color for senior citizen */
+        color: #003366 !important;
     }
     .id-card-title h6.small {
         font-size: 10px;
-        color: #f57f17 !important; /* Orange color for senior citizen */
+        color: #003366 !important;
     }
     .id-card-body {
         padding: 15px;
@@ -384,7 +394,7 @@
     .id-card-details {
         font-size: 11px;
         padding-left: 20px;
-        font-family: 'Poppins', 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+        font-family: 'Arial', 'Helvetica', sans-serif !important;
     }
     
     /* Reduce spacing between fields to fit more content */
@@ -396,19 +406,19 @@
     .id-card-details strong {
         font-weight: bold !important;
         font-size: 11px !important;
-        color: #001a4e !important; /* Navy blue for text */
-        font-family: 'Poppins', 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+        color: #000 !important;
+        font-family: 'Arial', 'Helvetica', sans-serif !important;
     }
     
     .id-card-details span {
         font-weight: normal !important;
         font-size: 11px !important;
-        color: #001a4e !important; /* Navy blue for text */
-        font-family: 'Poppins', 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+        color: #000 !important;
+        font-family: 'Arial', 'Helvetica', sans-serif !important;
     }
     .idno {
         font-weight: bold;
-        color: #001a4e !important; /* Navy blue for text */
+        color: #001a4e !important;
         font-size: 12px;
         white-space: nowrap;
         overflow: visible;
@@ -445,12 +455,12 @@
     }
     .text-uppercase {
         text-transform: uppercase;
-        font-family: 'Poppins', 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+        font-family: 'Arial', 'Helvetica', sans-serif !important;
     }
     .font-weight-bold {
         font-weight: bold !important;
-        color: #001a4e !important; /* Navy blue for text */
-        font-family: 'Poppins', 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+        color: #000 !important;
+        font-family: 'Arial', 'Helvetica', sans-serif !important;
     }
     
     /* Specific styling for name field to match PDF exactly */
@@ -472,29 +482,29 @@
     .id-card-back-details {
         font-size: 11px;
         padding-left: 10px;
-        font-family: 'Poppins', 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+        font-family: 'Arial', 'Helvetica', sans-serif !important;
     }
     
     /* Back side font styling - navy blue text */
     .id-card-back-details strong {
         font-weight: bold !important;
         font-size: 11px !important;
-        color: #001a4e !important; /* Navy blue for text */
-        font-family: 'Poppins', 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+        color: #000 !important;
+        font-family: 'Arial', 'Helvetica', sans-serif !important;
     }
     
     .id-card-back-details span {
         font-weight: normal !important;
         font-size: 11px !important;
-        color: #001a4e !important; /* Navy blue for text */
-        font-family: 'Poppins', 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+        color: #000 !important;
+        font-family: 'Arial', 'Helvetica', sans-serif !important;
     }
     
     /* Global strong styling - navy blue text */
     .id-card strong {
         font-weight: bold !important;
-        color: #001a4e !important; /* Navy blue for text */
-        font-family: 'Poppins', 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+        color: #000 !important;
+        font-family: 'Arial', 'Helvetica', sans-serif !important;
     }
     .qr-code-container {
         text-align: center;

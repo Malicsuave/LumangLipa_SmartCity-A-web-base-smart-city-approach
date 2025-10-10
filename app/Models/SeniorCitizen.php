@@ -41,6 +41,7 @@ class SeniorCitizen extends Model
         'contact_number',
         'email_address',
         'current_address',
+        'purok',
         
         // Step 3: Photo and Signature
         'photo',

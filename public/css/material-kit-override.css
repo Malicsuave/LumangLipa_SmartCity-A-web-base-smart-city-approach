@@ -1,0 +1,387 @@
+/* CRITICAL: Override Material Kit form-control styles */
+/* This file MUST load AFTER material-kit.min.css */
+
+/* Force rounded borders on ALL form controls */
+input.form-control,
+input.form-control[type="text"],
+input.form-control[type="date"],
+input.form-control[type="email"],
+input.form-control[type="tel"],
+select.form-control,
+textarea.form-control,
+.form-control,
+.card .form-control,
+.card-body .form-control,
+.row .form-control,
+.col-md-6 .form-control,
+.col-md-12 .form-control {
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  padding: 0.5rem 0.75rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 400 !important;
+  line-height: 1.4 !important;
+  color: #495057 !important;
+  background-color: #fff !important;
+  background-clip: padding-box !important;
+  background-image: none !important;
+  background-position: 0 0 !important;
+  background-size: 0 0 !important;
+  border: 1px solid #d2d6da !important;
+  border-top: 1px solid #d2d6da !important;
+  border-right: 1px solid #d2d6da !important;
+  border-bottom: 1px solid #d2d6da !important;
+  border-left: 1px solid #d2d6da !important;
+  border-radius: 0.375rem !important;
+  -webkit-border-radius: 0.375rem !important;
+  -moz-border-radius: 0.375rem !important;
+  transition: all 0.15s ease-in-out !important;
+  box-sizing: border-box !important;
+  box-shadow: none !important;
+}
+
+/* Focus state */
+input.form-control:focus,
+input.form-control[type="text"]:focus,
+input.form-control[type="date"]:focus,
+input.form-control[type="email"]:focus,
+input.form-control[type="tel"]:focus,
+select.form-control:focus,
+textarea.form-control:focus,
+.form-control:focus,
+.card .form-control:focus,
+.card-body .form-control:focus {
+  color: #495057 !important;
+  background-color: #fff !important;
+  border-color: #000 !important;
+  border: 1px solid #000 !important;
+  outline: 0 !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Remove Material Kit's ::before and ::after pseudo-elements that create underlines */
+input.form-control::before,
+input.form-control::after,
+select.form-control::before,
+select.form-control::after,
+textarea.form-control::before,
+textarea.form-control::after,
+.form-control::before,
+.form-control::after {
+  display: none !important;
+  content: none !important;
+  background: none !important;
+}
+
+/* Custom rounded input - for inputs WITHOUT validation */
+.custom-rounded-input:not(.is-invalid):not(.is-valid) {
+  border: 1px solid #d2d6da !important;
+  border-radius: 0.375rem !important;
+  background-color: #fff !important;
+  background-image: none !important;
+  padding: 0.5rem 0.75rem !important;
+}
+
+.custom-rounded-input:not(.is-invalid):not(.is-valid):focus {
+  border-color: #000 !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Disabled state */
+input.form-control:disabled,
+select.form-control:disabled,
+textarea.form-control:disabled,
+.form-control:disabled {
+  background-color: #e9ecef !important;
+  opacity: 1 !important;
+  color: #6c757d !important;
+  cursor: not-allowed !important;
+}
+
+/* Readonly state */
+input.form-control:read-only,
+.form-control:read-only {
+  background-color: #e9ecef !important;
+  opacity: 1 !important;
+}
+
+
+.form-control.is-valid,
+input.form-control.is-valid,
+input[type="text"].form-control.is-valid,
+select.form-control.is-valid,
+textarea.form-control.is-valid {
+  border-color: #66bb6a !important;
+  background-color: #fff !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2366bb6a' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right calc(0.375em + 0.75rem) center !important;
+  background-size: calc(0.5em + 0.5rem) calc(0.5em + 0.5rem) !important;
+  padding-right: calc(1.5em + 1.5rem) !important;
+}
+
+.form-control.is-valid:focus,
+input.form-control.is-valid:focus,
+input[type="text"].form-control.is-valid:focus,
+select.form-control.is-valid:focus,
+textarea.form-control.is-valid:focus {
+  border-color: #66bb6a !important;
+  background-color: #fff !important;
+  box-shadow: 0 0 0 2px rgba(102, 187, 106, 0.25) !important;
+}
+
+/* Error State - Material Kit Style with Red Border and Error Icon */
+.form-control.is-invalid,
+input.form-control.is-invalid,
+input[type="text"].form-control.is-invalid,
+select.form-control.is-invalid,
+textarea.form-control.is-invalid {
+  border-color: #f44336 !important;
+  background-color: #fff !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23f44336'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23f44336' stroke='none'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right calc(0.375em + 0.75rem) center !important;
+  background-size: calc(0.5em + 0.5rem) calc(0.5em + 0.5rem) !important;
+  padding-right: calc(1.5em + 1.5rem) !important;
+}
+
+.form-control.is-invalid:focus,
+input.form-control.is-invalid:focus,
+input[type="text"].form-control.is-invalid:focus,
+select.form-control.is-invalid:focus,
+textarea.form-control.is-invalid:focus {
+  border-color: #f44336 !important;
+  background-color: #fff !important;
+  box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.25) !important;
+}
+
+/* Validation Feedback */
+.invalid-feedback {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: #f44336;
+}
+
+.valid-feedback {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: #66bb6a;
+}
+
+/* Hide server-side validation errors on page load (JavaScript will show them after interaction) */
+.invalid-feedback[data-server] {
+  display: none !important;
+}
+
+/* Optional fields - show green checkmark when filled, but no error state */
+.optional-field.has-value,
+input.optional-field.has-value,
+input[type="text"].optional-field.has-value,
+select.optional-field.has-value,
+textarea.optional-field.has-value {
+  border-color: #66bb6a !important;
+  background-color: #fff !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2366bb6a' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right calc(0.375em + 0.75rem) center !important;
+  background-size: calc(0.5em + 0.5rem) calc(0.5em + 0.5rem) !important;
+  padding-right: calc(1.5em + 1.5rem) !important;
+}
+
+.optional-field.has-value:focus,
+input.optional-field.has-value:focus,
+input[type="text"].optional-field.has-value:focus,
+select.optional-field.has-value:focus,
+textarea.optional-field.has-value:focus {
+  border-color: #66bb6a !important;
+  background-color: #fff !important;
+  box-shadow: 0 0 0 2px rgba(102, 187, 106, 0.25) !important;
+}
+
+/* FontAwesome Icon Fix - Ensure FA icons display properly */
+.fas, .far, .fab, .fal, .fad, .fa {
+  font-family: "Font Awesome 6 Free", "Font Awesome 6 Pro", "Font Awesome 6 Brands" !important;
+  font-weight: 900 !important;
+  font-style: normal !important;
+  font-variant: normal !important;
+  text-rendering: auto !important;
+  line-height: 1 !important;
+  display: inline-block !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+
+.far {
+  font-weight: 400 !important;
+}
+
+.fab {
+  font-weight: 400 !important;
+  font-family: "Font Awesome 6 Brands" !important;
+}
+
+/* Specific icon fixes */
+.fa-phone:before { content: "\f095" !important; }
+.fa-user-shield:before { content: "\f505" !important; }
+.fa-heartbeat:before { content: "\f21e" !important; }
+.fa-money-check-alt:before { content: "\f53d" !important; }
+.fa-concierge-bell:before { content: "\f562" !important; }
+.fa-camera:before { content: "\f030" !important; }
+.fa-file-upload:before { content: "\f574" !important; }
+.fa-arrow-left:before { content: "\f060" !important; }
+.fa-arrow-right:before { content: "\f061" !important; }
+.fa-info-circle:before { content: "\f05a" !important; }
+
+/* Disabled Input Styling - Darker Grey Background */
+.form-control:disabled,
+.form-control[disabled],
+input.form-control:disabled,
+input.form-control[disabled],
+select.form-control:disabled,
+select.form-control[disabled],
+textarea.form-control:disabled,
+textarea.form-control[disabled],
+input[type="text"].form-control:disabled,
+input[type="number"].form-control:disabled,
+.card .form-control:disabled,
+.card-body .form-control:disabled,
+.row .form-control:disabled,
+.col-md-6 .form-control:disabled,
+.col-md-12 .form-control:disabled {
+  background-color: #e9ecef !important;
+  color: #6c757d !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+  border-color: #d2d6da !important;
+}
+
+/* Disabled Input Group Styling */
+.input-group .form-control:disabled,
+.input-group .form-control[disabled],
+.input-group input.form-control:disabled,
+.input-group input[type="number"].form-control:disabled,
+div.input-group .form-control:disabled,
+div.input-group input.form-control:disabled {
+  background-color: #e9ecef !important;
+  color: #6c757d !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+  border-color: #d2d6da !important;
+}
+
+/* Input Group Text for Disabled Fields - Keep Normal Styling */
+.input-group .form-control:disabled + .input-group-text,
+.input-group .form-control[disabled] + .input-group-text {
+  background-color: #e9ecef !important;
+  color: #495057 !important;
+  border-color: #d2d6da !important;
+}
+
+/* Input Group Text - Ensure Peso Sign is Visible */
+.input-group-text {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background-color: #e9ecef !important;
+  border: 1px solid #d2d6da !important;
+  color: #495057 !important;
+  font-size: 0.875rem !important;
+  padding: 0.5rem 0.75rem !important;
+  white-space: nowrap !important;
+  border-radius: 0.375rem 0 0 0.375rem !important;
+  min-width: 45px !important;
+  height: auto !important;
+  line-height: 1.4 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* Input Group Prepend Styling */
+.input-group-prepend {
+  display: flex !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* Input Group Container */
+.input-group {
+  position: relative !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: stretch !important;
+  width: 100% !important;
+}
+
+.input-group-prepend .input-group-text {
+  border-right: none !important;
+  background-color: #e9ecef !important;
+  color: #495057 !important;
+  font-weight: 500 !important;
+}
+
+/* Input Group with Prepend - Adjust Input Styling */
+.input-group .form-control {
+  border-left: none !important;
+  border-radius: 0 0.375rem 0.375rem 0 !important;
+}
+
+.input-group .form-control:focus {
+  border-left: none !important;
+  box-shadow: none !important;
+}
+
+/* Disabled Input Group Specific Styling */
+.input-group .form-control:disabled + .input-group-append .input-group-text,
+.input-group-prepend .input-group-text {
+  background-color: #e9ecef !important;
+  color: #495057 !important;
+  border-color: #d2d6da !important;
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Force peso sign visibility specifically */
+.input-group-prepend .input-group-text:contains("₱"),
+.input-group-text:contains("₱"),
+span.input-group-text:contains("₱") {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  background-color: #e9ecef !important;
+  color: #495057 !important;
+  font-weight: bold !important;
+}
+
+/* Specific targeting for pension amount and other form fields */
+#pension_type:disabled,
+#pension_amount:disabled,
+#philhealth_number:disabled,
+input#pension_amount:disabled,
+select#pension_type:disabled,
+input#philhealth_number:disabled {
+  background-color: #e9ecef !important;
+  color: #6c757d !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+  border-color: #d2d6da !important;
+}
+
+/* Enabled state for pension and philhealth fields */
+#pension_type:not(:disabled),
+#pension_amount:not(:disabled),
+#philhealth_number:not(:disabled),
+input#pension_amount:not(:disabled),
+select#pension_type:not(:disabled),
+input#philhealth_number:not(:disabled) {
+  background-color: #fff !important;
+  color: #495057 !important;
+  opacity: 1 !important;
+  cursor: text !important;
+  border-color: #d2d6da !important;
+}

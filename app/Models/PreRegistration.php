@@ -12,11 +12,61 @@ class PreRegistration extends Model
     use HasFactory;
 
     /**
+     * Boot the model.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($preRegistration) {
+            if (!$preRegistration->registration_id) {
+                $preRegistration->registration_id = static::generateRegistrationId();
+            }
+        });
+    }
+
+    /**
+     * Generate a unique registration ID with unified format: PRE-YYYY-MM-XX
+     */
+    public static function generateRegistrationId(): string
+    {
+        $date = now();
+        $yearMonth = $date->format('Y-m');
+        
+        // Keep trying until we find a unique ID
+        $attempt = 1;
+        do {
+            // Get the count of ALL registrations (both regular and senior) for this month
+            $regularCount = static::where('registration_id', 'LIKE', "PRE-{$yearMonth}-%")->count();
+            $seniorCount = \App\Models\SeniorPreRegistration::where('registration_id', 'LIKE', "PRE-{$yearMonth}-%")->count();
+            
+            $totalCount = $regularCount + $seniorCount;
+            $newNumber = $totalCount + $attempt;
+            
+            $registrationId = sprintf('PRE-%s-%02d', $yearMonth, $newNumber);
+            
+            // Check if this ID already exists in either table
+            $existsInRegular = static::where('registration_id', $registrationId)->exists();
+            $existsInSenior = \App\Models\SeniorPreRegistration::where('registration_id', $registrationId)->exists();
+            
+            if (!$existsInRegular && !$existsInSenior) {
+                return $registrationId;
+            }
+            
+            $attempt++;
+        } while ($attempt <= 100); // Prevent infinite loop
+        
+        // Fallback with timestamp if all else fails
+        return sprintf('PRE-%s-%s', $yearMonth, time());
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
     protected $fillable = [
+        'registration_id',
         'type_of_resident',
         'first_name',
         'middle_name',
@@ -29,27 +79,25 @@ class PreRegistration extends Model
         'citizenship_type',
         'citizenship_country',
         'profession_occupation',
-        'monthly_income',
         'contact_number',
         'email_address',
         'religion',
         'educational_attainment',
         'education_status',
         'address',
-        'philsys_id',
-        'population_sectors',
-        'mother_first_name',
-        'mother_middle_name',
-        'mother_last_name',
+        'emergency_contact_name',
+        'emergency_contact_relationship',
+        'emergency_contact_number',
+        'emergency_contact_address',
         'photo',
         'signature',
+        'proof_of_residency',
         'status',
         'rejection_reason',
         'approved_at',
         'rejected_at',
         'approved_by',
         'rejected_by',
-        'senior_info', // Added for senior citizen information
     ];
 
     /**
@@ -59,9 +107,6 @@ class PreRegistration extends Model
      */
     protected $casts = [
         'birthdate' => 'date',
-        'monthly_income' => 'decimal:2',
-        'population_sectors' => 'array',
-        'senior_info' => 'array',
         'approved_at' => 'datetime',
         'rejected_at' => 'datetime',
     ];
@@ -134,7 +179,7 @@ class PreRegistration extends Model
      */
     public function getIsSeniorCitizenAttribute(): bool
     {
-        return $this->birthdate && $this->birthdate->diffInYears(now()) >= 60;
+        return $this->birthdate && Carbon::parse($this->birthdate)->diffInYears(now()) >= 60;
     }
 
     /**
@@ -142,7 +187,7 @@ class PreRegistration extends Model
      */
     public function getAgeAttribute(): int
     {
-        return $this->birthdate ? $this->birthdate->diffInYears(now()) : 0;
+        return $this->birthdate ? Carbon::parse($this->birthdate)->diffInYears(now()) : 0;
     }
 
     /**

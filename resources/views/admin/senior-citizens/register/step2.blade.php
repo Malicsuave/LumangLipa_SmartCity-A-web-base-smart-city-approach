@@ -52,11 +52,10 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="email_address" class="form-label">Email Address <small class="text-muted">(Optional)</small></label>
+                                <label for="email_address" class="form-label">Email Address</label>
                                 <input type="email" class="form-control @error('email_address') is-invalid @enderror" 
                                        id="email_address" name="email_address" value="{{ old('email_address', session('senior_registration.step2.email_address')) }}" 
-                                       placeholder="email@example.com (Optional)">
-                                <small class="form-text text-muted">Used for notifications and document delivery</small>
+                                       placeholder="email@example.com">
                                 @error('email_address')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -66,13 +65,54 @@
 
                     <!-- Current Address -->
                     <div class="row">
-                        <div class="col-md-12">
+                        <div class="col-md-8">
                             <div class="form-group">
                                 <label for="current_address" class="form-label">Current Address <span class="text-danger">*</span></label>
                                 <textarea class="form-control @error('current_address') is-invalid @enderror" 
                                           id="current_address" name="current_address" rows="3" 
                                           placeholder="House No., Street, Barangay, City, Province" required>{{ old('current_address', session('senior_registration.step2.current_address')) }}</textarea>
                                 @error('current_address')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        
+                        <!-- Purok Field -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="purok" class="form-label">Purok <span class="text-danger">*</span></label>
+                                <select class="form-control @error('purok') is-invalid @enderror" 
+                                        id="purok" name="purok" required>
+                                    <option value="">Select Purok</option>
+                                    <option value="Purok 1" {{ old('purok', session('senior_registration.step2.purok')) == 'Purok 1' ? 'selected' : '' }}>Purok 1</option>
+                                    <option value="Purok 2" {{ old('purok', session('senior_registration.step2.purok')) == 'Purok 2' ? 'selected' : '' }}>Purok 2</option>
+                                    <option value="Purok 3" {{ old('purok', session('senior_registration.step2.purok')) == 'Purok 3' ? 'selected' : '' }}>Purok 3</option>
+                                    <option value="Purok 4" {{ old('purok', session('senior_registration.step2.purok')) == 'Purok 4' ? 'selected' : '' }}>Purok 4</option>
+                                    <option value="Purok 5" {{ old('purok', session('senior_registration.step2.purok')) == 'Purok 5' ? 'selected' : '' }}>Purok 5</option>
+                                    <option value="Purok 6" {{ old('purok', session('senior_registration.step2.purok')) == 'Purok 6' ? 'selected' : '' }}>Purok 6</option>
+                                    <option value="Purok 7" {{ old('purok', session('senior_registration.step2.purok')) == 'Purok 7' ? 'selected' : '' }}>Purok 7</option>
+                                    <option value="Purok 8" {{ old('purok', session('senior_registration.step2.purok')) == 'Purok 8' ? 'selected' : '' }}>Purok 8</option>
+                                    <option value="Purok 9" {{ old('purok', session('senior_registration.step2.purok')) == 'Purok 9' ? 'selected' : '' }}>Purok 9</option>
+                                    <option value="Purok 10" {{ old('purok', session('senior_registration.step2.purok')) == 'Purok 10' ? 'selected' : '' }}>Purok 10</option>
+                                    <option value="Other" {{ old('purok', session('senior_registration.step2.purok')) == 'Other' ? 'selected' : '' }}>Other</option>
+                                </select>
+                                @error('purok')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Custom Purok Input (shown when "Other" is selected) -->
+                    <div class="row" id="custom-purok-row" style="display: none;">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="custom_purok" class="form-label">Specify Purok/Sitio <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control @error('custom_purok') is-invalid @enderror" 
+                                       id="custom_purok" name="custom_purok" 
+                                       value="{{ old('custom_purok', session('senior_registration.step2.custom_purok')) }}" 
+                                       placeholder="Enter purok or sitio name">
+                                @error('custom_purok')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -136,7 +176,17 @@
                                 @enderror
                             </div>
                         </div>
-
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="emergency_contact_address" class="form-label">Emergency Contact Address</label>
+                                <input type="text" class="form-control @error('emergency_contact_address') is-invalid @enderror" 
+                                       id="emergency_contact_address" name="emergency_contact_address" value="{{ old('emergency_contact_address', session('senior_registration.step2.emergency_contact_address')) }}" 
+                                       placeholder="Complete address of emergency contact">
+                                @error('emergency_contact_address')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Form Navigation -->
@@ -174,6 +224,23 @@ $(document).ready(function() {
         }
         $(this).val(value);
     });
+    
+    // Handle purok selection
+    $('#purok').on('change', function() {
+        if ($(this).val() === 'Other') {
+            $('#custom-purok-row').show();
+            $('#custom_purok').prop('required', true);
+        } else {
+            $('#custom-purok-row').hide();
+            $('#custom_purok').prop('required', false).val('');
+        }
+    });
+    
+    // Initialize on page load
+    if ($('#purok').val() === 'Other') {
+        $('#custom-purok-row').show();
+        $('#custom_purok').prop('required', true);
+    }
 
     // Add pattern attribute for additional validation
     $('#contact_number, #emergency_contact_number').attr('pattern', '[0-9]{11}');

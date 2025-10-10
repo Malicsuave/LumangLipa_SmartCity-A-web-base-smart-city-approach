@@ -193,10 +193,16 @@
                                 <div class="info-value text-muted">{{ session('registration.step2.email_address') ?: 'Not provided' }}</div>
                             </div>
                         </div>
-                        <div class="col-md-12 mb-3">
+                        <div class="col-md-6 mb-3">
                             <div class="info-item">
                                 <strong class="info-label">Current Address:</strong>
                                 <div class="info-value text-muted">{{ session('registration.step2.current_address') }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="info-item">
+                                <strong class="info-label">Purok:</strong>
+                                <div class="info-value text-muted">{{ session('registration.step2.purok') }}</div>
                             </div>
                         </div>
                     </div>

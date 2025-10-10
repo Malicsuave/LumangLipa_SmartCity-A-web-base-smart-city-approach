@@ -59,7 +59,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label">Full Name<span class="text-danger">*</span></label>
                                                     <input type="text" name="members[{{ $index }}][fullname]" 
-                                                           class="form-control @error('members.'.$index.'.fullname') is-invalid @enderror" 
+                                                           class="form-control custom-rounded-input @error('members.'.$index.'.fullname') is-invalid @enderror" 
                                                            value="{{ $member['fullname'] ?? '' }}" required>
                                                     @error('members.'.$index.'.fullname')
                                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -70,7 +70,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label">Relationship to Head<span class="text-danger">*</span></label>
                                                     <select name="members[{{ $index }}][relationship_to_head]" 
-                                                            class="form-control @error('members.'.$index.'.relationship_to_head') is-invalid @enderror" required>
+                                                            class="form-control custom-rounded-input @error('members.'.$index.'.relationship_to_head') is-invalid @enderror" required>
                                                         <option value="">Select relationship</option>
                                                         <option value="Head" {{ (isset($member['relationship_to_head']) && $member['relationship_to_head'] == 'Head') ? 'selected' : '' }}>Head</option>
                                                         <option value="Spouse" {{ (isset($member['relationship_to_head']) && $member['relationship_to_head'] == 'Spouse') ? 'selected' : '' }}>Spouse</option>
@@ -97,7 +97,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label">Date of Birth<span class="text-danger">*</span></label>
                                                     <input type="date" name="members[{{ $index }}][dob]" 
-                                                           class="form-control @error('members.'.$index.'.dob') is-invalid @enderror" 
+                                                           class="form-control custom-rounded-input @error('members.'.$index.'.dob') is-invalid @enderror" 
                                                            value="{{ $member['dob'] ?? '' }}" max="{{ date('Y-m-d') }}" required>
                                                     @error('members.'.$index.'.dob')
                                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -110,7 +110,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label">Gender<span class="text-danger">*</span></label>
                                                     <select name="members[{{ $index }}][gender]" 
-                                                            class="form-control @error('members.'.$index.'.gender') is-invalid @enderror" required>
+                                                            class="form-control custom-rounded-input @error('members.'.$index.'.gender') is-invalid @enderror" required>
                                                         <option value="">Select gender</option>
                                                         <option value="Male" {{ ($member['gender'] ?? '') == 'Male' ? 'selected' : '' }}>Male</option>
                                                         <option value="Female" {{ ($member['gender'] ?? '') == 'Female' ? 'selected' : '' }}>Female</option>
@@ -124,7 +124,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label">Civil Status<span class="text-danger">*</span></label>
                                                     <select name="members[{{ $index }}][civil_status]" 
-                                                            class="form-control @error('members.'.$index.'.civil_status') is-invalid @enderror" required>
+                                                            class="form-control custom-rounded-input @error('members.'.$index.'.civil_status') is-invalid @enderror" required>
                                                         <option value="">Select status</option>
                                                         <option value="Single" {{ ($member['civil_status'] ?? '') == 'Single' ? 'selected' : '' }}>Single</option>
                                                         <option value="Married" {{ ($member['civil_status'] ?? '') == 'Married' ? 'selected' : '' }}>Married</option>
@@ -141,7 +141,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label">Education</label>
                                                     <select name="members[{{ $index }}][education]" 
-                                                            class="form-control @error('members.'.$index.'.education') is-invalid @enderror">
+                                                            class="form-control custom-rounded-input @error('members.'.$index.'.education') is-invalid @enderror">
                                                         <option value="">Select education</option>
                                                         <option value="No Formal Education" {{ ($member['education'] ?? '') == 'No Formal Education' ? 'selected' : '' }}>No Formal Education</option>
                                                         <option value="Elementary Undergraduate" {{ ($member['education'] ?? '') == 'Elementary Undergraduate' ? 'selected' : '' }}>Elementary Undergraduate</option>
@@ -162,7 +162,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label">Occupation</label>
                                                     <input type="text" name="members[{{ $index }}][occupation]" 
-                                                           class="form-control @error('members.'.$index.'.occupation') is-invalid @enderror" 
+                                                           class="form-control custom-rounded-input @error('members.'.$index.'.occupation') is-invalid @enderror" 
                                                            value="{{ $member['occupation'] ?? '' }}" placeholder="e.g., Teacher, Farmer, Student">
                                                     @error('members.'.$index.'.occupation')
                                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -175,7 +175,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label">Citizenship</label>
                                                     <select name="members[{{ $index }}][citizenship]" 
-                                                            class="form-control @error('members.'.$index.'.citizenship') is-invalid @enderror">
+                                                            class="form-control custom-rounded-input @error('members.'.$index.'.citizenship') is-invalid @enderror">
                                                         <option value="">Select citizenship</option>
                                                         <option value="Filipino" {{ ($member['citizenship'] ?? '') == 'Filipino' ? 'selected' : '' }}>Filipino</option>
                                                         <option value="American" {{ ($member['citizenship'] ?? '') == 'American' ? 'selected' : '' }}>American</option>
@@ -193,7 +193,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label">Religion</label>
                                                     <input type="text" name="members[{{ $index }}][religion]" 
-                                                           class="form-control @error('members.'.$index.'.religion') is-invalid @enderror" 
+                                                           class="form-control custom-rounded-input @error('members.'.$index.'.religion') is-invalid @enderror" 
                                                            value="{{ $member['religion'] ?? '' }}" placeholder="e.g., Roman Catholic, Islam, Protestant">
                                                     @error('members.'.$index.'.religion')
                                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -204,7 +204,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label">Special Category</label>
                                                     <select name="members[{{ $index }}][category]" 
-                                                            class="form-control @error('members.'.$index.'.category') is-invalid @enderror">
+                                                            class="form-control custom-rounded-input @error('members.'.$index.'.category') is-invalid @enderror">
                                                         <option value="">Select category (if applicable)</option>
                                                         <option value="Senior Citizen" {{ ($member['category'] ?? '') == 'Senior Citizen' ? 'selected' : '' }}>Senior Citizen (60+ years old)</option>
                                                         <option value="PWD" {{ ($member['category'] ?? '') == 'PWD' ? 'selected' : '' }}>Person with Disability (PWD)</option>

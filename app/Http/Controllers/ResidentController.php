@@ -249,6 +249,8 @@ class ResidentController extends Controller
             'contact_number' => 'required|numeric|digits:11',
             'email_address' => 'nullable|email|max:255',
             'current_address' => 'required|string|max:500',
+            'purok' => 'required|string|max:100',
+            'custom_purok' => 'required_if:purok,Other|nullable|string|max:100',
             'emergency_contact_name' => 'required|string|max:255',
             'emergency_contact_relationship' => 'required|string|max:100',
             'emergency_contact_number' => 'required|numeric|digits:11',
@@ -260,12 +262,20 @@ class ResidentController extends Controller
             'contact_number.digits' => 'The contact number must be exactly 11 digits.',
             'email_address.email' => 'Please enter a valid email address.',
             'current_address.required' => 'The current address field is required.',
+            'purok.required' => 'Please select a purok.',
+            'custom_purok.required_if' => 'Please specify the purok/sitio name.',
             'emergency_contact_name.required' => 'The emergency contact name is required.',
             'emergency_contact_relationship.required' => 'Please select the relationship to emergency contact.',
             'emergency_contact_number.required' => 'The emergency contact number is required.',
             'emergency_contact_number.numeric' => 'The emergency contact number must contain only numbers.',
             'emergency_contact_number.digits' => 'The emergency contact number must be exactly 11 digits.',
         ]);
+
+        // Handle custom purok
+        if ($validated['purok'] === 'Other') {
+            $validated['purok'] = $validated['custom_purok'];
+        }
+        unset($validated['custom_purok']);
 
         // Store validated data in session
         Session::put('registration.step2', $validated);
@@ -466,6 +476,7 @@ class ResidentController extends Controller
             $resident->contact_number = Session::get('registration.step2.contact_number');
             $resident->email_address = Session::get('registration.step2.email_address');
             $resident->current_address = Session::get('registration.step2.current_address'); // Fixed: use current_address column
+            $resident->purok = Session::get('registration.step2.purok');
             
             // Additional fields from Step 1
             $resident->citizenship_type = Session::get('registration.step1.citizenship_type');
@@ -664,20 +675,31 @@ class ResidentController extends Controller
                         'qrCode' => $qrCode,
                     ]);
                     
-                    // Set PDF options
+                    // Set PDF options for optimal design preservation
                     $pdf->setOptions([
                         'page-width' => '148mm',
                         'page-height' => '180mm',
                         'orientation' => 'Portrait',
-                        'margin-top' => '8mm',
-                        'margin-right' => '8mm',
-                        'margin-bottom' => '8mm',
-                        'margin-left' => '8mm',
+                        'margin-top' => '5mm',
+                        'margin-right' => '5mm',
+                        'margin-bottom' => '5mm',
+                        'margin-left' => '5mm',
                         'encoding' => 'UTF-8',
                         'enable-local-file-access' => true,
                         'disable-smart-shrinking' => true,
+                        'print-media-type' => true,
+                        'no-outline' => true,
+                        'disable-external-links' => true,
+                        'disable-internal-links' => true,
+                        'disable-javascript' => true,
+                        'no-images' => false,
                         'dpi' => 300,
                         'image-quality' => 100,
+                        'zoom' => 1.0,
+                        'viewport-size' => '1280x1024',
+                        'javascript-delay' => 0,
+                        'load-error-handling' => 'ignore',
+                        'load-media-error-handling' => 'ignore'
                     ]);
                     
                     // Create temporary file for PDF
@@ -782,8 +804,8 @@ class ResidentController extends Controller
             // Phone number validation (11 digits)
             'contact_number' => ['required', 'string', 'regex:/^\d{11}$/'],
             
-            // Enhanced email validation (optional)
-            'email_address' => ['nullable', 'email:rfc,dns', 'max:100'],
+            // Enhanced email validation
+            'email_address' => ['required', 'email:rfc,dns', 'max:100'],
             
             'type_of_resident' => 'required|string|max:20',
             'birthplace' => 'required|string|max:255',

@@ -5,6 +5,11 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 @endpush
 
+@section('breadcrumbs')
+<li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
+<li class="breadcrumb-item active" aria-current="page">Senior Citizens Management</li>
+@endsection
+
 @section('content')
 <div class="row">
     <div class="col-md-12 mb-4">

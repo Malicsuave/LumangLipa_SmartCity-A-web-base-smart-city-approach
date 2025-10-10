@@ -14,13 +14,13 @@ return new class extends Migration
         Schema::table('agent_conversations', function (Blueprint $table) {
             // Check if columns don't exist before adding
             if (!Schema::hasColumn('agent_conversations', 'assigned_admin_id')) {
-                $table->unsignedBigInteger('assigned_admin_id')->nullable();
+                $table->unsignedBigInteger('assigned_admin_id')->nullable()->after('estimated_wait_minutes');
                 $table->foreign('assigned_admin_id')->references('id')->on('users')->onDelete('set null');
                 $table->index(['assigned_admin_id', 'queue_status']);
             }
             
             if (!Schema::hasColumn('agent_conversations', 'conversation_completed_at')) {
-                $table->timestamp('conversation_completed_at')->nullable();
+                $table->timestamp('conversation_completed_at')->nullable()->after('assigned_admin_id');
             }
         });
     }
