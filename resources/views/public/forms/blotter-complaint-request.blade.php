@@ -1,6 +1,6 @@
 @extends('layouts.public.master')
 
-@section('title', 'File Complaint')
+@section('title', 'Blotter/Complaint Report')
 
 @section('content')
 <!-- QR Code Scanner Library -->
@@ -9,8 +9,8 @@
 <section class="position-relative" style="background: #eaf4fb; padding-top: 6rem; margin-top: -20px;">
     <div class="container py-4">
         <div class="text-center mb-4">
-            <h1 class="fw-bold mb-2" style="color: #2A7BC4; font-size: 2.2rem;">File Complaint</h1>
-            <p class="text-muted" style="font-size: 1rem;">Submit your complaints to Barangay Lumanglipa</p>
+            <h1 class="fw-bold mb-2" style="color: #2A7BC4; font-size: 2.2rem;">Blotter/Complaint Report</h1>
+            <p class="text-muted" style="font-size: 1rem;">Report Blotter/Complaint Online</p>
         </div>
     </div>
 </section>
@@ -22,10 +22,10 @@
                 <div class="card border-0 shadow-lg" style="border: 2px solid #2A7BC4 !important; border-radius: 18px; overflow: hidden; background: #ffffff;">
                     <div class="card-header text-center py-4" style="background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8b 100%); color: white; border: none;">
                         <div class="d-flex align-items-center justify-content-center mb-2">
-                            <i class="fas fa-exclamation-triangle me-3" style="font-size: 2rem;"></i>
-                            <h2 class="mb-0 fw-bold">Complaint Services</h2>
+                            <i class="fas fa-balance-scale me-3" style="font-size: 2rem;"></i>
+                            <h2 class="mb-0 fw-bold">File Blotter/Complaint</h2>
                         </div>
-                        <p class="mb-0 opacity-9">Complete the form below to file your complaint with Barangay Lumanglipa</p>
+                        <p class="mb-0 opacity-9">Complete the form below to file an official blotter/complaint at Barangay Lumanglipa</p>
                     </div>
                     
                     <div class="card-body p-5" style="background: #ffffff;">
@@ -43,7 +43,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
 
-                    <form id="complaintRequestForm">
+                    <form id="blotterComplaintForm">
                         @csrf
                         
                         <!-- Barangay ID Section -->
@@ -165,7 +165,7 @@
                                 <div id="otpRequestStep">
                                     <p class="mb-3">
                                         <i class="fas fa-info-circle text-info me-2"></i>
-                                        To proceed with filing your complaint, we need to verify your identity. 
+                                        To proceed with your Blotter/Complaint Report, we need to verify your identity. 
                                         An OTP (One-Time Password) will be sent to your registered email address.
                                     </p>
                                     <button type="button" class="btn btn-warning" id="sendOtpBtn">
@@ -209,7 +209,7 @@
                                 <div id="otpVerifiedStep" style="display: none;">
                                     <div class="alert alert-success mb-0">
                                         <i class="fas fa-check-circle me-2"></i>
-                                        Email verified successfully! You can now proceed with filing your complaint.
+                                        Email verified successfully! You can now proceed with your Blotter/Complaint Report.
                                     </div>
                                 </div>
                             </div>                        </div>
@@ -224,103 +224,113 @@
                                 </div>
                             </div>
 
-                            <!-- Complaint Type Section -->
+                            <!-- Case Information (Auto-generated) -->
                             <div class="mb-4">
-                                <label for="complaint_type" class="form-label fw-bold">
-                                    <i class="fas fa-list-alt text-primary me-2"></i>
-                                    Complaint Type <span class="text-danger">*Required</span>
-                                </label>
-                                <select class="form-select form-select-lg" id="complaint_type" name="complaint_type" required disabled>
-                                    <option value="">Select Complaint Type</option>
-                                    <option value="Noise Complaint">Noise Complaint</option>
-                                    <option value="Public Safety">Public Safety</option>
-                                    <option value="Environmental Issue">Environmental Issue</option>
-                                    <option value="Infrastructure">Infrastructure Problem</option>
-                                    <option value="Public Service">Public Service Issue</option>
-                                    <option value="Neighbor Dispute">Neighbor Dispute</option>
-                                    <option value="Traffic Violation">Traffic Violation</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                                <div class="form-text">
-                                    <i class="fas fa-info-circle text-info"></i>
-                                    Choose the category that best describes your complaint
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">
+                                            <i class="fas fa-calendar text-primary me-2"></i>
+                                            Petsa (Date)
+                                        </label>
+                                        <input type="text" class="form-control form-control-lg" value="{{ date('F d, Y') }}" readonly>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">
+                                            <i class="fas fa-hashtag text-primary me-2"></i>
+                                            Usapin ng Brgy Blg. (Case Number)
+                                        </label>
+                                        <input type="text" class="form-control form-control-lg" value="Will be generated upon submission" readonly>
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Subject Section -->
+                            <!-- Complainants Section -->
                             <div class="mb-4">
-                                <label for="subject" class="form-label fw-bold">
-                                    <i class="fas fa-tag text-primary me-2"></i>
-                                    Subject <span class="text-danger">*Required</span>
+                                <label for="complainants" class="form-label fw-bold">
+                                    <i class="fas fa-users text-primary me-2"></i>
+                                    (Mga) Nagsusumbong - laban kay/kina- (Complainant/s)
+                                    <span class="text-danger">*Required</span>
                                 </label>
-                                <input type="text" 
-                                       class="form-control form-control-lg"
-                                       id="subject"
-                                       name="subject"
-                                       placeholder="Brief summary of your complaint..."
-                                       maxlength="255"
-                                       required
-                                       disabled>
-                                <div class="form-text">
-                                    <i class="fas fa-info-circle text-info"></i>
-                                    Provide a brief, clear subject line for your complaint
-                                </div>
-                            </div>
-
-
-                            <!-- Description Section -->
-                            <div class="mb-4">
-                                <label for="description" class="form-label fw-bold">
-                                    <i class="fas fa-file-text text-primary me-2"></i>
-                                    Complaint Description <span class="text-danger">*Required</span>
-                                </label>
-                                <textarea class="form-control" 
-                                          id="description" 
-                                          name="description" 
-                                          rows="5" 
-                                          placeholder="Please provide detailed information about your complaint..."
-                                          required
+                                <textarea class="form-control form-control-lg" 
+                                          id="complainants" 
+                                          name="complainants" 
+                                          rows="3" 
+                                          placeholder="Ilagay ang mga pangalan ng nagsusumbong..."
+                                          required 
                                           disabled></textarea>
                                 <div class="form-text">
                                     <i class="fas fa-info-circle text-info"></i>
-                                    Include relevant details such as when, where, and what happened
+                                    Enter the name(s) of the complainant(s)
                                 </div>
                             </div>
 
-                            <!-- Priority Level Section -->
+                            <!-- Respondents Section -->
                             <div class="mb-4">
-                                <label for="priority" class="form-label fw-bold">
-                                    <i class="fas fa-exclamation-triangle text-warning me-2"></i>
-                                    Priority Level <span class="text-danger">*Required</span>
+                                <label for="respondents" class="form-label fw-bold">
+                                    <i class="fas fa-user-times text-primary me-2"></i>
+                                    (Mga) Ipinagsusumbong (Respondent/s)
+                                    <span class="text-danger">*Required</span>
                                 </label>
-                                <select class="form-select form-select-lg" id="priority" name="priority" required disabled>
-                                    <option value="">Select Priority Level</option>
-                                    <option value="low">Low - Non-urgent matter</option>
-                                    <option value="medium">Medium - Moderate urgency</option>
-                                    <option value="high">High - Urgent attention needed</option>
-                                    <option value="emergency">Emergency - Immediate action required</option>
-                                </select>
+                                <textarea class="form-control form-control-lg" 
+                                          id="respondents" 
+                                          name="respondents" 
+                                          rows="3" 
+                                          placeholder="Ilagay ang mga pangalan ng ipinagsusumbong..."
+                                          required 
+                                          disabled></textarea>
                                 <div class="form-text">
                                     <i class="fas fa-info-circle text-info"></i>
-                                    Select the urgency level of your complaint
+                                    Enter the name(s) of the respondent(s)
                                 </div>
                             </div>
 
-                            <!-- Location Section -->
+                            <!-- Complaint Details Section -->
                             <div class="mb-4">
-                                <label for="location" class="form-label fw-bold">
-                                    <i class="fas fa-map-marker-alt text-danger me-2"></i>
-                                    Location/Address of Incident (Optional)
+                                <label for="complaint_details" class="form-label fw-bold">
+                                    <i class="fas fa-file-alt text-primary me-2"></i>
+                                    SUMBONG (Complaint Details)
+                                    <span class="text-danger">*Required</span>
                                 </label>
-                                <input type="text" 
-                                       class="form-control form-control-lg"
-                                       id="location"
-                                       name="location"
-                                       placeholder="Specific location where the incident occurred..."
-                                       disabled>
+                                <div class="alert alert-light border mb-2">
+                                    <p class="mb-0 small text-muted fst-italic">
+                                        AKO/KAMI ay nagsusumbong laban sa nasabing tao/mga tao dahilan sa...
+                                    </p>
+                                </div>
+                                <textarea class="form-control form-control-lg" 
+                                          id="complaint_details" 
+                                          name="complaint_details" 
+                                          rows="6" 
+                                          placeholder="Ilarawan ng detalyado ang inyong reklamo..."
+                                          required 
+                                          disabled></textarea>
                                 <div class="form-text">
                                     <i class="fas fa-info-circle text-info"></i>
-                                    Provide the specific location if applicable (street, landmark, etc.)
+                                    Provide detailed information about your complaint
+                                </div>
+                            </div>
+
+                            <!-- Resolution Sought Section -->
+                            <div class="mb-4">
+                                <label for="resolution_sought" class="form-label fw-bold">
+                                    <i class="fas fa-balance-scale-right text-primary me-2"></i>
+                                    DAHIL DITO (Resolution Sought)
+                                    <span class="text-danger">*Required</span>
+                                </label>
+                                <div class="alert alert-light border mb-2">
+                                    <p class="mb-0 small text-muted fst-italic">
+                                        Dahil dito, ako/kami ay humihingi ng tulong at pag-uusap mula sa Barangay upang...
+                                    </p>
+                                </div>
+                                <textarea class="form-control form-control-lg" 
+                                          id="resolution_sought" 
+                                          name="resolution_sought" 
+                                          rows="4" 
+                                          placeholder="Ilagay ang inyong hinihinging solusyon..."
+                                          required 
+                                          disabled></textarea>
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle text-info"></i>
+                                    State what action or resolution you are seeking
                                 </div>
                             </div>
 
@@ -331,7 +341,7 @@
                                         id="submitBtn"
                                         disabled>
                                     <i class="fas fa-paper-plane me-2"></i>
-                                    Submit Complaint
+                                    Submit Request
                                 </button>
                             </div>
                         </div>
@@ -345,23 +355,23 @@
                         </h5>                        <ul class="list-unstyled mb-0">
                             <li class="mb-2">
                                 <i class="fas fa-check text-success me-2"></i>
-                                Identity verification is required for all complaint submissions (QR code verification skips email OTP)
+                                Identity verification is required for all Blotter/Complaint Reports (QR code verification skips email OTP)
                             </li>
                             <li class="mb-2">
                                 <i class="fas fa-check text-success me-2"></i>
-                                All complaints will be reviewed by the Barangay Office
+                                All Blotter/Complaint Reports will be reviewed by the Barangay Office
                             </li>
                             <li class="mb-2">
                                 <i class="fas fa-check text-success me-2"></i>
-                                Response time varies based on complaint urgency and type
+                                Processing time is typically 1-3 business days
                             </li>
                             <li class="mb-2">
                                 <i class="fas fa-check text-success me-2"></i>
-                                You will be contacted regarding the status of your complaint
+                                You will be notified once your request is approved
                             </li>
                             <li class="mb-0">
                                 <i class="fas fa-check text-success me-2"></i>
-                                Provide accurate and complete information for proper investigation
+                                Make sure all information provided is accurate and complete
                             </li>
                         </ul>
                     </div>
@@ -687,7 +697,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('complaintRequestForm');
+    const form = document.getElementById('blotterComplaintForm');
     const barangayIdInput = document.getElementById('barangay_id');
     const checkResidentBtn = document.getElementById('checkResidentBtn');
     const residentInfo = document.getElementById('residentInfo');
@@ -697,11 +707,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const verifyOtpBtn = document.getElementById('verifyOtpBtn');
     const resendOtpBtn = document.getElementById('resendOtpBtn');
     const otpCodeInput = document.getElementById('otp_code');
-    const complaintTypeSelect = document.getElementById('complaint_type');
-    const subjectInput = document.getElementById('subject');
-    const descriptionTextarea = document.getElementById('description');
-    const prioritySelect = document.getElementById('priority');
-    const locationInput = document.getElementById('location');
+    const complainantsInput = document.getElementById('complainants');
+    const respondentsInput = document.getElementById('respondents');
+    const complaintDetailsInput = document.getElementById('complaint_details');
+    const resolutionSoughtInput = document.getElementById('resolution_sought');
     const submitBtn = document.getElementById('submitBtn');
     const successAlert = document.getElementById('successAlert');
     const errorAlert = document.getElementById('errorAlert');
@@ -779,7 +788,7 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('qr_image', file);
             
             // Send to server API for QR code decoding
-            fetch('{{ route("complaints.decode-qr") }}', {
+            fetch('{{ route("documents.decode-qr") }}', {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
@@ -1036,7 +1045,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Enable form fields immediately
                 enableFormFields();
                 
-                showSuccess('QR Code verified successfully! You can now proceed with filing your complaint.');
+                showSuccess('QR Code verified successfully! You can now proceed with your Blotter/Complaint Report.');
                 hideError();
             } else {
                 showError(data.message || 'Invalid QR code or resident not found');
@@ -1075,11 +1084,10 @@ document.addEventListener('DOMContentLoaded', function() {
         formFieldsSection.classList.remove('blurred');
         formFieldsSection.classList.add('form-fields-reveal');
         
-        complaintTypeSelect.disabled = false;
-        subjectInput.disabled = false;
-        descriptionTextarea.disabled = false;
-        prioritySelect.disabled = false;
-        locationInput.disabled = false;
+        complainantsInput.disabled = false;
+        respondentsInput.disabled = false;
+        complaintDetailsInput.disabled = false;
+        resolutionSoughtInput.disabled = false;
         
         // Show submit button section
         const submitButtonSection = document.getElementById('submitButtonSection');
@@ -1101,7 +1109,7 @@ document.addEventListener('DOMContentLoaded', function() {
         checkResidentBtn.disabled = true;
         checkResidentBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
 
-        fetch('{{ route("complaints.check-resident") }}', {
+        fetch('{{ route("documents.check-resident") }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1153,7 +1161,7 @@ document.addEventListener('DOMContentLoaded', function() {
         sendOtpBtn.disabled = true;
         sendOtpBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
 
-        fetch('{{ route("complaints.send-otp") }}', {
+        fetch('{{ route("documents.send-otp") }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1202,7 +1210,7 @@ document.addEventListener('DOMContentLoaded', function() {
         verifyOtpBtn.disabled = true;
         verifyOtpBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
 
-        fetch('{{ route("complaints.verify-otp") }}', {
+        fetch('{{ route("documents.verify-otp") }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1225,11 +1233,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 formFieldsSection.classList.remove('blurred');
                 formFieldsSection.classList.add('form-fields-reveal');
                 
-                complaintTypeSelect.disabled = false;
-                subjectInput.disabled = false;
-                descriptionTextarea.disabled = false;
-                prioritySelect.disabled = false;
-                locationInput.disabled = false;
+                complainantsInput.disabled = false;
+                respondentsInput.disabled = false;
+                complaintDetailsInput.disabled = false;
+                resolutionSoughtInput.disabled = false;
                 
                 // Show submit button section
                 const submitButtonSection = document.getElementById('submitButtonSection');
@@ -1302,20 +1309,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Form validation
     function checkFormValidity() {
-        // Validation for complaint fields
         const isValid = residentVerified && 
                        (otpVerified || qrVerified) &&
-                       complaintTypeSelect.value && 
-                       subjectInput.value.trim() &&
-                       descriptionTextarea.value.trim() &&
-                       prioritySelect.value;
+                       complainantsInput.value.trim() && 
+                       respondentsInput.value.trim() &&
+                       complaintDetailsInput.value.trim() &&
+                       resolutionSoughtInput.value.trim();
         submitBtn.disabled = !isValid;
     }
 
-    complaintTypeSelect.addEventListener('change', checkFormValidity);
-    subjectInput.addEventListener('input', checkFormValidity);
-    descriptionTextarea.addEventListener('input', checkFormValidity);
-    prioritySelect.addEventListener('change', checkFormValidity);
+    complainantsInput.addEventListener('input', checkFormValidity);
+    respondentsInput.addEventListener('input', checkFormValidity);
+    complaintDetailsInput.addEventListener('input', checkFormValidity);
+    resolutionSoughtInput.addEventListener('input', checkFormValidity);
 
     // Form submission
     form.addEventListener('submit', function(e) {
@@ -1331,8 +1337,26 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        if (!otpVerified && !qrVerified) {
-            showError('Please complete the verification process first');
+        // Receipt not required for blotter/complaint
+        // All users need to upload receipt regardless of verification method
+        // Validate required fields
+        if (!complainantsInput.value.trim()) {
+            showError('Please enter the complainant(s).');
+            return;
+        }
+        
+        if (!respondentsInput.value.trim()) {
+            showError('Please enter the respondent(s).');
+            return;
+        }
+        
+        if (!complaintDetailsInput.value.trim()) {
+            showError('Please provide complaint details.');
+            return;
+        }
+        
+        if (!resolutionSoughtInput.value.trim()) {
+            showError('Please specify the resolution you are seeking.');
             return;
         }
 
@@ -1341,14 +1365,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const formData = new FormData();
         formData.append('barangay_id', barangayIdInput.value);
-        formData.append('complaint_type', complaintTypeSelect.value);
-        formData.append('subject', subjectInput.value);
-        formData.append('description', descriptionTextarea.value);
-        formData.append('priority', prioritySelect.value);
-        formData.append('location', locationInput.value);
+        formData.append('complainants', complainantsInput.value);
+        formData.append('respondents', respondentsInput.value);
+        formData.append('complaint_details', complaintDetailsInput.value);
+        formData.append('resolution_sought', resolutionSoughtInput.value);
         formData.append('verification_method', qrVerified ? 'qr' : 'manual');
 
-        fetch('{{ route("complaints.store") }}', {
+        fetch('/blotter-complaint/store', {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
@@ -1400,7 +1423,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .finally(() => {
             submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit Complaint';
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit Request';
         });
     });
 
@@ -1410,48 +1433,59 @@ document.addEventListener('DOMContentLoaded', function() {
         // Clear input fields
         if (barangayIdInput) barangayIdInput.value = '';
         if (otpCodeInput) otpCodeInput.value = '';
+        if (nameInput) nameInput.value = '';
+        if (birthdateInput) birthdateInput.value = '';
+        if (ageInput) ageInput.value = '';
+        if (sexSelect) sexSelect.value = '';
+        if (civilStatusSelect) civilStatusSelect.value = '';
+        if (addressInput) addressInput.value = '';
+        if (contactNumberInput) contactNumberInput.value = '';
         
-        // Clear and disable complaint form fields 
-        if (complaintTypeSelect) {
-            complaintTypeSelect.disabled = true;
-            complaintTypeSelect.value = '';
+        // Clear and disable form fields 
+        if (nameInput) {
+            nameInput.disabled = true;
+            nameInput.value = '';
         }
-        if (subjectInput) {
-            subjectInput.disabled = true;
-            subjectInput.value = '';
+        if (birthdateInput) {
+            birthdateInput.disabled = true;
+            birthdateInput.value = '';
         }
-        if (descriptionTextarea) {
-            descriptionTextarea.disabled = true;
-            descriptionTextarea.value = '';
+        if (ageInput) {
+            ageInput.disabled = true;
+            ageInput.value = '';
         }
-        if (prioritySelect) {
-            prioritySelect.disabled = true;
-            prioritySelect.value = '';
+        if (sexSelect) {
+            sexSelect.disabled = true;
+            sexSelect.value = '';
         }
-        if (locationInput) {
-            locationInput.disabled = true;
-            locationInput.value = '';
+        if (civilStatusSelect) {
+            civilStatusSelect.disabled = true;
+            civilStatusSelect.value = '';
+        }
+        if (addressInput) {
+            addressInput.disabled = true;
+            addressInput.value = '';
+        }
+        if (contactNumberInput) {
+            contactNumberInput.disabled = true;
+            contactNumberInput.value = '';
         }
         
-        if (complaintTypeSelect) {
-            complaintTypeSelect.disabled = true;
-            complaintTypeSelect.value = '';
+        if (complainantsInput) {
+            complainantsInput.disabled = true;
+            complainantsInput.value = '';
         }
-        if (subjectInput) {
-            subjectInput.disabled = true;
-            subjectInput.value = '';
+        if (respondentsInput) {
+            respondentsInput.disabled = true;
+            respondentsInput.value = '';
         }
-        if (descriptionTextarea) {
-            descriptionTextarea.disabled = true;
-            descriptionTextarea.value = '';
+        if (complaintDetailsInput) {
+            complaintDetailsInput.disabled = true;
+            complaintDetailsInput.value = '';
         }
-        if (prioritySelect) {
-            prioritySelect.disabled = true;
-            prioritySelect.value = '';
-        }
-        if (locationInput) {
-            locationInput.disabled = true;
-            locationInput.value = '';
+        if (resolutionSoughtInput) {
+            resolutionSoughtInput.disabled = true;
+            resolutionSoughtInput.value = '';
         }
         if (submitBtn) submitBtn.disabled = true;
         residentVerified = false;
@@ -1503,25 +1537,21 @@ document.addEventListener('DOMContentLoaded', function() {
             submitButtonSection.style.setProperty('display', 'none', 'important');
         }
         
-        if (complaintTypeSelect) {
-            complaintTypeSelect.disabled = true;
-            complaintTypeSelect.value = '';
+        if (complainantsInput) {
+            complainantsInput.disabled = true;
+            complainantsInput.value = '';
         }
-        if (subjectInput) {
-            subjectInput.disabled = true;
-            subjectInput.value = '';
+        if (respondentsInput) {
+            respondentsInput.disabled = true;
+            respondentsInput.value = '';
         }
-        if (descriptionTextarea) {
-            descriptionTextarea.disabled = true;
-            descriptionTextarea.value = '';
+        if (complaintDetailsInput) {
+            complaintDetailsInput.disabled = true;
+            complaintDetailsInput.value = '';
         }
-        if (prioritySelect) {
-            prioritySelect.disabled = true;
-            prioritySelect.value = '';
-        }
-        if (locationInput) {
-            locationInput.disabled = true;
-            locationInput.value = '';
+        if (resolutionSoughtInput) {
+            resolutionSoughtInput.disabled = true;
+            resolutionSoughtInput.value = '';
         }
         if (submitBtn) submitBtn.disabled = true;
         residentVerified = false;
@@ -1602,3 +1632,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endsection
+
+
+
+
+
