@@ -151,11 +151,6 @@
             <span class="float-right text-muted text-sm">1 hr</span>
           </a>
           <div class="dropdown-divider"></div>
-          <a href="{{ route('admin.complaints') }}" class="dropdown-item">
-            <i class="fas fa-exclamation-triangle mr-2"></i> Complaints
-            <span class="float-right text-muted text-sm">2 hrs</span>
-          </a>
-          <div class="dropdown-divider"></div>
           <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
         </div>
       </li>
@@ -360,13 +355,6 @@
             <a href="{{ route('admin.health') }}" class="nav-link {{ Request::routeIs('admin.health') ? 'active' : '' }}">
               <i class="nav-icon fas fa-heartbeat"></i>
               <p>Health Services</p>
-            </a>
-          </li>
-
-          <li class="nav-item">
-            <a href="{{ route('admin.complaints') }}" class="nav-link {{ Request::routeIs('admin.complaints') ? 'active' : '' }}">
-              <i class="nav-icon fas fa-exclamation-triangle"></i>
-              <p>Complaints</p>
             </a>
           </li>
 
