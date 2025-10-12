@@ -240,7 +240,10 @@
 
 <script>
 $(function () {
-    // Flash messages are now handled automatically by the master layout with toastr
+    // Destroy existing DataTable instance if it exists
+    if ($.fn.DataTable.isDataTable('#residentTable')) {
+        $('#residentTable').DataTable().destroy();
+    }
 
     // Initialize DataTable with custom configuration for residents
     const residentTable = DataTableHelpers.initDataTable("#residentTable", {

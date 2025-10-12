@@ -289,7 +289,7 @@
 @endsection
 
 @push('scripts')
-<script src="{{ asset('js/form-validation.js') }}"></script>
+<script src="{{ asset('js/form-validation-resident.js') }}"></script>
 @endpush
 
 @section('scripts')
@@ -299,8 +299,8 @@ $(document).ready(function() {
 
     // Set min date for birthdate to prevent selecting dates older than 60 years (age < 60)
     var today = new Date();
-    var minBirthDate = new Date(today.getFullYear() - 60, today.getMonth(), today.getDate());
-    $('#birthdate').attr('min', minBirthDate.toISOString().split('T')[0]);
+    var maxBirthDate = new Date(today.getFullYear() - 59, today.getMonth(), today.getDate());
+    $('#birthdate').attr('max', maxBirthDate.toISOString().split('T')[0]);
     
     // Handle citizenship type change
     $('#citizenship_type').on('change', function() {
@@ -418,15 +418,11 @@ $(document).ready(function() {
         $birthdateInput.after($ageDisplayEl);
 
         var ageText = age + ' years old';
-        if (age >= 60) {
-            ageText += ' <span class="badge badge-warning ml-1">Senior Citizen</span>';
+        if (age >= 59) {
+            ageText += ' <span class="badge badge-warning ml-1">Not eligible</span>';
             $birthdateInput.addClass(invalidClass);
-
-            var $warning = $('<div id="' + warningId + '" class="text-danger mt-1" style="font-size: 0.875em; display: block !important;">' +
-                'Residents aged 60 and above must be registered through the Senior Citizen registration form.' +
-                '</div>');
+            var $warning = $('<div id="' + warningId + '" class="text-danger mt-1" style="font-size: 0.875em; display: block !important;">Residents aged 59 and above cannot register as regular residents. Please use the Senior Citizen registration form.</div>');
             $birthdateInput.after($warning);
-
             $submitBtn.prop('disabled', true).addClass('disabled');
         } else {
             $birthdateInput.removeClass(invalidClass);

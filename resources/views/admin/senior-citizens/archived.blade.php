@@ -213,6 +213,10 @@ html {
 <script>
     // Initialize DataTable
     document.addEventListener('DOMContentLoaded', function() {
+        // Destroy existing DataTable instance if it exists
+        if ($.fn.DataTable.isDataTable('#archivedTable')) {
+            $('#archivedTable').DataTable().destroy();
+        }
         if (window.DataTableHelpers) {
             DataTableHelpers.initDataTable('#archivedTable', {
                 buttons: ["copy", "csv", "excel", "pdf", "print", "colvis"],

@@ -625,7 +625,9 @@ class PreRegistrationController extends Controller
             $seniorCitizen->signature = $seniorPreRegistration->signature;
 
             // Senior ID fields (issued upon approval)
-            $seniorCitizen->senior_id_number = SeniorCitizen::generateSeniorIdNumber();
+            do {
+                $seniorCitizen->senior_id_number = SeniorCitizen::generateSeniorIdNumber();
+            } while (SeniorCitizen::where('senior_id_number', $seniorCitizen->senior_id_number)->exists());
             $seniorCitizen->senior_id_status = 'issued';
             $seniorCitizen->senior_id_issued_at = now();
             $seniorCitizen->senior_id_expires_at = now()->addYears(5); // ID valid for 5 years
