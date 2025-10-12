@@ -105,9 +105,17 @@
           </div>
         </div>
         <div class="row">
-          <div class="col-md-12 mb-3">
+          <div class="col-md-6 mb-3">
             <strong>Current Address:</strong>
             <p class="mb-0">{{ $step2['address'] ?? 'N/A' }}</p>
+          </div>
+          <div class="col-md-3 mb-3">
+            <strong>Purok:</strong>
+            <p class="mb-0">{{ $step2['purok'] ?? 'N/A' }}</p>
+          </div>
+          <div class="col-md-3 mb-3">
+            <strong>Specify Purok/Sitio:</strong>
+            <p class="mb-0">{{ $step2['custom_purok'] ?? 'N/A' }}</p>
           </div>
         </div>
         <div class="row">
@@ -179,21 +187,18 @@
               @if(isset($step3['proof_of_residency']) && is_string($step3['proof_of_residency']))
                 @php
                   $extension = pathinfo($step3['proof_of_residency'], PATHINFO_EXTENSION);
+                  $isImage = in_array(strtolower($extension), ['jpg', 'jpeg', 'png']);
                   $isPdf = strtolower($extension) === 'pdf';
+                  $proofPath = asset('storage/' . $step3['proof_of_residency']);
                 @endphp
-                @if($isPdf)
-                  <div class="alert alert-success">
-                    <i class="fas fa-file-pdf"></i> PDF Document uploaded
-                    <br>
-                    <a href="{{ asset('storage/' . $step3['proof_of_residency']) }}" target="_blank" class="btn btn-sm btn-info mt-2">
-                      <i class="fas fa-external-link-alt"></i> View PDF
-                    </a>
-                  </div>
+                @if($isImage)
+                  <img src="{{ $proofPath }}" alt="Proof of Residency Preview" style="max-width: 200px; max-height: 200px; border: 2px solid #dee2e6; border-radius: 10px; object-fit: contain;">
+                @elseif($isPdf)
+                  <a href="{{ $proofPath }}" target="_blank" class="btn btn-sm btn-primary mt-2" style="background-color: #007bff; border-color: #007bff; color: #fff;">
+                    <i class="fas fa-file-pdf"></i> View PDF
+                  </a>
                 @else
-                  <img src="{{ asset('storage/' . $step3['proof_of_residency']) }}" alt="Proof of Residency Preview" style="max-width: 200px; max-height: 200px; border: 2px solid #dee2e6; border-radius: 10px; object-fit: contain;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                  <div class="alert alert-success" style="display: none;">
-                    <i class="fas fa-check-circle"></i> Document uploaded
-                  </div>
+                  <span class="text-danger">Unsupported file type</span>
                 @endif
               @else
                 <div class="alert alert-warning">

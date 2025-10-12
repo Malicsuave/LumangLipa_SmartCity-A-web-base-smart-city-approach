@@ -179,7 +179,18 @@ class ResidentController extends Controller
             'middle_name' => 'nullable|string|max:100',
             'suffix' => 'nullable|string|max:10',
             'birthplace' => 'required|string|max:255',
-            'birthdate' => 'required|date|before_or_equal:today',
+            'birthdate' => [
+                'required',
+                'date',
+                'before_or_equal:today',
+                function ($attribute, $value, $fail) {
+                    $birthdate = Carbon::parse($value);
+                    $age = $birthdate->age;
+                    if ($age >= 60) {
+                        $fail('Residents aged 60 and above must be registered through the Senior Citizen registration form.');
+                    }
+                }
+            ],
             'sex' => 'required|in:Male,Female,Non-binary,Transgender,Other',
             'civil_status' => 'required|in:Single,Married,Widowed,Separated,Divorced',
             'citizenship_type' => 'required|in:FILIPINO,DUAL,NATURALIZED,FOREIGN',

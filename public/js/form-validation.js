@@ -44,6 +44,11 @@ function initializeFormValidation() {
     $('input[type="date"]').on('change', function() {
         validateDate($(this));
     });
+    
+    // Date validation (real-time for birthdate)
+    $('input[name="birthdate"]').on('input change blur', function() {
+        validateDate($(this));
+    });
 }
 
 /**
@@ -251,7 +256,6 @@ function updateFieldFeedback($field, message, type) {
 function validateDate($field) {
     var date = $field.val();
     var fieldName = $field.attr('name');
-    
     if (!date) {
         if ($field.prop('required')) {
             setFieldError($field, 'This field is required.');
@@ -259,23 +263,27 @@ function validateDate($field) {
         }
         return true;
     }
-    
     var selectedDate = new Date(date);
     var today = new Date();
-    
     if (fieldName === 'birthdate') {
         if (selectedDate >= today) {
             setFieldError($field, 'Birthdate cannot be in the future.');
             return false;
         }
-        
         var age = today.getFullYear() - selectedDate.getFullYear();
+        var m = today.getMonth() - selectedDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < selectedDate.getDate())) {
+            age--;
+        }
         if (age > 150) {
             setFieldError($field, 'Please enter a valid birthdate.');
             return false;
         }
+        if (age >= 60) {
+            setFieldError($field, 'Residents aged 60 and above must be registered through the Senior Citizen registration form.');
+            return false;
+        }
     }
-    
     setFieldSuccess($field);
     return true;
 }

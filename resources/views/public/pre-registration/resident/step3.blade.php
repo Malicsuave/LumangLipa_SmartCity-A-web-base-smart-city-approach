@@ -177,28 +177,40 @@
           <div class="col-md-6 mx-auto">
             <div class="text-center mb-3">
               <div class="document-preview-container" style="width: 100%; max-width: 400px; height: 300px; margin: 0 auto; border: 2px dashed #ddd; border-radius: 10px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
-                <img id="proof-preview" src="#" alt="Proof of Residency Preview" 
-                     @if(session('temp_proof_preview')) 
-                     style="display: block; width: 100%; height: 100%; object-fit: contain;"
-                     data-preview="{{ session('temp_proof_preview') }}"
-                     @else
-                     style="display: none; width: 100%; height: 100%; object-fit: contain;"
-                     @endif>
-                <div id="proof-placeholder" style="text-align: center; color: #6c757d; padding: 20px; @if(session('temp_proof_preview')) display: none; @endif">
-                  <i class="fas fa-file-upload fa-3x mb-3"></i>
-                  <p class="mb-2" style="font-weight: 600; font-size: 0.95rem;">Proof of Residency</p>
-                  <small class="text-muted d-block mb-2">Required Document</small>
-                  <div style="text-align: left; font-size: 0.75rem; line-height: 1.5; margin-top: 10px;">
-                    <strong class="d-block mb-1" style="font-size: 0.8rem;">Accepted documents:</strong>
-                    <ul style="padding-left: 15px; margin-bottom: 0;">
-                      <li>Utility bills (Electric, Water)</li>
-                      <li>Barangay Clearance</li>
-                      <li>Lease/Rental Agreement</li>
-                      <li>Tax Declaration</li>
-                      <li>Property Title</li>
-                    </ul>
+                @if(session('temp_proof_preview'))
+                  @php
+                    $proofFile = session('temp_proof_preview');
+                    $isImage = preg_match('/\.(jpg|jpeg|png)$/i', $proofFile);
+                    $isPdf = preg_match('/\.pdf$/i', $proofFile);
+                    $proofPath = asset('storage/temp/' . $proofFile);
+                  @endphp
+                  @if($isImage)
+                    <img src="{{ $proofPath }}" alt="Proof of Residency Preview" style="display: block; width: 100%; height: 100%; object-fit: contain;">
+                  @elseif($isPdf)
+                    <a href="{{ $proofPath }}" target="_blank" class="btn btn-sm btn-primary mt-2" style="background-color: #007bff; border-color: #007bff; color: #fff;">
+                      <i class="fas fa-file-pdf"></i> View PDF
+                    </a>
+                  @else
+                    <span class="text-danger">Unsupported file type</span>
+                  @endif
+                @else
+                  <img id="proof-preview" src="#" alt="Proof of Residency Preview" style="display: none; width: 100%; height: 100%; object-fit: contain;">
+                  <div id="proof-placeholder" style="text-align: center; color: #6c757d; padding: 20px;">
+                    <i class="fas fa-file-upload fa-3x mb-3"></i>
+                    <p class="mb-2" style="font-weight: 600; font-size: 0.95rem;">Proof of Residency</p>
+                    <small class="text-muted d-block mb-2">Required Document</small>
+                    <div style="text-align: left; font-size: 0.75rem; line-height: 1.5; margin-top: 10px;">
+                      <strong class="d-block mb-1" style="font-size: 0.8rem;">Accepted documents:</strong>
+                      <ul style="padding-left: 15px; margin-bottom: 0;">
+                        <li>Utility bills (Electric, Water)</li>
+                        <li>Barangay Clearance</li>
+                        <li>Lease/Rental Agreement</li>
+                        <li>Tax Declaration</li>
+                        <li>Property Title</li>
+                      </ul>
+                    </div>
                   </div>
-                </div>
+                @endif
               </div>
               @if(session('temp_proof_preview'))
               <small class="text-success d-block mt-2">

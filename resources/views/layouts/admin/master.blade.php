@@ -150,11 +150,11 @@
             <i class="fas fa-users mr-2"></i> Pre-Registrations
             <span class="float-right text-muted text-sm">1 hr</span>
           </a>
-          <div class="dropdown-divider"></div>
+          {{-- <div class="dropdown-divider"></div>
           <a href="{{ route('admin.complaints') }}" class="dropdown-item">
             <i class="fas fa-exclamation-triangle mr-2"></i> Complaints
             <span class="float-right text-muted text-sm">2 hrs</span>
-          </a>
+          </a> --}}
           <div class="dropdown-divider"></div>
           <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
         </div>
@@ -358,12 +358,12 @@
             </a>
           </li>
 
-          <li class="nav-item">
+          {{-- <li class="nav-item">
             <a href="{{ route('admin.complaints') }}" class="nav-link {{ Request::routeIs('admin.complaints') ? 'active' : '' }}">
               <i class="nav-icon fas fa-exclamation-triangle"></i>
               <p>Complaints</p>
             </a>
-          </li>
+          </li> --}}
 
           @if(Auth::check() && Auth::user()->role && Auth::user()->role->name === 'Barangay Captain')
           <li class="nav-item {{ Request::routeIs('admin.analytics*') || Request::routeIs('admin.security.*') ? 'menu-open' : '' }}">

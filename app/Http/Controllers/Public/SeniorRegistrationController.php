@@ -83,6 +83,8 @@ class SeniorRegistrationController extends Controller
             'contact_number' => 'required|numeric|digits:11|regex:/^09\d{9}$/',
             'email_address' => 'nullable|email|max:255',
             'address' => 'required|string|max:500',
+            'purok' => 'required|string|max:255',
+            'custom_purok' => 'nullable|string|max:255',
             'emergency_contact_name' => 'required|string|max:255',
             'emergency_contact_relationship' => 'required|string|max:255',
             'emergency_contact_number' => 'required|numeric|digits:11|regex:/^09\d{9}$/',
@@ -92,6 +94,7 @@ class SeniorRegistrationController extends Controller
             'contact_number.numeric' => 'The contact number must contain only numbers.',
             'contact_number.digits' => 'The contact number must be exactly 11 digits.',
             'contact_number.regex' => 'The contact number must be a valid Philippine mobile number (09XXXXXXXXX).',
+            'purok.required' => 'The purok field is required.',
             'emergency_contact_name.required' => 'The emergency contact name is required.',
             'emergency_contact_relationship.required' => 'The emergency contact relationship is required.',
             'emergency_contact_number.required' => 'The emergency contact number is required.',
@@ -182,6 +185,8 @@ class SeniorRegistrationController extends Controller
             $proof = $request->file('proof_of_residency');
             $proofPath = $proof->store('senior-registrations/proof-of-residency', 'public');
             $stepData['proof_of_residency'] = $proofPath;
+            // Store temp filename for preview (for step3 and review blade)
+            Session::put('temp_proof_preview', basename($proofPath));
         }
 
         Session::put('senior_registration.step3', $stepData);
@@ -323,6 +328,8 @@ class SeniorRegistrationController extends Controller
                 'contact_number' => $step2['contact_number'],
                 'email_address' => $step2['email_address'] ?? null,
                 'address' => $step2['address'],
+                'purok' => $step2['purok'],
+                'custom_purok' => $step2['custom_purok'] ?? null,
                 'emergency_contact_name' => $step2['emergency_contact_name'],
                 'emergency_contact_relationship' => $step2['emergency_contact_relationship'],
                 'emergency_contact_number' => $step2['emergency_contact_number'],

@@ -21,10 +21,11 @@ class GoogleController extends Controller
     public function redirectToGoogle()
     {
         // Clear any existing Google OAuth session data
-        session()->forget(['google_oauth_state', 'google_user']);
-        
+        session()->forget(['state', 'google_user']);
+
         // Force Google to show the account chooser every time
         return Socialite::driver('google')
+            ->stateless() // Add stateless() here
             ->redirect();
     }
 
@@ -33,10 +34,15 @@ class GoogleController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function handleGoogleCallback()
+    public function handleGoogleCallback(Request $request)
     {
+        Log::info('Google callback reached', [
+            'request_params' => $request->all(),
+            'session_state' => session('state'),
+        ]);
+
         try {
-            $googleUser = Socialite::driver('google')->user();
+            $googleUser = Socialite::driver('google')->stateless()->user(); // Add stateless() here
             
             // Log the Google user information
             Log::info('Google user authenticated', [
@@ -136,6 +142,7 @@ class GoogleController extends Controller
             }
         } catch (\Exception $e) {
             Log::error('Google authentication error', [
+                'exception_class' => get_class($e),
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);

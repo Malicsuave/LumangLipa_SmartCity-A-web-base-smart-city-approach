@@ -37,19 +37,57 @@
                   </div>
                 </div>
               </div>
-              <!-- Current Address -->
+              <!-- Current Address & Purok -->
               <div class="row mb-4">
-                <div class="col-md-12">
+                <div class="col-md-8">
                   <label for="address">Current Address <span class="text-danger">*</span></label>
                   <textarea name="address" id="address" rows="3" placeholder="Enter your complete address"
                     class="form-control @error('address') is-invalid @enderror" required>{{ old('address', $step2['address'] ?? '') }}</textarea>
                   @error('address')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
+                <div class="col-md-4">
+                  <label for="purok">Purok <span class="text-danger">*</span></label>
+                  <select name="purok" id="purok" class="form-control selectpicker rounded-pill @error('purok') is-invalid @enderror" required data-style="btn-white">
+                    <option value="">Select Purok</option>
+                    <option value="Purok 1" {{ old('purok', $step2['purok'] ?? '') == 'Purok 1' ? 'selected' : '' }}>Purok 1</option>
+                    <option value="Purok 2" {{ old('purok', $step2['purok'] ?? '') == 'Purok 2' ? 'selected' : '' }}>Purok 2</option>
+                    <option value="Purok 3" {{ old('purok', $step2['purok'] ?? '') == 'Purok 3' ? 'selected' : '' }}>Purok 3</option>
+                    <option value="Purok 4" {{ old('purok', $step2['purok'] ?? '') == 'Purok 4' ? 'selected' : '' }}>Purok 4</option>
+                    <option value="Purok 5" {{ old('purok', $step2['purok'] ?? '') == 'Purok 5' ? 'selected' : '' }}>Purok 5</option>
+                    <option value="Purok 6" {{ old('purok', $step2['purok'] ?? '') == 'Purok 6' ? 'selected' : '' }}>Purok 6</option>
+                    <option value="Purok 7" {{ old('purok', $step2['purok'] ?? '') == 'Purok 7' ? 'selected' : '' }}>Purok 7</option>
+                    <option value="Purok 8" {{ old('purok', $step2['purok'] ?? '') == 'Purok 8' ? 'selected' : '' }}>Purok 8</option>
+                    <option value="Purok 9" {{ old('purok', $step2['purok'] ?? '') == 'Purok 9' ? 'selected' : '' }}>Purok 9</option>
+                    <option value="Purok 10" {{ old('purok', $step2['purok'] ?? '') == 'Purok 10' ? 'selected' : '' }}>Purok 10</option>
+                    <option value="Other" {{ old('purok', $step2['purok'] ?? '') == 'Other' ? 'selected' : '' }}>Other</option>
+                  </select>
+                  @error('purok')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
               </div>
-              <!-- Emergency Contact -->
-              <hr>
-              <h5 class="emergency-header mb-3"><i class="fas fa-user-shield mr-2"></i>Emergency Contact</h5>
-              <small class="text-muted d-block mb-3">Person to contact in case of emergency</small>
+              <!-- Custom Purok Input (shown when "Other" is selected) -->
+              <div class="row mb-5" id="custom-purok-row" style="display: none;">
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label for="custom_purok" class="form-label">Specify Purok/Sitio <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control @error('custom_purok') is-invalid @enderror" 
+                           id="custom_purok" name="custom_purok" 
+                           value="{{ old('custom_purok', $step2['custom_purok'] ?? '') }}" 
+                           placeholder="Enter purok or sitio name">
+                    @error('custom_purok')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                  </div>
+                </div>
+              </div>
+              <!-- Emergency Contact Section -->
+              <div class="row">
+                <div class="col-md-12">
+                  <h5 class="personal-header">
+                    <i class="fas fa-user-shield mr-2"></i>Emergency Contact
+                  </h5>
+                  <small class="text-muted d-block mb-3">Person to contact in case of emergency</small>
+                </div>
+              </div>
               <div class="row mb-4">
                 <div class="col-md-6 mb-3">
                   <label for="emergency_contact_name">Contact Person <span class="text-danger">*</span></label>
@@ -160,6 +198,30 @@ document.addEventListener('DOMContentLoaded', function() {
             emailError.style.display = 'block';
             emailInput.focus();
             return false;
+        }
+    });
+});
+
+// Show/hide custom purok input based on selection
+document.addEventListener('DOMContentLoaded', function() {
+    const purokSelect = document.getElementById('purok');
+    const customPurokRow = document.getElementById('custom-purok-row');
+    const customPurokInput = document.getElementById('custom_purok');
+    if (purokSelect.value === 'Other') {
+        customPurokRow.style.display = 'block';
+        customPurokInput.setAttribute('required', 'required');
+    } else {
+        customPurokRow.style.display = 'none';
+        customPurokInput.removeAttribute('required');
+    }
+    purokSelect.addEventListener('change', function() {
+        if (this.value === 'Other') {
+            customPurokRow.style.display = 'block';
+            customPurokInput.setAttribute('required', 'required');
+        } else {
+            customPurokRow.style.display = 'none';
+            customPurokInput.removeAttribute('required');
+            customPurokInput.value = '';
         }
     });
 });

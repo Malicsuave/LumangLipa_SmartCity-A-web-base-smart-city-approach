@@ -130,6 +130,8 @@ class PreRegistrationController extends Controller
             'emergency_contact_relationship' => 'required|in:Parent,Spouse,Child,Sibling,Relative,Friend,Other',
             'emergency_contact_number' => 'required|numeric|digits:11',
             'emergency_contact_address' => 'required|string|max:500',
+            'purok' => 'required|string|max:50',
+            'custom_purok' => 'nullable|string|max:100',
         ], [
             'contact_number.digits' => 'Contact number must be exactly 11 digits.',
             'emergency_contact_name.required' => 'Emergency contact person is required.',
@@ -233,19 +235,22 @@ class PreRegistrationController extends Controller
             // Handle proof of residency upload if provided
             if ($request->hasFile('proof_of_residency')) {
                 $proofFile = $request->file('proof_of_residency');
+                $extension = $proofFile->getClientOriginalExtension();
+                $mime = $proofFile->getMimeType();
+                $tempFilename = 'temp_proof_' . time() . '_' . Str::random(10) . '.' . $extension;
+                $tempDir = storage_path('app/public/temp');
+                if (!file_exists($tempDir)) {
+                    mkdir($tempDir, 0755, true);
+                }
+                $proofFile->move($tempDir, $tempFilename);
                 $files['proof_of_residency'] = [
                     'name' => $proofFile->getClientOriginalName(),
-                    'data' => base64_encode(file_get_contents($proofFile->getPathname())),
-                    'mime' => $proofFile->getMimeType()
+                    'temp_path' => 'temp/' . $tempFilename,
+                    'temp_path_basename' => $tempFilename,
+                    'mime' => $mime
                 ];
-                
-                // Store preview for display when navigating back (only for images, not PDFs)
-                if (in_array($proofFile->getMimeType(), ['image/jpeg', 'image/jpg', 'image/png'])) {
-                    Session::put('temp_proof_preview', 'data:' . $proofFile->getMimeType() . ';base64,' . base64_encode(file_get_contents($proofFile->getPathname())));
-                } else {
-                    // For PDFs, just store a flag
-                    Session::put('temp_proof_preview', 'pdf_uploaded');
-                }
+                // Store temp filename for preview (images and PDFs)
+                Session::put('temp_proof_preview', $tempFilename);
             }
             
             Session::put('pre_registration.step3', $files);
@@ -403,10 +408,16 @@ class PreRegistrationController extends Controller
             
             // Handle proof of residency upload from step 3
             $proofFilename = null;
-            if (isset($step3['proof_of_residency'])) {
-                Log::info('Processing proof of residency');
-                $proofFilename = $this->processProofOfResidency($step3['proof_of_residency']);
-                Log::info('Proof of residency processed', ['filename' => $proofFilename]);
+            if (isset($step3['proof_of_residency']['temp_path_basename'])) {
+                $tempPath = storage_path('app/public/temp/' . $step3['proof_of_residency']['temp_path_basename']);
+                $extension = pathinfo($tempPath, PATHINFO_EXTENSION);
+                $finalFilename = 'prereg_proof_' . time() . '_' . Str::random(10) . '.' . $extension;
+                $finalPath = storage_path('app/public/pre-registrations/proof-of-residency/' . $finalFilename);
+                if (!file_exists(dirname($finalPath))) {
+                    mkdir(dirname($finalPath), 0755, true);
+                }
+                rename($tempPath, $finalPath);
+                $proofFilename = $finalFilename;
             }
             
             Log::info('About to create pre-registration record');
@@ -434,6 +445,8 @@ class PreRegistrationController extends Controller
                 'contact_number' => $step2['contact_number'],
                 'email_address' => $step2['email_address'] ?? null,
                 'address' => $step2['address'],
+                'purok' => $step2['purok'] ?? null,
+                'custom_purok' => $step2['custom_purok'] ?? null,
                 'emergency_contact_name' => $step2['emergency_contact_name'] ?? null,
                 'emergency_contact_relationship' => $step2['emergency_contact_relationship'] ?? null,
                 'emergency_contact_number' => $step2['emergency_contact_number'] ?? $step2['contact_number'],
