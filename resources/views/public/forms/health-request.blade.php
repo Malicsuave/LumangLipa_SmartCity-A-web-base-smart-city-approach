@@ -6,29 +6,28 @@
 <!-- QR Code Scanner Library -->
 <script src="https://unpkg.com/html5-qrcode"></script>
 <!-- Hero Section with Background -->
-<section class="position-relative" style="background: #eaf4fb; padding-top: 6rem; margin-top: -20px;">
-    <div class="container py-4">
-        <div class="text-center mb-4">
-            <h1 class="fw-bold mb-2" style="color: #2A7BC4; font-size: 2.2rem;">Health Service Request</h1>
-            <p class="text-muted" style="font-size: 1rem;">Request health services from Barangay Lumanglipa</p>
+<section class="position-relative" style="background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8b 100%); padding-top: 4rem; padding-bottom: 2rem; margin-top: 0;">
+    <div class="container">
+        <div class="text-center">
+            <h1 class="fw-bold mb-1 text-white" style="font-size: 2.5rem; margin-top: 2.5rem; margin-bottom: 0.5rem;">Health Service Request</h1>
+            <p class="text-white opacity-9" style="font-size: 1.1rem;">Request health services from Barangay Lumanglipa</p>
         </div>
     </div>
 </section>
 
-<div class="card card-body blur shadow-blur mx-3 mx-md-4 mt-n4" style="border-radius: 18px;">
-    <div class="container py-4">
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
-                <div class="card border-0 shadow-lg" style="border: 2px solid #2A7BC4 !important; border-radius: 18px; overflow: hidden; background: #ffffff;">
-                    <div class="card-header text-center py-4" style="background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8b 100%); color: white; border: none;">
-                        <div class="d-flex align-items-center justify-content-center mb-2">
-                            <i class="fas fa-user-md me-3" style="font-size: 2rem;"></i>
-                            <h2 class="mb-0 fw-bold">Health Services</h2>
-                        </div>
-                        <p class="mb-0 opacity-9">Complete the form below to request health services from Barangay Lumanglipa</p>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-lg border-0" style="border-radius: 12px; margin-top: -4rem;">
+                <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center" style="border-radius: 12px 12px 0 0; padding: 1.5rem;">
+                    <div>
+                        <h4 class="mb-0 fw-bold" style="color: #2A7BC4;">
+                            <i class="fas fa-user-md me-2"></i>Health Services
+                        </h4>
+                        <p class="mb-0 text-muted small">Complete the form below to request health services from Barangay Lumanglipa</p>
                     </div>
-                    
-                    <div class="card-body p-5" style="background: #ffffff;">
+                </div>
+                <div class="card-body p-4" style="background: #ffffff;">
                     <!-- Success Alert -->
                     <div id="successAlert" class="alert alert-success alert-dismissible fade" role="alert" style="display: none;">
                         <i class="fas fa-check-circle me-2"></i>
@@ -46,85 +45,76 @@
                     <form id="healthRequestForm">
                         @csrf
                         
-                        <!-- Barangay ID Section -->
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-id-card text-primary me-2"></i>
-                                Identity Verification <span class="text-danger">*Required</span>
-                            </label>
-                            
+                        <!-- Identity Verification Section -->
+                        <div class="mb-3">
+                            <label>Identity Verification <span class="text-danger">*</span></label>
+
                             <!-- Verification Method Toggle -->
-                            <div class="mb-3">
-                                <div class="btn-group w-100" role="group" aria-label="Verification method">
-                                    <input type="radio" class="btn-check" name="verification_method" id="manual_input" value="manual" checked>
-                                    <label class="btn btn-outline-primary" for="manual_input">
-                                        <i class="fas fa-keyboard me-2"></i>Manual Input
-                                    </label>
-                                    <input type="radio" class="btn-check" name="verification_method" id="qr_scan" value="qr">
-                                    <label class="btn btn-outline-primary" for="qr_scan">
-                                        <i class="fas fa-qrcode me-2"></i>QR Code
-                                    </label>
-                                </div>
+                            <div class="btn-group w-100" role="group" aria-label="Verification method" style="display: flex;">
+                                <input type="radio" class="btn-check" name="verification_method" id="manual_input" value="manual" checked>
+                                <label class="btn btn-outline-primary" for="manual_input" style="flex: 1; text-align: center;">
+                                    <i class="fas fa-keyboard me-2"></i>Manual Input
+                                </label>
+                                <input type="radio" class="btn-check" name="verification_method" id="qr_scan" value="qr">
+                                <label class="btn btn-outline-primary" for="qr_scan" style="flex: 1; text-align: center;">
+                                    <i class="fas fa-qrcode me-2"></i>QR Code
+                                </label>
                             </div>
-                            <!-- Barangay ID Section -->
-                    <div class="mb-4">
-                        <label for="barangay_id" class="form-label fw-bold">
-                            <i class="fas fa-id-card text-primary me-2"></i>
-                            Barangay ID <span class="text-danger">*Required</span>
-                        </label>
+                        </div>
+
+                        <!-- Barangay ID Section -->
+                        <div class="mb-3" style="margin-top: 0;">
+                            <label for="barangay_id" style="margin-bottom: 0.25rem; margin-top: -0.5rem;">Barangay ID <span class="text-danger">*</span></label>
 
                             <!-- Manual Input Section -->
                             <div id="manualInputSection">
-                                <div class="input-group">
-                                    <input type="text" 
-                                           class="form-control form-control-lg" 
-                                           id="barangay_id" 
-                                           name="barangay_id" 
+                                <div class="input-group" style="display: flex; align-items: stretch;">
+                                    <input type="text"
+                                           class="form-control"
+                                           id="barangay_id"
+                                           name="barangay_id"
                                            placeholder="Enter your Barangay ID"
+                                           style="height: 38px; border: 1px solid #ced4da !important; padding: 0.375rem 0.75rem !important; flex: 1;"
                                            required>
-                                    <button type="button" 
-                                            class="btn btn-outline-primary" 
-                                            id="checkResidentBtn">
+                                    <button type="button"
+                                            class="btn btn-outline-primary"
+                                            id="checkResidentBtn"
+                                            style="height: 38px; padding: 0.375rem 0.75rem; display: flex; align-items: center; justify-content: center; border: 1px solid #0d6efd !important; white-space: nowrap;">
                                         <i class="fas fa-search"></i> Verify
                                     </button>
                                 </div>
-                                <div class="form-text">
-                                    <i class="fas fa-info-circle text-info"></i>
-                                    Enter your registered Barangay ID to verify your information
-                                </div>
+                                <small class="form-text text-muted">Enter your registered Barangay ID to verify your information</small>
                             </div>
 
                             <!-- QR Code Section -->
                             <div id="qrCodeSection" style="display: none;">
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <button type="button" class="btn btn-primary btn-lg w-100" id="scanQrBtn">
-                                            <i class="fas fa-camera me-2"></i>
-                                            Scan QR Code
-                                        </button>
-                                        <div class="form-text text-center mt-2">
-                                            <i class="fas fa-info-circle text-info"></i>
-                                            Use camera to scan QR code
-                                        </div>
+                                <div class="btn-group w-100" role="group" style="display: flex;">
+                                    <input type="radio" class="btn-check" name="qr_method" id="scan_qr" value="scan">
+                                    <label class="btn btn-outline-primary" for="scan_qr" style="flex: 1; text-align: center;">
+                                        <i class="fas fa-camera me-2"></i>
+                                        Scan QR Code
+                                    </label>
+                                    <input type="file"
+                                           class="form-control"
+                                           id="qr_upload"
+                                           accept="image/*"
+                                           style="display: none;">
+                                    <input type="radio" class="btn-check" name="qr_method" id="upload_qr" value="upload">
+                                    <label class="btn btn-outline-primary" for="upload_qr" style="flex: 1; text-align: center;">
+                                        <i class="fas fa-upload me-2"></i>
+                                        Upload QR Code
+                                    </label>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-md-6">
+                                        <small class="form-text text-muted d-block text-center">Use camera to scan QR code</small>
                                     </div>
-                                    <div class="col-md-6 mb-3">
-                                        <input type="file" 
-                                               class="form-control form-control-lg" 
-                                               id="qr_upload" 
-                                               accept="image/*"
-                                               style="display: none;">
-                                        <button type="button" class="btn btn-outline-primary btn-lg w-100" id="uploadQrBtn">
-                                            <i class="fas fa-upload me-2"></i>
-                                            Upload QR Code
-                                        </button>
-                                        <div class="form-text text-center mt-2">
-                                            <i class="fas fa-info-circle text-info"></i>
-                                            Upload QR code image
-                                        </div>
+                                    <div class="col-md-6">
+                                        <small class="form-text text-muted d-block text-center">Upload QR code image</small>
                                     </div>
                                 </div>
                             </div>
-                        </div>                        <!-- Resident Information Display -->
+                        </div>
                         <div id="residentInfo" class="card border-success mb-4" style="display: none;">
                             <div class="card-header bg-light">
                                 <h6 class="mb-0 text-success">
@@ -438,6 +428,11 @@
 </div>
 </section>
 
+@push('styles')
+    <link rel="stylesheet" href="/public/assets/css/material-kit.css">
+    <link rel="stylesheet" href="/public/css/material-kit-override.css">
+@endpush
+
 <style>
 .card {
     transition: all 0.3s ease;
@@ -742,8 +737,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const qrScanRadio = document.getElementById('qr_scan');
     const manualInputSection = document.getElementById('manualInputSection');
     const qrCodeSection = document.getElementById('qrCodeSection');
-    const scanQrBtn = document.getElementById('scanQrBtn');
-    const uploadQrBtn = document.getElementById('uploadQrBtn');
+    const scanQrRadio = document.getElementById('scan_qr');
+    const uploadQrRadio = document.getElementById('upload_qr');
     const qrUploadInput = document.getElementById('qr_upload');
     const qrScannerModal = new bootstrap.Modal(document.getElementById('qrScannerModal'));
     
@@ -780,9 +775,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // QR Code Upload functionality
-    uploadQrBtn.addEventListener('click', function() {
-        qrUploadInput.click();
+
+    // QR Code method selection (match document request form)
+    scanQrRadio.addEventListener('change', function() {
+        if (this.checked) {
+            qrScannerModal.show();
+            setTimeout(() => {
+                startQrScanner();
+            }, 500);
+        }
+    });
+
+    uploadQrRadio.addEventListener('change', function() {
+        if (this.checked) {
+            qrUploadInput.click();
+        }
     });
 
     qrUploadInput.addEventListener('change', function(e) {
@@ -792,23 +799,22 @@ document.addEventListener('DOMContentLoaded', function() {
             if (file.size > 10 * 1024 * 1024) {
                 showError('File size too large. Please select an image under 10MB.');
                 qrUploadInput.value = '';
+                if (uploadQrRadio) uploadQrRadio.checked = false;
                 return;
             }
-            
             // Validate file type
             if (!file.type.startsWith('image/')) {
                 showError('Please select a valid image file.');
                 qrUploadInput.value = '';
+                if (uploadQrRadio) uploadQrRadio.checked = false;
                 return;
             }
-            
-            uploadQrBtn.disabled = true;
-            uploadQrBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
-            
+            const uploadLabel = document.querySelector('label[for="upload_qr"]');
+            const originalHtml = uploadLabel.innerHTML;
+            uploadLabel.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
             // Create FormData to send file to server
             const formData = new FormData();
             formData.append('qr_image', file);
-            
             // Send to server API for QR code decoding
             fetch('{{ route("health.decode-qr") }}', {
                 method: 'POST',
@@ -824,38 +830,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.json();
             })
             .then(data => {
-                console.log('QR decode response:', data); // Debug log
-                
                 if (data.success) {
-                    console.log('QR data received:', data.qr_data); // Debug log
-                    console.log('Debug info:', data.debug_info); // Debug log
-                    
                     handleQrCodeData(data.qr_data);
                     showSuccess('QR Code uploaded and processed successfully!');
                 } else {
-                    console.error('QR decode failed:', data.message); // Debug log
                     showError(data.message || 'Failed to decode QR code. Please ensure the image contains a valid QR code.');
                 }
             })
             .catch(error => {
-                console.error('QR Code decode failed:', error);
                 showError('Failed to process QR code. Please check your internet connection and try again.');
             })
             .finally(() => {
-                uploadQrBtn.disabled = false;
-                uploadQrBtn.innerHTML = '<i class="fas fa-upload me-2"></i>Upload QR Code';
+                uploadLabel.innerHTML = originalHtml;
                 qrUploadInput.value = '';
+                if (uploadQrRadio) uploadQrRadio.checked = false;
             });
         }
-    });
-
-    // Live QR Code Scanner
-    scanQrBtn.addEventListener('click', function() {
-        qrScannerModal.show();
-        // Wait for modal to be fully shown before starting scanner
-        setTimeout(() => {
-            startQrScanner();
-        }, 500);
     });
 
     // Handle QR scanner modal close

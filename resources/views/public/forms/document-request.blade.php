@@ -6,10 +6,10 @@
 <!-- QR Code Scanner Library -->
 <script src="https://unpkg.com/html5-qrcode"></script>
 <!-- Hero Section with Background -->
-<section class="position-relative" style="background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8b 100%); padding-top: 6rem; padding-bottom: 4rem; margin-top: -20px;">
+<section class="position-relative" style="background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8b 100%); padding-top: 4rem; padding-bottom: 2rem; margin-top: 0;">
     <div class="container">
         <div class="text-center">
-            <h1 class="fw-bold mb-3 text-white" style="font-size: 2.5rem;">Document Request</h1>
+            <h1 class="fw-bold mb-1 text-white" style="font-size: 2.5rem; margin-top: 2.5rem; margin-bottom: 0.5rem;">Document Request</h1>
             <p class="text-white opacity-9" style="font-size: 1.1rem;">Request official barangay documents online</p>
         </div>
     </div>
@@ -149,7 +149,7 @@
                         <!-- OTP Verification Section -->
                         <div id="otpSection" class="card border-warning mb-4" style="display: none;">
                             <div class="card-header bg-warning bg-opacity-10">
-                                <h6 class="mb-0 text-warning">
+                                <h6 class="mb-0 text-white">
                                     <i class="fas fa-shield-alt me-2"></i>
                                     Email Verification Required
                                 </h6>
