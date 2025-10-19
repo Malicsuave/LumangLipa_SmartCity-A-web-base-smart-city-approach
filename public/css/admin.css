@@ -1,88 +1,1105 @@
-/* Admin-specific styles */
-
-/* Hide content when sidebar is collapsed */
-.sidebar-collapsed .collapse-hide {
-  display: none;
+/* SILVER GRADIENT BACKGROUND */
+body {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
 }
 
-/* Adjust spacing when sidebar is collapsed */
-.sidebar-collapsed .navbar-brand {
-  margin-bottom: 1rem;
+/* SIDEBAR WHITE TO BLUE GRADIENT */
+.sidebar-left,
+.sidebar,
+.main-sidebar,
+.app-sidebar,
+.sidebar-wrapper {
+  background: linear-gradient(180deg, #ffffff 0%, #3498db 100%) !important;
+  border-right: 1px solid rgba(52, 152, 219, 0.2);
 }
 
-/* Logo container styling */
+/* Alternative sidebar gradient options - uncomment to use */
+/* 
+.sidebar-left,
+.sidebar,
+.main-sidebar,
+.app-sidebar,
+.sidebar-wrapper {
+  background: linear-gradient(180deg, #ffffff 0%, #2980b9 100%) !important;
+}
+*/
+
+/* 
+.sidebar-left,
+.sidebar,
+.main-sidebar,
+.app-sidebar,
+.sidebar-wrapper {
+  background: linear-gradient(135deg, #ffffff 0%, #5dade2 50%, #3498db 100%) !important;
+}
+*/
+
+/* Sidebar text adjustments for better contrast */
+.sidebar-left .nav-link,
+.sidebar-left .nav-item,
+.sidebar .nav-link,
+.sidebar .nav-item {
+  color: #2c3e50 !important;
+  transition: all 0.3s ease;
+}
+
+.sidebar-left .nav-link:hover,
+.sidebar .nav-link:hover {
+  color: #1a252f !important;
+  background-color: rgba(26, 37, 47, 0.1) !important;
+  border-radius: 5px;
+}
+
+/* Active sidebar item styling */
+.sidebar-left .nav-item.active .nav-link,
+.sidebar .nav-item.active .nav-link,
+.sidebar-left .active .nav-link,
+.sidebar .active .nav-link,
+.sidebar-left .nav-link.active,
+.sidebar .nav-link.active,
+.sidebar-left .current .nav-link,
+.sidebar .current .nav-link {
+  color: #ffffff !important;
+  background-color: #2c3e50 !important;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* ENHANCED ACTIVE SIDEBAR LINK STYLES */
+/* Active navigation item styling with gradient and effects */
+.sidebar-left .nav-item.active .nav-link,
+.sidebar .nav-item.active .nav-link,
+.sidebar-left .nav-link.active,
+.sidebar .nav-link.active {
+  color: #ffffff !important;
+  
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3) !important;
+  transform: translateX(5px) !important;
+  border-left: 4px solid #ffffff !important;
+  margin: 2px 0 !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Active sidebar icons */
+.sidebar-left .nav-item.active .nav-link i,
+.sidebar .nav-item.active .nav-link i,
+.sidebar-left .nav-link.active i,
+.sidebar .nav-link.active i {
+  color: #ffffff !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Hover effects for non-active items */
+.sidebar-left .nav-link:hover:not(.active),
+.sidebar .nav-link:hover:not(.active) {
+  color: #2c3e50 !important;
+  background: linear-gradient(135deg, rgba(52, 152, 219, 0.1) 0%, rgba(41, 128, 185, 0.15) 100%) !important;
+  border-radius: 6px !important;
+  transform: translateX(2px) !important;
+  transition: all 0.2s ease !important;
+}
+
+/* Active link text styling */
+.sidebar-left .nav-item.active .nav-link .item-text,
+.sidebar .nav-item.active .nav-link .item-text,
+.sidebar-left .nav-link.active .item-text,
+.sidebar .nav-link.active .item-text {
+  font-weight: 600 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Pulse animation for active items */
+@keyframes activeItemPulse {
+  0% { box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3); }
+  50% { box-shadow: 0 4px 16px rgba(52, 152, 219, 0.4); }
+  100% { box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3); }
+}
+
+.sidebar-left .nav-item.active .nav-link,
+.sidebar .nav-item.active .nav-link,
+.sidebar-left .nav-link.active,
+.sidebar .nav-link.active {
+  animation: activeItemPulse 3s ease-in-out infinite !important;
+}
+
+/* Enhanced active state for collapsed sidebar */
+.sidebar-collapsed .nav-item.active .nav-link,
+body.collapsed-menu .nav-item.active .nav-link {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
+  border-radius: 50% !important;
+  width: 45px !important;
+  height: 45px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 auto 10px auto !important;
+  transform: none !important;
+  border-left: none !important;
+}
+
+/* Collapsed sidebar active icon */
+.sidebar-collapsed .nav-item.active .nav-link i,
+body.collapsed-menu .nav-item.active .nav-link i {
+  color: #ffffff !important;
+  font-size: 18px !important;
+}
+
+/* Alternative active styles - uncomment to use different colors */
+/* Green active theme */
+/*
+.sidebar-left .nav-item.active .nav-link,
+.sidebar .nav-item.active .nav-link,
+.sidebar-left .nav-link.active,
+.sidebar .nav-link.active {
+  background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%) !important;
+  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3) !important;
+}
+*/
+
+/* Purple active theme */
+/*
+.sidebar-left .nav-item.active .nav-link,
+.sidebar .nav-item.active .nav-link,
+.sidebar-left .nav-link.active,
+.sidebar .nav-link.active {
+  background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%) !important;
+  box-shadow: 0 4px 12px rgba(142, 68, 173, 0.3) !important;
+}
+*/
+
+/* Orange active theme */
+/*
+.sidebar-left .nav-item.active .nav-link,
+.sidebar .nav-item.active .nav-link,
+.sidebar-left .nav-link.active,
+.sidebar .nav-link.active {
+  background: linear-gradient(135deg, #e67e22 0%, #f39c12 100%) !important;
+  box-shadow: 0 4px 12px rgba(230, 126, 34, 0.3) !important;
+}
+*/
+
+/* Navbar and navigation styling */
+
+
+/* LOGO CONTAINER STYLING */
 .logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 10px 0;
+  box-sizing: border-box;
+}
+
+/* NAVBAR BRAND STYLING */
+.navbar-brand {
+  margin-right: 0;
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
 }
 
-.logo-container .navbar-brand {
-  margin-right: 0;
-  display: flex;
-  justify-content: center;
-  width: 100%;
-}
-
-.logo-container img.navbar-brand-img {
-  max-height: 60px;
-  display: block;
+/* LOGO EXPANDED - For normal sidebar state */
+.logo-expanded {
+  display: block !important;
+  max-height: 70px;
+  width: auto;
   margin: 0 auto;
 }
 
-/* Improved collapsed sidebar logo positioning */
-.sidebar-collapsed .logo-container,
-body.collapsed-menu .logo-container {
-  padding: 0.5rem 0;
-}
-
-.sidebar-collapsed .logo-container .navbar-brand,
-body.collapsed-menu .logo-container .navbar-brand {
-  margin: 0 auto;
-  padding: 0;
-  justify-content: center;
-}
-
-.sidebar-collapsed .logo-container img.navbar-brand-img,
-body.collapsed-menu .logo-container img.navbar-brand-img {
+/* LOGO COLLAPSED - For collapsed sidebar state */
+.logo-collapsed {
+  display: none !important;
   max-height: 40px;
+  max-width: 40px;
+  width: auto;
   margin: 0 auto;
 }
 
-/* Targeted fix for collapsed sidebar specifically */
-body.collapsed-menu .sidebar-left,
-body.collapsed-menu aside.sidebar-left {
-  width: 60px !important;
+/* LOGO STATE SWITCHING */
+/* When sidebar is collapsed, hide expanded logo and show collapsed logo */
+.sidebar-collapsed .logo-expanded,
+body.collapsed-menu .logo-expanded {
+  display: none !important;
 }
 
-body.collapsed-menu .logo-container {
-  padding: 0;
-  margin: 0;
-  width: 60px;
+.sidebar-collapsed .logo-collapsed,
+body.collapsed-menu .logo-collapsed {
+  display: block !important;
 }
 
-body.collapsed-menu .navbar-brand {
-  margin: 0;
-  padding: 0;
-  width: 100%;
+/* Hide all other navbar brand images that aren't explicitly logo-expanded or logo-collapsed */
+.navbar-brand img:not(.logo-expanded):not(.logo-collapsed) {
+  display: none !important;
 }
 
-body.collapsed-menu .navbar-brand img {
-  max-width: 50px;
-  max-height: 50px;
-  margin: 0.5rem auto;
-  display: block;
+/* Custom styles for common image types */
+img {
+  max-width: 100%;
+  height: auto;
 }
 
-/* Fix for vertical alignment in collapsed menu */
-body.collapsed-menu .vertnav.navbar {
-  padding: 0;
+/* Avatar image sizing */
+.avatar-sm img {
+  max-width: 36px;
+  max-height: 36px;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .collapse-hide {
-    font-size: 0.9rem;
-  }
+.avatar-md img {
+  max-width: 42px;
+  max-height: 42px;
 }
+
+.avatar-lg img {
+  max-width: 56px;
+  max-height: 56px;
+}
+
+.avatar-xl img {
+  max-width: 124px;
+  max-height: 124px;
+}
+
+/* Make sure collapse-hide elements are hidden when sidebar is collapsed */
+.sidebar-collapsed .collapse-hide,
+body.collapsed-menu .collapse-hide {
+  display: none !important;
+}
+
+/* Welcome Widget Black Outline */
+.welcome-widget-outlined {
+  border: 1px solid rgba(52, 152, 219, 0.2) !important;
+  background: linear-gradient(90deg, #ffffff 0%, #3498db 100%) !important;
+  color: #2c3e50 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 24px rgba(52, 152, 219, 0.10) !important;
+  transition: all 0.3s ease !important;
+}
+
+/* Welcome widget text styling for better contrast */
+.welcome-widget-outlined .card-title {
+  color: #2c3e50 !important;
+  font-weight: 600 !important;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+}
+
+.welcome-widget-outlined .card-text {
+  color: #34495e !important;
+}
+
+.welcome-widget-outlined .card-text strong {
+  color: #2c3e50 !important;
+  font-weight: 700 !important;
+}
+
+.welcome-widget-outlined:hover {
+  box-shadow: 0 8px 20px rgba(52, 152, 219, 0.25) !important;
+}
+
+/* Login Success Message */
+.login-success-message {
+  padding: 0.15rem 0.75rem !important;
+  font-size: 0.85rem !important;
+  box-shadow: 0 1px 3px rgba(52, 152, 219, 0.04) !important;
+  border-radius: 6px !important;
+  margin-bottom: 0.5rem !important;
+  background: linear-gradient(90deg, #f0fdf4 0%, #e0f2fe 100%) !important;
+}
+
+.login-success-message .fe-check-circle {
+  font-size: 1.2rem !important;
+  margin-right: 0.5rem !important;
+}
+
+.login-success-message .font-weight-bold {
+  font-size: 0.95rem !important;
+}
+
+/* Admin-specific styles */
+
+/* FORCE BACKGROUND COLOR OVERRIDE - Higher specificity */
+
+/* SIDEBAR COLLAPSE IMPROVEMENTS - Hide all text elements when collapsed */
+/* Target any text elements within sidebar when collapsed */
+.sidebar-collapsed .sidebar-left span,
+.sidebar-collapsed .sidebar-left p,
+.sidebar-collapsed .sidebar-left h1,
+.sidebar-collapsed .sidebar-left h2,
+.sidebar-collapsed .sidebar-left h3,
+.sidebar-collapsed .sidebar-left h4,
+.sidebar-collapsed .sidebar-left h5,
+.sidebar-collapsed .sidebar-left h6,
+.sidebar-collapsed .sidebar-left .text,
+.sidebar-collapsed .sidebar-left .text-muted,
+.sidebar-collapsed .sidebar-left .nav-text,
+body.collapsed-menu .sidebar-left span,
+body.collapsed-menu .sidebar-left p,
+body.collapsed-menu .sidebar-left h1,
+body.collapsed-menu .sidebar-left h2,
+body.collapsed-menu .sidebar-left h3,
+body.collapsed-menu .sidebar-left h4,
+body.collapsed-menu .sidebar-left h5,
+body.collapsed-menu .sidebar-left h6,
+body.collapsed-menu .sidebar-left .text,
+body.collapsed-menu .sidebar-left .text-muted,
+body.collapsed-menu .sidebar-left .nav-text {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Specifically target the "lumanglipa admin" text wherever it might appear */
+.sidebar-collapsed .brand-text,
+.sidebar-collapsed .brand-name,
+.sidebar-collapsed .site-title,
+.sidebar-collapsed .site-name,
+.sidebar-collapsed .logo-text,
+.sidebar-collapsed .sidebar-brand-text,
+body.collapsed-menu .brand-text,
+body.collapsed-menu .brand-name,
+body.collapsed-menu .site-title,
+body.collapsed-menu .site-name,
+body.collapsed-menu .logo-text,
+body.collapsed-menu .sidebar-brand-text {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Ensure nav menu items only show icons when collapsed */
+.sidebar-collapsed .nav-item .nav-link span,
+.sidebar-collapsed .sidebar-item .sidebar-link span,
+body.collapsed-menu .nav-item .nav-link span,
+body.collapsed-menu .sidebar-item .sidebar-link span {
+  display: none !important;
+}
+
+/* Make sure the text doesn't briefly appear during transition */
+.sidebar-left .nav-item .nav-link span,
+.sidebar-left .sidebar-item .sidebar-link span {
+  transition: none !important;
+}
+
+/* Adjust sidebar padding when collapsed */
+.sidebar-collapsed .sidebar-left,
+body.collapsed-menu .sidebar-left {
+  padding-right: 0 !important;
+  overflow: hidden !important;
+}
+
+/* CUSTOM ACTION ICON COLORS */
+/* These rules target common action button/icon selectors in admin panels */
+
+/* Primary action icons - Edit, View buttons */
+
+
+/* Danger action icons - Delete buttons */
+.action-delete i,
+.delete-button i,
+.btn-delete i,
+.btn-danger i,
+.action-danger i {
+  color: #ffffff !important; /* Bright red color */
+}
+
+/* Success action icons - Approve, Complete buttons */
+.action-success i,
+.btn-success i,
+.approve-button i,
+.complete-button i,
+.action-approve i,
+.action-complete i {
+  color: #ffffff !important; /* Bright green color */
+}
+
+/* Warning action icons */
+.action-warning i,
+.btn-warning i,
+.warning-button i {
+  color: #fff !important;
+}
+
+/* Secondary action icons */
+.action-secondary i,
+.btn-secondary i {
+  color: #ffffff !important; /* Grey color */
+}
+
+/* OVERRIDE RULES FOR CUSTOM ICON COLORS */
+/* Allow custom icon colors to override the global button colors */
+/* Higher specificity rules for table action buttons */
+table .btn i[style*="color"],
+.table .btn i[style*="color"],
+td .btn i[style*="color"],
+.action-column .btn i[style*="color"],
+.actions .btn i[style*="color"],
+.btn i[style*="color"] {
+  color: inherit !important;
+}
+
+/* Specific override for inline style colors */
+.btn i[style*="color: #dc3545"],
+.btn i[style*="color:#dc3545"],
+.btn i[style*="color: red"],
+.btn i[style*="color:#ff0000"],
+.btn-danger i[style*="color: #dc3545"],
+.btn-danger i[style*="color:#dc3545"] {
+  color: #dc3545 !important;
+}
+
+.btn i[style*="color: #28a745"],
+.btn i[style*="color:#28a745"],
+.btn i[style*="color: green"],
+.btn-success i[style*="color: #28a745"],
+.btn-success i[style*="color:#28a745"] {
+  color: #28a745 !important;
+}
+
+/* Allow any inline style color to override button defaults */
+[style*="color"] i {
+  color: inherit !important;
+}
+
+/* SPECIFIC OVERRIDES FOR BOOTSTRAP BUTTON ICONS */
+/* Make sure text-white class on icons in buttons works properly */
+.btn i.text-white,
+.btn-success i.text-white,
+.btn-danger i.text-white,
+.btn-primary i.text-white,
+.btn-warning i.text-white,
+.btn-info i.text-white,
+.btn-dark i.text-white {
+  color: #ffffff !important;
+}
+
+/* Override the previous global rules for specific button contexts */
+.btn-success i,
+.btn.btn-success i {
+  color: #ffffff !important;
+}
+
+.btn-danger i,
+.btn.btn-danger i {
+  color: #ffffff !important;
+}
+
+.btn-primary i,
+.btn.btn-primary i {
+  color: #ffffff !important;
+}
+
+/* Modal button icons - highest specificity */
+.modal-footer .btn-success i,
+.modal-footer .btn-danger i,
+.modal-footer .btn-primary i {
+  color: #ffffff !important;
+}
+
+/* ICON ALIGNMENT FIXES */
+/* Fix vertical alignment of icons in buttons */
+.btn i,
+.btn-success i,
+.btn-danger i,
+.btn-primary i,
+.btn-warning i,
+.btn-info i,
+.btn-secondary i,
+.btn-dark i,
+.btn-light i {
+  vertical-align: middle !important;
+  margin-top: -1px !important; /* Slight adjustment to center align */
+  display: inline-block !important;
+}
+
+/* Specific alignment for Feather icons */
+.btn .fe,
+.btn i.fe {
+  vertical-align: baseline !important;
+  margin-top: 0 !important;
+  line-height: 1 !important;
+}
+
+/* Alignment for Font Awesome icons */
+.btn .fa,
+.btn .fas,
+.btn .far,
+.btn .fal,
+.btn .fab,
+.btn i.fa,
+.btn i.fas,
+.btn i.far,
+.btn i.fal,
+.btn i.fab {
+  vertical-align: middle !important;
+  margin-top: -1px !important;
+}
+
+/* Ensure proper spacing between icon and text */
+.btn i.mr-1,
+.btn i.mr-2,
+.btn i + *,
+.btn .fe + * {
+  margin-left: 0.25rem !important;
+}
+
+/* Table action buttons alignment */
+table .btn i,
+.table .btn i,
+td .btn i,
+.action-column .btn i,
+.actions .btn i {
+  vertical-align: middle !important;
+  margin-top: -1px !important;
+}
+
+/* Modal and dropdown button alignment */
+.modal .btn i,
+.dropdown-menu .btn i {
+  vertical-align: middle !important;
+  margin-top: -1px !important;
+}
+
+/* Ensure dropdown menu icons keep their intended colors */
+.dropdown-menu .dropdown-item i.text-success {
+  color: #28a745 !important;
+}
+
+.dropdown-menu .dropdown-item i.text-danger {
+  color: #dc3545 !important;
+}
+
+.dropdown-menu .dropdown-item i.text-primary {
+  color: #007bff !important;
+}
+
+.dropdown-menu .dropdown-item i.text-info {
+  color: #17a2b8 !important;
+}
+
+.dropdown-menu .dropdown-item i.text-secondary {
+  color: #6c757d !important;
+}
+
+/* Hover state for all action icons */
+.action-icon:hover i, 
+.btn-icon:hover i,
+.action-btn:hover i,
+.action:hover i,
+.actions:hover i,
+td .action:hover i,
+td .actions:hover i,
+.action-column:hover i,
+.btn:hover i,
+.dropdown-item:hover i,
+.dropdown-menu .dropdown-item:hover i {
+  opacity: 0.8;
+  transform: scale(1.1);
+  transition: all 0.2s ease;
+}
+
+/* Additional selectors for SVG icons if your admin uses them */
+svg.action-icon,
+.action-btn svg,
+.action svg,
+.actions svg,
+td .action svg,
+td .actions svg,
+.btn svg {
+  fill: currentColor;
+}
+
+/* Make sure active page highlighting is maintained even when sidebar is collapsed */
+.sidebar-left .nav-item.active .nav-link,
+.sidebar .nav-item.active .nav-link,
+.sidebar-left .nav-link.active,
+.sidebar .nav-link.active,
+.sidebar-left .nav-item.persistent-active .nav-link,
+.sidebar .nav-item.persistent-active .nav-link,
+.sidebar-left .nav-link.persistent-active,
+.sidebar .nav-link.persistent-active {
+  color: #ffffff !important;
+  background-color: #2c3e50 !important;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Ensure sidebar can be expanded and collapsed */
+.sidebar-left {
+  transition: width 0.3s ease, min-width 0.3s ease !important;
+}
+
+/* Fix for the toggling behavior */
+.vertical.collapsed .sidebar-left, 
+.vertical.narrow .sidebar-left {
+  min-width: 5rem !important;
+  width: 5rem !important;
+  max-width: 5rem !important;
+  overflow: hidden !important;
+  transition: width 0.3s, min-width 0.3s, max-width 0.3s !important;
+}
+
+.vertical:not(.collapsed):not(.narrow) .sidebar-left {
+  min-width: 16rem !important;
+  width: 16rem !important;
+  max-width: 16rem !important;
+  transition: width 0.3s, min-width 0.3s, max-width 0.3s !important;
+}
+
+.vertical.collapsed .sidebar-left .item-text,
+.vertical.narrow .sidebar-left .item-text {
+  display: none !important;
+  opacity: 0 !important;
+  width: 0 !important;
+}
+
+.vertical.collapsed .sidebar-left .logo-expanded,
+.vertical.narrow .sidebar-left .logo-expanded {
+  display: none !important;
+}
+
+.vertical.collapsed .sidebar-left .logo-collapsed,
+.vertical.narrow .sidebar-left .logo-collapsed {
+  display: block !important;
+}
+
+.vertical.collapsed .sidebar-left:hover,
+.vertical.narrow .sidebar-left:hover {
+  min-width: 16rem !important;
+  width: 16rem !important;
+  overflow: visible !important;
+  z-index: 1050 !important;
+  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.3s ease !important;
+}
+
+.vertical.collapsed .sidebar-left:hover .item-text,
+.vertical.narrow .sidebar-left:hover .item-text {
+  display: inline-block !important;
+  opacity: 1 !important;
+  width: auto !important;
+}
+
+/* Sidebar logo switch on hover for collapsed/narrow */
+.vertical.collapsed .sidebar-left .logo-expanded,
+.vertical.narrow .sidebar-left .logo-expanded {
+  display: none !important;
+}
+.vertical.collapsed .sidebar-left .logo-collapsed,
+.vertical.narrow .sidebar-left .logo-collapsed {
+  display: block !important;
+}
+.vertical.collapsed .sidebar-left:hover .logo-expanded,
+.vertical.narrow .sidebar-left:hover .logo-expanded {
+  display: block !important;
+}
+.vertical.collapsed .sidebar-left:hover .logo-collapsed,
+.vertical.narrow .sidebar-left:hover .logo-collapsed {
+  display: none !important;
+}
+/* End sidebar logo hover switch */
+
+/* End sidebar collapse fixes */
+
+/* Dashboard Metric Card Universal Styling - Applied to all metric cards */
+
+/* Base dashboard metric card style for all metric cards */
+.metric-card,
+.health-metric-card,
+.complaint-metric-card {
+  /* Dashboard styling */
+  background: #fff !important;
+  color: #2c3e50 !important;
+  border: none !important;
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(44, 62, 80, 0.08) !important;
+  border-radius: 10px !important;
+  transition: all 0.3s ease !important;
+}
+
+/* Dashboard hover effect for all metric cards */
+.metric-card:hover,
+.health-metric-card:hover,
+.complaint-metric-card:hover {
+  background: #f3f6fa !important;
+  color: #2c3e50 !important;
+  box-shadow: 0 8px 24px rgba(44, 62, 80, 0.12) !important;
+  transform: translateY(-2px) scale(1.03);
+}
+
+/* Dashboard card body styling */
+.metric-card .card-body,
+.health-metric-card .card-body,
+.complaint-metric-card .card-body {
+  color: #2c3e50 !important;
+}
+
+/* Dashboard text styling */
+.metric-card .text-xs,
+.health-metric-card .text-xs,
+.complaint-metric-card .text-xs,
+.metric-card .small,
+.health-metric-card .small,
+.complaint-metric-card .small {
+  color: #2c3e50 !important;
+}
+
+/* Dashboard metric counter styling */
+.metric-card .h5,
+.health-metric-card .h5,
+.complaint-metric-card .h5,
+.metric-card .h3,
+.health-metric-card .h3,
+.complaint-metric-card .h3 {
+  color: #2c3e50 !important;
+}
+
+/* Dashboard icon styling */
+.metric-card .fa-2x,
+.health-metric-card .fa-2x,
+.complaint-metric-card .fa-2x,
+.metric-card .metric-icon,
+.health-metric-card .metric-icon,
+.complaint-metric-card .metric-icon {
+  font-size: 2em !important;
+}
+
+/* Dashboard border-left colors */
+.metric-card.border-left-primary,
+.health-metric-card.border-left-primary,
+.complaint-metric-card.border-left-primary {
+  border-left-color: #4e73df !important;
+}
+
+.metric-card.border-left-success,
+.health-metric-card.border-left-success,
+.complaint-metric-card.border-left-success {
+  border-left-color: #1cc88a !important;
+}
+
+.metric-card.border-left-warning,
+.health-metric-card.border-left-warning,
+.complaint-metric-card.border-left-warning {
+  border-left-color: #f6c23e !important;
+}
+
+.metric-card.border-left-danger,
+.health-metric-card.border-left-danger,
+.complaint-metric-card.border-left-danger {
+  border-left-color: #e74a3b !important;
+}
+
+.metric-card.border-left-info,
+.health-metric-card.border-left-info,
+.complaint-metric-card.border-left-info {
+  border-left-color: #36b9cc !important;
+}
+
+/* Dashboard row alignment */
+.metric-card .row.no-gutters,
+.health-metric-card .row.no-gutters,
+.complaint-metric-card .row.no-gutters,
+.metric-card .row.align-items-center,
+.health-metric-card .row.align-items-center,
+.complaint-metric-card .row.align-items-center {
+  align-items: center !important;
+  margin: 0 !important;
+}
+
+.metric-card .col.mr-2,
+.health-metric-card .col.mr-2,
+.complaint-metric-card .col.mr-2,
+.metric-card .col-9,
+.health-metric-card .col-9,
+.complaint-metric-card .col-9 {
+  margin-right: 0.5rem !important;
+}
+
+.metric-card .col-auto,
+.health-metric-card .col-auto,
+.complaint-metric-card .col-auto,
+.metric-card .col-3,
+.health-metric-card .col-3,
+.complaint-metric-card .col-3 {
+  text-align: center !important;
+}
+
+/* Remove any conflicting health-metric specific styles */
+.health-metric-card {
+  background: #fff !important;
+  border: none !important;
+  border-left-width: 4px !important;
+  border-left-style: solid !important;
+  box-shadow: 0 0 0 5px rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Remove any conflicting complaint-metric specific styles */
+.complaint-metric-card {
+  background: #fff !important;
+  border: none !important;
+  border-left-width: 4px !important;
+  border-left-style: solid !important;
+  box-shadow: 0 0 0 5px rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Override any existing animations that conflict with dashboard style */
+.health-metric-card:hover,
+.complaint-metric-card:hover {
+  transform: none !important;
+  background: #fff !important;
+}
+
+/* Dashboard circle icon styling */
+.metric-card .circle,
+.health-metric-card .circle,
+.complaint-metric-card .circle {
+  width: 50px !important;
+  height: 50px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Ensure dashboard styling in dark mode */
+.dark .metric-card,
+.dark .health-metric-card,
+.dark .complaint-metric-card {
+  background: #fff !important;
+  color: #5a5c69 !important;
+}
+
+
+/* Override specific hover effects to maintain consistency */
+.metric-card.border-left-primary:hover,
+.metric-card.border-left-success:hover,
+.metric-card.border-left-warning:hover,
+.metric-card.border-left-danger:hover,
+.metric-card.border-left-info:hover,
+.health-metric-card.border-left-primary:hover,
+.health-metric-card.border-left-success:hover,
+.health-metric-card.border-left-warning:hover,
+.health-metric-card.border-left-danger:hover,
+.health-metric-card.border-left-info:hover,
+.complaint-metric-card.border-left-primary:hover,
+.complaint-metric-card.border-left-success:hover,
+.complaint-metric-card.border-left-warning:hover,
+.complaint-metric-card.border-left-danger:hover,
+.complaint-metric-card.border-left-info:hover {
+  box-shadow: 0 8px 20px rgba(52, 152, 219, 0.25) !important;
+}
+
+/* Custom dropdown component styles */
+.custom-dropdown {
+    position: relative;
+    display: inline-block;
+}
+.custom-dropdown-btn {
+    background: none;
+    border: none;
+    padding: 0.25rem 0.5rem;
+    border-radius: 50%;
+    color: #6c757d;
+    transition: background 0.15s, color 0.15s;
+    outline: none;
+}
+.custom-dropdown-btn:focus,
+.custom-dropdown-btn:hover {
+    background: #f3f6fa;
+    color: #1b68ff;
+}
+.custom-dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    min-width: 180px;
+    background: #fff;
+    border: 1px solid #e0e6ed;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08), 0 1.5px 4px rgba(0,0,0,0.03);
+    padding: 0.25rem 0;
+    z-index: 1051;
+}
+[x-cloak] { display: none !important; }
+.custom-dropdown-menu[x-show="open"] {
+    display: block;
+}
+.custom-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.92rem;
+    color: #212529;
+    background: none;
+    border: none;
+    width: 100%;
+    transition: background 0.15s, color 0.15s;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+.custom-dropdown-item:hover {
+    background: #f3f6fa;
+    color: #174bb1;
+    text-decoration: none !important;
+}
+
+/* Document-specific styles */
+
+/* Metric card styles for the document page */
+.document-metric-card {
+  background: #2c3e50 !important;
+  color: #fff !important;
+  border: none !important;
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(44, 62, 80, 0.15), 0 0 0 5px rgba(59, 130, 246, 0.2) !important;
+  border-radius: 10px !important;
+  transition: all 0.3s ease !important;
+}
+
+.document-metric-card .card-body {
+  color: #fff !important;
+}
+
+.document-metric-card .text-xs,
+.document-metric-card .small {
+  color: #fff !important;
+}
+
+.document-metric-card .h5,
+.document-metric-card .h3 {
+  color: #fff !important;
+}
+
+.document-metric-card:hover {
+  background: #34495e !important;
+  color: #fff !important;
+  box-shadow: 0 8px 24px rgba(44, 62, 80, 0.25) !important;
+  transform: translateY(-2px) scale(1.03);
+}
+
+/* Revert table style to match previous look from screenshot */
+.table {
+  background: #fff !important;
+  color: #232a36 !important;
+  border-collapse: separate !important;
+  border-spacing: 0;
+  width: 100% !important;
+  box-shadow: 0 2px 8px rgba(44,62,80,0.04);
+}
+.table thead th {
+  background: #232a36 !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+  border: none !important;
+  font-size: 1.05em;
+  letter-spacing: 0.02em;
+  padding-top: 14px !important;
+  padding-bottom: 14px !important;
+}
+.table td {
+  border: none !important;
+  border-bottom: 1.5px solid #e5e7eb !important;
+  background: none !important;
+  color: #232a36 !important;
+  font-size: 1em;
+  vertical-align: middle !important;
+  padding: 12px 16px !important;
+}
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: #f6f8fa !important;
+}
+.table-striped tbody tr:nth-of-type(even) {
+  background-color: #fff !important;
+}
+.table-hover tbody tr:hover {
+  background-color: #eaf3fb !important;
+  color: #174bb1 !important;
+}
+.table, .table-responsive {
+  border: none !important;
+  box-shadow: none !important;
+}
+.table thead, .table thead th, .table tr, .table-striped tr {
+  border: none !important;
+  box-shadow: none !important;
+}
+/* End revert table style */
+
+/* Custom: Archive button in modal - keep background/text on hover, animate icon */
+.modal-footer .btn-warning#confirmDelete,
+.modal-footer .btn-warning#confirmDelete *,
+.modal-footer .btn-warning#confirmDelete span,
+.modal-footer .btn-warning#confirmDelete i {
+  color: #fff !important;
+}
+.modal-footer .btn-warning#confirmDelete:hover,
+.modal-footer .btn-warning#confirmDelete:focus {
+  color: #fff !important;
+  background-color: #ffc107 !important;
+  border-color: #ffc107 !important;
+}
+.modal-footer .btn-warning#confirmDelete i {
+  transition: transform 0.2s;
+  vertical-align: middle;
+  display: inline-block;
+  line-height: 1;
+  margin-right: 0;
+  position: relative;
+  top: 1px;
+}
+.modal-footer .btn-warning#confirmDelete:hover i,
+.modal-footer .btn-warning#confirmDelete:focus i {
+  transform: scale(1.3) !important;
+}
+
+.modal-footer .btn-warning#confirmToggle {
+  color: #fff !important;
+  background-color: #ffc107 !important;
+  border-color: #ffc107 !important;
+  transition: background 0.2s, color 0.2s;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-footer .btn-warning#confirmToggle:hover,
+.modal-footer .btn-warning#confirmToggle:focus {
+  color: #fff !important;
+  background-color: #ffc107 !important;
+  border-color: #ffc107 !important;
+}
+.modal-footer .btn-warning#confirmToggle span,
+.modal-footer .btn-warning#confirmToggle strong,
+.modal-footer .btn-warning#confirmToggle {
+  transition: transform 0.2s;
+}
+.modal-footer .btn-warning#confirmToggle:hover span,
+.modal-footer .btn-warning#confirmToggle:focus span,
+.modal-footer .btn-warning#confirmToggle:hover strong,
+.modal-footer .btn-warning#confirmToggle:focus strong,
+.modal-footer .btn-warning#confirmToggle:hover,
+.modal-footer .btn-warning#confirmToggle:focus {
+  transform: scale(1.13);
+}
+
+#residentTable td:nth-child(2) .d-flex {
+  min-width: 180px;
+  max-width: 320px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: normal;
+  flex-wrap: nowrap;
+}
+#residentTable td:nth-child(2) div {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: normal;
+}
+

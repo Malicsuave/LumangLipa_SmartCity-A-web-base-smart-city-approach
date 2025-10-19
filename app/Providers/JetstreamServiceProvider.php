@@ -24,6 +24,9 @@ class JetstreamServiceProvider extends ServiceProvider
         $this->configurePermissions();
 
         Jetstream::deleteUsersUsing(DeleteUser::class);
+        
+        // Disable Jetstream's default routes to prevent conflicts with admin routes
+        Jetstream::ignoreRoutes();
     }
 
     /**

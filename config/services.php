@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Third Party Services
@@ -31,4 +30,27 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URI', '/auth/google/callback'),
+        'auth_params' => [
+            'prompt' => 'select_account',
+        ],
+    ],
+
+    'phpmailer' => [
+        'smtp_host' => env('MAIL_HOST', 'smtp.gmail.com'),
+        'smtp_port' => env('MAIL_PORT', 587),
+        'smtp_username' => env('MAIL_USERNAME'),
+        'smtp_password' => env('MAIL_PASSWORD'),
+        'smtp_encryption' => env('MAIL_ENCRYPTION', 'tls'),
+    ],
+
+    'huggingface' => [
+    'api_key' => env('HUGGINGFACE_API_KEY'),
+    // When true, the chatbot will NOT fall back to canned replies if AI fails.
+    // Auto-enable if no API key is provided.
+    'strict' => (bool) (env('CHATBOT_STRICT_AI', false) || !env('HUGGINGFACE_API_KEY')),
+    ],
 ];

@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Actions\Auth\AuthenticateUser;
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
 use App\Actions\Fortify\UpdateUserPassword;
@@ -29,52 +30,68 @@ class FortifyServiceProvider extends ServiceProvider
      * Bootstrap any application services.
      */
     public function boot(): void
-    {
-        // Default Fortify actions
-        Fortify::createUsersUsing(CreateNewUser::class);
-        Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
-        Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
-        Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
+{
+    // Default Fortify actions
+    Fortify::createUsersUsing(CreateNewUser::class);
+    Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
+    Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
+    Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
 
-        // Custom authentication logic to handle role-based redirects
-        Fortify::authenticateUsing(function (Request $request) {
-            $user = \App\Models\User::where('email', $request->email)->first();
+    // Custom authentication logic with account locking and activity tracking
+    Fortify::authenticateUsing(function (Request $request) {
+        return (new AuthenticateUser())->authenticate($request);
+    });
 
-            if ($user && \Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
-                return $user;
-            }
-        });
+    // Custom redirect after login
+    Fortify::redirects('login', function (Request $request) {
+        // Check for intended URL first
+        if (session()->has('url.intended')) {
+            $intended = session('url.intended');
+            session()->forget('url.intended');
+            return $intended;
+        }
 
-        // Custom view for Two-Factor Authentication challenge
-        Fortify::twoFactorChallengeView(function () {
-            return view('auth.two-factor-challenge'); // Replace with your custom 2FA Blade file
-        });
+        // Check user role and redirect accordingly
+        $user = auth()->user();
+        if ($user && $user->role && in_array($user->role->name, ['Barangay Captain', 'Barangay Secretary'])) {
+            return '/admin/dashboard';
+        }
 
-        // Rate limiting for login
-        RateLimiter::for('login', function (Request $request) {
-            $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
+        return '/dashboard';
+    });
 
-            return Limit::perMinute(5)->by($throttleKey);
-        });
+    // Custom redirect after registration
+    Fortify::redirects('register', function (Request $request) {
+        $user = auth()->user();
+        if ($user && $user->role && in_array($user->role->name, ['Barangay Captain', 'Barangay Secretary'])) {
+            return '/admin/dashboard';
+        }
+        return '/dashboard';
+    });
 
-        // Rate limiting for Two-Factor Authentication
-        RateLimiter::for('two-factor', function (Request $request) {
-            return Limit::perMinute(5)->by($request->session()->get('login.id'));
-        });
+    // Custom view for Two-Factor Authentication challenge
+    Fortify::twoFactorChallengeView(function () {
+        return view('auth.two-factor-challenge'); // Replace with your custom 2FA Blade file
+    });
 
-        
+    // Rate limiting for login
+    RateLimiter::for('login', function (Request $request) {
+        $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
+        return Limit::perMinute(5)->by($throttleKey);
+    });
 
-        // Override the 2FA routes to use a custom controller with route names
-        Route::post('/user/two-factor-authentication', [TwoFactorAuthenticationController::class, 'store'])
-            ->name('two-factor.enable') // Name the route for enabling 2FA
-            ->middleware(['auth']);
+    // Rate limiting for Two-Factor Authentication
+    RateLimiter::for('two-factor', function (Request $request) {
+        return Limit::perMinute(5)->by($request->session()->get('login.id'));
+    });
 
-        Route::delete('/user/two-factor-authentication', [TwoFactorAuthenticationController::class, 'destroy'])
-            ->name('two-factor.disable') // Name the route for disabling 2FA
-            ->middleware(['auth']);
+    // Override the 2FA routes to use a custom controller with route names
+    Route::post('/user/two-factor-authentication', [TwoFactorAuthenticationController::class, 'store'])
+        ->name('two-factor.enable') // Name the route for enabling 2FA
+        ->middleware(['auth']);
 
-        Route::post('/user/two-factor-recovery-codes', [TwoFactorAuthenticationController::class, 'recoveryCodes'])
-            ->name('two-factor.recovery-codes') // Name the route for regenerating recovery codes
-            ->middleware(['auth']);
-    }
+    Route::delete('/user/two-factor-authentication', [TwoFactorAuthenticationController::class, 'destroy'])
+        ->name('two-factor.disable') // Name the route for disabling 2FA
+        ->middleware(['auth']);
+}
 }

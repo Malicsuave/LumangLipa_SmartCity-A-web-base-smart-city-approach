@@ -34,11 +34,7 @@
                 
                 // Then redirect after the fade out animation completes
                 setTimeout(function() {
-                    @if (Route::has('login'))
-                        window.location.href = "{{ route('login') }}";
-                    @else
-                        window.location.href = "/login";
-                    @endif
+                    window.location.href = "{{ Route::has('login') ? route('login') : '/login' }}";
                 }, 500);
             }, 3500);
         </script>

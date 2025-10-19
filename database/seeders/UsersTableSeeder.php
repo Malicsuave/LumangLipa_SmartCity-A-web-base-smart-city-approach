@@ -12,6 +12,8 @@ class UsersTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
+     * Creates only the Captain user as the super admin.
+     * Other users will need to register and request access approval.
      */
     public function run(): void
     {
@@ -26,34 +28,8 @@ class UsersTableSeeder extends Seeder
                 'email_verified_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now(),
-            ],
-            [
-                'name' => 'Barangay Secretary',
-                'email' => 'secretary@lumanglipa.city',
-                'password' => Hash::make('password123'),
-                'role_id' => $roles['Barangay Secretary'] ?? null,
-                'email_verified_at' => now(),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'name' => 'Health Worker',
-                'email' => 'health@lumanglipa.city',
-                'password' => Hash::make('password123'),
-                'role_id' => $roles['Health Worker'] ?? null,
-                'email_verified_at' => now(),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'name' => 'Complaint Manager',
-                'email' => 'complaints@lumanglipa.city',
-                'password' => Hash::make('password123'),
-                'role_id' => $roles['Complaint Manager'] ?? null,
-                'email_verified_at' => now(),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
+            ]
+            // Other default users removed - new users will go through approval process
         ]);
     }
 }

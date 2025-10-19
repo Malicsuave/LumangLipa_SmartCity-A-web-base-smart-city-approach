@@ -36,6 +36,8 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \App\Http\Middleware\RedirectTwoFactorSetup::class, // Add our new middleware to the web group
+            // Removed ValidateRequestSecurity from global middleware - it was causing 500 errors
         ],
 
         'api' => [
@@ -65,5 +67,11 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'role' => \App\Http\Middleware\RoleMiddleware::class,
+        'two-factor.redirect' => \App\Http\Middleware\RedirectTwoFactorSetup::class,
+        'security' => \App\Http\Middleware\ValidateRequestSecurity::class,
+        'account.lockout' => \App\Http\Middleware\AccountLockoutMiddleware::class,
+        'session.security' => \App\Http\Middleware\SessionSecurityMiddleware::class,
+        'repository.security' => \App\Http\Middleware\RepositorySecurityMiddleware::class,
+        'enforce.password.change' => \App\Http\Middleware\EnforcePasswordChange::class,
     ];
 }

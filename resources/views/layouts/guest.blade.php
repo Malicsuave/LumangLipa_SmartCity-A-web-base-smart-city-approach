@@ -12,24 +12,13 @@
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
         <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+                @vite(['resources/css/app.css'])
 
         <!-- Styles -->
         @livewireStyles
         
         <!-- Custom styles -->
-        <style>
-            body {
-                background-color: #1E293B !important;
-                color: white;
-            }
-            @media (prefers-color-scheme: light) {
-                body {
-                    background-color: #F1F5F9 !important;
-                    color: #1E293B;
-                }
-            }
-        </style>
+        <link rel="stylesheet" href="{{ asset('css/guest-layout.css') }}">
     </head>
     <body>
         <div class="font-sans text-gray-900 antialiased">

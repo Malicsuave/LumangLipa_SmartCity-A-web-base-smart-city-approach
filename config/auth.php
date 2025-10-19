@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Authentication Defaults
@@ -112,4 +111,16 @@ return [
 
     'password_timeout' => 10800,
 
+    /*
+    |--------------------------------------------------------------------------
+    | Password Expiration Settings
+    |--------------------------------------------------------------------------
+    |
+    | These settings control password expiration policies for the application.
+    | You can enable/disable password expiration and set the expiration period.
+    |
+    */
+
+    'password_expiration_enabled' => env('PASSWORD_EXPIRATION_ENABLED', false),
+    'password_expiration_days' => env('PASSWORD_EXPIRATION_DAYS', 90),
 ];

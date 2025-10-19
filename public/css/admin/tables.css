@@ -1,0 +1,427 @@
+/* Admin Tables Common Styles - AdminLTE 3.2 Compatible */
+/* This file provides reusable styles for all admin pages with tables and DataTables */
+
+/* Fix dropdown positioning in DataTables */
+.dataTables_wrapper {
+    overflow: visible !important;
+}
+.table-responsive {
+    overflow: visible !important;
+}
+.card-body {
+    overflow: visible !important;
+}
+
+/* Ensure dropdown menus appear above other elements */
+.dropdown-menu {
+    z-index: 1050 !important;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.175) !important;
+    border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+/* Fix for DataTables in responsive mode */
+.dataTables_wrapper .dataTables_scroll {
+    overflow: visible !important;
+}
+.dataTables_wrapper .dataTables_scrollBody {
+    overflow: visible !important;
+}
+
+/* Better positioning for action buttons */
+.btn-group .dropdown-toggle::after {
+    margin-left: 0.5em;
+}
+
+/* Ensure proper spacing in dropdown items */
+.dropdown-item {
+    padding: 0.375rem 1rem;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+}
+.dropdown-item i {
+    width: 16px;
+    text-align: center;
+    font-size: 14px;
+    display: inline-block;
+}
+.dropdown-item i.mr-2 {
+    margin-right: 0.5rem !important;
+}
+
+/* Ensure Font Awesome icons load properly */
+.fas, .far, .fab {
+    font-family: "Font Awesome 5 Free", "Font Awesome 5 Pro", "Font Awesome 5 Brands" !important;
+    font-style: normal;
+    font-variant: normal;
+    text-rendering: auto;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+}
+.fas {
+    font-weight: 900 !important;
+}
+.far {
+    font-weight: 400 !important;
+}
+
+/* Force icon visibility in dropdowns */
+.dropdown-item i::before {
+    display: inline-block !important;
+    font-family: "Font Awesome 5 Free" !important;
+}
+
+/* Specific fixes for common icons */
+.fa-eye::before { content: "\f06e"; }
+.fa-check::before { content: "\f00c"; }
+.fa-times::before { content: "\f00d"; }
+.fa-check-square::before { content: "\f14a"; }
+.fa-file-pdf::before { content: "\f1c1"; }
+.fa-edit::before { content: "\f044"; }
+.fa-trash::before { content: "\f2ed"; }
+
+/* Common table action styles */
+.table-actions {
+    min-width: 120px;
+}
+
+/* Status badges */
+.status-badge {
+    font-size: 0.875rem;
+    padding: 0.25rem 0.5rem;
+}
+
+/* Table responsive improvements */
+@media (max-width: 768px) {
+    .table-responsive table {
+        font-size: 0.875rem;
+    }
+    .dropdown-menu {
+        position: absolute !important;
+        transform: none !important;
+    }
+}
+
+/* Filter section styling */
+.filter-section {
+    background: #f8f9fa;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.filter-section .form-control-sm {
+    font-size: 0.875rem;
+}
+
+/* Active filters display */
+.active-filters {
+    margin-bottom: 1rem;
+}
+
+.filter-badge {
+    margin-right: 0.5rem;
+    margin-bottom: 0.25rem;
+    text-decoration: none !important;
+}
+
+.filter-badge:hover {
+    opacity: 0.8;
+}
+
+/* Empty state styling */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+.empty-state-icon {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: #f3f4f6;
+    border: 4px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+}
+
+/* ========================================
+   PAGINATION STYLES - AdminLTE 3 Responsive
+   ======================================== */
+
+/* Remove all outer box, border, and background from pagination container and parent */
+.dataTables_wrapper .dataTables_paginate,
+.dataTables_wrapper .dataTables_paginate .pagination,
+.dataTables_wrapper .dataTables_paginate .pagination-wrapper,
+.dataTables_wrapper .dataTables_paginate .pagination-container,
+.dataTables_wrapper .row > div:last-child {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Remove border/background from any parent .row or .card-footer that might wrap pagination */
+.dataTables_wrapper .row,
+.dataTables_wrapper .card-footer {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Remove double border between page links */
+.dataTables_wrapper .dataTables_paginate .page-link {
+    border-radius: 0 !important;
+    margin-left: -1px !important;
+    border: 1px solid #dee2e6 !important;
+    background: #fff !important;
+    color: #007bff !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+.dataTables_wrapper .dataTables_paginate .page-item:first-child .page-link {
+    border-top-left-radius: 0.25rem !important;
+    border-bottom-left-radius: 0.25rem !important;
+    margin-left: 0 !important;
+}
+.dataTables_wrapper .dataTables_paginate .page-item:last-child .page-link {
+    border-top-right-radius: 0.25rem !important;
+    border-bottom-right-radius: 0.25rem !important;
+}
+.dataTables_wrapper .dataTables_paginate .page-item.active .page-link {
+    background: #007bff !important;
+    color: #fff !important;
+    border-color: #007bff !important;
+    z-index: 2;
+}
+.dataTables_wrapper .dataTables_paginate .page-link:hover {
+    background: #e9ecef !important;
+    color: #0056b3 !important;
+    border-color: #dee2e6 !important;
+}
+.dataTables_wrapper .dataTables_paginate .page-item.disabled .page-link {
+    color: #6c757d !important;
+    background: #fff !important;
+    border-color: #dee2e6 !important;
+}
+
+/* Remove any extra margin/padding around pagination */
+.dataTables_wrapper .dataTables_paginate .pagination {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Remove Bootstrap .pagination border and background to eliminate outer box */
+.dataTables_wrapper .dataTables_paginate .pagination {
+    border: none !important;
+    background: none !important;
+    box-shadow: none !important;
+}
+
+/* Remove border/background from .dataTables_paginate itself */
+.dataTables_wrapper .dataTables_paginate {
+    border: none !important;
+    background: none !important;
+    box-shadow: none !important;
+}
+
+@media (max-width: 576px) {
+    .dataTables_wrapper .dataTables_paginate .pagination {
+        justify-content: center;
+    }
+    .dataTables_wrapper .dataTables_paginate .page-link {
+        padding: 4px 8px !important;
+        font-size: 11px !important;
+        min-width: 28px !important;
+    }
+}
+/* END AdminLTE 3 Pagination Fix */
+
+/* DataTable enhancements */
+.dataTables_length {
+    margin-bottom: 1rem;
+}
+
+.dataTables_filter {
+    margin-bottom: 1rem;
+}
+
+.dataTables_info {
+    padding-top: 1rem;
+}
+
+.dataTables_paginate {
+    padding-top: 1rem;
+}
+
+/* Loading states */
+.loading-overlay {
+    position: relative;
+}
+
+.loading-overlay::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    z-index: 1000;
+    display: none;
+}
+
+.loading-overlay.loading::before {
+    display: block;
+}
+
+.loading-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1001;
+    display: none;
+}
+
+.loading-overlay.loading .loading-spinner {
+    display: block;
+}
+
+/* Export button styling */
+.dt-buttons {
+    margin-bottom: 1rem;
+}
+
+.dt-button {
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Search highlight */
+.search-highlight {
+    background-color: #fff3cd;
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+}
+
+/* Column visibility menu: show checkmarks instead of blue active highlight */
+.dt-button-collection .dt-button.buttons-columnVisibility,
+.dt-button-collection a.dt-button.buttons-columnVisibility,
+.dt-button-collection button.dt-button.buttons-columnVisibility {
+    position: relative;
+    padding: 0.375rem 0.75rem 0.375rem 1.75rem !important; /* tighter spacing */
+    margin: 0 !important; /* remove gaps between items */
+    line-height: 1.2 !important;
+    background: transparent !important;
+    border: none !important;
+    color: inherit !important;
+    display: block !important;
+    width: 100% !important;
+    text-align: left !important;
+}
+
+.dt-button-collection .dt-button.buttons-columnVisibility.active,
+.dt-button-collection a.dt-button.buttons-columnVisibility.active,
+.dt-button-collection button.dt-button.buttons-columnVisibility.active,
+.dt-button-collection .dt-button.buttons-columnVisibility[aria-pressed="true"],
+.dt-button-collection a.dt-button.buttons-columnVisibility[aria-pressed="true"],
+.dt-button-collection button.dt-button.buttons-columnVisibility[aria-pressed="true"] {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+/* Default indicator for hidden columns: empty box */
+.dt-button-collection .dt-button.buttons-columnVisibility::before,
+.dt-button-collection a.dt-button.buttons-columnVisibility::before,
+.dt-button-collection button.dt-button.buttons-columnVisibility::before {
+    content: "";
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    border: 2px solid #cbd3da; /* muted border */
+    border-radius: 2px;
+}
+
+/* Visible columns: green checkmark */
+.dt-button-collection .dt-button.buttons-columnVisibility.active::before,
+.dt-button-collection a.dt-button.buttons-columnVisibility.active::before,
+.dt-button-collection button.dt-button.buttons-columnVisibility.active::before,
+.dt-button-collection .dt-button.buttons-columnVisibility[aria-pressed="true"]::before,
+.dt-button-collection a.dt-button.buttons-columnVisibility[aria-pressed="true"]::before,
+.dt-button-collection button.dt-button.buttons-columnVisibility[aria-pressed="true"]::before {
+    content: "✓";
+    width: auto;
+    height: auto;
+    border: none;
+    color: #28a745; /* green check */
+    font-weight: 700;
+}
+
+.dt-button-collection .dt-button.buttons-columnVisibility:hover,
+.dt-button-collection a.dt-button.buttons-columnVisibility:hover,
+.dt-button-collection button.dt-button.buttons-columnVisibility:hover {
+    background-color: #f8f9fa !important;
+}
+
+/* Reduce padding inside the collection container to compact the list */
+.dt-button-collection {
+    padding: 0.25rem !important;
+}
+
+/* Responsive table improvements */
+@media (max-width: 576px) {
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter {
+        text-align: center;
+        margin-bottom: 0.5rem;
+    }
+    
+    .dt-buttons {
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+    
+    .dt-button {
+        margin: 0.25rem;
+        font-size: 0.875rem;
+    }
+    
+    /* Keep mobile pagination simple - no custom sizing */
+    .dataTables_wrapper .dataTables_paginate .pagination {
+        justify-content: center;
+    }
+    
+    /* Hide first/last buttons on mobile to save space */
+    .dataTables_wrapper .dataTables_paginate .paginate_button.first,
+    .dataTables_wrapper .dataTables_paginate .paginate_button.last {
+        display: none !important;
+    }
+}
+
+/* Shared admin card styling (match Residents page solid header) */
+.admin-card-shadow {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+    border: none !important;
+    border-radius: 12px !important;
+}
+
+.admin-card-shadow .card-header {
+    background: #3498db;
+    color: white;
+    border-radius: 12px 12px 0 0 !important;
+    border: none;
+}
+
+.admin-card-shadow .card-title {
+    color: white !important;
+    font-weight: 600;
+}

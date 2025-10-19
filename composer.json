@@ -6,12 +6,23 @@
     "license": "MIT",
     "require": {
         "php": "^8.1",
-        "guzzlehttp/guzzle": "^7.2",
+        "almasaeed2010/adminlte": "~3.2",
+        "barryvdh/laravel-dompdf": "^3.1",
+        "barryvdh/laravel-snappy": "^1.0",
+        "doctrine/dbal": "^3.5.1",
+        "guzzlehttp/guzzle": "^7.9",
+        "intervention/image": "^2.0",
+        "khanamiryan/qrcode-detector-decoder": "^2.0",
+        "knplabs/knp-snappy": "^1.5",
         "laravel/framework": "^10.10",
         "laravel/jetstream": "^4.3",
         "laravel/sanctum": "^3.3",
+        "laravel/socialite": "^5.21",
         "laravel/tinker": "^2.8",
-        "livewire/livewire": "^3.0"
+        "livewire/livewire": "^3.0",
+        "mpdf/mpdf": "^8.2",
+        "phpmailer/phpmailer": "^6.10",
+        "spatie/laravel-activitylog": "^4.10"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
