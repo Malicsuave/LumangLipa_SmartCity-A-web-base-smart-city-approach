@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Official;
+use App\Models\Announcement;
 
 class PublicController extends Controller
 {
@@ -14,7 +15,14 @@ class PublicController extends Controller
     {
         $officials = Official::getOrderedOfficials();
         
-        return view('public.home', compact('officials'));
+        // Get recent announcements for the home page (limit to 5 most recent)
+        $announcements = Announcement::currentlyActive()
+                                   ->with('registrations')
+                                   ->latest()
+                                   ->limit(5)
+                                   ->get();
+        
+        return view('public.home', compact('officials', 'announcements'));
     }
     
     /**
@@ -57,7 +65,12 @@ class PublicController extends Controller
      */
     public function announcements()
     {
-        // You can fetch announcements data here if needed
-        return view('public.announcements');
+        // Fetch announcements data for the view
+        $announcements = Announcement::currentlyActive()
+                                   ->with('registrations')
+                                   ->latest()
+                                   ->paginate(12);
+        
+        return view('public.announcements.index', compact('announcements'));
     }
 }

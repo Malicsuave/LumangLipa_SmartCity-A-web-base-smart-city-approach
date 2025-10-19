@@ -68,6 +68,17 @@
 
 <script>
 $(function () {
+    // Destroy existing DataTable instances if they exist
+    if ($.fn.DataTable.isDataTable('#issuedTable')) {
+        $('#issuedTable').DataTable().destroy();
+    }
+    if ($.fn.DataTable.isDataTable('#renewalTable')) {
+        $('#renewalTable').DataTable().destroy();
+    }
+    if ($.fn.DataTable.isDataTable('#expiringTable')) {
+        $('#expiringTable').DataTable().destroy();
+    }
+
     // DataTables for each tab
     DataTableHelpers.initDataTable('#issuedTable', {
         buttons: ["copy", "csv", "excel", "pdf", "print", "colvis"],

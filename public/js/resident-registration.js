@@ -112,9 +112,7 @@
         // Real-time validation for text inputs
         if (input.type === 'text' || input.type === 'email' || input.type === 'tel') {
           input.addEventListener('input', function() {
-            if (touched || this.classList.contains('is-invalid') || this.classList.contains('is-valid')) {
-              validateField(this);
-            }
+            validateField(this); // Always validate on input
           });
         }
         
@@ -193,37 +191,6 @@
       if (!phonePattern.test(cleanValue)) {
         isValid = false;
         errorMessage = 'Please enter a valid Philippine phone number (09XXXXXXXXX).';
-      }
-    }
-
-    // Date validation (not in future for birthdate)
-    if (field.type === 'date' && field.name === 'birthdate' && value) {
-      const selectedDate = new Date(value);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      if (selectedDate > today) {
-        isValid = false;
-        errorMessage = 'Birthdate cannot be in the future.';
-      }
-      
-      // Check minimum age based on form type
-      const isSeniorForm = document.querySelector('form[id*="seniorPreReg"]');
-      if (isSeniorForm) {
-        // Senior citizen must be 60+
-        const sixtyYearsAgo = new Date();
-        sixtyYearsAgo.setFullYear(sixtyYearsAgo.getFullYear() - 60);
-        if (selectedDate > sixtyYearsAgo) {
-          isValid = false;
-          errorMessage = 'You must be at least 60 years old to register as a senior citizen.';
-        }
-      } else {
-        // Regular resident must be at least 1 year old
-        const oneYearAgo = new Date();
-        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-        if (selectedDate > oneYearAgo) {
-          isValid = false;
-          errorMessage = 'Please enter a valid birthdate.';
-        }
       }
     }
 
@@ -1191,38 +1158,6 @@
         });
       }
 
-      // Special validation for birthdate with age requirement - only after interaction
-      const birthdateInput = document.getElementById('birthdate');
-      if (birthdateInput) {
-        let birthdateInteracted = false;
-        
-        birthdateInput.addEventListener('focus', function() {
-          birthdateInteracted = true;
-        });
-        
-        birthdateInput.addEventListener('change', function() {
-          if (!birthdateInteracted) return; // Don't validate until user interacts
-          
-          const birthDate = new Date(this.value);
-          const today = new Date();
-          let age = today.getFullYear() - birthDate.getFullYear();
-          const monthDiff = today.getMonth() - birthDate.getMonth();
-          
-          if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-            age--;
-          }
-          
-          if (this.value === '') {
-            showValidationError('birthdate', 'This field is required.');
-          } else if (isSeniorForm && age < 60) {
-            showValidationError('birthdate', 'You must be at least 60 years old to register as a senior citizen.');
-          } else {
-            clearValidationError('birthdate');
-            addSuccessStyling('birthdate');
-          }
-        });
-      }
-
       // Enhanced citizenship country conditional validation
       const citizenshipType = document.getElementById('citizenship_type');
       const citizenshipCountry = document.getElementById('citizenship_country');
@@ -1303,23 +1238,6 @@
               hasErrors = true;
             }
           });
-
-          // Special validation for birthdate
-          if (birthdateInput && birthdateInput.value && isSeniorForm) {
-            const birthDate = new Date(birthdateInput.value);
-            const today = new Date();
-            let age = today.getFullYear() - birthDate.getFullYear();
-            const monthDiff = today.getMonth() - birthDate.getMonth();
-            
-            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-              age--;
-            }
-            
-            if (age < 60) {
-              showValidationError('birthdate', 'You must be at least 60 years old to register as a senior citizen.');
-              hasErrors = true;
-            }
-          }
 
           // Validate citizenship country if required
           if (citizenshipCountry && citizenshipCountry.hasAttribute('required') && citizenshipCountry.value.trim() === '') {
@@ -1469,7 +1387,7 @@
           }
         });
       }
-    });
+    })
   }
 
   // Initialize enhanced validation when DOM is ready

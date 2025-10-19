@@ -137,6 +137,16 @@
           </div>
         </div>
         <div class="row">
+          <div class="col-md-6 mb-3">
+            <strong>Purok:</strong>
+            <p class="mb-0">{{ $step2['purok'] ?? 'N/A' }}</p>
+          </div>
+          <div class="col-md-6 mb-3">
+            <strong>Specify Purok/Sitio:</strong>
+            <p class="mb-0">{{ $step2['custom_purok'] ?? 'N/A' }}</p>
+          </div>
+        </div>
+        <div class="row">
           <div class="col-md-12 mb-3">
             <strong>Current Address:</strong>
             <p class="mb-0">{{ $step2['address'] ?? 'N/A' }}</p>
@@ -210,12 +220,23 @@
           <div class="col-md-4 text-center">
             <strong>Proof of Residency:</strong>
             <div class="mt-2 mb-2">
-              @if(session('temp_proof_preview'))
-                <img src="{{ session('temp_proof_preview') }}" alt="Proof of Residency Preview" style="max-width: 200px; max-height: 200px; border: 2px solid #dee2e6; border-radius: 10px; object-fit: contain;">
-              @elseif(isset($step3['proof_of_residency']))
-                <div class="alert alert-success">
-                  <i class="fas fa-check-circle"></i> Document uploaded
-                </div>
+              @if(isset($step3['proof_of_residency']['mime']) && isset($step3['proof_of_residency']['temp_path_basename']))
+                @php
+                  $proofMime = $step3['proof_of_residency']['mime'];
+                  $proofFile = $step3['proof_of_residency']['temp_path_basename'];
+                  $proofPath = asset('storage/temp/' . $proofFile);
+                  $isImage = preg_match('/image\/(jpeg|jpg|png)/i', $proofMime);
+                  $isPdf = preg_match('/application\/pdf/i', $proofMime);
+                @endphp
+                @if($isImage)
+                  <img src="{{ $proofPath }}" alt="Proof of Residency Preview" style="max-width: 200px; max-height: 200px; border: 2px solid #dee2e6; border-radius: 10px; object-fit: contain;">
+                @elseif($isPdf)
+                  <a href="{{ $proofPath }}" target="_blank" class="btn btn-sm btn-primary mt-2" style="background-color: #007bff; border-color: #007bff; color: #fff;">
+                    <i class="fas fa-file-pdf"></i> View PDF
+                  </a>
+                @else
+                  <span class="text-danger">Unsupported file type</span>
+                @endif
               @else
                 <div class="alert alert-warning">
                   <i class="fas fa-exclamation-triangle"></i> No document uploaded

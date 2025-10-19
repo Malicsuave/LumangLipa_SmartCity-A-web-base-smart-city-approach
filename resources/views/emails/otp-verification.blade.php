@@ -56,7 +56,15 @@
 <body>
     <div class="header">
         <h1>Barangay Lumanglipa</h1>
-        <p>Document Verification System</p>
+        <p>
+            @if(str_contains($service_type, 'blotter') || str_contains($service_type, 'complaint'))
+                Blotter/Complaint Report System
+            @elseif(str_contains($service_type, 'health'))
+                Health Service System
+            @else
+                Document Verification System
+            @endif
+        </p>
     </div>
     
     <div class="content">
@@ -82,7 +90,14 @@
         <p>Thank you for using our services.</p>
         
         <p><strong>Barangay Lumanglipa<br>
-        Document Management System</strong></p>
+        @if(str_contains($service_type, 'blotter') || str_contains($service_type, 'complaint'))
+            Blotter/Complaint Management System
+        @elseif(str_contains($service_type, 'health'))
+            Health Service Management System
+        @else
+            Document Management System
+        @endif
+        </strong></p>
     </div>
     
     <div class="footer">

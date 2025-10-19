@@ -138,9 +138,9 @@ class OtpService
         } elseif ($type === 'complaint_verification') {
             $subject = 'Barangay Complaint Verification - OTP Code';
             $serviceType = 'complaint';
-        } elseif ($type === 'blotter_report') {
-            $subject = 'Barangay Blotter Report Verification - OTP Code';
-            $serviceType = 'blotter report';
+        } elseif ($type === 'blotter_verification' || $type === 'blotter_report') {
+            $subject = 'Barangay Blotter/Complaint Report Verification - OTP Code';
+            $serviceType = 'blotter/complaint report';
         }
 
         Mail::send('emails.otp-verification', [

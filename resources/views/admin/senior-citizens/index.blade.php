@@ -127,6 +127,11 @@
 
 <script>
 $(function () {
+    // Destroy existing DataTable instance if it exists
+    if ($.fn.DataTable.isDataTable('#seniorCitizenTable')) {
+        $('#seniorCitizenTable').DataTable().destroy();
+    }
+
     // Initialize DataTable with custom configuration for senior citizens
     const seniorCitizenTable = DataTableHelpers.initDataTable("#seniorCitizenTable", {
         buttons: ["copy", "csv", "excel", "pdf", "print", "colvis"],

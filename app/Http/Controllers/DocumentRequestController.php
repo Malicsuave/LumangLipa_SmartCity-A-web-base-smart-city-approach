@@ -127,7 +127,7 @@ class DocumentRequestController extends Controller
         }
 
         // Check verification - skip OTP check for QR verification
-        if (!$isQrVerification && !$this->otpService->hasValidOtp($request->barangay_id, 'document_verification')) {
+        if (!$isQrVerification && !session('otp_verified_' . $request->barangay_id, false)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Please verify your identity with the OTP sent to your email before submitting the request.'
@@ -342,6 +342,8 @@ class DocumentRequestController extends Controller
         $result = $this->otpService->verifyOtp($request->barangay_id, $request->otp_code, 'document_verification');
 
         if ($result['success']) {
+            // Mark OTP as verified in session
+            session(['otp_verified_' . $request->barangay_id => true]);
             // Also return resident info for the form
             $resident = Resident::where('barangay_id', $request->barangay_id)->first();
             $result['resident'] = [

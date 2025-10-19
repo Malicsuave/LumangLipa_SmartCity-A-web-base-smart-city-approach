@@ -290,18 +290,10 @@
                                 @for($i = 1; $i <= 7; $i++)
                                     <div class="official-name">HON. {{ $officials->{'councilor'.$i.'_name'} }}</div>
                                     <div class="official-position">Councilor</div>
-                                    @php $committee = $officials->{'councilor'.$i.'_committee'} ?? null; @endphp
-                                    @if($committee)
-                                        <div class="official-committee" style="color: #007bff;">{{ $committee }}</div>
-                                    @endif
                                     <br>
                                 @endfor
                                 <div class="official-name">HON. {{ $officials->sk_chairperson_name }}</div>
                                 <div class="official-position">SK Chairman</div>
-                                @php $sk_committee = $officials->sk_chairperson_committee ?? null; @endphp
-                                @if($sk_committee)
-                                    <div class="official-committee" style="color: #007bff;">{{ $sk_committee }}</div>
-                                @endif
                                 <br>
                                 <div class="official-name">{{ $officials->secretary_name }}</div>
                                 <div class="official-position">Secretary</div><br>

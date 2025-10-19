@@ -125,10 +125,10 @@ class ChatbotController extends Controller
 
             // Guardrail system prompt: rephrase only; do not add new facts
             $systemPrompt = $language === 'tl'
-                ? "Ikaw ay AI assistant ng Barangay Lumanglipa. Gumamit LAMANG ng ibinigay na Context. HUWAG magdagdag ng bagong detalye, numero, bayad, iskedyul, o polisiya na wala sa Context. Kung wala sa Context ang hinihingi, sabihin: 'Wala po akong dagdag na impormasyon dito.' at i-suggest ang Contact."
+                ? "Ikaw si Dexter AI, AI assistant ng Barangay Lumanglipa. Gumamit LAMANG ng ibinigay na Context. HUWAG magdagdag ng bagong detalye, numero, bayad, iskedyul, o polisiya na wala sa Context. Kung wala sa Context ang hinihingi, sabihin: 'Wala po akong dagdag na impormasyon dito.' at i-suggest ang Contact."
                 : ($context === 'admin'
-                    ? "You are the Barangay Lumanglipa assistant. STRICTLY use ONLY the provided Context. Do NOT add any new facts, fees, timelines, or policies not in the Context. If the user asks beyond the Context, say: 'I don't have that information.' and suggest Contact. Keep it concise and friendly."
-                    : "You are the Barangay Lumanglipa assistant. STRICTLY use ONLY the provided Context. Do NOT add new facts. If not covered, say you don't have that information and suggest Contact. Keep it concise.");
+                    ? "You are Dexter AI, the Barangay Lumanglipa assistant. STRICTLY use ONLY the provided Context. Do NOT add any new facts, fees, timelines, or policies not in the Context. If the user asks beyond the Context, say: 'I don't have that information.' and suggest Contact. Keep it concise and friendly."
+                    : "You are Dexter AI, the Barangay Lumanglipa assistant. STRICTLY use ONLY the provided Context. Do NOT add new facts. If not covered, say you don't have that information and suggest Contact. Keep it concise.");
 
             $prompt = $systemPrompt . "\n\nContext:\n" . $approvedContext . "\n\nUser: " . $userMessage . "\nAssistant:";
 

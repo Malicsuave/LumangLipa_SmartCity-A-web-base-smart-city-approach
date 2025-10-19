@@ -20,8 +20,8 @@ class AgentConversation extends Model
         'queue_position',
         'queue_status',
         'priority',
-        'queued_at',
-        'assigned_at',
+        'queue_joined_at',
+        'conversation_started_at',
         'estimated_wait_minutes',
         'assigned_admin_id',
         'conversation_completed_at'
@@ -30,8 +30,8 @@ class AgentConversation extends Model
     protected $casts = [
         'is_read' => 'boolean',
         'is_active' => 'boolean',
-        'queued_at' => 'datetime',
-        'assigned_at' => 'datetime',
+        'queue_joined_at' => 'datetime',
+        'conversation_started_at' => 'datetime',
         'conversation_completed_at' => 'datetime'
     ];
 
@@ -135,7 +135,7 @@ class AgentConversation extends Model
             ->update([
                 'queue_status' => 'active',
                 'assigned_admin_id' => $adminId,
-                'assigned_at' => now()
+                'conversation_started_at' => now()
             ]);
     }
 

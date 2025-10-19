@@ -540,14 +540,14 @@
                         <a class="nav-link {{ Route::currentRouteName() == 'public.about' ? 'active text-primary fw-bold' : '' }}" href="{{ route('public.about') }}">About</a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle {{ in_array(Route::currentRouteName(), ['public.services', 'documents.request', 'complaints.create', 'health.request']) ? 'active text-primary fw-bold' : '' }}" 
+                        <a class="nav-link dropdown-toggle {{ in_array(Route::currentRouteName(), ['public.services', 'documents.request', 'health.request']) ? 'active text-primary fw-bold' : '' }}" 
                            href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
                            Services
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="{{ route('health.request') }}">Health Services</a></li>
                             <li><a class="dropdown-item" href="{{ route('documents.request') }}">Document Request</a></li>
-                            <li><a class="dropdown-item" href="{{ route('complaints.create') }}">File a Complaint</a></li>
+                            <li><a class="dropdown-item disabled" href="#">File a Complaint (Coming Soon)</a></li>
                         </ul>
                     </li>
                     <li class="nav-item">

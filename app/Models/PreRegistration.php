@@ -85,6 +85,8 @@ class PreRegistration extends Model
         'educational_attainment',
         'education_status',
         'address',
+        'purok',
+        'custom_purok',
         'emergency_contact_name',
         'emergency_contact_relationship',
         'emergency_contact_number',

@@ -6,29 +6,29 @@
 <!-- QR Code Scanner Library -->
 <script src="https://unpkg.com/html5-qrcode"></script>
 <!-- Hero Section with Background -->
-<section class="position-relative" style="background: #eaf4fb; padding-top: 6rem; margin-top: -20px;">
-    <div class="container py-4">
-        <div class="text-center mb-4">
-            <h1 class="fw-bold mb-2" style="color: #2A7BC4; font-size: 2.2rem;">Document Request</h1>
-            <p class="text-muted" style="font-size: 1rem;">Request official barangay documents online</p>
+<section class="position-relative" style="background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8b 100%); padding-top: 6rem; padding-bottom: 4rem; margin-top: -20px;">
+    <div class="container">
+        <div class="text-center">
+            <h1 class="fw-bold mb-3 text-white" style="font-size: 2.5rem;">Document Request</h1>
+            <p class="text-white opacity-9" style="font-size: 1.1rem;">Request official barangay documents online</p>
         </div>
     </div>
 </section>
 
-<div class="card card-body blur shadow-blur mx-3 mx-md-4 mt-n4" style="border-radius: 18px;">
-    <div class="container py-4">
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
-                <div class="card border-0 shadow-lg" style="border: 2px solid #2A7BC4 !important; border-radius: 18px; overflow: hidden; background: #ffffff;">
-                    <div class="card-header text-center py-4" style="background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8b 100%); color: white; border: none;">
-                        <div class="d-flex align-items-center justify-content-center mb-2">
-                            <i class="fas fa-file-alt me-3" style="font-size: 2rem;"></i>
-                            <h2 class="mb-0 fw-bold">Document Services</h2>
-                        </div>
-                        <p class="mb-0 opacity-9">Complete the form below to request official documents from Barangay Lumanglipa</p>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-lg border-0" style="border-radius: 12px; margin-top: -4rem;">
+                <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center" style="border-radius: 12px 12px 0 0; padding: 1.5rem;">
+                    <div>
+                        <h4 class="mb-0 fw-bold" style="color: #2A7BC4;">
+                            <i class="fas fa-file-alt me-2"></i>Document Services
+                        </h4>
+                        <p class="mb-0 text-muted small">Complete the form below to request official documents</p>
                     </div>
-                    
-                    <div class="card-body p-5" style="background: #ffffff;">
+                </div>
+                
+                <div class="card-body p-4" style="background: #ffffff;">
                     <!-- Success Alert -->
                     <div id="successAlert" class="alert alert-success alert-dismissible fade" role="alert" style="display: none;">
                         <i class="fas fa-check-circle me-2"></i>
@@ -46,86 +46,79 @@
                     <form id="documentRequestForm">
                         @csrf
                         
-                        <!-- Barangay ID Section -->
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-id-card text-primary me-2"></i>
-                                Identity Verification <span class="text-danger">*Required</span>
-                            </label>
+                        <!-- Identity Verification Section -->
+                        <div class="mb-3">
+                            <label>Identity Verification <span class="text-danger">*</span></label>
                             
                             <!-- Verification Method Toggle -->
-                            <div class="mb-3">
-                                <div class="btn-group w-100" role="group" aria-label="Verification method">
-                                    <input type="radio" class="btn-check" name="verification_method" id="manual_input" value="manual" checked>
-                                    <label class="btn btn-outline-primary" for="manual_input">
-                                        <i class="fas fa-keyboard me-2"></i>Manual Input
-                                    </label>
-                                    <input type="radio" class="btn-check" name="verification_method" id="qr_scan" value="qr">
-                                    <label class="btn btn-outline-primary" for="qr_scan">
-                                        <i class="fas fa-qrcode me-2"></i>QR Code
-                                    </label>
-                                </div>
+                            <div class="btn-group w-100" role="group" aria-label="Verification method" style="display: flex;">
+                                <input type="radio" class="btn-check" name="verification_method" id="manual_input" value="manual" checked>
+                                <label class="btn btn-outline-primary" for="manual_input" style="flex: 1; text-align: center;">
+                                    <i class="fas fa-keyboard me-2"></i>Manual Input
+                                </label>
+                                <input type="radio" class="btn-check" name="verification_method" id="qr_scan" value="qr">
+                                <label class="btn btn-outline-primary" for="qr_scan" style="flex: 1; text-align: center;">
+                                    <i class="fas fa-qrcode me-2"></i>QR Code
+                                </label>
                             </div>
-                            <!-- Barangay ID Section -->
-                    <div class="mb-4">
-                        <label for="barangay_id" class="form-label fw-bold">
-                            <i class="fas fa-id-card text-primary me-2"></i>
-                            Barangay ID <span class="text-danger">*Required</span>
-                        </label>
+                        </div>
+                            
+                        <!-- Barangay ID Section -->
+                        <div class="mb-3" style="margin-top: 0;">
+                            <label for="barangay_id" style="margin-bottom: 0.25rem; margin-top: -0.5rem;">Barangay ID <span class="text-danger">*</span></label>
 
                             <!-- Manual Input Section -->
                             <div id="manualInputSection">
-                                <div class="input-group">
+                                <div class="input-group" style="display: flex; align-items: stretch;">
                                     <input type="text" 
-                                           class="form-control form-control-lg" 
+                                           class="form-control" 
                                            id="barangay_id" 
                                            name="barangay_id" 
                                            placeholder="Enter your Barangay ID"
+                                           style="height: 38px; border: 1px solid #ced4da !important; padding: 0.375rem 0.75rem !important; flex: 1;"
                                            required>
                                     <button type="button" 
                                             class="btn btn-outline-primary" 
-                                            id="checkResidentBtn">
+                                            id="checkResidentBtn"
+                                            style="height: 38px; padding: 0.375rem 0.75rem; display: flex; align-items: center; justify-content: center; border: 1px solid #0d6efd !important; white-space: nowrap;">
                                         <i class="fas fa-search"></i> Verify
                                     </button>
                                 </div>
-                                <div class="form-text">
-                                    <i class="fas fa-info-circle text-info"></i>
-                                    Enter your registered Barangay ID to verify your information
-                                </div>
+                                <small class="form-text text-muted">Enter your registered Barangay ID to verify your information</small>
                             </div>
 
                             <!-- QR Code Section -->
                             <div id="qrCodeSection" style="display: none;">
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <button type="button" class="btn btn-primary btn-lg w-100" id="scanQrBtn">
-                                            <i class="fas fa-camera me-2"></i>
-                                            Scan QR Code
-                                        </button>
-                                        <div class="form-text text-center mt-2">
-                                            <i class="fas fa-info-circle text-info"></i>
-                                            Use camera to scan QR code
-                                        </div>
+                                <div class="btn-group w-100" role="group" style="display: flex;">
+                                    <input type="radio" class="btn-check" name="qr_method" id="scan_qr" value="scan">
+                                    <label class="btn btn-outline-primary" for="scan_qr" style="flex: 1; text-align: center;">
+                                        <i class="fas fa-camera me-2"></i>
+                                        Scan QR Code
+                                    </label>
+                                    <input type="file" 
+                                           class="form-control" 
+                                           id="qr_upload" 
+                                           accept="image/*"
+                                           style="display: none;">
+                                    <input type="radio" class="btn-check" name="qr_method" id="upload_qr" value="upload">
+                                    <label class="btn btn-outline-primary" for="upload_qr" style="flex: 1; text-align: center;">
+                                        <i class="fas fa-upload me-2"></i>
+                                        Upload QR Code
+                                    </label>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-md-6">
+                                        <small class="form-text text-muted d-block text-center">Use camera to scan QR code</small>
                                     </div>
-                                    <div class="col-md-6 mb-3">
-                                        <input type="file" 
-                                               class="form-control form-control-lg" 
-                                               id="qr_upload" 
-                                               accept="image/*"
-                                               style="display: none;">
-                                        <button type="button" class="btn btn-outline-primary btn-lg w-100" id="uploadQrBtn">
-                                            <i class="fas fa-upload me-2"></i>
-                                            Upload QR Code
-                                        </button>
-                                        <div class="form-text text-center mt-2">
-                                            <i class="fas fa-info-circle text-info"></i>
-                                            Upload QR code image
-                                        </div>
+                                    <div class="col-md-6">
+                                        <small class="form-text text-muted d-block text-center">Upload QR code image</small>
                                     </div>
                                 </div>
                             </div>
-                        </div>                        <!-- Resident Information Display -->
-                        <div id="residentInfo" class="card border-success mb-4" style="display: none;">
+                        </div>
+                        
+                        <!-- Resident Information Display -->
+                        <div id="residentInfo" class="card border-success mb-3" style="display: none;">
                             <div class="card-header bg-light">
                                 <h6 class="mb-0 text-success">
                                     <i class="fas fa-user-check me-2"></i>
@@ -225,12 +218,9 @@
                             </div>
 
                             <!-- Document Type Section -->
-                            <div class="mb-4">
-                                <label for="document_type" class="form-label fw-bold">
-                                    <i class="fas fa-file-text text-primary me-2"></i>
-                                    Document Type <span class="text-danger">*Required</span>
-                                </label>
-                                <select class="form-select form-select-lg" id="document_type" name="document_type" required disabled>
+                            <div class="mb-3">
+                                <label for="document_type">Document Type <span class="text-danger">*</span></label>
+                                <select class="form-control" id="document_type" name="document_type" required disabled>
                                     <option value="">Select Document Type</option>
                                     <option value="Barangay Clearance">Barangay Clearance</option>
                                     <option value="Certificate of Residency">Certificate of Residency</option>
@@ -238,18 +228,11 @@
                                     <option value="Certificate of Low Income">Certificate of Low Income</option>
                                     <option value="Business Permit">Business Permit</option>
                                 </select>
-                                <div class="form-text">
-                                    <i class="fas fa-info-circle text-info"></i>
-                                    Choose the type of document you want to request
-                                </div>
                             </div>
 
                             <!-- Purpose Section -->
-                            <div class="mb-4">
-                                <label for="purpose" class="form-label fw-bold">
-                                    <i class="fas fa-clipboard-list text-primary me-2"></i>
-                                    Purpose <span class="text-danger">*Required</span>
-                                </label>
+                            <div class="mb-3">
+                                <label for="purpose">Purpose <span class="text-danger">*</span></label>
                                 <textarea class="form-control" 
                                           id="purpose" 
                                           name="purpose" 
@@ -257,34 +240,24 @@
                                           placeholder="Please specify the purpose for requesting this document..."
                                           required
                                           disabled></textarea>
-                                <div class="form-text">
-                                    <i class="fas fa-info-circle text-info"></i>
-                                    Provide detailed information about why you need this document
-                                </div>
+                                <small class="form-text text-muted">Provide detailed information about why you need this document</small>
                             </div>
 
                             <!-- GCash Payment Instructions -->
-                            <div class="mb-4" id="paymentSection">
-                                <label class="form-label fw-bold">
-                                    <i class="fas fa-money-bill-wave text-success me-2"></i>
-                                    Payment Instructions
-                                </label>
-                                <div class="alert alert-info">
+                            <div class="mb-3" id="paymentSection">
+                                <label class="fw-bold">Payment Instructions</label>
+                                <div class="alert alert-info mb-3">
+                                    <i class="fas fa-info-circle me-2"></i>
                                     Please pay <strong>₱50</strong> via GCash to <strong>0912345678 (LumangLipaGcash)</strong>.<br>
-                                    <strong>Upload a screenshot or photo of your payment receipt below to proceed.</strong>
+                                    Upload a screenshot or photo of your payment receipt below to proceed.
                                 </div>
                             </div>
 
                             <!-- Receipt Upload -->
                             <div class="mb-4" id="receiptSection">
-                                <label for="receipt" class="form-label fw-bold">
-                                    <i class="fas fa-receipt text-primary me-2"></i>
-                                    Upload GCash Payment Receipt <span class="text-danger">*Required</span>
-                                </label>
-                                <input type="file" class="form-control" id="receipt" name="receipt" accept="image/*,.pdf" required>
-                                <div class="form-text">
-                                    Accepted formats: JPG, PNG, PDF. Max size: 5MB.
-                                </div>
+                                <label for="receipt">Upload GCash Payment Receipt <span class="text-danger">*</span></label>
+                                <input type="file" class="form-control" id="receipt" name="receipt" accept="image/*,.pdf" required disabled>
+                                <small class="form-text text-muted">Accepted formats: JPG, PNG, PDF. Max size: 5MB.</small>
                             </div>
 
                             <!-- Submit Button -->
@@ -302,8 +275,8 @@
 
                     <!-- Information Section -->
                     <div class="mt-5 p-4 bg-light rounded">
-                        <h5 class="text-primary mb-3">
-                            <i class="fas fa-info-circle me-2"></i>
+                        <h5 class="mb-3" style="color: #0d6efd;">
+                            <i class="fas fa-info-circle me-2" style="color: #0d6efd;"></i>
                             Important Information
                         </h5>                        <ul class="list-unstyled mb-0">
                             <li class="mb-2">
@@ -368,9 +341,68 @@
         </div>
     </div>
 </div>
-</section>
+
+<!-- Rating Feedback Modal -->
+<div class="modal fade" id="ratingModal" tabindex="-1" aria-labelledby="ratingModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 16px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+            <div class="modal-body p-5">
+                <!-- Success Icon -->
+                <div class="text-center mb-4">
+                    <div class="success-checkmark mb-3">
+                        <div class="check-icon" style="width: 80px; height: 80px; margin: 0 auto; position: relative;">
+                            <span class="icon-line line-tip" style="position: absolute; width: 25px; height: 5px; background-color: #28a745; display: block; border-radius: 2px; left: 14px; top: 46px; transform: rotate(45deg);"></span>
+                            <span class="icon-line line-long" style="position: absolute; width: 47px; height: 5px; background-color: #28a745; display: block; border-radius: 2px; right: 8px; top: 38px; transform: rotate(-45deg);"></span>
+                            <div class="icon-circle" style="position: absolute; top: 0; left: 0; width: 80px; height: 80px; border-radius: 50%; border: 5px solid #28a745;"></div>
+                        </div>
+                    </div>
+                    <h3 class="fw-bold mb-3">Request Submitted Successfully!</h3>
+                </div>
+
+                <!-- Rating Section -->
+                <div class="text-center mb-4">
+                    <p class="text-muted mb-3">How was your experience with our document request service?</p>
+                    <div class="stars-container mb-3" style="font-size: 3rem; cursor: pointer;">
+                        <i class="fas fa-star star" data-rating="1"></i>
+                        <i class="fas fa-star star" data-rating="2"></i>
+                        <i class="fas fa-star star" data-rating="3"></i>
+                        <i class="fas fa-star star" data-rating="4"></i>
+                        <i class="fas fa-star star" data-rating="5"></i>
+                    </div>
+                    <p class="rating-text fw-bold" style="color: #ffc107; font-size: 1.2rem; min-height: 30px;"></p>
+                </div>
+
+                <!-- Comment Section (Initially Hidden) -->
+                <div class="comment-section mb-4" style="display: none;">
+                    <label for="ratingComment" class="form-label text-muted">Tell us more (optional)</label>
+                    <textarea class="form-control" id="ratingComment" rows="3" placeholder="Share your thoughts..."></textarea>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-primary btn-lg" id="submitRatingBtn" disabled style="border-radius: 8px;">
+                        <i class="fas fa-paper-plane me-2"></i>Submit Feedback
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" id="skipRatingBtn" style="border-radius: 8px;">
+                        Skip for now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <style>
+/* Force FontAwesome over Material Symbols */
+.fas, .far, .fal, .fab {
+    font-family: "Font Awesome 5 Free", "Font Awesome 5 Brands" !important;
+    font-weight: 900;
+    font-style: normal;
+    font-variant: normal;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+}
+
 .card {
     transition: all 0.3s ease;
 }
@@ -379,32 +411,212 @@
     transform: translateY(-2px);
 }
 
-.form-control:focus,
-.form-select:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+/* Form Control Styling - Make borders visible and fix text alignment */
+.form-control,
+.form-select {
+    border: 1px solid #ced4da !important;
+    background-color: #fff !important;
+    padding: 0.5rem 0.75rem !important;
+    text-align: left !important;
 }
 
+/* File Input Styling */
+.form-control[type="file"] {
+    padding: 0.375rem 0.75rem !important;
+    line-height: 1.5;
+    cursor: pointer !important;
+}
+
+.form-control[type="file"]:disabled {
+    cursor: not-allowed !important;
+    background-color: #e9ecef !important;
+}
+
+.form-control[type="file"]::-webkit-file-upload-button {
+    padding: 0.375rem 0.75rem;
+    margin-right: 0.75rem;
+    background-color: #f8f9fa;
+    color: #495057;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    cursor: pointer;
+}
+
+.form-control[type="file"]::-webkit-file-upload-button:hover {
+    background-color: #e9ecef;
+}
+
+.form-control[type="file"]:disabled::-webkit-file-upload-button {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #0d6efd !important;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25) !important;
+    background-color: #fff !important;
+}
+
+/* Input Group Styling */
+.input-group {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+}
+
+.input-group .form-control {
+    border: 1px solid #ced4da !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    padding: 0.5rem 0.75rem !important;
+}
+
+.input-group .btn {
+    border: 2px solid #0d6efd !important;
+    padding: 0.5rem 1rem !important;
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+    width: auto !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+/* Primary Buttons - White background with blue border */
 .btn-primary {
-    background: linear-gradient(45deg, #0d6efd, #0a58ca);
-    border: none;
+    background: #ffffff !important;
+    border: 2px solid #0d6efd !important;
+    color: #0d6efd !important;
+    padding: 0.5rem 1rem !important;
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 .btn-primary:hover {
-    background: linear-gradient(45deg, #0a58ca, #084298);
+    background: #0d6efd !important;
+    border-color: #0d6efd !important;
+    color: #ffffff !important;
     transform: translateY(-1px);
+    outline: none !important;
+    box-shadow: none !important;
 }
 
+.btn-primary:focus,
+.btn-primary:active {
+    background: #0d6efd !important;
+    border-color: #0d6efd !important;
+    color: #ffffff !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Outline Primary Buttons */
+.btn-outline-primary {
+    background: #ffffff !important;
+    border: 2px solid #0d6efd !important;
+    color: #0d6efd !important;
+    padding: 0.5rem 1rem !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.btn-outline-primary:hover {
+    background: #0d6efd !important;
+    border-color: #0d6efd !important;
+    color: #ffffff !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.btn-outline-primary:focus,
+.btn-outline-primary:active {
+    background: #0d6efd !important;
+    border-color: #0d6efd !important;
+    color: #ffffff !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Button icons - force FontAwesome */
+.btn i.fas,
+.btn i.far {
+    font-family: "Font Awesome 5 Free" !important;
+    font-weight: 900 !important;
+    display: inline-block;
+    font-style: normal;
+    font-variant: normal;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Submit Button Styling */
 #submitBtn:disabled {
-    background: #6c757d !important;
-    border-color: #6c757d !important;
+    background: #e9ecef !important;
+    border-color: #ced4da !important;
+    color: #6c757d !important;
     cursor: not-allowed;
     opacity: 1;
 }
 
 #submitBtn:not(:disabled) {
-    background: linear-gradient(45deg, #0d6efd, #0a58ca) !important;
+    background: #ffffff !important;
+    border: 2px solid #0d6efd !important;
+    color: #0d6efd !important;
+}
+
+#submitBtn:not(:disabled):hover {
+    background: #0d6efd !important;
     border-color: #0d6efd !important;
+    color: #ffffff !important;
+}
+
+/* Button Group for Radio Buttons (Manual Input / QR Code) */
+.btn-group .btn-outline-primary {
+    background: #ffffff !important;
+    border: 2px solid #0d6efd !important;
+    color: #0d6efd !important;
+    padding: 0.5rem 1rem !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.btn-group .btn-check:checked + .btn-outline-primary {
+    background: #0d6efd !important;
+    color: #ffffff !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.btn-group .btn-outline-primary:hover {
+    background: #e7f1ff !important;
+    color: #0d6efd !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.btn-group .btn-outline-primary:focus,
+.btn-group .btn-outline-primary:active {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Button Group icons */
+.btn-group .btn i {
+    font-family: "Font Awesome 5 Free" !important;
+    font-weight: 900 !important;
+}
+
+/* Force FontAwesome icon colors */
+.btn-outline-primary i,
+.btn-primary i {
+    color: inherit !important;
+    font-family: "Font Awesome 5 Free" !important;
+}
+
+/* Hide any emoji/unicode fallback content */
+.btn::before,
+.btn::after {
+    content: none !important;
 }
 
 .alert {
@@ -646,6 +858,55 @@
     color: #664d03;
     border: 1px solid #ffecb5;
 }
+
+/* Rating Modal Styles */
+.star {
+    color: #ddd;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.star:hover {
+    transform: scale(1.1);
+}
+
+.star.active {
+    color: #ffc107;
+}
+
+.star.hover {
+    color: #ffc107;
+}
+
+.comment-section {
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#ratingModal .modal-content {
+    animation: modalSlideUp 0.3s ease;
+}
+
+@keyframes modalSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 </style>
 
 <script>
@@ -671,8 +932,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const qrScanRadio = document.getElementById('qr_scan');
     const manualInputSection = document.getElementById('manualInputSection');
     const qrCodeSection = document.getElementById('qrCodeSection');
-    const scanQrBtn = document.getElementById('scanQrBtn');
-    const uploadQrBtn = document.getElementById('uploadQrBtn');
+    const scanQrRadio = document.getElementById('scan_qr');
+    const uploadQrRadio = document.getElementById('upload_qr');
     const qrUploadInput = document.getElementById('qr_upload');
     const qrScannerModal = new bootstrap.Modal(document.getElementById('qrScannerModal'));
     
@@ -682,6 +943,9 @@ document.addEventListener('DOMContentLoaded', function() {
     let otpTimer = null;
     let otpExpiryTime = null;
     let html5QrCode = null;
+    
+    // Save original OTP section HTML before it can be replaced by QR verification
+    const originalOtpSectionHTML = otpSection ? otpSection.innerHTML : '';
 
     // Initialize form with blur effect and hidden submit button
     formFieldsSection.classList.add('blurred');
@@ -709,9 +973,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // QR Code Upload functionality
-    uploadQrBtn.addEventListener('click', function() {
-        qrUploadInput.click();
+    // QR Code method selection
+    scanQrRadio.addEventListener('change', function() {
+        if (this.checked) {
+            qrScannerModal.show();
+            // Wait for modal to be fully shown before starting scanner
+            setTimeout(() => {
+                startQrScanner();
+            }, 500);
+        }
+    });
+
+    uploadQrRadio.addEventListener('change', function() {
+        if (this.checked) {
+            qrUploadInput.click();
+        }
     });
 
     qrUploadInput.addEventListener('change', function(e) {
@@ -721,6 +997,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (file.size > 10 * 1024 * 1024) {
                 showError('File size too large. Please select an image under 10MB.');
                 qrUploadInput.value = '';
+                if (uploadQrRadio) uploadQrRadio.checked = false; // Uncheck radio
                 return;
             }
             
@@ -728,11 +1005,13 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!file.type.startsWith('image/')) {
                 showError('Please select a valid image file.');
                 qrUploadInput.value = '';
+                if (uploadQrRadio) uploadQrRadio.checked = false; // Uncheck radio
                 return;
             }
             
-            uploadQrBtn.disabled = true;
-            uploadQrBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+            const uploadLabel = document.querySelector('label[for="upload_qr"]');
+            const originalHtml = uploadLabel.innerHTML;
+            uploadLabel.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
             
             // Create FormData to send file to server
             const formData = new FormData();
@@ -771,25 +1050,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 showError('Failed to process QR code. Please check your internet connection and try again.');
             })
             .finally(() => {
-                uploadQrBtn.disabled = false;
-                uploadQrBtn.innerHTML = '<i class="fas fa-upload me-2"></i>Upload QR Code';
+                const uploadLabel = document.querySelector('label[for="upload_qr"]');
+                uploadLabel.innerHTML = '<i class="fas fa-upload me-2"></i>Upload QR Code';
                 qrUploadInput.value = '';
+                // Uncheck the upload radio button after processing
+                if (uploadQrRadio) uploadQrRadio.checked = false;
             });
         }
-    });
-
-    // Live QR Code Scanner
-    scanQrBtn.addEventListener('click', function() {
-        qrScannerModal.show();
-        // Wait for modal to be fully shown before starting scanner
-        setTimeout(() => {
-            startQrScanner();
-        }, 500);
     });
 
     // Handle QR scanner modal close
     document.getElementById('qrScannerModal').addEventListener('hidden.bs.modal', function() {
         stopQrScanner();
+        // Uncheck the scan radio button when modal is closed
+        if (scanQrRadio) scanQrRadio.checked = false;
     });
 
         function startQrScanner() {
@@ -1038,6 +1312,12 @@ document.addEventListener('DOMContentLoaded', function() {
         documentTypeSelect.disabled = false;
         purposeTextarea.disabled = false;
         
+        // Enable receipt file input
+        const receiptInput = document.getElementById('receipt');
+        if (receiptInput) {
+            receiptInput.disabled = false;
+        }
+        
         // Show submit button section
         const submitButtonSection = document.getElementById('submitButtonSection');
         if (submitButtonSection) {
@@ -1103,133 +1383,146 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Send OTP
-    sendOtpBtn.addEventListener('click', function() {
-        const barangayId = barangayIdInput.value.trim();
-        
-        sendOtpBtn.disabled = true;
-        sendOtpBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+    // OTP Event Handlers - Using event delegation to work after HTML restoration
+    document.addEventListener('click', function(e) {
+        // Send OTP
+        if (e.target && e.target.id === 'sendOtpBtn') {
+            const sendBtn = e.target;
+            const barangayId = barangayIdInput.value.trim();
+            
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
 
-        fetch('{{ route("documents.send-otp") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({ barangay_id: barangayId })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                document.getElementById('emailHint').textContent = data.email_hint;
-                const otpRequestStep = document.getElementById('otpRequestStep');
-                const otpVerifyStep = document.getElementById('otpVerifyStep');
-                if (otpRequestStep) otpRequestStep.style.display = 'none';
-                if (otpVerifyStep) otpVerifyStep.style.display = 'block';
-                
-                // Set expiry time and start countdown
-                otpExpiryTime = new Date(data.expires_at);
-                startOtpTimer();
-                
-                showSuccess(data.message);
-            } else {
-                showError(data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showError('An error occurred while sending OTP');
-        })
-        .finally(() => {
-            sendOtpBtn.disabled = false;
-            sendOtpBtn.innerHTML = '<i class="fas fa-envelope me-2"></i>Send OTP to Email';
-        });
-    });
-
-    // Verify OTP
-    verifyOtpBtn.addEventListener('click', function() {
-        const barangayId = barangayIdInput.value.trim();
-        const otpCode = otpCodeInput.value.trim();
-        
-        if (!otpCode || otpCode.length !== 6) {
-            showError('Please enter a valid 6-digit OTP code');
-            return;
-        }
-
-        verifyOtpBtn.disabled = true;
-        verifyOtpBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
-
-        fetch('{{ route("documents.verify-otp") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({ 
-                barangay_id: barangayId,
-                otp_code: otpCode
+            fetch('{{ route("documents.send-otp") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({ barangay_id: barangayId })
             })
-        })
-        .then(response => response.json())        .then(data => {
-            if (data.success) {
-                otpVerified = true;
-                const otpVerifyStep = document.getElementById('otpVerifyStep');
-                const otpVerifiedStep = document.getElementById('otpVerifiedStep');
-                if (otpVerifyStep) otpVerifyStep.style.display = 'none';
-                if (otpVerifiedStep) otpVerifiedStep.style.display = 'block';
-                
-                // Remove blur effect and enable form fields
-                formFieldsSection.classList.remove('blurred');
-                formFieldsSection.classList.add('form-fields-reveal');
-                
-                documentTypeSelect.disabled = false;
-                purposeTextarea.disabled = false;
-                
-                // Show submit button section
-                const submitButtonSection = document.getElementById('submitButtonSection');
-                if (submitButtonSection) {
-                    submitButtonSection.style.setProperty('display', 'block', 'important');
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('emailHint').textContent = data.email_hint;
+                    const otpRequestStep = document.getElementById('otpRequestStep');
+                    const otpVerifyStep = document.getElementById('otpVerifyStep');
+                    if (otpRequestStep) otpRequestStep.style.display = 'none';
+                    if (otpVerifyStep) otpVerifyStep.style.display = 'block';
+                    
+                    // Set expiry time and start countdown
+                    otpExpiryTime = new Date(data.expires_at);
+                    startOtpTimer();
+                    
+                    showSuccess(data.message);
+                } else {
+                    showError(data.message);
                 }
-                
-                // Stop timer
-                if (otpTimer) {
-                    clearInterval(otpTimer);
-                }
-                
-                checkFormValidity();
-                showSuccess(data.message);
-            } else {
-                showError(data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showError('An error occurred while verifying OTP');
-        })
-        .finally(() => {
-            verifyOtpBtn.disabled = false;
-            verifyOtpBtn.innerHTML = '<i class="fas fa-check me-2"></i>Verify OTP';
-        });
-    });
-
-    // Resend OTP
-    resendOtpBtn.addEventListener('click', function() {
-        const otpVerifyStep = document.getElementById('otpVerifyStep');
-        const otpRequestStep = document.getElementById('otpRequestStep');
-        if (otpVerifyStep) otpVerifyStep.style.display = 'none';
-        if (otpRequestStep) otpRequestStep.style.display = 'block';
-        otpCodeInput.value = '';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showError('An error occurred while sending OTP');
+            })
+            .finally(() => {
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = '<i class="fas fa-envelope me-2"></i>Send OTP to Email';
+            });
+        }
         
-        if (otpTimer) {
-            clearInterval(otpTimer);
+        // Verify OTP
+        if (e.target && e.target.id === 'verifyOtpBtn') {
+            const verifyBtn = e.target;
+            const barangayId = barangayIdInput.value.trim();
+            const otpCodeInput = document.getElementById('otp_code');
+            const otpCode = otpCodeInput ? otpCodeInput.value.trim() : '';
+            
+            if (!otpCode || otpCode.length !== 6) {
+                showError('Please enter a valid 6-digit OTP code');
+                return;
+            }
+
+            verifyBtn.disabled = true;
+            verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+
+            fetch('{{ route("documents.verify-otp") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({ 
+                    barangay_id: barangayId,
+                    otp_code: otpCode
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    otpVerified = true;
+                    residentVerified = true;
+                    const otpVerifyStep = document.getElementById('otpVerifyStep');
+                    const otpVerifiedStep = document.getElementById('otpVerifiedStep');
+                    if (otpVerifyStep) otpVerifyStep.style.display = 'none';
+                    if (otpVerifiedStep) otpVerifiedStep.style.display = 'block';
+                    
+                    // Remove blur effect and enable form fields
+                    formFieldsSection.classList.remove('blurred');
+                    formFieldsSection.classList.add('form-fields-reveal');
+                    
+                    documentTypeSelect.disabled = false;
+                    purposeTextarea.disabled = false;
+                    
+                    // Show submit button section
+                    const submitButtonSection = document.getElementById('submitButtonSection');
+                    if (submitButtonSection) {
+                        submitButtonSection.style.setProperty('display', 'block', 'important');
+                    }
+                    
+                    // Stop timer
+                    if (otpTimer) {
+                        clearInterval(otpTimer);
+                    }
+                    
+                    checkFormValidity();
+                    showSuccess(data.message);
+                } else {
+                    showError(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showError('An error occurred while verifying OTP');
+            })
+            .finally(() => {
+                verifyBtn.disabled = false;
+                verifyBtn.innerHTML = '<i class="fas fa-check me-2"></i>Verify OTP';
+            });
+        }
+        
+        // Resend OTP
+        if (e.target && e.target.id === 'resendOtpBtn') {
+            const otpVerifyStep = document.getElementById('otpVerifyStep');
+            const otpRequestStep = document.getElementById('otpRequestStep');
+            if (otpVerifyStep) otpVerifyStep.style.display = 'none';
+            if (otpRequestStep) otpRequestStep.style.display = 'block';
+            
+            const otpCodeInput = document.getElementById('otp_code');
+            if (otpCodeInput) otpCodeInput.value = '';
+            
+            if (otpTimer) {
+                clearInterval(otpTimer);
+            }
         }
     });
 
-    // OTP input formatting
-    otpCodeInput.addEventListener('input', function() {
-        this.value = this.value.replace(/[^0-9]/g, '');
-        if (this.value.length === 6) {
-            verifyOtpBtn.focus();
+    // OTP input formatting - Using event delegation
+    document.addEventListener('input', function(e) {
+        if (e.target && e.target.id === 'otp_code') {
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+            if (e.target.value.length === 6) {
+                const verifyBtn = document.getElementById('verifyOtpBtn');
+                if (verifyBtn) verifyBtn.focus();
+            }
         }
     });
 
@@ -1333,7 +1626,10 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             console.log('Response data:', data);
             if (data.success) {
-                showSuccess(data.message);
+                // Show rating modal instead of just success message
+                // Access request_id from data.data object
+                const requestId = data.data?.request_id || data.request_id;
+                showRatingModal(requestId);
                 form.reset();
                 resetForm();
             } else {
@@ -1455,7 +1751,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function resetForm() {
         if (residentInfo) residentInfo.style.display = 'none';
-        if (otpSection) otpSection.style.display = 'none';
+        if (otpSection) {
+            otpSection.style.display = 'none';
+            // Restore original OTP section HTML (in case it was replaced by QR verification message)
+            otpSection.innerHTML = originalOtpSectionHTML;
+        }
         
         // Hide submit button section
         const submitButtonSection = document.getElementById('submitButtonSection');
@@ -1486,7 +1786,7 @@ document.addEventListener('DOMContentLoaded', function() {
             formFieldsSection.classList.remove('form-fields-reveal');
         }
         
-        // Reset OTP section
+        // Reset OTP section steps
         const otpRequestStep = document.getElementById('otpRequestStep');
         const otpVerifyStep = document.getElementById('otpVerifyStep');
         const otpVerifiedStep = document.getElementById('otpVerifiedStep');
@@ -1494,6 +1794,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (otpRequestStep) otpRequestStep.style.display = 'block';
         if (otpVerifyStep) otpVerifyStep.style.display = 'none';
         if (otpVerifiedStep) otpVerifiedStep.style.display = 'none';
+        
+        // Clear OTP input
+        const otpCodeInput = document.getElementById('otp_code');
         if (otpCodeInput) otpCodeInput.value = '';
         
         if (otpTimer) {
@@ -1551,6 +1854,154 @@ document.addEventListener('DOMContentLoaded', function() {
         errorAlert.style.display = 'none';
         errorAlert.classList.remove('show');
     }
+
+    // ============ RATING SYSTEM ============
+    const ratingModal = new bootstrap.Modal(document.getElementById('ratingModal'));
+    const stars = document.querySelectorAll('.star');
+    const ratingText = document.querySelector('.rating-text');
+    const commentSection = document.querySelector('.comment-section');
+    const ratingComment = document.getElementById('ratingComment');
+    const submitRatingBtn = document.getElementById('submitRatingBtn');
+    const skipRatingBtn = document.getElementById('skipRatingBtn');
+    let selectedRating = 0;
+    let currentRequestId = null;
+
+    const ratingMessages = {
+        1: "😞 We're sorry to hear that",
+        2: "😕 We can do better",
+        3: "😊 Good!",
+        4: "😃 Great!",
+        5: "🌟 Excellent!"
+    };
+
+    // Star hover and click effects
+    stars.forEach(star => {
+        star.addEventListener('mouseenter', function() {
+            const rating = parseInt(this.dataset.rating);
+            highlightStars(rating);
+        });
+
+        star.addEventListener('click', function() {
+            selectedRating = parseInt(this.dataset.rating);
+            highlightStars(selectedRating, true);
+            ratingText.textContent = ratingMessages[selectedRating];
+            ratingText.style.color = '#ffc107';
+            commentSection.style.display = 'block';
+            submitRatingBtn.disabled = false;
+        });
+    });
+
+    // Reset stars on mouse leave
+    document.querySelector('.stars-container').addEventListener('mouseleave', function() {
+        if (selectedRating > 0) {
+            highlightStars(selectedRating, true);
+        } else {
+            resetStars();
+        }
+    });
+
+    function highlightStars(rating, permanent = false) {
+        stars.forEach(star => {
+            const starRating = parseInt(star.dataset.rating);
+            if (starRating <= rating) {
+                if (permanent) {
+                    star.classList.add('active');
+                    star.classList.remove('hovered');
+                } else {
+                    star.classList.add('hovered');
+                }
+            } else {
+                star.classList.remove('active', 'hovered');
+            }
+        });
+    }
+
+    function resetStars() {
+        stars.forEach(star => {
+            star.classList.remove('active', 'hovered');
+        });
+        ratingText.textContent = '';
+    }
+
+    // Submit rating
+    submitRatingBtn.addEventListener('click', function() {
+        if (selectedRating === 0) return;
+
+        submitRatingBtn.disabled = true;
+        submitRatingBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
+
+        const feedbackData = {
+            request_id: currentRequestId,
+            rating: selectedRating,
+            comment: ratingComment.value.trim(),
+            service_type: 'document_request'
+        };
+
+        fetch('{{ route("feedback.store") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify(feedbackData)
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Feedback response:', data);
+            if (data.success) {
+                // Show thank you message
+                document.querySelector('#ratingModal .modal-body').innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="fas fa-heart text-danger mb-3" style="font-size: 4rem;"></i>
+                        <h4 class="fw-bold mb-3">Thank You for Your Feedback!</h4>
+                        <p class="text-muted mb-4">Your feedback helps us improve our services.</p>
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                `;
+                setTimeout(() => {
+                    ratingModal.hide();
+                    resetRatingModal();
+                }, 3000);
+            } else {
+                // Handle error response
+                throw new Error(data.message || 'Failed to submit feedback');
+            }
+        })
+        .catch(error => {
+            console.error('Error submitting feedback:', error);
+            alert('Failed to submit feedback. Please try again. Error: ' + error.message);
+            submitRatingBtn.disabled = false;
+            submitRatingBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit Feedback';
+        });
+    });
+
+    // Skip rating
+    skipRatingBtn.addEventListener('click', function() {
+        ratingModal.hide();
+        resetRatingModal();
+    });
+
+    function resetRatingModal() {
+        selectedRating = 0;
+        resetStars();
+        ratingComment.value = '';
+        commentSection.style.display = 'none';
+        submitRatingBtn.disabled = true;
+        submitRatingBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit Feedback';
+        ratingText.textContent = '';
+    }
+
+    function showRatingModal(requestId) {
+        currentRequestId = requestId;
+        ratingModal.show();
+    }
+    // ======================================
 });
 </script>
 @endsection

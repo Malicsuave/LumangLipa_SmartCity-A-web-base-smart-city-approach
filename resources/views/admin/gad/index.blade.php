@@ -183,6 +183,10 @@ html {
 <script>
     // Initialize DataTable
     document.addEventListener('DOMContentLoaded', function() {
+        // Destroy existing DataTable instance if it exists
+        if ($.fn.DataTable.isDataTable('#gadTable')) {
+            $('#gadTable').DataTable().destroy();
+        }
         if (window.DataTableHelpers) {
             DataTableHelpers.initDataTable('#gadTable', {
                 buttons: ["copy", "csv", "excel", "pdf", "print", "colvis"],

@@ -44,6 +44,11 @@ function initializeFormValidation() {
     $('input[type="date"]').on('change', function() {
         validateDate($(this));
     });
+    
+    // Date validation (real-time for birthdate)
+    $('input[name="birthdate"]').on('input change blur', function() {
+        validateDate($(this));
+    });
 }
 
 /**
@@ -131,13 +136,6 @@ function validateField($field) {
         case 'last_name':
             if (value && !isValidName(value)) {
                 setFieldError($field, 'Please enter a valid name (letters only).');
-                return false;
-            }
-            break;
-            
-        case 'birthdate':
-            if (value && !isValidBirthdate(value)) {
-                setFieldError($field, 'Please enter a valid birthdate.');
                 return false;
             }
             break;
@@ -251,7 +249,6 @@ function updateFieldFeedback($field, message, type) {
 function validateDate($field) {
     var date = $field.val();
     var fieldName = $field.attr('name');
-    
     if (!date) {
         if ($field.prop('required')) {
             setFieldError($field, 'This field is required.');
@@ -259,23 +256,26 @@ function validateDate($field) {
         }
         return true;
     }
-    
     var selectedDate = new Date(date);
     var today = new Date();
-    
-    if (fieldName === 'birthdate') {
-        if (selectedDate >= today) {
-            setFieldError($field, 'Birthdate cannot be in the future.');
-            return false;
-        }
-        
-        var age = today.getFullYear() - selectedDate.getFullYear();
-        if (age > 150) {
-            setFieldError($field, 'Please enter a valid birthdate.');
-            return false;
-        }
+    if (selectedDate >= today) {
+        setFieldError($field, 'Birthdate cannot be in the future.');
+        return false;
     }
-    
+    var age = today.getFullYear() - selectedDate.getFullYear();
+    var m = today.getMonth() - selectedDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < selectedDate.getDate())) {
+        age--;
+    }
+    if (age > 150) {
+        setFieldError($field, 'Please enter a valid birthdate.');
+        return false;
+    }
+    // Custom: For birthdate field, require age >= 60
+    if (fieldName === 'birthdate' && age < 60) {
+        setFieldError($field, 'Applicant must be at least 60 years old. Please select a valid birthdate.');
+        return false;
+    }
     setFieldSuccess($field);
     return true;
 }
@@ -298,23 +298,40 @@ function isValidBirthdate(date) {
  */
 function setFieldError($field, message) {
     $field.removeClass('is-valid').addClass('is-invalid');
-    $field.closest('.form-group, .mb-3, .col-md-6, .col-md-12').addClass('has-error').removeClass('has-success');
-    
-    var $feedback = $field.siblings('.invalid-feedback');
-    if ($feedback.length === 0) {
-        $feedback = $('<div class="invalid-feedback"></div>');
-        $field.after($feedback);
-    }
+    var $container = $field.closest('.mb-3, .form-group, .col-md-6, .col-md-12');
+    $container.addClass('has-error').removeClass('has-success');
+    // Remove all previous feedback elements in the container
+    $container.find('.invalid-feedback, .valid-feedback').remove();
+    var $feedback = $('<div class="invalid-feedback"></div>');
+    $field.after($feedback);
     $feedback.text(message).show();
-    
-    // Hide valid feedback
-    $field.siblings('.valid-feedback').hide();
+    // Remove error message when user interacts with the field
+    $field.off('input change focus').on('input change focus', function() {
+        $container.find('.invalid-feedback').remove();
+        $field.removeClass('is-invalid');
+        $container.removeClass('has-error');
+    });
 }
 
 function setFieldSuccess($field) {
     $field.removeClass('is-invalid').addClass('is-valid');
     $field.closest('.form-group, .mb-3, .col-md-6, .col-md-12').addClass('has-success').removeClass('has-error');
     $field.siblings('.invalid-feedback').hide();
+    // Only show green feedback for birthdate if valid (age >= 60)
+    if ($field.attr('name') === 'birthdate') {
+        var date = $field.val();
+        var selectedDate = new Date(date);
+        var today = new Date();
+        var age = today.getFullYear() - selectedDate.getFullYear();
+        var m = today.getMonth() - selectedDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < selectedDate.getDate())) {
+            age--;
+        }
+        if (age < 60 || selectedDate >= today || age > 150) {
+            $field.removeClass('is-valid');
+            $field.closest('.form-group, .mb-3, .col-md-6, .col-md-12').removeClass('has-success');
+        }
+    }
 }
 
 function clearFieldError($field) {

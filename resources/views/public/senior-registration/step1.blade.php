@@ -132,6 +132,7 @@
                     <div class="invalid-feedback">{{ $message }}</div>
                   @enderror
                   <small class="form-text text-muted">You must be at least 60 years old</small>
+                  <div class="validation-error" data-field="birthdate" style="display: none; color: #dc3545; font-size: 0.875em; margin-top: 0.25rem;"></div>
                 </div>
                 <div class="col-md-6 mb-3">
                   <label for="birthplace">Place of Birth <span class="text-danger">*</span></label>
@@ -282,7 +283,111 @@
 </div>
 
 @push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const birthdateInput = document.getElementById('birthdate');
 
+  // Set max date to today minus 60 years
+  const now = new Date();
+  const minYear = 1900;
+  const minDate = `${minYear}-01-01`;
+  const sixtyYearsAgo = new Date(now.getFullYear() - 60, now.getMonth(), now.getDate());
+  const maxDate = sixtyYearsAgo.toISOString().split('T')[0];
+  birthdateInput.setAttribute('max', maxDate);
+  birthdateInput.setAttribute('min', minDate);
+
+  // Create error message element if not present
+  let errorDiv = document.getElementById('age-error');
+  if (!errorDiv) {
+    errorDiv = document.createElement('div');
+    errorDiv.id = 'age-error';
+    errorDiv.style.display = 'none';
+    errorDiv.style.color = '#dc3545';
+    errorDiv.style.fontSize = '0.875rem';
+    errorDiv.style.marginTop = '5px';
+    birthdateInput.parentNode.appendChild(errorDiv);
+  }
+
+  function setRedOutline() {
+    birthdateInput.style.setProperty('border', '1px solid #dc3545', 'important');
+    birthdateInput.style.setProperty('box-shadow', '0 0 0 0.2rem rgba(220,53,69,.25)', 'important');
+    birthdateInput.style.setProperty('outline', 'none', 'important');
+  }
+  function setGreenOutline() {
+    birthdateInput.style.setProperty('border', '1px solid #28a745', 'important');
+    birthdateInput.style.setProperty('box-shadow', '0 0 0 0.2rem rgba(40,167,69,.25)', 'important');
+    birthdateInput.style.setProperty('outline', '', 'important');
+  }
+  function clearOutline() {
+    birthdateInput.style.setProperty('border', '', 'important');
+    birthdateInput.style.setProperty('box-shadow', '', 'important');
+    birthdateInput.style.setProperty('outline', '', 'important');
+  }
+
+  function validateBirthdate() {
+    const value = birthdateInput.value;
+    let errorMsg = '';
+    let isValid = true;
+
+    if (!value) {
+      isValid = false;
+      errorMsg = 'Birthdate is required.';
+    } else if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      isValid = false;
+      errorMsg = 'Please enter a valid birthdate (YYYY-MM-DD).';
+    } else {
+      const birthDate = new Date(value);
+      const now = new Date();
+      let age = now.getFullYear() - birthDate.getFullYear();
+      const m = now.getMonth() - birthDate.getMonth();
+      if (m < 0 || (m === 0 && now.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      if (birthDate > now) {
+        isValid = false;
+        errorMsg = 'Birthdate cannot be in the future.';
+      } else if (age < 60) {
+        isValid = false;
+        errorMsg = 'You must be at least 60 years old to register as a senior citizen.';
+      } else if (birthDate.getFullYear() < minYear) {
+        isValid = false;
+        errorMsg = `Year must be ${minYear} or later.`;
+      }
+    }
+
+    if (!isValid) {
+      birthdateInput.classList.remove('is-valid');
+      birthdateInput.classList.add('is-invalid');
+      setRedOutline();
+      errorDiv.style.display = 'block';
+      errorDiv.textContent = errorMsg;
+    } else {
+      birthdateInput.classList.remove('is-invalid');
+      birthdateInput.classList.add('is-valid');
+      setGreenOutline();
+      errorDiv.style.display = 'none';
+      errorDiv.textContent = '';
+    }
+  }
+
+  birthdateInput.addEventListener('blur', function() {
+    validateBirthdate();
+    if (birthdateInput.classList.contains('is-invalid')) {
+      birthdateInput.classList.remove('is-valid');
+      setRedOutline();
+    }
+  });
+  birthdateInput.addEventListener('focus', validateBirthdate);
+  birthdateInput.addEventListener('input', function() {
+    if (birthdateInput.classList.contains('is-invalid')) {
+      birthdateInput.classList.remove('is-valid');
+      setRedOutline();
+    } else {
+      clearOutline();
+    }
+  });
+});
+</script>
 @endpush
 @endsection
 

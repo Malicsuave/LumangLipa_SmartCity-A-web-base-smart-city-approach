@@ -269,25 +269,18 @@
                     <!-- LEFT COLUMN -->
                     <td class="cert-left" style="vertical-align: top; position: relative; padding-bottom: 0;">                        <div>
                             <div class="officials-title">SANGGUNIANG BARANGAY</div>
-                            <br><br>
+                            <br>
+                            <br>
                             <div class="officials-list">
                                 <div class="official-name">HON. {{ $officials->captain_name }}</div>
                                 <div class="official-position">Barangay Captain</div><br><br>
                                 @for($i = 1; $i <= 7; $i++)
                                     <div class="official-name">HON. {{ $officials->{'councilor'.$i.'_name'} }}</div>
                                     <div class="official-position">Councilor</div>
-                                    @php $committee = $officials->{'councilor'.$i.'_committee'} ?? null; @endphp
-                                    @if($committee)
-                                        <div class="official-committee">{{ $committee }}</div>
-                                    @endif
                                     <br>
                                 @endfor
                                 <div class="official-name">HON. {{ $officials->sk_chairperson_name }}</div>
                                 <div class="official-position">SK Chairman</div>
-                                @php $sk_committee = $officials->sk_chairperson_committee ?? null; @endphp
-                                @if($sk_committee)
-                                    <div class="official-committee">{{ $sk_committee }}</div>
-                                @endif
                                 <br>
                                 <div class="official-name">{{ $officials->secretary_name }}</div>
                                 <div class="official-position">Secretary</div><br>

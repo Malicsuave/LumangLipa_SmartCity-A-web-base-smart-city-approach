@@ -357,6 +357,11 @@
 <script src="{{ asset('js/admin/datatable-helpers.js') }}"></script>
 <script>
 $(function () {
+    // Destroy existing DataTable instance if it exists
+    if ($.fn.DataTable.isDataTable('#preRegistrationsTable')) {
+        $('#preRegistrationsTable').DataTable().destroy();
+    }
+
     // Initialize DataTable for pre-registrations table - same config as Documents page
     const preRegistrationsTable = DataTableHelpers.initDataTable("#preRegistrationsTable", {
         buttons: ["copy", "csv", "excel", "pdf", "print", "colvis"],

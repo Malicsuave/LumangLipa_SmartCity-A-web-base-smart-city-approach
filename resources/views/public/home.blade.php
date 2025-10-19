@@ -97,90 +97,124 @@
             <a href="{{ route('public.announcements') }}" class="btn btn-outline-primary btn-sm" style="border-radius:8px; background-color:#2A7BC4; color:#fff; border:none;">View All</a>
         </div>
         @php
-            $feature = [
-                'title' => 'Scheduled Power Interruption Advisory',
-                'excerpt' => 'Magkakaroon ng pansamantalang pagkawala ng kuryente sa ilang purok para sa line maintenance ng BATELEC II.',
-                'date' => 'Feb 18, 2025',
-                'category' => 'Advisory',
-                'cta' => 'Read Advisory',
-                'image' => 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=800&q=60'
-            ];
-            $announcements = [
-                [
-                    'title' => 'Free Medical & Dental Mission',
-                    'excerpt' => 'Libreng konsultasyon, basic dental care at BP monitoring. First come, first served.',
-                    'date' => 'Feb 22, 2025',
-                    'category' => 'Health',
-                    'image' => 'https://images.unsplash.com/photo-1580281658629-149f02f32b25?auto=format&fit=crop&w=800&q=60'
-                ],
-                [
-                    'title' => 'Linggo ng Kabataan Sports Clinic',
-                    'excerpt' => 'Open registration para sa basketball, volleyball at chess training sessions.',
-                    'date' => 'Feb 20, 2025',
-                    'category' => 'Youth',
-                    'image' => 'https://images.unsplash.com/photo-1521412644187-c49fa049e84d?auto=format&fit=crop&w=800&q=60'
-                ],
-                [
-                    'title' => 'Barangay Clean-Up & Waste Segregation Drive',
-                    'excerpt' => 'Dalhin ang sariling gloves at supot. Focus: drainage clearing & plastic recovery.',
-                    'date' => 'Feb 19, 2025',
-                    'category' => 'Environment',
-                    'image' => 'https://images.unsplash.com/photo-1503596476-1c12a8ba09a8?auto=format&fit=crop&w=800&q=60'
-                ],
-                [
-                    'title' => 'Monthly Barangay Assembly',
-                    'excerpt' => 'Pag-uusapan ang proposed livelihood projects at infra status reports.',
-                    'date' => 'Feb 25, 2025',
-                    'category' => 'Assembly',
-                    'image' => 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=60'
-                ],
-            ];
+            // Get announcements from database - split into feature and regular announcements
+            $allAnnouncements = $announcements ?? collect();
+            $feature = $allAnnouncements->first(); // Use first announcement as feature
+            $regularAnnouncements = $allAnnouncements->skip(1)->take(4); // Take next 4 for grid
         @endphp
         <div class="row g-4">
             <!-- Feature Card -->
+            @if($feature)
             <div class="col-lg-5">
-                <div class="rotating-card-container">
-                    <div class="card card-rotate card-background card-background-mask-primary shadow-dark mt-md-0 mt-5">
-                        <div class="front front-background" style="background-image: url({{ $feature['image'] }}); background-size: cover; position:relative;">
-                            <span class="badge bg-secondary" style="position:absolute; top:10px; left:10px; background:#2A7BC4; color:#fff; z-index:2;">{{ $feature['category'] }}</span>
-                            <div class="card-body py-7 text-center">
-                                <i class="material-symbols-rounded text-white text-4xl my-3">campaign</i>
-                                <h3 class="text-white">{{ $feature['title'] }}</h3>
-                                <p class="text-white opacity-8">{{ $feature['excerpt'] }}</p>
+                <div class="feature-announcement-card">
+                    @if($feature->image)
+                        @php
+                            $featureImage = asset('storage/' . $feature->image);
+                        @endphp
+                        <div class="card shadow-lg" style="border-radius: 18px; overflow: hidden; min-height: 400px; background-image: url('{{ $featureImage }}'); background-size: cover; background-position: center; position: relative;">
+                    @else
+                        <div class="card shadow-lg" style="border-radius: 18px; overflow: hidden; min-height: 400px; background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8c 100%) !important; position: relative;">
+                    @endif
+                        <!-- Dark overlay for better text readability -->
+                        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.3); z-index: 1;"></div>
+                        
+                        @php
+                            $typeLabels = [
+                                'general' => 'General',
+                                'limited_slots' => 'Registration Required',
+                                'event' => 'Event',
+                                'service' => 'Service',
+                                'program' => 'Program'
+                            ];
+                            $featureTypeLabel = $typeLabels[$feature->type] ?? ucfirst(str_replace('_', ' ', $feature->type));
+                        @endphp
+                        <span class="badge" style="position:absolute; top:20px; left:20px; background:#2A7BC4; color:#fff; z-index:3; font-size: 0.9rem; padding: 8px 12px;">{{ $featureTypeLabel }}</span>
+                        
+                        <div class="card-body d-flex flex-column justify-content-center text-center h-100" style="position: relative; z-index: 2; padding: 3rem 2rem;">
+                            <i class="material-symbols-rounded text-white mb-3" style="font-size: 4rem;">campaign</i>
+                            <h3 class="text-white mb-3 fw-bold">{{ $feature->title }}</h3>
+                            <p class="text-white mb-4" style="opacity: 0.9; line-height: 1.6;">{{ \Str::limit(strip_tags($feature->content), 120) }}</p>
+                            <div class="mt-auto">
+                                <a href="{{ route('announcements.show', $feature) }}" class="btn btn-light px-4 py-2" style="border-radius: 25px; font-weight: 600;">
+                                    Read More <i class="fas fa-arrow-right ms-2"></i>
+                                </a>
                             </div>
                         </div>
-                       <div class="back back-background" style="background: #2A7BC4;">
-    <div class="card-body pt-7 text-center">
-        <h3 class="text-white">Read Advisory</h3>
-        <p class="text-white opacity-8">{{ $feature['date'] }} &bull; {{ $feature['category'] }}</p>
-        <a href="#" class="btn btn-white btn-sm w-50 mx-auto mt-3" style="color:#2A7BC4;">Read Full</a>
-    </div>
-</div>
                     </div>
                 </div>
             </div>
+            @else
+            <!-- Show placeholder when no feature announcement -->
+            <div class="col-lg-5">
+                <div class="card" style="background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8c 100%); border-radius:18px; min-height: 300px;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center text-white text-center">
+                        <i class="material-symbols-rounded text-white text-4xl mb-3">announcement</i>
+                        <h4 class="mb-3">No Announcements</h4>
+                        <p class="mb-0">No active announcements at the moment. Check back later!</p>
+                    </div>
+                </div>
+            </div>
+            @endif
             <!-- List / Grid of other announcements -->
             <div class="col-lg-7">
+                @if($regularAnnouncements->count() > 0)
                 <div class="row g-4">
-                    @foreach($announcements as $a)
+                    @foreach($regularAnnouncements as $announcement)
                         <div class="col-md-6">
                             <div class="card border-0 h-100" style="border:1.5px solid #2A7BC4 !important; border-radius:18px; overflow:hidden; background:#ffffff;">
+                                @if($announcement->image)
                                 <div style="position:relative;">
-                                    <img src="{{ $a['image'] }}" alt="{{ $a['category'] }}" style="width:100%; height:140px; object-fit:cover;">
-                                    <span class="badge bg-secondary" style="position:absolute; top:10px; left:10px; background:#2A7BC4;">{{ $a['category'] }}</span>
+                                    <img src="{{ asset('storage/' . $announcement->image) }}" alt="{{ ucfirst($announcement->type) }}" style="width:100%; height:140px; object-fit:cover;">
+                                    @php
+                                        $typeLabels = [
+                                            'general' => 'General',
+                                            'limited_slots' => 'Registration Required',
+                                            'event' => 'Event',
+                                            'service' => 'Service',
+                                            'program' => 'Program'
+                                        ];
+                                        $announcementTypeLabel = $typeLabels[$announcement->type] ?? ucfirst(str_replace('_', ' ', $announcement->type));
+                                    @endphp
+                                    <span class="badge" style="position:absolute; top:10px; left:10px; background:#2A7BC4 !important; color:#fff; border: none;">{{ $announcementTypeLabel }}</span>
                                 </div>
+                                @else
+                                <div style="position:relative; background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8c 100%) !important; height:140px; display:flex; align-items:center; justify-content:center;">
+                                    <i class="material-symbols-rounded text-white" style="font-size: 2.5rem;">announcement</i>
+                                    @php
+                                        $typeLabels = [
+                                            'general' => 'General',
+                                            'limited_slots' => 'Registration Required',
+                                            'event' => 'Event',
+                                            'service' => 'Service',
+                                            'program' => 'Program'
+                                        ];
+                                        $announcementTypeLabel = $typeLabels[$announcement->type] ?? ucfirst(str_replace('_', ' ', $announcement->type));
+                                    @endphp
+                                    <span class="badge" style="position:absolute; top:10px; left:10px; background: rgba(255,255,255,0.2) !important; color:#fff; border: none;">{{ $announcementTypeLabel }}</span>
+                                </div>
+                                @endif
                                 <div class="card-body d-flex flex-column">
-                                    <h6 class="fw-semibold mb-2" style="line-height:1.25; color:#1e293b;">{{ $a['title'] }}</h6>
-                                    <p class="text-muted small flex-grow-1 mb-2" style="line-height:1.4;">{{ $a['excerpt'] }}</p>
+                                    <h6 class="fw-semibold mb-2" style="line-height:1.25; color:#1e293b;">{{ $announcement->title }}</h6>
+                                    <p class="text-muted small flex-grow-1 mb-2" style="line-height:1.4;">{{ \Str::limit(strip_tags($announcement->content), 80) }}</p>
                                     <div class="d-flex align-items-center justify-content-between mt-auto pt-1">
-                                        <span class="text-muted small"><i class="far fa-clock me-1"></i>{{ $a['date'] }}</span>
-                                        <a href="#" class="btn btn-sm" style="border-radius:8px; font-weight:600; font-size:.65rem; letter-spacing:.5px; background-color:#2A7BC4; color:#fff; border:none;">Read Advisory</a>
+                                        <span class="text-muted small"><i class="far fa-clock me-1"></i>{{ $announcement->created_at->format('M d, Y') }}</span>
+                                        <a href="{{ route('announcements.show', $announcement) }}" class="btn btn-sm" style="border-radius:8px; font-weight:600; font-size:.65rem; letter-spacing:.5px; background-color:#2A7BC4; color:#fff; border:none;">Read More</a>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     @endforeach
                 </div>
+                @else
+                <!-- When no other announcements available -->
+                <div class="d-flex align-items-center justify-content-center h-100" style="min-height: 300px;">
+                    <div class="text-center">
+                        <i class="material-symbols-rounded text-muted mb-3" style="font-size: 3rem;">info</i>
+                        <h5 class="text-muted mb-2">More announcements coming soon</h5>
+                        <p class="text-muted mb-0">Stay tuned for updates from the barangay!</p>
+                    </div>
+                </div>
+                @endif
             </div>
         </div>
     </div>
@@ -237,7 +271,7 @@
             <div class="row g-4 justify-content-center">
                 @if($secretary)
                 <div class="col-lg-4 col-md-6 d-flex justify-content-center">
-                    <div class="official-card staff-card" style="max-width: 220px;">
+                    <div class="official-card staff-card" style="width: 220px; min-height: 250px; display: flex; flex-direction: column;">
                         <div style="position:relative; background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8c 100%); height: 170px; display: flex; align-items: center; justify-content: center; border-radius:15px 15px 0 0;">
                             @if($secretary->profile_pic_url)
                                 <img src="{{ $secretary->profile_pic_url }}" alt="{{ $secretary->name }}" style="width:110px; height:110px; object-fit:cover; border-radius:50%; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
@@ -247,8 +281,8 @@
                                 </div>
                             @endif
                         </div>
-                        <div class="card-body text-center p-3" style="background:#fff; border-radius:0 0 15px 15px; border:2px solid #2A7BC4; border-top:none;">
-                            <h6 class="fw-bold mb-1" style="color:#1e293b; font-size:1rem;">{{ $secretary->name }}</h6>
+                        <div class="card-body text-center p-3 d-flex flex-column justify-content-center" style="background:#fff; border-radius:0 0 15px 15px; border:2px solid #2A7BC4; border-top:none; height: 80px; min-height: 80px;">
+                            <h6 class="fw-bold mb-1" style="color:#1e293b; font-size:1rem; line-height: 1.2;">{{ $secretary->name }}</h6>
                             <p class="text-muted mb-0" style="font-size:0.85rem; font-weight:600;">Secretary</p>
                         </div>
                     </div>
@@ -257,7 +291,7 @@
 
                 @if($treasurer)
                 <div class="col-lg-4 col-md-6 d-flex justify-content-center">
-                    <div class="official-card staff-card" style="max-width: 220px;">
+                    <div class="official-card staff-card" style="width: 220px; min-height: 250px; display: flex; flex-direction: column;">
                         <div style="position:relative; background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8c 100%); height: 170px; display: flex; align-items: center; justify-content: center; border-radius:15px 15px 0 0;">
                             @if($treasurer->profile_pic_url)
                                 <img src="{{ $treasurer->profile_pic_url }}" alt="{{ $treasurer->name }}" style="width:110px; height:110px; object-fit:cover; border-radius:50%; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
@@ -267,8 +301,8 @@
                                 </div>
                             @endif
                         </div>
-                        <div class="card-body text-center p-3" style="background:#fff; border-radius:0 0 15px 15px; border:2px solid #2A7BC4; border-top:none;">
-                            <h6 class="fw-bold mb-1" style="color:#1e293b; font-size:1rem;">{{ $treasurer->name }}</h6>
+                        <div class="card-body text-center p-3 d-flex flex-column justify-content-center" style="background:#fff; border-radius:0 0 15px 15px; border:2px solid #2A7BC4; border-top:none; height: 80px; min-height: 80px;">
+                            <h6 class="fw-bold mb-1" style="color:#1e293b; font-size:1rem; line-height: 1.2;">{{ $treasurer->name }}</h6>
                             <p class="text-muted mb-0" style="font-size:0.85rem; font-weight:600;">Treasurer</p>
                         </div>
                     </div>
@@ -277,7 +311,7 @@
 
                 @if($skChairman)
                 <div class="col-lg-4 col-md-6 d-flex justify-content-center">
-                    <div class="official-card staff-card" style="max-width: 220px;">
+                    <div class="official-card staff-card" style="width: 220px; min-height: 250px; display: flex; flex-direction: column;">
                         <div style="position:relative; background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8c 100%); height: 170px; display: flex; align-items: center; justify-content: center; border-radius:15px 15px 0 0;">
                             @if($skChairman->profile_pic_url)
                                 <img src="{{ $skChairman->profile_pic_url }}" alt="{{ $skChairman->name }}" style="width:110px; height:110px; object-fit:cover; border-radius:50%; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
@@ -287,8 +321,8 @@
                                 </div>
                             @endif
                         </div>
-                        <div class="card-body text-center p-3" style="background:#fff; border-radius:0 0 15px 15px; border:2px solid #2A7BC4; border-top:none;">
-                            <h6 class="fw-bold mb-1" style="color:#1e293b; font-size:1rem;">HON. {{ $skChairman->name }}</h6>
+                        <div class="card-body text-center p-3 d-flex flex-column justify-content-center" style="background:#fff; border-radius:0 0 15px 15px; border:2px solid #2A7BC4; border-top:none; height: 80px; min-height: 80px;">
+                            <h6 class="fw-bold mb-1" style="color:#1e293b; font-size:1rem; line-height: 1.2;">HON. {{ $skChairman->name }}</h6>
                             <p class="text-muted mb-0" style="font-size:0.85rem; font-weight:600;">SK Chairman</p>
                         </div>
                     </div>

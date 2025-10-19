@@ -301,60 +301,67 @@
 
 @push('scripts')
 <script src="{{ asset('js/form-validation.js') }}"></script>
+<!-- Inline JS below is for SENIOR CITIZEN registration only. Resident registration should use its own birthdate validation inline JS. -->
 <script>
 $(document).ready(function() {
-    // Calculate age when date of birth is entered
-    $('#birthdate').on('change', function() {
-        var birthdate = new Date($(this).val());
-        var today = new Date();
-        var age = today.getFullYear() - birthdate.getFullYear();
-        var monthDiff = today.getMonth() - birthdate.getMonth();
-        
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthdate.getDate())) {
-            age--;
-        }
-        
-        // Show age info
-        if (age >= 0) {
-            var ageText = age + ' years old';
-            if (age >= 60) {
-                ageText += ' <span class="badge badge-success">Senior Citizen</span>';
-            } else {
-                ageText += ' <span class="badge badge-warning">Not eligible (must be 60+)</span>';
-            }
-            
-            // Add age display if it doesn't exist
-            if ($('#age-display').length === 0) {
-                $('#birthdate').after('<small id="age-display" class="form-text text-muted mt-1"></small>');
-            }
-            $('#age-display').html('Age: ' + ageText);
-        }
-    });
-    
-    // Trigger age calculation on page load if birthdate is already filled
-    if ($('#birthdate').val()) {
-        $('#birthdate').trigger('change');
+    var today = new Date();
+    var maxBirthDate = new Date(today.getFullYear() - 60, today.getMonth(), today.getDate());
+    $('#birthdate').attr('max', maxBirthDate.toISOString().split('T')[0]);
+
+    function showBirthdateError(message) {
+        // Remove all previous error messages
+        $('.invalid-feedback.d-block').remove();
+        $('#birthdate').removeClass('is-valid').addClass('is-invalid').after('<div class="invalid-feedback d-block mt-1">' + message + '</div>');
     }
-    
-    // Form validation enhancement
-    $('#step1Form').on('submit', function(e) {
-        var birthdate = new Date($('#birthdate').val());
-        var today = new Date();
-        var age = today.getFullYear() - birthdate.getFullYear();
-        var monthDiff = today.getMonth() - birthdate.getMonth();
-        
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthdate.getDate())) {
-            age--;
+    function clearBirthdateError() {
+        $('#birthdate').removeClass('is-invalid is-valid');
+        $('.invalid-feedback.d-block').remove();
+    }
+    function setBirthdateValid() {
+        $('#birthdate').removeClass('is-invalid').addClass('is-valid');
+        $('.invalid-feedback.d-block').remove();
+    }
+
+    $('#birthdate').on('input change', function() {
+        var val = $(this).val();
+        if (!val) {
+            clearBirthdateError();
+            return;
         }
-        
-        // Validate senior citizen age requirement
-        if (age < 60) {
-            e.preventDefault();
-            alert('Applicant must be at least 60 years old to qualify as a senior citizen.');
+        var birthdate = new Date(val);
+        var now = new Date();
+        var age = now.getFullYear() - birthdate.getFullYear();
+        var birthdayThisYear = new Date(now.getFullYear(), birthdate.getMonth(), birthdate.getDate());
+        if (birthdate > now) {
+            showBirthdateError('Birthdate cannot be in the future.');
+            return;
+        }
+        if (age < 60 || (now < birthdayThisYear && age === 60)) {
+            showBirthdateError('Applicant must be at least 60 years old. Please select a valid birthdate.');
+            return;
+        }
+        setBirthdateValid();
+    });
+
+    $('#step1Form').on('submit', function(e) {
+        var val = $('#birthdate').val();
+        if (!val) return true;
+        var birthdate = new Date(val);
+        var now = new Date();
+        var age = now.getFullYear() - birthdate.getFullYear();
+        var birthdayThisYear = new Date(now.getFullYear(), birthdate.getMonth(), birthdate.getDate());
+        if (birthdate > now) {
+            showBirthdateError('Birthdate cannot be in the future.');
             $('#birthdate').focus();
+            e.preventDefault();
             return false;
         }
-        
+        if (age < 60 || (now < birthdayThisYear && age === 60)) {
+            showBirthdateError('Applicant must be at least 60 years old. Please select a valid birthdate.');
+            $('#birthdate').focus();
+            e.preventDefault();
+            return false;
+        }
         return true;
     });
 });
@@ -372,31 +379,13 @@ $(document).ready(function() {
             var fieldValue = $this.val();
             
             // If field is empty or has default placeholder value, clear validation
-            if (!fieldValue || fieldValue === '' || fieldValue === null || $this.find('option:selected').val() === '') {
-                $this.removeClass('is-invalid');
-                $this.siblings('.invalid-feedback').hide();
-                $this.next('.invalid-feedback').hide();
-            }
-        });
-        
-        // Specifically target citizenship_type field
-        $('#citizenship_type').removeClass('is-invalid');
         $('#citizenship_type').siblings('.invalid-feedback').hide();
         $('#citizenship_type').next('.invalid-feedback').hide();
         
     }, 100); // Small delay to ensure DOM is fully loaded
     
     // Remove invalid state when user starts interacting
-    $('.form-control').on('input change focus click', function() {
-        $(this).removeClass('is-invalid');
-        $(this).siblings('.invalid-feedback').hide();
-        $(this).next('.invalid-feedback').hide();
-    });
     
-    // Reset form validation state on any form interaction
-    $('select, input').on('focus', function() {
-        $(this).removeClass('is-invalid');
-        $(this).siblings('.invalid-feedback').hide();
     });
 });
 </script>

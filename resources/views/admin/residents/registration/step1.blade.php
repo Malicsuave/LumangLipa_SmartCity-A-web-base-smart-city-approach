@@ -289,13 +289,18 @@
 @endsection
 
 @push('scripts')
-<script src="{{ asset('js/form-validation.js') }}"></script>
+<script src="{{ asset('js/form-validation-resident.js') }}"></script>
 @endpush
 
 @section('scripts')
 <script>
 $(document).ready(function() {
     console.log('Step 1 inline script loaded');
+
+    // Set min date for birthdate to prevent selecting dates older than 60 years (age < 60)
+    var today = new Date();
+    var maxBirthDate = new Date(today.getFullYear() - 59, today.getMonth(), today.getDate());
+    $('#birthdate').attr('max', maxBirthDate.toISOString().split('T')[0]);
     
     // Handle citizenship type change
     $('#citizenship_type').on('change', function() {
@@ -344,36 +349,95 @@ $(document).ready(function() {
         return true;
     });
 
-    // Calculate age when birthdate is entered
-    $('#birthdate').on('change', function() {
-        var birthdate = new Date($(this).val());
+    function parseBirthdate(val) {
+        if (!val) return null;
+
+        // Handle YYYY-MM-DD (standard for date input value)
+        var parts = val.split('-');
+        if (parts.length === 3 && parts[0].length === 4) {
+            return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+        }
+
+        // Handle MM/DD/YYYY or MM-DD-YYYY for manual typing
+        var slashParts = val.split('/');
+        if (slashParts.length === 3) {
+            return new Date(parseInt(slashParts[2]), parseInt(slashParts[0]) - 1, parseInt(slashParts[1]));
+        }
+
+        var dashParts = val.split('-');
+        if (dashParts.length === 3 && dashParts[2].length === 4) {
+            return new Date(parseInt(dashParts[2]), parseInt(dashParts[0]) - 1, parseInt(dashParts[1]));
+        }
+
+        // Fallback to Date constructor
+        var date = new Date(val);
+        if (!isNaN(date.getTime())) {
+            return date;
+        }
+
+        return null;
+    }
+
+    function checkSeniorCitizenValidation() {
+        var birthdateVal = $('#birthdate').val();
+        var $birthdateInput = $('#birthdate');
+        var $submitBtn = $('button[type="submit"]', '#step1Form');
+        var $ageDisplay = $('#age-display');
+        var warningId = 'senior-warning';
+        var invalidClass = 'is-invalid';
+
+        // Remove existing elements if present
+        $('#' + warningId).remove();
+        if ($ageDisplay.length) {
+            $ageDisplay.remove();
+        }
+
+        if (!birthdateVal) {
+            $birthdateInput.removeClass(invalidClass);
+            $submitBtn.prop('disabled', false);
+            return;
+        }
+
+        var birthDate = parseBirthdate(birthdateVal);
+        if (!birthDate || isNaN(birthDate.getTime())) {
+            $birthdateInput.addClass(invalidClass);
+            $birthdateInput.after('<div id="' + warningId + '" class="invalid-feedback d-block mt-1">Please enter a valid date.</div>');
+            $submitBtn.prop('disabled', true);
+            return;
+        }
+
         var today = new Date();
-        var age = today.getFullYear() - birthdate.getFullYear();
-        var monthDiff = today.getMonth() - birthdate.getMonth();
-        
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthdate.getDate())) {
+        var age = today.getFullYear() - birthDate.getFullYear();
+        var m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
             age--;
         }
-        
-        // Show age info
-        if (age >= 0) {
-            var ageText = age + ' years old';
-            if (age >= 60) {
-                ageText += ' <span class="badge badge-warning">Senior Citizen</span>';
-            }
-            
-            // Add age display if it doesn't exist
-            if ($('#age-display').length === 0) {
-                $('#birthdate').after('<small id="age-display" class="form-text text-muted mt-1"></small>');
-            }
-            $('#age-display').html('Age: ' + ageText);
+
+        // Create age display
+        var $ageDisplayEl = $('<small id="age-display" class="form-text text-muted mt-1"></small>');
+        $birthdateInput.after($ageDisplayEl);
+
+        var ageText = age + ' years old';
+        if (age >= 59) {
+            ageText += ' <span class="badge badge-warning ml-1">Not eligible</span>';
+            $birthdateInput.addClass(invalidClass);
+            var $warning = $('<div id="' + warningId + '" class="text-danger mt-1" style="font-size: 0.875em; display: block !important;">Residents aged 59 and above cannot register as regular residents. Please use the Senior Citizen registration form.</div>');
+            $birthdateInput.after($warning);
+            $submitBtn.prop('disabled', true).addClass('disabled');
+        } else {
+            $birthdateInput.removeClass(invalidClass);
+            $submitBtn.prop('disabled', false).removeClass('disabled');
         }
-    });
-    
-    // Trigger age calculation on page load if birthdate is already filled
-    if ($('#birthdate').val()) {
-        $('#birthdate').trigger('change');
+
+        $ageDisplayEl.html('Age: ' + ageText);
     }
+
+    // Ensure instant validation on every input event
+    $('#birthdate').off('input change keyup blur paste').on('input change keyup blur paste', function() {
+        checkSeniorCitizenValidation();
+    });
+    // Also validate on page load
+    checkSeniorCitizenValidation();
 });
 </script>
 @endsection

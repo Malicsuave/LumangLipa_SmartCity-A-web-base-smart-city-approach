@@ -9,6 +9,11 @@
 <script src="{{ asset('js/admin/datatable-helpers.js') }}"></script>
 <script>
 $(function () {
+    // Destroy existing DataTable instance if it exists
+    if ($.fn.DataTable.isDataTable('#documentsTable')) {
+        $('#documentsTable').DataTable().destroy();
+    }
+
     // Initialize DataTable for documents table using the same helper as Residents
     const documentsTable = DataTableHelpers.initDataTable("#documentsTable", {
         buttons: ["copy", "csv", "excel", "pdf", "print", "colvis"],

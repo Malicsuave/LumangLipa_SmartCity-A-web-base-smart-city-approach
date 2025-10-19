@@ -56,14 +56,17 @@ class GoogleController extends Controller
                     'email' => $googleUser->email
                 ]);
                 
-                // Create user with no role by default
+                // Determine role_id based on approval status
+                $roleId = $adminApproval ? $adminApproval->role_id : null;
+                
+                // Create user
                 $user = User::create([
                     'name' => $googleUser->name,
                     'email' => $googleUser->email,
-                    'password' => bcrypt(\Illuminate\Support\Str::random(16)), // Random password for security
-                    'email_verified_at' => now(), // Gmail email is already verified
+                    'password' => bcrypt(\Illuminate\Support\Str::random(16)),
+                    'email_verified_at' => now(),
                     'google_id' => $googleUser->id,
-                    'role_id' => null, // No role by default - will assign if pre-approved
+                    'role_id' => $roleId,
                 ]);
             } else {
                 Log::info('User already exists', [
@@ -75,65 +78,67 @@ class GoogleController extends Controller
                 if (empty($user->google_id)) {
                     $user->update(['google_id' => $googleUser->id]);
                 }
+                
+                // Assign or update role if user is pre-approved
+                if ($adminApproval && $user->role_id !== $adminApproval->role_id) {
+                    Log::info('Updating user role based on admin approval', [
+                        'old_role_id' => $user->role_id,
+                        'new_role_id' => $adminApproval->role_id
+                    ]);
+                    $user->role_id = $adminApproval->role_id;
+                    $user->save();
+                }
             }
             
-            // Assign role if user is pre-approved
-            if ($adminApproval) {
-                Log::info('User is pre-approved for admin access', [
-                    'email' => $googleUser->email,
-                    'approved_role_id' => $adminApproval->role_id,
-                    'role_name' => $adminApproval->role->name ?? 'Unknown'
-                ]);
-                
-                // Update user with approved role
-                $user->role_id = $adminApproval->role_id;
-                $user->save();
-            } else {
-                Log::info('User is not pre-approved for admin access', [
-                    'email' => $googleUser->email
-                ]);
-            }
+            // Reload user with role relationship
+            $user->load('role');
             
             // Log the user in
-            Auth::login($user);
-            
-            // Force reload the user with role relationship
-            $user = User::with('role')->find($user->id);
-            
-            // Check if user has a pending access request
-            $pendingRequest = \App\Models\AccessRequest::where('user_id', $user->id)
-                ->whereNull('approved_at')
-                ->whereNull('denied_at')
-                ->first();
+            Auth::login($user, true);
             
             // Log user state before redirect decision
             Log::info('User state before redirect', [
                 'user_id' => $user->id,
                 'email' => $user->email,
                 'role_id' => $user->role_id,
-                'has_role_relationship' => $user->role ? true : false,
+                'has_role' => $user->role ? true : false,
                 'role_name' => $user->role ? $user->role->name : 'No role',
-                'has_pending_request' => $pendingRequest ? true : false
             ]);
             
-            // Redirect based on whether user is approved admin
-            if ($adminApproval && $user->role) {
+            // Check if user has a role (approved admin)
+            if ($user->role) {
                 Log::info('Redirecting authorized admin to dashboard', [
                     'role' => $user->role->name
                 ]);
-                return redirect()->route('admin.dashboard')->with('status', 'Welcome, ' . $user->role->name . '!');
-            } else {
-                // Redirect to unauthorized page with appropriate message
-                Log::info('Redirecting unauthorized user to access denied page');
                 
-                if ($pendingRequest) {
-                    return redirect()->route('unauthorized.access')
-                        ->with('info', 'Your access request is still pending approval. You will be notified via email when it\'s processed.');
-                } else {
-                    return redirect()->route('unauthorized.access')
-                        ->with('warning', 'Your account needs approval before accessing the system. Please submit a request.');
+                // Redirect based on role
+                if (in_array($user->role->name, ['Barangay Captain', 'Barangay Secretary'])) {
+                    return redirect()->route('admin.dashboard')
+                        ->with('status', 'Welcome, ' . $user->role->name . '!');
                 }
+                
+                return redirect('/dashboard')
+                    ->with('status', 'Welcome back, ' . $user->name . '!');
             }
+            
+            // User doesn't have a role - check for pending request
+            $pendingRequest = \App\Models\AccessRequest::where('user_id', $user->id)
+                ->whereNull('approved_at')
+                ->whereNull('denied_at')
+                ->first();
+            
+            Log::info('Redirecting unauthorized user to access denied page', [
+                'has_pending_request' => $pendingRequest ? true : false
+            ]);
+            
+            if ($pendingRequest) {
+                return redirect()->route('unauthorized.access')
+                    ->with('info', 'Your access request is still pending approval. You will be notified via email when it\'s processed.');
+            }
+            
+            return redirect()->route('unauthorized.access')
+                ->with('warning', 'Your account needs approval before accessing the system. Please submit a request.');
+                
         } catch (\Exception $e) {
             Log::error('Google authentication error', [
                 'message' => $e->getMessage(),

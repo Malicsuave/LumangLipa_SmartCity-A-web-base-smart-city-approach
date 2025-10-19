@@ -295,14 +295,14 @@
                 <table>
                     <tr>
                         <td class="header-logo-cell">
-                            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo.png'))) }}" alt="Barangay Logo" class="barangay-logo-left">
+                <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo.png'))) }}" alt="Barangay Logo" class="barangay-logo-left">
                         </td>
                         <td class="header-title-cell">
-                            <div class="id-card-title">
-                                <h6 class="mb-0">Barangay Lumanglipa</h6>
-                                <h6 class="small mb-0">Mataasnakahoy, Batangas</h6>
-                                <h6 class="mb-0">Senior Citizen Card</h6>
-                            </div>
+                <div class="id-card-title">
+                    <h6 class="mb-0">Barangay Lumanglipa</h6>
+                    <h6 class="small mb-0">Mataasnakahoy, Batangas</h6>
+                    <h6 class="mb-0">Senior Citizen Card</h6>
+                </div>
                         </td>
                         <td class="header-logo-cell">
                             <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/kahoylogo.png'))) }}" alt="City Logo" class="barangay-logo-right">
@@ -327,8 +327,8 @@
                                     <table style="width: 100%; border-collapse: collapse;">
                                         <tr>
                                             <td style="width: 50%; vertical-align: top; padding-right: 5px;">
-                                                <strong>Telepono/Phone</strong><br>
-                                                <span>{{ $seniorCitizen->contact_number ?: 'N/A' }}</span>
+                                    <strong>Telepono/Phone</strong><br>
+                                    <span>{{ $seniorCitizen->contact_number ?: 'N/A' }}</span>
                                             </td>
                                             <td style="width: 50%; vertical-align: top; padding-left: 5px;">
                                                 <strong>Purok</strong><br>

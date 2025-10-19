@@ -26,22 +26,20 @@
         @if($captain)
         <div class="captain-level mb-5">
             <div class="d-flex justify-content-center">
-                <div class="official-card captain-card" style="max-width: 180px;">
-                    <div style="position:relative; background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8c 100%); height: 150px; display: flex; align-items: center; justify-content: center; border-radius:15px 15px 0 0; box-shadow: 0 4px 15px rgba(42, 123, 196, 0.3);">
+                <div class="official-card captain-card" style="width: 220px; min-height: 230px; display: flex; flex-direction: column;">
+                    <div style="position:relative; background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8c 100%); height: 170px; display: flex; align-items: center; justify-content: center; border-radius:15px 15px 0 0; box-shadow: 0 4px 15px rgba(42, 123, 196, 0.3);">
                         @if($captain->profile_pic_url)
-                            <img src="{{ $captain->profile_pic_url }}" alt="{{ $captain->name }}" style="width:90px; height:90px; object-fit:cover; border-radius:50%; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
+                            <img src="{{ $captain->profile_pic_url }}" alt="{{ $captain->name }}" style="width:110px; height:110px; object-fit:cover; border-radius:50%; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
                         @else
-                            <div style="width:90px; height:90px; background:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
-                                <span style="font-size:2rem; font-weight:bold; color:#2A7BC4;">{{ $captain->initials }}</span>
+                            <div style="width:110px; height:110px; background:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
+                                <span style="font-size:2.2rem; font-weight:bold; color:#2A7BC4;">{{ $captain->initials }}</span>
                             </div>
                         @endif
                         <span class="badge bg-dark" style="position:absolute; top:10px; right:10px; font-size:0.6rem; padding:4px 8px; border-radius:10px;">CAPTAIN</span>
                     </div>
-                    <div class="card-body text-center p-3" style="background:#fff; border-radius:0 0 15px 15px; border:2px solid #2A7BC4; border-top:none; box-shadow: 0 4px 15px rgba(42, 123, 196, 0.2);">
-                        <h6 class="fw-bold mb-1" style="color:#1e293b; font-size:0.9rem; line-height:1.2;">HON. {{ $captain->name }}</h6>
-                        <p class="text-muted mb-1" style="font-size:0.8rem; font-weight:600;">Barangay Captain</p>
-                        <div style="width: 30px; height: 2px; background: #2A7BC4; margin: 8px auto; border-radius: 1px;"></div>
-                        <p class="text-muted small mb-0" style="font-size:0.7rem;">Chief Executive</p>
+                    <div class="card-body text-center p-3 d-flex flex-column justify-content-center" style="background:#fff; border-radius:0 0 15px 15px; border:2px solid #2A7BC4; border-top:none; box-shadow: 0 4px 15px rgba(42, 123, 196, 0.2); height: 80px; min-height: 80px;">
+                        <h6 class="fw-bold mb-1" style="color:#1e293b; font-size:1rem; line-height:1.2;">HON. {{ $captain->name }}</h6>
+                        <p class="text-muted mb-0" style="font-size:0.85rem; font-weight:600;">Barangay Captain</p>
                     </div>
                 </div>
             </div>
@@ -63,21 +61,21 @@
             <div class="row g-4 justify-content-center">
                 @foreach($councilors->take(7) as $index => $councilor)
                 <div class="col-xl-auto col-lg-4 col-md-6 d-flex justify-content-center">
-                    <div class="official-card councilor-card" style="max-width: 180px;">
-                        <div style="position:relative; background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8c 100%); height: 150px; display: flex; align-items: center; justify-content: center; border-radius:15px 15px 0 0; box-shadow: 0 4px 15px rgba(42, 123, 196, 0.3);">
+                    <div class="official-card councilor-card" style="width: 220px; min-height: 250px; display: flex; flex-direction: column;">
+                        <div style="position:relative; background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8c 100%); height: 170px; display: flex; align-items: center; justify-content: center; border-radius:15px 15px 0 0; box-shadow: 0 4px 15px rgba(42, 123, 196, 0.3);">
                             @if($councilor->profile_pic_url)
-                                <img src="{{ $councilor->profile_pic_url }}" alt="{{ $councilor->name }}" style="width:90px; height:90px; object-fit:cover; border-radius:50%; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+                                <img src="{{ $councilor->profile_pic_url }}" alt="{{ $councilor->name }}" style="width:110px; height:110px; object-fit:cover; border-radius:50%; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
                             @else
-                                <div style="width:90px; height:90px; background:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
-                                    <span style="font-size:2rem; font-weight:bold; color:#2A7BC4;">{{ $councilor->initials }}</span>
+                                <div style="width:110px; height:110px; background:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+                                    <span style="font-size:2.2rem; font-weight:bold; color:#2A7BC4;">{{ $councilor->initials }}</span>
                                 </div>
                             @endif
                         </div>
-                        <div class="card-body text-center p-3" style="background:#fff; border-radius:0 0 15px 15px; border:2px solid #2A7BC4; border-top:none; box-shadow: 0 4px 15px rgba(42, 123, 196, 0.2);">
-                            <h6 class="fw-bold mb-1" style="color:#1e293b; font-size:0.9rem; line-height:1.2;">HON. {{ $councilor->name }}</h6>
-                            <p class="text-muted mb-1" style="font-size:0.8rem; font-weight:600;">Councilor</p>
+                        <div class="card-body text-center p-3 d-flex flex-column justify-content-center" style="background:#fff; border-radius:0 0 15px 15px; border:2px solid #2A7BC4; border-top:none; box-shadow: 0 4px 15px rgba(42, 123, 196, 0.2); min-height: 80px;">
+                            <h6 class="fw-bold mb-1" style="color:#1e293b; font-size:1rem; line-height:1.2;">HON. {{ $councilor->name }}</h6>
+                            <p class="text-muted mb-0" style="font-size:0.85rem; font-weight:600;">Councilor</p>
                             @if($councilor->committee)
-                                <p class="text-muted small mb-0" style="font-size:0.7rem; line-height:1.2; background:#f8f9fa; padding:4px; border-radius:4px; margin-top:6px;">{{ $councilor->committee }}</p>
+                                <p class="text-muted small mb-0 mt-1" style="font-size:0.7rem; line-height:1.2; background:#f8f9fa; padding:2px 4px; border-radius:4px;">{{ $councilor->committee }}</p>
                             @endif
                         </div>
                     </div>
@@ -101,21 +99,20 @@
             <div class="row g-4 justify-content-center">
                 @if($secretary)
                 <div class="col-lg-4 col-md-6 d-flex justify-content-center">
-                    <div class="official-card support-card" style="max-width: 180px;">
-                        <div style="position:relative; background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8c 100%); height: 150px; display: flex; align-items: center; justify-content: center; border-radius:15px 15px 0 0; box-shadow: 0 4px 15px rgba(42, 123, 196, 0.3);">
+                    <div class="official-card support-card" style="width: 220px; min-height: 250px; display: flex; flex-direction: column;">
+                        <div style="position:relative; background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8c 100%); height: 170px; display: flex; align-items: center; justify-content: center; border-radius:15px 15px 0 0; box-shadow: 0 4px 15px rgba(42, 123, 196, 0.3);">
                             @if($secretary->profile_pic_url)
-                                <img src="{{ $secretary->profile_pic_url }}" alt="{{ $secretary->name }}" style="width:90px; height:90px; object-fit:cover; border-radius:50%; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+                                <img src="{{ $secretary->profile_pic_url }}" alt="{{ $secretary->name }}" style="width:110px; height:110px; object-fit:cover; border-radius:50%; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
                             @else
-                                <div style="width:90px; height:90px; background:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
-                                    <span style="font-size:2rem; font-weight:bold; color:#2A7BC4;">{{ $secretary->initials }}</span>
+                                <div style="width:110px; height:110px; background:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+                                    <span style="font-size:2.2rem; font-weight:bold; color:#2A7BC4;">{{ $secretary->initials }}</span>
                                 </div>
                             @endif
                             <span class="badge bg-light text-dark" style="position:absolute; top:10px; right:10px; font-size:0.6rem; padding:4px 8px; border-radius:10px;">SEC</span>
                         </div>
-                        <div class="card-body text-center p-3" style="background:#fff; border-radius:0 0 15px 15px; border:2px solid #2A7BC4; border-top:none; box-shadow: 0 4px 15px rgba(42, 123, 196, 0.2);">
-                            <h6 class="fw-bold mb-1" style="color:#1e293b; font-size:0.9rem; line-height:1.2;">{{ $secretary->name }}</h6>
-                            <p class="text-muted mb-1" style="font-size:0.8rem; font-weight:600;">Secretary</p>
-                            <p class="text-muted small mb-0" style="font-size:0.7rem;">Administrative Officer</p>
+                        <div class="card-body text-center p-3 d-flex flex-column justify-content-center" style="background:#fff; border-radius:0 0 15px 15px; border:2px solid #2A7BC4; border-top:none; box-shadow: 0 4px 15px rgba(42, 123, 196, 0.2); height: 80px; min-height: 80px;">
+                            <h6 class="fw-bold mb-1" style="color:#1e293b; font-size:1rem; line-height:1.2;">{{ $secretary->name }}</h6>
+                            <p class="text-muted mb-0" style="font-size:0.85rem; font-weight:600;">Secretary</p>
                         </div>
                     </div>
                 </div>
@@ -123,21 +120,20 @@
 
                 @if($treasurer)
                 <div class="col-lg-4 col-md-6 d-flex justify-content-center">
-                    <div class="official-card support-card" style="max-width: 180px;">
-                        <div style="position:relative; background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8c 100%); height: 150px; display: flex; align-items: center; justify-content: center; border-radius:15px 15px 0 0; box-shadow: 0 4px 15px rgba(42, 123, 196, 0.3);">
+                    <div class="official-card support-card" style="width: 220px; min-height: 250px; display: flex; flex-direction: column;">
+                        <div style="position:relative; background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8c 100%); height: 170px; display: flex; align-items: center; justify-content: center; border-radius:15px 15px 0 0; box-shadow: 0 4px 15px rgba(42, 123, 196, 0.3);">
                             @if($treasurer->profile_pic_url)
-                                <img src="{{ $treasurer->profile_pic_url }}" alt="{{ $treasurer->name }}" style="width:90px; height:90px; object-fit:cover; border-radius:50%; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+                                <img src="{{ $treasurer->profile_pic_url }}" alt="{{ $treasurer->name }}" style="width:110px; height:110px; object-fit:cover; border-radius:50%; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
                             @else
-                                <div style="width:90px; height:90px; background:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
-                                    <span style="font-size:2rem; font-weight:bold; color:#2A7BC4;">{{ $treasurer->initials }}</span>
+                                <div style="width:110px; height:110px; background:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+                                    <span style="font-size:2.2rem; font-weight:bold; color:#2A7BC4;">{{ $treasurer->initials }}</span>
                                 </div>
                             @endif
                             <span class="badge bg-light text-dark" style="position:absolute; top:10px; right:10px; font-size:0.6rem; padding:4px 8px; border-radius:10px;">TREAS</span>
                         </div>
-                        <div class="card-body text-center p-3" style="background:#fff; border-radius:0 0 15px 15px; border:2px solid #2A7BC4; border-top:none; box-shadow: 0 4px 15px rgba(42, 123, 196, 0.2);">
-                            <h6 class="fw-bold mb-1" style="color:#1e293b; font-size:0.9rem; line-height:1.2;">{{ $treasurer->name }}</h6>
-                            <p class="text-muted mb-1" style="font-size:0.8rem; font-weight:600;">Treasurer</p>
-                            <p class="text-muted small mb-0" style="font-size:0.7rem;">Financial Officer</p>
+                        <div class="card-body text-center p-3 d-flex flex-column justify-content-center" style="background:#fff; border-radius:0 0 15px 15px; border:2px solid #2A7BC4; border-top:none; box-shadow: 0 4px 15px rgba(42, 123, 196, 0.2); height: 80px; min-height: 80px;">
+                            <h6 class="fw-bold mb-1" style="color:#1e293b; font-size:1rem; line-height:1.2;">{{ $treasurer->name }}</h6>
+                            <p class="text-muted mb-0" style="font-size:0.85rem; font-weight:600;">Treasurer</p>
                         </div>
                     </div>
                 </div>
@@ -145,21 +141,20 @@
 
                 @if($skChairman)
                 <div class="col-lg-4 col-md-6 d-flex justify-content-center">
-                    <div class="official-card support-card" style="max-width: 180px;">
-                        <div style="position:relative; background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8c 100%); height: 150px; display: flex; align-items: center; justify-content: center; border-radius:15px 15px 0 0; box-shadow: 0 4px 15px rgba(42, 123, 196, 0.3);">
+                    <div class="official-card support-card" style="width: 220px; min-height: 250px; display: flex; flex-direction: column;">
+                        <div style="position:relative; background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8c 100%); height: 170px; display: flex; align-items: center; justify-content: center; border-radius:15px 15px 0 0; box-shadow: 0 4px 15px rgba(42, 123, 196, 0.3);">
                             @if($skChairman->profile_pic_url)
-                                <img src="{{ $skChairman->profile_pic_url }}" alt="{{ $skChairman->name }}" style="width:90px; height:90px; object-fit:cover; border-radius:50%; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+                                <img src="{{ $skChairman->profile_pic_url }}" alt="{{ $skChairman->name }}" style="width:110px; height:110px; object-fit:cover; border-radius:50%; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
                             @else
-                                <div style="width:90px; height:90px; background:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
-                                    <span style="font-size:2rem; font-weight:bold; color:#2A7BC4;">{{ $skChairman->initials }}</span>
+                                <div style="width:110px; height:110px; background:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+                                    <span style="font-size:2.2rem; font-weight:bold; color:#2A7BC4;">{{ $skChairman->initials }}</span>
                                 </div>
                             @endif
                             <span class="badge bg-light text-dark" style="position:absolute; top:10px; right:10px; font-size:0.6rem; padding:4px 8px; border-radius:10px;">SK</span>
                         </div>
-                        <div class="card-body text-center p-3" style="background:#fff; border-radius:0 0 15px 15px; border:2px solid #2A7BC4; border-top:none; box-shadow: 0 4px 15px rgba(42, 123, 196, 0.2);">
-                            <h6 class="fw-bold mb-1" style="color:#1e293b; font-size:0.9rem; line-height:1.2;">HON. {{ $skChairman->name }}</h6>
-                            <p class="text-muted mb-1" style="font-size:0.8rem; font-weight:600;">SK Chairman</p>
-                            <p class="text-muted small mb-0" style="font-size:0.7rem;">Youth Leader</p>
+                        <div class="card-body text-center p-3 d-flex flex-column justify-content-center" style="background:#fff; border-radius:0 0 15px 15px; border:2px solid #2A7BC4; border-top:none; box-shadow: 0 4px 15px rgba(42, 123, 196, 0.2); height: 80px; min-height: 80px;">
+                            <h6 class="fw-bold mb-1" style="color:#1e293b; font-size:1rem; line-height:1.2;">HON. {{ $skChairman->name }}</h6>
+                            <p class="text-muted mb-0" style="font-size:0.85rem; font-weight:600;">SK Chairman</p>
                         </div>
                     </div>
                 </div>

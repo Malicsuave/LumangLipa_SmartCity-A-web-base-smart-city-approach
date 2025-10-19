@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TwoFactorAuthenticationController;
 use App\Http\Controllers\AdminTwoFactorController;
 use App\Http\Controllers\PublicController;
+use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\Admin\AnnouncementController as AdminAnnouncementController;
 use App\Http\Controllers\AdminProfileController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\UnauthorizedController;
@@ -12,9 +14,6 @@ use App\Http\Controllers\ResidentController;
 use App\Http\Controllers\ResidentIdController;
 use App\Http\Controllers\Admin\AccessRequestController;
 use App\Http\Controllers\Admin\SeniorCitizenController;
-use App\Http\Controllers\ComplaintController;
-use App\Http\Controllers\ComplaintMeetingController;
-use App\Http\Controllers\BlotterController;
 use App\Http\Controllers\HealthServiceController;
 use App\Http\Controllers\HealthMeetingController;
 use App\Http\Controllers\Admin\GadController;
@@ -26,6 +25,8 @@ use App\Http\Controllers\Admin\SecurityController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\AnalyticsController;
 use App\Http\Controllers\TestController;
+// NEW: Add BlotterComplaintController
+use App\Http\Controllers\BlotterComplaintController;
 
 /*
 |--------------------------------------------------------------------------
@@ -46,7 +47,12 @@ Route::middleware(['role:Barangay Captain,Barangay Secretary'])->prefix('admin')
     Route::post('officials/edit-single', [App\Http\Controllers\Admin\BarangayOfficialController::class, 'update'])->name('officials.update-single');
     Route::delete('officials/photo/{field}', [App\Http\Controllers\Admin\BarangayOfficialController::class, 'deletePhoto'])->name('officials.delete-photo');
     
-   
+    // Admin Announcement Management Routes
+    Route::resource('announcements', AdminAnnouncementController::class);
+    Route::patch('announcements/{announcement}/toggle', [AdminAnnouncementController::class, 'toggle'])->name('announcements.toggle');
+    Route::get('announcements/{announcement}/registrations', [AdminAnnouncementController::class, 'registrations'])->name('announcements.registrations');
+    Route::get('announcements/{announcement}/export-registrations', [AdminAnnouncementController::class, 'exportRegistrations'])->name('announcements.export-registrations');
+    Route::delete('announcements/registrations/{registration}', [AdminAnnouncementController::class, 'destroyRegistration'])->name('announcements.registrations.destroy');
 });
 
 // Resident Management Routes
@@ -60,7 +66,12 @@ Route::get('/contact', [PublicController::class, 'contact'])->name('public.conta
 
 // Officials and Announcements routes
 Route::get('/officials', [PublicController::class, 'officials'])->name('public.officials');
-Route::get('/announcements', [PublicController::class, 'announcements'])->name('public.announcements');
+
+// Announcement routes - using proper AnnouncementController with public.announcements folder views
+Route::get('/announcements', [AnnouncementController::class, 'index'])->name('public.announcements');
+Route::get('/announcements/{announcement}', [AnnouncementController::class, 'show'])->name('announcements.show');
+Route::post('/announcements/{announcement}/register', [AnnouncementController::class, 'register'])->name('announcements.register');
+Route::post('/announcements/check-registration', [AnnouncementController::class, 'checkRegistration'])->name('announcements.checkRegistration');
 
 // Chatbot API routes
 Route::post('/chatbot', [App\Http\Controllers\ChatbotController::class, 'chat'])->name('chatbot.chat');
@@ -117,6 +128,7 @@ Route::post('/check-resident', [App\Http\Controllers\DocumentRequestController::
 Route::post('/send-otp', [App\Http\Controllers\DocumentRequestController::class, 'sendOtp'])->name('documents.send-otp');
 Route::post('/verify-otp', [App\Http\Controllers\DocumentRequestController::class, 'verifyOtp'])->name('documents.verify-otp');
 Route::post('/decode-qr', [App\Http\Controllers\DocumentRequestController::class, 'decodeQr'])->name('documents.decode-qr');
+Route::post('/feedback/store', [App\Http\Controllers\FeedbackController::class, 'store'])->name('feedback.store');
 Route::get('/verify/{uuid}', [App\Http\Controllers\DocumentVerificationController::class, 'show'])->name('documents.verify');
 
 // Health Request Public Routes
@@ -129,23 +141,13 @@ Route::post('/health/verify-otp', [App\Http\Controllers\HealthServiceController:
 Route::post('/health/decode-qr', [App\Http\Controllers\HealthServiceController::class, 'decodeQr'])->name('health.decode-qr');
 Route::post('/health/request', [App\Http\Controllers\HealthServiceController::class, 'store'])->name('health.store');
 
-
-
-// Complaint Public Routes
-Route::get('/complaints/file', [App\Http\Controllers\ComplaintController::class, 'create'])->name('complaints.create');
-Route::post('/complaints/file', [App\Http\Controllers\ComplaintController::class, 'store'])->name('complaints.store');
-Route::post('/complaints/check-resident', [App\Http\Controllers\ComplaintController::class, 'checkResident'])->name('complaints.check-resident');
-Route::post('/complaints/send-otp', [App\Http\Controllers\ComplaintController::class, 'sendOtp'])->name('complaints.send-otp');
-Route::post('/complaints/verify-otp', [App\Http\Controllers\ComplaintController::class, 'verifyOtp'])->name('complaints.verify-otp');
-Route::post('/complaints/decode-qr', [App\Http\Controllers\ComplaintController::class, 'decodeQr'])->name('complaints.decode-qr');
-
-// Blotter Report Public Routes
-Route::get('/blotter/request', [App\Http\Controllers\BlotterController::class, 'create'])->name('blotter.request');
-Route::post('/blotter/request', [App\Http\Controllers\BlotterController::class, 'store'])->name('blotter.store');
-Route::post('/blotter/check-resident', [App\Http\Controllers\BlotterController::class, 'checkResident'])->name('blotter.check-resident');
-Route::post('/blotter/send-otp', [App\Http\Controllers\BlotterController::class, 'sendOtp'])->name('blotter.send-otp');
-Route::post('/blotter/verify-otp', [App\Http\Controllers\BlotterController::class, 'verifyOtp'])->name('blotter.verify-otp');
-Route::post('/blotter/decode-qr', [App\Http\Controllers\BlotterController::class, 'decodeQr'])->name('blotter.decode-qr');
+// NEW: Blotter/Complaint Public Routes (Unified System)
+Route::get('/blotter-complaint/request', [BlotterComplaintController::class, 'create'])->name('blotter-complaint.request');
+Route::post('/blotter-complaint/store', [BlotterComplaintController::class, 'store'])->name('blotter-complaint.store');
+Route::post('/blotter-complaint/check-resident', [BlotterComplaintController::class, 'checkResident'])->name('blotter-complaint.check-resident');
+Route::post('/blotter-complaint/send-otp', [BlotterComplaintController::class, 'sendOtp'])->name('blotter-complaint.send-otp');
+Route::post('/blotter-complaint/verify-otp', [BlotterComplaintController::class, 'verifyOtp'])->name('blotter-complaint.verify-otp');
+Route::post('/blotter-complaint/decode-qr', [BlotterComplaintController::class, 'decodeQr'])->name('blotter-complaint.decode-qr');
 
 // Resident ID full preview route
 Route::get('/resident/{resident}/id/full-preview', [ResidentIdController::class, 'fullPreview'])->name('id.full-preview');
@@ -210,7 +212,7 @@ Route::middleware([
         $user = auth()->user();
         
         // Check if user has admin roles and redirect to admin dashboard
-        if ($user && $user->role && in_array($user->role->name, ['Barangay Captain', 'Barangay Secretary', 'Health Worker', 'Complaint Manager'])) {
+        if ($user && $user->role && in_array($user->role->name, ['Barangay Captain', 'Barangay Secretary', 'Health Worker'])) {
             return redirect()->route('admin.dashboard');
         }
         
@@ -230,6 +232,18 @@ Route::middleware([
         Route::post('/admin/documents/{documentRequest}/mark-claimed', [App\Http\Controllers\DocumentRequestController::class, 'markAsClaimed']);
         Route::get('/admin/documents/{documentRequest}/view', [App\Http\Controllers\DocumentGeneratorController::class, 'generateDocument'])->name('admin.documents.view');
         Route::get('/admin/documents/{documentRequest}/print', [App\Http\Controllers\DocumentGeneratorController::class, 'generateDocument'])->name('admin.documents.print');
+        
+        // Admin Blotter/Complaint Management Routes
+        Route::prefix('admin/blotter-complaints')->name('admin.blotter-complaints.')->group(function() {
+            Route::get('/', [App\Http\Controllers\Admin\BlotterComplaintController::class, 'index'])->name('index');
+            Route::get('/{id}', [App\Http\Controllers\Admin\BlotterComplaintController::class, 'show'])->name('show');
+            Route::post('/{id}/accept', [App\Http\Controllers\Admin\BlotterComplaintController::class, 'acceptComplaint'])->name('accept');
+            Route::post('/{id}/reject', [App\Http\Controllers\Admin\BlotterComplaintController::class, 'rejectComplaint'])->name('reject');
+            Route::post('/{id}/update-status', [App\Http\Controllers\Admin\BlotterComplaintController::class, 'updateStatus'])->name('update-status');
+            Route::post('/{id}/schedule-meeting', [App\Http\Controllers\Admin\BlotterComplaintController::class, 'scheduleMeeting'])->name('schedule-meeting');
+            Route::delete('/{id}', [App\Http\Controllers\Admin\BlotterComplaintController::class, 'destroy'])->name('destroy');
+            Route::get('/export/csv', [App\Http\Controllers\Admin\BlotterComplaintController::class, 'export'])->name('export');
+        });
         
         // Resident Management Routes - Multi-step Form
         Route::prefix('admin/pre-registrations')->name('admin.pre-registrations.')->group(function() {
@@ -381,24 +395,6 @@ Route::middleware([
             Route::get('/api/all', [App\Http\Controllers\Admin\SeniorCitizenController::class, 'getAllSeniorCitizensApi'])->name('api.all');
         });
     });
-
-    // Complaint Manager routes
-    Route::middleware('role:Complaint Manager,Barangay Captain,Barangay Secretary')->group(function () {
-        // Complaint Management Routes
-        Route::get('/admin/complaints', [App\Http\Controllers\ComplaintController::class, 'adminDashboard'])->name('admin.complaints');
-        Route::get('/admin/complaint-management', [App\Http\Controllers\ComplaintController::class, 'index'])->name('admin.complaint-management');
-        Route::get('/admin/complaints/{complaint}', [App\Http\Controllers\ComplaintController::class, 'show'])->name('admin.complaints.show');
-        Route::post('/admin/complaints/{complaint}/approve', [App\Http\Controllers\ComplaintController::class, 'approve'])->name('admin.complaints.approve');
-        Route::post('/admin/complaints/{complaint}/resolve', [App\Http\Controllers\ComplaintController::class, 'resolve'])->name('admin.complaints.resolve');
-        Route::post('/admin/complaints/{complaint}/dismiss', [App\Http\Controllers\ComplaintController::class, 'dismiss'])->name('admin.complaints.dismiss');
-        
-        // Complaint Meeting Management Routes
-        Route::prefix('admin/complaint-meetings')->name('admin.complaint-meetings.')->group(function() {
-            Route::post('/', [App\Http\Controllers\ComplaintMeetingController::class, 'store'])->name('store');
-            Route::post('/{id}/complete', [App\Http\Controllers\ComplaintMeetingController::class, 'complete'])->name('complete');
-            Route::post('/{id}/cancel', [App\Http\Controllers\ComplaintMeetingController::class, 'cancel'])->name('cancel');
-        });
-    });
     
     // Health Worker routes
     Route::middleware('role:Health Worker,Barangay Captain,Barangay Secretary')->group(function () {
@@ -455,24 +451,6 @@ Route::middleware([
             Route::get('/documents', [App\Http\Controllers\DocumentRequestController::class, 'reports'])->name('documents');
         });
     });
-
-    // Complaint Manager routes
-    Route::middleware('role:Complaint Manager,Barangay Captain,Barangay Secretary')->group(function () {
-        // Complaint Management Routes
-        Route::get('/admin/complaints', [App\Http\Controllers\ComplaintController::class, 'adminDashboard'])->name('admin.complaints');
-        Route::get('/admin/complaint-management', [App\Http\Controllers\ComplaintController::class, 'index'])->name('admin.complaint-management');
-        Route::get('/admin/complaints/{complaint}', [App\Http\Controllers\ComplaintController::class, 'show'])->name('admin.complaints.show');
-        Route::post('/admin/complaints/{complaint}/approve', [App\Http\Controllers\ComplaintController::class, 'approve'])->name('admin.complaints.approve');
-        Route::post('/admin/complaints/{complaint}/resolve', [App\Http\Controllers\ComplaintController::class, 'resolve'])->name('admin.complaints.resolve');
-        Route::post('/admin/complaints/{complaint}/dismiss', [App\Http\Controllers\ComplaintController::class, 'dismiss'])->name('admin.complaints.dismiss');
-        
-        // Complaint Meeting Management Routes
-        Route::prefix('admin/complaint-meetings')->name('admin.complaint-meetings.')->group(function() {
-            Route::post('/', [App\Http\Controllers\ComplaintMeetingController::class, 'store'])->name('store');
-            Route::post('/{id}/complete', [App\Http\Controllers\ComplaintMeetingController::class, 'complete'])->name('complete');
-            Route::post('/{id}/cancel', [App\Http\Controllers\ComplaintMeetingController::class, 'cancel'])->name('cancel');
-        });
-    });
     
     // Health Worker routes
     Route::middleware('role:Health Worker,Barangay Captain,Barangay Secretary')->group(function () {
@@ -524,7 +502,7 @@ Route::middleware([
 
     // User Activity & Security routes
     // Admin User Activity Management
-    Route::middleware('role:Barangay Captain,Barangay Secretary,Health Worker,Complaint Manager')->group(function () {
+    Route::middleware('role:Barangay Captain,Barangay Secretary,Health Worker')->group(function () {
         Route::get('/admin/activities', [UserActivityController::class, 'adminIndex'])
             ->name('admin.activities');
             
@@ -670,8 +648,6 @@ Route::middleware(['role:Barangay Captain,Barangay Secretary'])->prefix('admin')
     Route::get('officials/edit-single', [App\Http\Controllers\Admin\BarangayOfficialController::class, 'edit'])->name('officials.edit-single');
     Route::post('officials/edit-single', [App\Http\Controllers\Admin\BarangayOfficialController::class, 'update'])->name('officials.update-single');
     Route::delete('officials/photo/{field}', [App\Http\Controllers\Admin\BarangayOfficialController::class, 'deletePhoto'])->name('officials.delete-photo');
-    
-   
 });
 
 // Admin Agent Conversation API Routes (for admin chatbot)

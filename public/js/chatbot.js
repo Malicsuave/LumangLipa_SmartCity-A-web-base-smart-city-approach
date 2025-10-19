@@ -412,7 +412,7 @@ class BarangayChatbot {
     generateResponse(message) {
         // Check for greetings
         if (message.match(/^(hi|hello|hey|good morning|good afternoon|good evening)/i)) {
-            return "Hello! Welcome to Barangay Lumanglipa. I'm here to help you with information about our services. What would you like to know about?";
+            return "Hello! Welcome to Barangay Lumanglipa. I'm Dexter AI, here to help you with information about our services. What would you like to know about?";
         }
 
         // Check knowledge base
@@ -457,7 +457,12 @@ class BarangayChatbot {
     }
 
     getServiceOptions(service) {
-        const serviceKey = service.toLowerCase().replace(' services', '').replace(' filing', '').replace('document services', 'document').trim();
+        let serviceKey = service.toLowerCase().replace(' services', '').replace(' filing', '').replace('document services', 'document').trim();
+        
+        // Handle blotter/complaint mapping
+        if (serviceKey.includes('blotter') || serviceKey.includes('complaint')) {
+            serviceKey = 'complaint';
+        }
         
         return `How would you like to proceed with <strong>${service}</strong>?\n        \n        <div class="quick-actions" style="margin-top: 15px;">\n            <button class="quick-action-btn" data-service="${serviceKey}" data-method="online">📱 Online Service</button>\n            <button class="quick-action-btn" data-service="${serviceKey}" data-method="walkin">🚶 Walk-in Service</button>\n        </div>`;
     }
@@ -470,7 +475,7 @@ class BarangayChatbot {
 
             'health': `Online Health Services\n            <br><br>\n\nWhat you need:\n<br><br>\n\n• Barangay ID\n<br><br>\n\nAvailable Services: Medical consultation, Health certificates, BP monitoring\n<br><br>\n\n<div class="quick-actions" style="margin-top: 15px;">\n    <button class="quick-action-btn" onclick="window.open('${window.location.origin}/health/request', '_blank')">🩺 Request Health Service</button>\n    <button class="quick-action-btn" onclick="chatbot.addMessage('How to get Barangay ID?', 'user'); chatbot.processMessage('barangay id requirements')">🆔 Barangay ID</button>\n</div>`,
 
-            'complaint': `Online Complaint Filing\n            <br><br>\n\nWhat you need:\n<br><br>\n\n• Barangay ID\n<br><br>\n\n1-3 Business Days for Processing\n\n<br><br>\n\n<div class="quick-actions" style="margin-top: 15px;">\n    <button class="quick-action-btn" onclick="window.open('${window.location.origin}/complaints/file', '_blank')">📋 File Complaint Now</button>\n    <button class="quick-action-btn" onclick="chatbot.addMessage('How to get Barangay ID?', 'user'); chatbot.processMessage('barangay id requirements')">🆔 Barangay ID</button>\n</div>`
+            'complaint': `Online Blotter/Complaint Filing\n            <br><br>\n\nWhat you need:\n<br><br>\n\n• Barangay ID\n<br><br>\n\n1-3 Business Days for Processing\n\n<br><br>\n\n<div class="quick-actions" style="margin-top: 15px;">\n    <button class="quick-action-btn" onclick="window.open('${window.location.origin}/blotter-complaint/request', '_blank')">📋 File Blotter/Complaint Now</button>\n    <button class="quick-action-btn" onclick="chatbot.addMessage('How to get Barangay ID?', 'user'); chatbot.processMessage('barangay id requirements')">🆔 Barangay ID</button>\n</div>`
         };
 
         return guides[service] || this.getServiceOptions(service);
@@ -482,7 +487,7 @@ class BarangayChatbot {
 
             'health': `🚶 Walk-in Health Services\n\n            <br>\n            <br>\n\nLocation: Barangay Hall, Purok 1\n\n<br>\n<br>\n\nWhat to Bring:\n<br>\n• ✅ Barangay ID (or any valid ID if you don't have Barangay ID yet)\n\n<br>\n<br>\nProcess:\n\n1. Go to Health Center in Purok 1\n<br>\n2. Tell the barangay health workers what service you need\n\n<br>\n<br>\n\nOffice Hours: Mon-Fri 8AM-5PM, Sat 8AM-12PM\n\n<div class="quick-actions" style="margin-top: 15px;">\n    <button class="quick-action-btn" onclick="chatbot.addMessage('How to get Barangay ID?', 'user'); chatbot.processMessage('barangay id requirements')">🆔 Barangay ID</button>\n</div>`,
 
-            'complaint': `� Walk-in Complaint Filing\n\n            <br>\n            <br>\n\nLocation: Barangay Hall of Lumanglipa, Purok 1\n\n<br>\n<br>\n\nWhat to Bring:\n<br>\n• ✅ Barangay ID (or any valid ID if you don't have Barangay ID yet)\n\n<br>\n<br>\nProcess:\n\n1. Go to Barangay Hall in Purok 1\n<br>\n2. Find the secretary or Barangay Captain\n<br>\n3. Explain your complaint\n<br>\n4. Fill up the complaint form\n<br>\n5. Submit any evidence you have\n<br>\n<br>\n\nOffice Hours: Mon-Fri 8AM-5PM, Sat 8AM-12PM\n<br>\nResponse: 1-3 business days\n\n<div class="quick-actions" style="margin-top: 15px;">\n    <button class="quick-action-btn" onclick="chatbot.addMessage('How to get Barangay ID?', 'user'); chatbot.processMessage('barangay id requirements')">🆔 Barangay ID</button>\n</div>`,
+            'complaint': `🚶 Walk-in Blotter/Complaint Filing\n\n            <br>\n            <br>\n\nLocation: Barangay Hall of Lumanglipa, Purok 1\n\n<br>\n<br>\n\nWhat to Bring:\n<br>\n• ✅ Barangay ID (or any valid ID if you don't have Barangay ID yet)\n\n<br>\n<br>\n\nProcess:\n\n1. Go to Barangay Hall in Purok 1\n<br>\n2. Find the Barangay Captain or any Barangay Official\n<br>\n3. Explain your complaint/concern clearly\n<br>\n4. Fill up the blotter/complaint form completely\n<br>\n5. Submit any evidence you have\n<br>\n<br>\n\n<hr>\n⚠️ <strong>Important Note:</strong> For serious incidents or criminal matters, also report to the police. The barangay handles civil disputes and minor incidents through mediation and conciliation.\n\n<br>\n<br>\n\nOffice Hours: Mon-Fri 8AM-5PM, Sat 8AM-12PM\n<br>\nResponse: 1-3 business days\n\n<div class="quick-actions" style="margin-top: 15px;">\n    <button class="quick-action-btn" onclick="chatbot.addMessage('How to get Barangay ID?', 'user'); chatbot.processMessage('barangay id requirements')">🆔 Barangay ID</button>\n</div>`,
 
             'barangay-id': `🚶 Walk-in Barangay ID Application\n<br>\n<br>\n\nWhat to Bring:\n<br>\n\n• ✅ Any ID  \n<br>\n• ✅ Proof of Residency \n\n<br>\n<br>\nProcess:\n<br>\n<br>\n1. Go to secretary and ask for registration of barangay ID\n<br>\n2. Submit the ID and proof of residency\n<br>\n\n3. Wait for the processing of your barangay ID\n\n\n<br>\n<br>\nOffice Hours: Mon-Fri 8AM-5PM, Sat 8AM-12PM\n\n<br>\n<br>\n\n<div class="quick-actions" style="margin-top: 15px;">\n    <button class="quick-action-btn" onclick="chatbot.addMessage('office location', 'user'); chatbot.processMessage('contact location')">📍 Office Location</button>\n    <button class="quick-action-btn" data-action="what-is-barangay-id">❓ What is Barangay ID?</button>\n</div>`
         };
@@ -498,8 +503,8 @@ class BarangayChatbot {
             [['health', 'health services', 'medical', 'clinic', 'medicine', 'doctor', 'kalusugan', 'medisina', 'doktor'],
              this.getServiceOptions('Health Services')],
             
-            [['complaint', 'file complaint', 'problem', 'issue', 'concern', 'report', 'reklamo', 'problema', 'hinaing'],
-             this.getServiceOptions('Complaint Filing')],
+            [['complaint', 'file complaint', 'problem', 'issue', 'concern', 'report', 'reklamo', 'problema', 'hinaing', 'blotter', 'blotter complaint', 'police blotter', 'incident report', 'report incident'],
+             this.getServiceOptions('Blotter/Complaint Filing')],
 
             [['barangay id', 'id card', 'resident id', 'identification'],
              `What would you like to know about Barangay ID?\n\n<div class="quick-actions" style="margin-top: 15px;">\n    <button class="quick-action-btn" data-action="what-is-barangay-id">❓ What is Barangay ID?</button>\n    <button class="quick-action-btn" data-action="get-barangay-id">📋 Get Barangay ID</button>\n</div>`],
@@ -510,14 +515,14 @@ class BarangayChatbot {
             [['emergency', 'urgent', '911', 'emergency contact'],
              `🚨 **Emergency Contacts:**\n             \n             **Barangay Emergency Hotline:** (043) 123-4567\n             **Police:** 117 or (043) 456-7890\n             **Fire Department:** 116 or (043) 456-7891\n             **Medical Emergency:** 911 or (043) 456-7892\n             \n             **Barangay Emergency Response:**\n             • Available 24/7\n             • First aid response\n             • Disaster coordination\n             • Security concerns\n             \n             **For non-life threatening health issues:**\n             Walk-in to Barangay Health Center during office hours.`],
 
-            [['track complaint', 'complaint status', 'follow up'],
-             `📊 **Track Your Complaint:**\n             \n             **Online Tracking:**\n             • Use your tracking number at our complaint portal\n             • Receive SMS/email updates automatically\n             \n             **Walk-in Inquiry:**\n             • Bring your claim stub to the office\n             • Ask for status update at Complaints desk\n             \n             **Response Timeline:**\n             • Acknowledgment: Within 24 hours\n             • Initial action: 3-5 business days\n             • Resolution: 7-14 business days (depending on complexity)\n             \n             <div class="quick-actions" style="margin-top: 15px;">\n                 <button class="quick-action-btn" onclick="window.open('${window.location.origin}/complaints/track', '_blank')">🔍 Track Online</button>\n             </div>`],
+            [['track complaint', 'complaint status', 'follow up', 'track blotter'],
+             `📊 **Track Your Blotter/Complaint:**\n             \n             **How to Check Status:**\n             • Use your case number reference\n             • Visit the barangay office with your receipt\n             • Contact us during office hours\n             \n             **Walk-in Inquiry:**\n             • Bring your case number or receipt\n             • Ask for status update at the front desk\n             \n             **Response Timeline:**\n             • Acknowledgment: Within 24 hours\n             • Initial action: 3-5 business days\n             • Resolution: 7-14 business days (depending on complexity)\n             \n             <div class="quick-actions" style="margin-top: 15px;">\n                 <button class="quick-action-btn" onclick="chatbot.addMessage('Contact information', 'user'); chatbot.processMessage('contact')">📞 Contact Office</button>\n                 <button class="quick-action-btn" onclick="chatbot.addMessage('Office hours', 'user'); chatbot.processMessage('hours')">� Office Hours</button>\n             </div>`],
 
             [['mediation', 'conciliation', 'dispute resolution'],
              `⚖️ **Barangay Mediation Services:**\n             \n             **Free Conciliation Services:**\n             • Neighbor disputes\n             • Property boundary issues\n             • Minor civil conflicts\n             • Family disputes\n             \n             **Process:**\n             1. File complaint\n             2. Summon both parties\n             3. Mediation session\n             4. Agreement drafting\n             5. Legal documentation\n             \n             **Benefits:**\n             • Free service\n             • Faster resolution\n             • Preserve relationships\n             • Avoid court proceedings\n             \n             **Schedule:** Every Tuesday and Thursday, 2:00 PM - 5:00 PM`],
 
-            [['complaint types', 'what complaints'],
-             `📋 **Types of Complaints We Handle:**\n             \n             **Public Order & Safety:**\n             • Noise disturbance\n             • Public nuisance\n             • Illegal activities\n             • Safety hazards\n             \n             **Property & Civil Issues:**\n             • Boundary disputes\n             • Right of way issues\n             • Property damage\n             • Rental disputes\n             \n             **Infrastructure:**\n             • Poor road conditions\n             • Drainage problems\n             • Street lighting\n             • Water supply issues\n             \n             **Environmental:**\n             • Improper waste disposal\n             • Water pollution\n             • Air quality concerns\n             \n             **Note:** Criminal cases should be reported directly to police.`],
+            [['complaint types', 'what complaints', 'blotter types', 'what blotter'],
+             `📋 **Types of Blotter/Complaints We Handle:**\n             \n             **Public Order & Safety:**\n             • Noise disturbance\n             • Public nuisance\n             • Illegal activities\n             • Safety hazards\n             \n             **Property & Civil Issues:**\n             • Boundary disputes\n             • Right of way issues\n             • Property damage\n             • Rental disputes\n             \n             **Infrastructure:**\n             • Poor road conditions\n             • Drainage problems\n             • Street lighting\n             • Water supply issues\n             \n             **Environmental:**\n             • Improper waste disposal\n             • Water pollution\n             • Air quality concerns\n             \n             **Note:** Criminal cases should be reported directly to police.`],
             
             [['contact', 'phone', 'address', 'location', 'office'],
              `📍 Office Location:\n             <br>\n             \n             Purok 1, Lumanglipa, Mataas na Kahoy, Batangas\n             <br>\n             <br>\n             \n             \n             Office Hours:\n             <br>\n            <br>\n             Monday-Friday: 8:00 AM - 5:00 PM\n             <br>\n             Saturday: 8:00 AM - 12:00 PM\n             <br>\n             Sunday: Closed`],
@@ -532,7 +537,7 @@ class BarangayChatbot {
              `📋 **New Resident Registration:**\n             \n             Welcome to Barangay Lumanglipa! To register as a new resident:\n             \n             **Requirements:**\n             • Transfer Certificate/Clearance from previous barangay\n             • Valid ID\n             • Proof of address\n             \n             **Start here:** <a href="${window.location.origin}/pre-registration" target="_blank">Registration Form</a>`],
             
             [['thank', 'thanks', 'salamat'],
-             `You're welcome! Is there anything else you'd like to know about Barangay Lumanglipa services? I'm here to help! 😊`],
+             `You're welcome! Is there anything else you'd like to know about Barangay Lumanglipa services? Dexter AI is here to help! 😊`],
             
             [['bye', 'goodbye', 'see you'],
              `Thank you for contacting Barangay Lumanglipa! Have a great day and feel free to reach out anytime you need assistance. 👋`]

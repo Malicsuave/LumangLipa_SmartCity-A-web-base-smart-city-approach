@@ -63,7 +63,7 @@
                         <li>• Infrastructure Problems</li>
                         <li>• Other Community Concerns</li>
                     </ul>
-                    <a href="{{ route('complaints.create') }}" class="btn btn-warning">File Complaint</a>
+                    <a href="#" class="btn btn-warning disabled">File Complaint (Coming Soon)</a>
                 </div>
             </div>
         </div>

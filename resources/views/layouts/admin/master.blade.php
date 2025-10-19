@@ -150,11 +150,11 @@
             <i class="fas fa-users mr-2"></i> Pre-Registrations
             <span class="float-right text-muted text-sm">1 hr</span>
           </a>
-          <div class="dropdown-divider"></div>
+          {{-- <div class="dropdown-divider"></div>
           <a href="{{ route('admin.complaints') }}" class="dropdown-item">
             <i class="fas fa-exclamation-triangle mr-2"></i> Complaints
             <span class="float-right text-muted text-sm">2 hrs</span>
-          </a>
+          </a> --}}
           <div class="dropdown-divider"></div>
           <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
         </div>
@@ -234,6 +234,13 @@
             <a href="{{ route('admin.documents') }}" class="nav-link {{ Request::routeIs('admin.documents') ? 'active' : '' }}">
               <i class="nav-icon fas fa-file-alt"></i>
               <p>Document Requests</p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a href="{{ route('admin.announcements.index') }}" class="nav-link {{ Request::routeIs('admin.announcements.*') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-bullhorn"></i>
+              <p>Announcements</p>
             </a>
           </li>
 
@@ -359,9 +366,9 @@
           </li>
 
           <li class="nav-item">
-            <a href="{{ route('admin.complaints') }}" class="nav-link {{ Request::routeIs('admin.complaints') ? 'active' : '' }}">
+            <a href="{{ route('admin.blotter-complaints.index') }}" class="nav-link {{ Request::routeIs('admin.blotter-complaints*') ? 'active' : '' }}">
               <i class="nav-icon fas fa-exclamation-triangle"></i>
-              <p>Complaints</p>
+              <p>Blotter/Complaints</p>
             </a>
           </li>
 
@@ -452,7 +459,12 @@
   <aside class="control-sidebar control-sidebar-dark" style="overflow-y: auto; max-height: 100vh;">
     <!-- Control sidebar content goes here -->
     <div class="p-3" style="height: auto; min-height: 100vh;">
-      <h5>Customize AdminLTE</h5>
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0">Customize</h5>
+        <button class="btn btn-sm btn-outline-light" id="close-control-sidebar" title="Close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
       <hr class="mb-2">
       
       <h6>Layout Options</h6>
@@ -722,20 +734,19 @@ window.handleAjaxError = function(xhr, status, error, customMessage) {
     showError(errorMessage);
     console.error('AJAX Error:', error, xhr);
 };
+</script>
 
-// Handle Laravel Flash Messages with Toastr
+<!-- Handle Laravel Flash Messages with Toastr -->
+<script>
 @if(session('success'))
     showSuccess('{{ session('success') }}');
 @endif
-
 @if(session('error'))
     showError('{{ session('error') }}');
 @endif
-
 @if(session('warning'))
     showWarning('{{ session('warning') }}');
 @endif
-
 @if(session('info'))
     showInfo('{{ session('info') }}');
 @endif
@@ -932,41 +943,80 @@ $(document).ready(function() {
         // Fix 1: Ensure touch events work for all interactive elements
         $('body').addClass('touch-device');
         
-        // Fix 2: Force dropdown functionality
+        // Fix 2: Force dropdown functionality (navbar and sidebar)
         $('.dropdown-toggle').off('click.mobile').on('click.mobile touchstart.mobile', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            
             const $this = $(this);
             const $dropdown = $this.next('.dropdown-menu');
-            
             // Close other dropdowns
-            $('.dropdown-menu').not($dropdown).hide();
-            
+            $('.dropdown-menu').not($dropdown).removeClass('show').hide();
             // Toggle current dropdown
-            $dropdown.toggle();
-            
+            if ($dropdown.hasClass('show')) {
+                $dropdown.removeClass('show').hide();
+            } else {
+                $dropdown.addClass('show').show();
+            }
             mobileDebug.log('Dropdown toggled for: ' + $this.text().trim());
         });
-        
-        // Fix 3: Sidebar treeview (nav-treeview) functionality
-        $('.nav-link').off('click.mobile-tree').on('click.mobile-tree', function(e) {
-            const $this = $(this);
-            const $parent = $this.parent('.nav-item');
-            const $treeview = $parent.find('.nav-treeview');
+        // Fix 3: Enhanced Sidebar treeview (nav-treeview) functionality for mobile touch devices
+        $('.nav-sidebar .nav-item').each(function() {
+            const $parent = $(this);
+            const $link = $parent.children('.nav-link');
+            const $treeview = $parent.children('.nav-treeview');
             
             if ($treeview.length > 0) {
-                e.preventDefault();
+                // Prevent default navigation and set href to prevent page jump
+                $link.attr('href', 'javascript:void(0);');
                 
-                // Toggle the menu-open class
-                $parent.toggleClass('menu-open');
+                let isTouch = false;
+                let touchStartTime = 0;
                 
-                // Slide toggle the treeview
-                $treeview.slideToggle(300);
-                
-                mobileDebug.log('Treeview toggled: ' + $this.find('p').text());
+                // Touch event handling for mobile
+                $link.off('touchstart.mobile-tree touchend.mobile-tree click.mobile-tree')
+                    .on('touchstart.mobile-tree', function(e) {
+                        isTouch = true;
+                        touchStartTime = new Date().getTime();
+                        e.preventDefault();
+                        e.stopImmediatePropagation();
+                    })
+                    .on('touchend.mobile-tree', function(e) {
+                        const touchDuration = new Date().getTime() - touchStartTime;
+                        if (touchDuration < 500 && isTouch) { // Short touch = tap
+                            e.preventDefault();
+                            e.stopImmediatePropagation();
+                            toggleTreeview($parent, $treeview, $link);
+                            isTouch = false;
+                        }
+                        return false;
+                    })
+                    .on('click.mobile-tree', function(e) {
+                        if (!isTouch) { // Only handle click if not a touch event
+                            e.preventDefault();
+                            e.stopImmediatePropagation();
+                            toggleTreeview($parent, $treeview, $link);
+                        }
+                        return false;
+                    });
             }
         });
+
+        function toggleTreeview($parent, $treeview, $link) {
+            // Close other treeviews first
+            $('.nav-item.menu-open').not($parent).removeClass('menu-open').children('.nav-treeview').slideUp(300, function() {
+                $(this).attr('style', ''); // Clean up inline styles
+            });
+            
+            // Toggle current treeview
+            $parent.toggleClass('menu-open');
+            if ($parent.hasClass('menu-open')) {
+                $treeview.slideDown(300);
+            } else {
+                $treeview.slideUp(300);
+            }
+            
+            mobileDebug.log('Treeview toggled: ' + ($link.find('p').text().trim() || 'Unknown menu'));
+        }
         
         // Fix 4: Control sidebar (customize panel)
         $('[data-widget="control-sidebar"]').off('click.mobile-control').on('click.mobile-control', function(e) {
@@ -1191,7 +1241,7 @@ $(document).ready(function() {
 <script src="{{ asset('js/admin-chatbot.js') }}?v={{ time() }}"></script>
 @endauth
 
-<!-- Mobile Sidebar Styles -->
+<!-- Mobile Sidebar Styles and Mobile-specific fixes -->
 <style>
 .mobile-sidebar-overlay {
     position: fixed;
@@ -1204,36 +1254,26 @@ $(document).ready(function() {
     display: none;
 }
 
-/* Mobile-specific fixes */
 @media (max-width: 768px) {
-    /* Sidebar fixes */
     .sidebar-open .main-sidebar {
         transform: translateX(0) !important;
         margin-left: 0 !important;
     }
-    
     .sidebar-collapse .main-sidebar {
         transform: translateX(-250px) !important;
     }
-    
     .main-sidebar {
         transition: transform 0.3s ease-in-out !important;
     }
-    
-    /* Ensure sidebar is accessible on mobile */
     body.sidebar-open .main-sidebar {
         position: fixed !important;
         height: 100vh !important;
         z-index: 1040 !important;
     }
-    
-    /* Fix content area on mobile when sidebar is open */
     body.sidebar-open .content-wrapper,
     body.sidebar-open .main-footer {
         margin-left: 0 !important;
     }
-    
-    /* Touch-friendly interactive elements */
     .touch-device .nav-link,
     .touch-device .dropdown-toggle,
     .touch-device [data-widget],
@@ -1244,8 +1284,6 @@ $(document).ready(function() {
         touch-action: manipulation !important;
         -webkit-tap-highlight-color: rgba(0,0,0,0.1) !important;
     }
-    
-    /* Fix dropdown menus on mobile */
     .dropdown-menu {
         position: absolute !important;
         display: none;
@@ -1256,13 +1294,10 @@ $(document).ready(function() {
         box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.175);
         z-index: 1000;
     }
-    
     .dropdown-menu.show,
     .dropdown-menu:target {
         display: block !important;
     }
-    
-    /* Fix navbar search on mobile */
     .navbar-search-block {
         position: absolute;
         top: 100%;
@@ -1274,8 +1309,6 @@ $(document).ready(function() {
         z-index: 1050;
         display: none;
     }
-    
-    /* Control sidebar improvements */
     .control-sidebar {
         position: fixed !important;
         top: 0 !important;
@@ -1285,34 +1318,24 @@ $(document).ready(function() {
         transition: right 0.3s ease-in-out !important;
         z-index: 1041 !important;
     }
-    
     body.control-sidebar-slide-open .control-sidebar {
         right: 0 !important;
     }
-    
-    /* Tree view improvements */
     .nav-treeview {
         display: none;
         background-color: rgba(255,255,255,0.1);
         padding-left: 20px;
     }
-    
     .menu-open .nav-treeview {
         display: block;
     }
-    
-    /* Better button spacing */
     .navbar-nav .nav-item .nav-link {
         padding: 0.75rem 1rem !important;
     }
-    
-    /* Fullscreen button fix */
     [data-widget="fullscreen"] {
         cursor: pointer !important;
     }
 }
-
-/* Debug indicator styles */
 #debug-indicator {
     font-family: monospace !important;
     z-index: 99999 !important;
@@ -1320,72 +1343,6 @@ $(document).ready(function() {
     opacity: 0.9 !important;
 }
 </style>
-</script>
-
-<!-- Admin Floating Chatbot (inbox style) -->
-@auth
-<div class="chatbot-container">
-    <div class="chatbot-window" id="adminChatbotWindow">
-        <div class="chatbot-header">
-            <h4>💬 Messages</h4>
-            <button class="chatbot-close" id="adminChatbotClose" style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;background:transparent;border:none;outline:none;cursor:pointer;">
-                <i class="fas fa-times" style="color:white;font-size:16px;"></i>
-            </button>
-        </div>
-        
-        <!-- Conversations List (Inbox Style) -->
-        <div class="chatbot-messages" id="adminChatbotMessages" style="padding: 0;">
-            <div id="conversationsList" style="display: block;">
-                <!-- Conversation items will be loaded here -->
-                <div style="padding: 20px; text-align: center; color: #666; font-size: 14px;">
-                    <i class="fas fa-inbox" style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
-                    Loading conversations...
-                </div>
-            </div>
-            
-            <!-- Chat View (hidden initially) -->
-            <div id="chatView" style="display: none; height: 100%; flex-direction: column;">
-                <div id="chatHeader" style="padding: 15px; border-bottom: 1px solid #eee; background: #f8f9fa; display: flex; align-items: center; justify-content: space-between;">
-                    <div style="display: flex; align-items: center;">
-                        <button id="backToInbox" style="background: none; border: none; margin-right: 10px; color: #007bff; cursor: pointer;">
-                            <i class="fas fa-arrow-left"></i>
-                        </button>
-                        <div>
-                            <div id="chatUserName" style="font-weight: bold; font-size: 14px;"></div>
-                            <div id="chatUserStatus" style="font-size: 12px; color: #666;"></div>
-                        </div>
-                    </div>
-                    <button id="completeAndNextBtn" onclick="window.adminChatbot.completeAndNext()" 
-                            style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 5px;"
-                            onmouseover="this.style.background='#218838'"
-                            onmouseout="this.style.background='#28a745'">
-                        <i class="fas fa-check"></i> Complete & Next
-                    </button>
-                </div>
-                
-                <div id="chatMessages" style="flex: 1; padding: 15px; overflow-y: auto; min-height: 200px; max-height: calc(100% - 120px);">
-                    <!-- Chat messages will appear here -->
-                </div>
-                
-                <div class="chatbot-input-area">
-                    <input type="text" class="chatbot-input" id="adminChatbotInput" 
-                           placeholder="Type your message..." maxlength="500">
-                    <button class="chatbot-send" id="adminChatbotSend">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <button class="chatbot-toggle" id="adminChatbotToggle" style="position:relative;">
-        <div class="chatbot-pulse"></div>
-        <i class="fas fa-envelope"></i>
-    </button>
-</div>
-
-<script src="{{ asset('js/admin-chatbot.js') }}?v={{ time() }}"></script>
-@endauth
 
 @stack('scripts')
 </body>

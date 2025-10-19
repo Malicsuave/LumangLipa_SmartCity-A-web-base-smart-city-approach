@@ -20,7 +20,7 @@
               <div class="row mb-4">
                 <div class="col-md-12">
                   <label for="type_of_resident">Type of Resident <span class="text-danger">*</span></label>
-                  <select class="form-control custom-rounded-input" 
+                  <select class="form-control" 
                           id="type_of_resident" 
                           name="type_of_resident" 
                           required>
@@ -29,7 +29,9 @@
                     <option value="Migrant" {{ old('type_of_resident', $step1['type_of_resident'] ?? '') == 'Migrant' ? 'selected' : '' }}>Migrant</option>
                     <option value="Transient" {{ old('type_of_resident', $step1['type_of_resident'] ?? '') == 'Transient' ? 'selected' : '' }}>Transient</option>
                   </select>
-                  <div class="invalid-feedback validation-error" data-field="type_of_resident" style="display: none;"></div>
+                  @error('type_of_resident')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
                 </div>
               </div>
               <!-- Name Fields -->
@@ -39,20 +41,21 @@
                   <input type="text" 
                          name="first_name" 
                          id="first_name" 
-                         class="form-control custom-rounded-input"
+                         class="form-control @error('first_name') is-invalid @enderror" 
                          placeholder="First Name"
                          value="{{ old('first_name', $step1['first_name'] ?? '') }}" 
                          required>
-                  <div class="invalid-feedback validation-error" data-field="first_name" style="display: none;"></div>
+                  @error('first_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
                 <div class="col-md-6 mb-3">
                   <label for="middle_name">Middle Name</label>
                   <input type="text" 
                          name="middle_name" 
                          id="middle_name" 
-                         class="form-control custom-rounded-input optional-field"
+                         class="form-control optional-field @error('middle_name') is-invalid @enderror"
                          placeholder="Middle Name"
                          value="{{ old('middle_name', $step1['middle_name'] ?? '') }}">
+                  @error('middle_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
               </div>
               <div class="row">
@@ -61,20 +64,21 @@
                   <input type="text" 
                          name="last_name" 
                          id="last_name" 
-                         class="form-control custom-rounded-input"
+                         class="form-control @error('last_name') is-invalid @enderror"
                          placeholder="Last Name"
                          value="{{ old('last_name', $step1['last_name'] ?? '') }}" 
                          required>
-                  <div class="invalid-feedback validation-error" data-field="last_name" style="display: none;"></div>
+                  @error('last_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
                 <div class="col-md-6 mb-3">
                   <label for="suffix">Suffix</label>
                   <input type="text" 
                          name="suffix" 
                          id="suffix" 
-                         class="form-control custom-rounded-input optional-field"
+                         class="form-control optional-field @error('suffix') is-invalid @enderror"
                          placeholder="Suffix (Jr., Sr., III, etc.)"
                          value="{{ old('suffix', $step1['suffix'] ?? '') }}">
+                  @error('suffix')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
               </div>
               <!-- Birth Information -->
@@ -84,10 +88,10 @@
                   <input type="date" 
                          name="birthdate" 
                          id="birthdate" 
-                         class="form-control custom-rounded-input" 
+                         class="form-control @error('birthdate') is-invalid @enderror" 
                          value="{{ old('birthdate', $step1['birthdate'] ?? '') }}" 
                          required>
-                  <div class="invalid-feedback validation-error" data-field="birthdate" style="display: none;"></div>
+                  @error('birthdate')<div class="invalid-feedback">{{ $message }}</div>@enderror
                   <div id="age-error" style="display: none; color: #dc3545; font-size: 0.875rem; margin-top: 5px;">
                     <i class="fas fa-exclamation-triangle mr-1"></i>
                     <span id="age-error-text"></span>
@@ -98,18 +102,18 @@
                   <input type="text" 
                          name="birthplace" 
                          id="birthplace" 
-                         class="form-control custom-rounded-input" 
+                         class="form-control @error('birthplace') is-invalid @enderror" 
                          placeholder="City/Municipality, Province"
                          value="{{ old('birthplace', $step1['birthplace'] ?? '') }}" 
                          required>
-                  <div class="invalid-feedback validation-error" data-field="birthplace" style="display: none;"></div>
+                  @error('birthplace')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
               </div>
               <!-- Gender and Civil Status -->
               <div class="row">
                 <div class="col-md-6 mb-3">
                   <label for="sex">Gender <span class="text-danger">*</span></label>
-                  <select class="form-control custom-rounded-input" 
+                  <select class="form-control" 
                           id="sex" 
                           name="sex" 
                           required>
@@ -120,11 +124,13 @@
                     <option value="Transgender" {{ old('sex', $step1['sex'] ?? '') == 'Transgender' ? 'selected' : '' }}>Transgender</option>
                     <option value="Other" {{ old('sex', $step1['sex'] ?? '') == 'Other' ? 'selected' : '' }}>Other</option>
                   </select>
-                  <div class="invalid-feedback validation-error" data-field="sex" style="display: none;"></div>
+                  @error('sex')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
                 </div>
                 <div class="col-md-6 mb-3">
                   <label for="civil_status">Civil Status <span class="text-danger">*</span></label>
-                  <select class="form-control custom-rounded-input" 
+                  <select class="form-control" 
                           id="civil_status" 
                           name="civil_status" 
                           required>
@@ -135,7 +141,9 @@
                     <option value="Separated" {{ old('civil_status', $step1['civil_status'] ?? '') == 'Separated' ? 'selected' : '' }}>Separated</option>
                     <option value="Divorced" {{ old('civil_status', $step1['civil_status'] ?? '') == 'Divorced' ? 'selected' : '' }}>Divorced</option>
                   </select>
-                  <div class="invalid-feedback validation-error" data-field="civil_status" style="display: none;"></div>
+                  @error('civil_status')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
                 </div>
               </div>
               <!-- Citizenship Information -->
@@ -145,7 +153,7 @@
               <div class="row">
                 <div class="col-md-6 mb-3">
                   <label for="citizenship_type">Citizenship Type <span class="text-danger">*</span></label>
-                  <select class="form-control custom-rounded-input" 
+                  <select class="form-control" 
                           id="citizenship_type" 
                           name="citizenship_type" 
                           required>
@@ -155,17 +163,19 @@
                     <option value="NATURALIZED" {{ old('citizenship_type', $step1['citizenship_type'] ?? '') == 'NATURALIZED' ? 'selected' : '' }}>Naturalized Filipino</option>
                     <option value="FOREIGN" {{ old('citizenship_type', $step1['citizenship_type'] ?? '') == 'FOREIGN' ? 'selected' : '' }}>Foreign National</option>
                   </select>
-                  <div class="invalid-feedback validation-error" data-field="citizenship_type" style="display: none;"></div>
+                  @error('citizenship_type')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
                 </div>
                 <div class="col-md-6 mb-3">
                   <label for="citizenship_country">Country <span class="citizenship-country-required text-danger" style="display: none;">*</span></label>
                   <input type="text" 
                          name="citizenship_country" 
                          id="citizenship_country" 
-                         class="form-control custom-rounded-input optional-field" 
+                         class="form-control optional-field @error('citizenship_country') is-invalid @enderror" 
                          placeholder="Country of Citizenship"
                          value="{{ old('citizenship_country', $step1['citizenship_country'] ?? '') }}">
-                  <div class="invalid-feedback validation-error" data-field="citizenship_country" style="display: none;"></div>
+                  @error('citizenship_country')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
               </div>
               <!-- Education Information -->
@@ -175,7 +185,7 @@
               <div class="row">
                 <div class="col-md-6 mb-3">
                   <label for="educational_attainment">Educational Attainment <span class="text-danger">*</span></label>
-                  <select class="form-control custom-rounded-input" 
+                  <select class="form-control" 
                           id="educational_attainment" 
                           name="educational_attainment" 
                           required>
@@ -190,11 +200,13 @@
                     <option value="College Graduate" {{ old('educational_attainment', $step1['educational_attainment'] ?? '') == 'College Graduate' ? 'selected' : '' }}>College Graduate</option>
                     <option value="Post Graduate" {{ old('educational_attainment', $step1['educational_attainment'] ?? '') == 'Post Graduate' ? 'selected' : '' }}>Post Graduate</option>
                   </select>
-                  <div class="invalid-feedback validation-error" data-field="educational_attainment" style="display: none;"></div>
+                  @error('educational_attainment')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
                 </div>
                 <div class="col-md-6 mb-3">
                   <label for="education_status">Education Status <span class="text-danger">*</span></label>
-                  <select class="form-control custom-rounded-input" 
+                  <select class="form-control" 
                           id="education_status" 
                           name="education_status" 
                           required>
@@ -204,7 +216,9 @@
                     <option value="Stopped Schooling" {{ old('education_status', $step1['education_status'] ?? '') == 'Stopped Schooling' ? 'selected' : '' }}>Stopped Schooling</option>
                     <option value="Not Applicable" {{ old('education_status', $step1['education_status'] ?? '') == 'Not Applicable' ? 'selected' : '' }}>Not Applicable</option>
                   </select>
-                  <div class="invalid-feedback validation-error" data-field="education_status" style="display: none;"></div>
+                  @error('education_status')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
                 </div>
               </div>
               <!-- Additional Information -->
@@ -215,14 +229,16 @@
                 <div class="col-md-6 mb-3">
                   <label for="religion">Religion</label>
                   <input type="text" name="religion" id="religion" placeholder="Religion"
-                    class="form-control custom-rounded-input optional-field" 
+                    class="form-control optional-field @error('religion') is-invalid @enderror" 
                     value="{{ old('religion', $step1['religion'] ?? '') }}">
+                  @error('religion')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
                 <div class="col-md-6 mb-3">
                   <label for="profession_occupation">Profession/Occupation</label>
                   <input type="text" name="profession_occupation" id="profession_occupation" placeholder="Profession/Occupation"
-                    class="form-control custom-rounded-input optional-field" 
+                    class="form-control optional-field @error('profession_occupation') is-invalid @enderror" 
                     value="{{ old('profession_occupation', $step1['profession_occupation'] ?? '') }}">
+                  @error('profession_occupation')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
               </div>
               <div class="row">
@@ -237,64 +253,86 @@
 
 @push('scripts')
 <script>
-  // Provide server-side validation data to the unified JavaScript
-  window.serverErrors = @json($errors->toArray());
-  window.hasFormSubmission = {{ old('_token') ? 'true' : 'false' }};
+document.addEventListener('DOMContentLoaded', function() {
+  const birthdateInput = document.getElementById('birthdate');
+  const ageErrorDiv = document.getElementById('age-error');
+  const ageErrorText = document.getElementById('age-error-text');
 
-  // Real-time age validation
-  document.addEventListener('DOMContentLoaded', function() {
-    const birthdateInput = document.getElementById('birthdate');
-    const ageError = document.getElementById('age-error');
-    const ageErrorText = document.getElementById('age-error-text');
-    const form = document.getElementById('residentPreRegStep1Form');
+  // Set max date to today
+  const today = new Date().toISOString().split('T')[0];
+  birthdateInput.setAttribute('max', today);
 
-    function validateAge() {
-      const birthdate = birthdateInput.value;
-      if (!birthdate) {
-        ageError.style.display = 'none';
-        birthdateInput.classList.remove('is-invalid');
-        return true;
-      }
+  function setRedOutline() {
+    birthdateInput.style.setProperty('border', '1px solid #dc3545', 'important');
+    birthdateInput.style.setProperty('box-shadow', '0 0 0 0.2rem rgba(220,53,69,.25)', 'important');
+    birthdateInput.style.setProperty('outline', 'none', 'important');
+  }
+  function clearOutline() {
+    birthdateInput.style.setProperty('border', '', 'important');
+    birthdateInput.style.setProperty('box-shadow', '', 'important');
+    birthdateInput.style.setProperty('outline', '', 'important');
+  }
 
-      const birthDate = new Date(birthdate);
-      const today = new Date();
-      let age = today.getFullYear() - birthDate.getFullYear();
-      const monthDiff = today.getMonth() - birthDate.getMonth();
-      
-      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+  function validateBirthdate() {
+    const value = birthdateInput.value;
+    let errorMsg = '';
+    let isValid = true;
+
+    if (!value) {
+      isValid = false;
+      errorMsg = 'Birthdate is required.';
+    } else {
+      const birthDate = new Date(value);
+      const now = new Date();
+      // Calculate age
+      let age = now.getFullYear() - birthDate.getFullYear();
+      const m = now.getMonth() - birthDate.getMonth();
+      if (m < 0 || (m === 0 && now.getDate() < birthDate.getDate())) {
         age--;
       }
-
-      if (age >= 60) {
-        ageErrorText.textContent = `You are ${age} years old. Senior citizens (60 years and above) should use the Senior Citizen Pre-Registration form instead.`;
-        ageError.style.display = 'block';
-        birthdateInput.classList.add('is-invalid');
-        return false;
-      } else {
-        ageError.style.display = 'none';
-        birthdateInput.classList.remove('is-invalid');
-        return true;
+      if (birthDate > now) {
+        isValid = false;
+        errorMsg = 'Birthdate cannot be in the future.';
+      } else if (age >= 60) {
+        isValid = false;
+        errorMsg = 'Registration for age 60 and above is not allowed.';
       }
     }
 
-    // Validate on input change
-    birthdateInput.addEventListener('change', validateAge);
-    birthdateInput.addEventListener('blur', validateAge);
+    if (!isValid) {
+      birthdateInput.classList.remove('is-valid');
+      birthdateInput.classList.add('is-invalid');
+      setRedOutline();
+      ageErrorDiv.style.display = 'block';
+      ageErrorText.textContent = errorMsg;
+    } else {
+      birthdateInput.classList.remove('is-invalid');
+      birthdateInput.classList.add('is-valid');
+      birthdateInput.style.setProperty('border', '1px solid #28a745', 'important');
+      birthdateInput.style.setProperty('box-shadow', '0 0 0 0.2rem rgba(40,167,69,.25)', 'important');
+      birthdateInput.style.setProperty('outline', '', 'important');
+      ageErrorDiv.style.display = 'none';
+      ageErrorText.textContent = '';
+    }
+  }
 
-    // Prevent form submission if age validation fails
-    form.addEventListener('submit', function(e) {
-      if (!validateAge()) {
-        e.preventDefault();
-        birthdateInput.focus();
-        return false;
-      }
-    });
-
-    // Run validation on page load if there's already a value
-    if (birthdateInput.value) {
-      validateAge();
+  birthdateInput.addEventListener('blur', function() {
+    validateBirthdate();
+    if (birthdateInput.classList.contains('is-invalid')) {
+      birthdateInput.classList.remove('is-valid');
+      setRedOutline();
     }
   });
+  birthdateInput.addEventListener('focus', validateBirthdate);
+  birthdateInput.addEventListener('input', function() {
+    if (birthdateInput.classList.contains('is-invalid')) {
+      birthdateInput.classList.remove('is-valid');
+      setRedOutline();
+    } else {
+      clearOutline();
+    }
+  });
+});
 </script>
 @endpush
 @endsection
