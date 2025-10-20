@@ -187,13 +187,25 @@ function validateDate($field) {
     if (m < 0 || (m === 0 && today.getDate() < selectedDate.getDate())) {
         age--;
     }
+
+    // Display age
+    var $ageDisplay = $('#age-display');
+    if (!$ageDisplay.length) {
+        $ageDisplay = $('<small id="age-display" class="form-text text-muted mt-1"></small>');
+        $field.after($ageDisplay);
+    }
+    $ageDisplay.html('Age: ' + age + ' years old');
+
     if (age > 150) {
         setFieldError($field, 'Please enter a valid birthdate.');
         return false;
     }
-    if (fieldName === 'birthdate' && age >= 60) {
-        setFieldError($field, 'Residents aged 60 and above must be registered through the Senior Citizen registration form.');
+    if (fieldName === 'birthdate' && age >= 59) {
+        setFieldError($field, 'Residents aged 59 and above must be registered through the Senior Citizen registration form.');
+        $('button[type="submit"]').prop('disabled', true);
         return false;
+    } else {
+        $('button[type="submit"]').prop('disabled', false);
     }
     setFieldSuccess($field);
     return true;
