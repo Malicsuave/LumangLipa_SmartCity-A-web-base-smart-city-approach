@@ -1346,4 +1346,5 @@ $(document).ready(function() {
 
 @stack('scripts')
 </body>
+@yield('scripts')
 </html>

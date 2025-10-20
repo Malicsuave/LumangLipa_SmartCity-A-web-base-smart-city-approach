@@ -189,7 +189,7 @@ class HealthServiceController extends Controller
                 'rejected' => HealthServiceRequest::where('status', 'rejected')->count()
             ];
 
-            return view('admin.health.dashboard', compact('healthServices', 'stats'));
+            return view('admin.health', compact('healthServices', 'stats'));
         } catch (\Exception $e) {
             Log::error('Health Service - Admin Dashboard Error: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Error loading health services dashboard.');
