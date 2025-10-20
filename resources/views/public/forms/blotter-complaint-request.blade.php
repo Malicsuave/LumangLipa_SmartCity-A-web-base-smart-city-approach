@@ -986,7 +986,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.error('QR Code decode failed:', error);
-                showError('Failed to process QR code. Please check your internet connection and try again.');
+                showError('Failed to process QR code. Error: ' + error.message);
             })
             .finally(() => {
                 const uploadLabel = document.querySelector('label[for="upload_qr"]');
