@@ -29,18 +29,11 @@
                 </div>
                 
                 <div class="card-body p-4" style="background: #ffffff;">
-                    <!-- Success Alert -->
-                    <div id="successAlert" class="alert alert-success alert-dismissible fade" role="alert" style="display: none;">
-                        <i class="fas fa-check-circle me-2"></i>
-                        <span id="successMessage"></span>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-
-                    <!-- Error Alert -->
-                    <div id="errorAlert" class="alert alert-danger alert-dismissible fade" role="alert" style="display: none;">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        <span id="errorMessage"></span>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    <!-- Toast Notifications -->
+                    <div aria-live="polite" aria-atomic="true" class="position-relative">
+                        <div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1080;">
+                            <!-- Toasts will be injected here -->
+                        </div>
                     </div>
 
                     <form id="documentRequestForm">
@@ -111,39 +104,40 @@
                         </div>
                         
                         <!-- Resident Information Display -->
-                        <div id="residentInfo" class="card border-success mb-3" style="display: none;">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0 text-success">
-                                    <i class="fas fa-user-check me-2"></i>
+                        <div id="residentInfo" class="card mb-3" style="display: none; border-radius: 12px; border: 2px solid #2A7BC4;">
+                            <div class="card-header" style="border-radius: 12px 12px 0 0; background: #2A7BC4; border-bottom: none; padding: 1rem 1.5rem;">
+                                <h6 class="mb-0 fw-bold" style="color: #fff; font-size: 1rem; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif !important; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fas fa-user-check" style="font-size: 1.1rem; margin-right: 0.5rem; color: #fff;"></i>
                                     Verified Resident Information
                                 </h6>
                             </div>
-                            <div class="card-body">
+                            <div class="card-body" style="padding: 1.25rem 1.5rem; background: #fff; border-radius: 0 0 12px 12px;">
                                 <div class="row">
-                                    <div class="col-md-6">
-                                        <p class="mb-1"><strong>Name:</strong></p>
-                                        <p id="residentName" class="text-muted mb-2"></p>
+                                    <div class="col-md-6 mb-2">
+                                        <p class="mb-1 fw-bold" style="color: #2A7BC4;">Name:</p>
+                                        <p id="residentName" class="text-muted mb-2" style="font-size: 1.08rem;"></p>
                                     </div>
-                                    <div class="col-md-6">
-                                        <p class="mb-1"><strong>Address:</strong></p>
-                                        <p id="residentAddress" class="text-muted mb-2"></p>
+                                    <div class="col-md-6 mb-2">
+                                        <p class="mb-1 fw-bold" style="color: #2A7BC4;">Address:</p>
+                                        <p id="residentAddress" class="text-muted mb-2" style="font-size: 1.08rem;"></p>
                                     </div>
-                                    <div class="col-md-6">
-                                        <p class="mb-1"><strong>Age:</strong></p>
-                                        <p id="residentAge" class="text-muted mb-2"></p>
+                                    <div class="col-md-6 mb-2">
+                                        <p class="mb-1 fw-bold" style="color: #2A7BC4;">Age:</p>
+                                        <p id="residentAge" class="text-muted mb-2" style="font-size: 1.08rem;"></p>
                                     </div>
-                                    <div class="col-md-6">
-                                        <p class="mb-1"><strong>Contact Number:</strong></p>
-                                        <p id="residentContact" class="text-muted mb-2"></p>
+                                    <div class="col-md-6 mb-2">
+                                        <p class="mb-1 fw-bold" style="color: #2A7BC4;">Contact Number:</p>
+                                        <p id="residentContact" class="text-muted mb-2" style="font-size: 1.08rem;"></p>
                                     </div>
                                 </div>
-                            </div>                        </div>
+                            </div>
+                        </div>
 
                         <!-- OTP Verification Section -->
                         <div id="otpSection" class="card border-warning mb-4" style="display: none;">
                             <div class="card-header bg-warning bg-opacity-10">
-                                <h6 class="mb-0 text-white">
-                                    <i class="fas fa-shield-alt me-2"></i>
+                                <h6 class="mb-0 text-white" style="font-size: 1rem; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif !important; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fas fa-shield-alt me-2" style="font-size: 1.1rem;"></i>
                                     Email Verification Required
                                 </h6>
                             </div>
@@ -162,7 +156,7 @@
                                 
                                 <div id="otpVerifyStep" style="display: none;">
                                     <p class="mb-3">
-                                        <i class="fas fa-envelope text-success me-2"></i>
+                                        
                                         A 6-digit OTP has been sent to: <strong id="emailHint"></strong>
                                     </p>
                                     <div class="row align-items-end">
@@ -175,13 +169,11 @@
                                                    maxlength="6"
                                                    pattern="[0-9]{6}">
                                         </div>
-                                        <div class="col-md-6">
-                                            <button type="button" class="btn btn-success" id="verifyOtpBtn">
-                                                <i class="fas fa-check me-2"></i>
+                                        <div class="col-md-6 d-flex gap-2">
+                                            <button type="button" class="btn btn-success flex-fill" id="verifyOtpBtn">
                                                 Verify OTP
                                             </button>
-                                            <button type="button" class="btn btn-outline-secondary ms-2" id="resendOtpBtn">
-                                                <i class="fas fa-redo me-2"></i>
+                                            <button type="button" class="btn btn-outline-secondary flex-fill" id="resendOtpBtn">
                                                 Resend
                                             </button>
                                         </div>
@@ -386,6 +378,113 @@
 </div>
 
 <style>
+.btn-warning#sendOtpBtn {
+    background: #fff !important;
+    color: #2A7BC4 !important;
+    border: 1.5px solid #2A7BC4 !important;
+    border-radius: 8px !important;
+    font-size: 1rem !important;
+    padding: 0.5rem 1.5rem !important;
+    font-weight: 500 !important;
+    box-shadow: none !important;
+    transition: background 0.2s, color 0.2s;
+}
+.btn-warning#sendOtpBtn:hover {
+    background: #2A7BC4 !important;
+    color: #fff !important;
+}
+/* Modern OTP Card Design */
+#otpSection.card {
+    border-radius: 14px !important;
+    border: 2px solid #2A7BC4 !important;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+#otpSection .card-header {
+    background: #2A7BC4 !important;
+    color: #fff !important;
+    border-radius: 12px 12px 0 0 !important;
+    border-bottom: none !important;
+    padding: 1rem 1.5rem !important;
+    font-size: 1.15rem !important;
+    font-weight: 600 !important;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+#otpSection .card-header i {
+    font-size: 1.3rem;
+    margin-right: 0.5rem;
+}
+#otpSection .card-body {
+    padding: 1.5rem !important;
+    background: #fff !important;
+    border-radius: 0 0 12px 12px !important;
+}
+#otpSection .alert {
+    background: none !important;
+    color: #333 !important;
+    border: none !important;
+    font-size: 1.08rem !important;
+    margin-bottom: 1rem !important;
+}
+#otpSection label.form-label {
+    font-weight: 500 !important;
+    color: #666 !important;
+    margin-bottom: 0.5rem !important;
+}
+#otp_code {
+    font-size: 1.6rem !important;
+    letter-spacing: 0.5rem !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    padding: 0.5rem 1rem !important;
+    border: 1.5px solid #2A7BC4 !important;
+    background: #fff !important;
+    margin-bottom: 1rem !important;
+}
+#otpSection .row.align-items-end {
+    margin-top: 1rem !important;
+    gap: 0.5rem;
+}
+/* Unified OTP buttons: white background, blue outline, blue text */
+#otpSection .btn-success,
+#otpSection .btn-outline-secondary {
+    background: #fff !important;
+    color: #2A7BC4 !important;
+    border: 1.5px solid #2A7BC4 !important;
+    border-radius: 8px !important;
+    font-size: 1rem !important;
+    padding: 0.5rem 1.5rem !important;
+    font-weight: 500 !important;
+    box-shadow: none !important;
+    transition: background 0.2s, color 0.2s;
+}
+#otpSection .btn-success:hover,
+#otpSection .btn-outline-secondary:hover {
+    background: #2A7BC4 !important;
+    color: #fff !important;
+}
+#otpTimer {
+    font-weight: 600 !important;
+    color: #2A7BC4 !important;
+    font-size: 1.08rem !important;
+    margin-top: 0.5rem !important;
+}
+/* Admin-style Toasts */
+#toastContainer .toast {
+        border-radius: 12px !important;
+        box-shadow: 0 6px 24px rgba(0,0,0,0.12) !important;
+        font-size: 1.08rem !important;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif !important;
+        padding: 0.75rem 1.25rem !important;
+        animation: toastFadeIn 0.4s ease;
+}
+
+@keyframes toastFadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
 /* Force FontAwesome for all icons, prevent Material Symbols override */
 .btn i,
@@ -932,8 +1031,32 @@ document.addEventListener('DOMContentLoaded', function() {
     const documentTypeSelect = document.getElementById('document_type');
     const purposeTextarea = document.getElementById('purpose');
     const submitBtn = document.getElementById('submitBtn');
-    const successAlert = document.getElementById('successAlert');
-    const errorAlert = document.getElementById('errorAlert');
+    // Toast notification helpers
+    function showToast(message, type = 'success') {
+        const toastContainer = document.getElementById('toastContainer');
+        const toastId = 'toast-' + Date.now();
+        const icon = type === 'success'
+            ? '<i class="fas fa-check-circle me-2"></i>'
+            : '<i class="fas fa-exclamation-triangle me-2"></i>';
+        const bgClass = type === 'success' ? 'bg-success text-white' : 'bg-danger text-white';
+        const toastHtml = `
+            <div id="${toastId}" class="toast align-items-center ${bgClass} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="4000">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        ${icon}${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        `;
+        toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+        const toastEl = document.getElementById(toastId);
+        const bsToast = new bootstrap.Toast(toastEl);
+        bsToast.show();
+        toastEl.addEventListener('hidden.bs.toast', function() {
+            toastEl.remove();
+        });
+    }
     
     // QR Code elements
     const manualInputRadio = document.getElementById('manual_input');
@@ -1293,23 +1416,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function showQrVerificationSuccess() {
-        otpSection.style.display = 'block';
-        otpSection.innerHTML = `
-            <div class="card border-success mb-4">
-                <div class="card-header bg-success bg-opacity-10">
-                    <h6 class="mb-0 text-success">
-                        <i class="fas fa-qrcode me-2"></i>
-                        QR Code Verified Successfully
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="alert alert-success mb-0">
-                        <i class="fas fa-check-circle me-2"></i>
-                        Your identity has been verified using QR code. No additional email verification required.
-                    </div>
-                </div>
-            </div>
-        `;
+       
     }
 
     function enableFormFields() {
@@ -1842,25 +1949,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function showSuccess(message) {
-        document.getElementById('successMessage').textContent = message;
-        successAlert.style.display = 'block';
-        successAlert.classList.add('show');
-        errorAlert.style.display = 'none';
-        errorAlert.classList.remove('show');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        showToast(message, 'success');
     }
-
     function showError(message) {
-        document.getElementById('errorMessage').textContent = message;
-        errorAlert.style.display = 'block';
-        errorAlert.classList.add('show');
-        successAlert.style.display = 'none';
-        successAlert.classList.remove('show');
+        showToast(message, 'error');
     }
-
     function hideError() {
-        errorAlert.style.display = 'none';
-        errorAlert.classList.remove('show');
+        // No-op for toast
     }
 
     // ============ RATING SYSTEM ============

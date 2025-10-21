@@ -41,7 +41,7 @@
                                 <input type="text" class="form-control @error('contact_number') is-invalid @enderror" 
                                        id="contact_number" name="contact_number" 
                                        value="{{ old('contact_number', session('registration.step2.contact_number')) }}" 
-                                       placeholder="09123456789" required>
+                                       placeholder="09123456789" required maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
                                 @error('contact_number')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -152,7 +152,7 @@
                                 <input type="text" class="form-control @error('emergency_contact_number') is-invalid @enderror" 
                                        id="emergency_contact_number" name="emergency_contact_number" 
                                        value="{{ old('emergency_contact_number', session('registration.step2.emergency_contact_number')) }}" 
-                                       placeholder="09123456789" required>
+                                       placeholder="09123456789" required maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
                                 @error('emergency_contact_number')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
