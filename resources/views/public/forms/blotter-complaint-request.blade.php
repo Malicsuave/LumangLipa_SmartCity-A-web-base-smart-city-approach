@@ -105,7 +105,6 @@
                                     </label>
                                 </div>
                                 
-                                </div>
                             </div>
                         </div>                        <!-- Resident Information Display -->
                         <div id="residentInfo" class="card border-success mb-4" style="display: none;">
@@ -880,15 +879,6 @@ textarea.form-control:disabled {
 }
 
 @keyframes modalSlideUp {
-    from {
-        opacity: 0;
-        transform: translateY(50px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
 </style>
 
 <script>
