@@ -106,14 +106,7 @@
                                         Upload QR Code
                                     </label>
                                 </div>
-                                <div class="row mt-2">
-                                    <div class="col-md-6">
-                                        <small class="form-text text-muted d-block text-center">Use camera to scan QR code</small>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <small class="form-text text-muted d-block text-center">Upload QR code image</small>
-                                    </div>
-                                </div>
+                                
                             </div>
                         </div>
                         
@@ -393,22 +386,32 @@
 </div>
 
 <style>
-/* Force FontAwesome over Material Symbols */
+
+/* Force FontAwesome for all icons, prevent Material Symbols override */
+.btn i,
+.btn-outline-primary i,
+.btn-primary i,
+label i,
+button i,
 .fas, .far, .fal, .fab {
-    font-family: "Font Awesome 5 Free", "Font Awesome 5 Brands" !important;
-    font-weight: 900;
+    font-family: 'Font Awesome 5 Free', 'Font Awesome 5 Brands' !important;
+    font-weight: 900 !important;
     font-style: normal;
     font-variant: normal;
     text-rendering: auto;
     -webkit-font-smoothing: antialiased;
 }
 
-.card {
-    transition: all 0.3s ease;
+/* Ensure button text and labels use system font */
+.btn,
+.btn-outline-primary,
+label,
+h1, h2, h3, h4, h5, h6 {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif !important;
 }
 
-.card:hover {
-    transform: translateY(-2px);
+.card {
+    transition: all 0.3s ease;
 }
 
 /* Form Control Styling - Make borders visible and fix text alignment */
@@ -417,6 +420,8 @@
     border: 1px solid #ced4da !important;
     background-color: #fff !important;
     padding: 0.5rem 0.75rem !important;
+    font-weight: 400 !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif !important;
     text-align: left !important;
 }
 
@@ -466,6 +471,9 @@
 }
 
 .input-group .form-control {
+    font-size: 1rem !important;
+    font-weight: 400 !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif !important;
     border: 1px solid #ced4da !important;
     flex: 1 1 auto !important;
     min-width: 0 !important;
@@ -485,7 +493,7 @@
 /* Primary Buttons - White background with blue border */
 .btn-primary {
     background: #ffffff !important;
-    border: 2px solid #0d6efd !important;
+    border: 1px solid #0d6efd !important;
     color: #0d6efd !important;
     padding: 0.5rem 1rem !important;
     outline: none !important;
@@ -513,7 +521,7 @@
 /* Outline Primary Buttons */
 .btn-outline-primary {
     background: #ffffff !important;
-    border: 2px solid #0d6efd !important;
+    border: 1px solid #0d6efd !important;
     color: #0d6efd !important;
     padding: 0.5rem 1rem !important;
     outline: none !important;
@@ -573,7 +581,7 @@
 /* Button Group for Radio Buttons (Manual Input / QR Code) */
 .btn-group .btn-outline-primary {
     background: #ffffff !important;
-    border: 2px solid #0d6efd !important;
+    border: 1px solid #0d6efd !important;
     color: #0d6efd !important;
     padding: 0.5rem 1rem !important;
     outline: none !important;

@@ -438,10 +438,6 @@
     transition: all 0.3s ease;
 }
 
-.card:hover {
-    transform: translateY(-2px);
-}
-
 .form-control:focus,
 .form-select:focus {
     border-color: #0d6efd;
