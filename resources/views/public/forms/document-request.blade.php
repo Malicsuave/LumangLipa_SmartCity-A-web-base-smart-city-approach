@@ -92,7 +92,7 @@
                                 <div class="btn-group w-100" role="group" style="display: flex;">
                                     <input type="radio" class="btn-check" name="qr_method" id="scan_qr" value="scan">
                                     <label class="btn btn-outline-primary" for="scan_qr" style="flex: 1; text-align: center;">
-                                        <i class="fas fa-camera me-2"></i>
+                                        <i></i>
                                         Scan QR Code
                                     </label>
                                     <input type="file" 
@@ -102,7 +102,7 @@
                                            style="display: none;">
                                     <input type="radio" class="btn-check" name="qr_method" id="upload_qr" value="upload">
                                     <label class="btn btn-outline-primary" for="upload_qr" style="flex: 1; text-align: center;">
-                                        <i class="fas fa-upload me-2"></i>
+                                        <i></i>
                                         Upload QR Code
                                     </label>
                                 </div>

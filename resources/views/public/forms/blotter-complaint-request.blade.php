@@ -90,7 +90,7 @@
                                 <div class="btn-group w-100" role="group" style="display: flex;">
                                     <input type="radio" class="btn-check" name="qr_method" id="scan_qr" value="scan">
                                     <label class="btn btn-outline-primary" for="scan_qr" style="flex: 1; text-align: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif !important;">
-                                        <i class="fas fa-camera me-2" style="font-family: 'Font Awesome 5 Free' !important; font-weight: 900 !important; color: inherit !important;"></i>
+                                        <i style="font-family: 'Font Awesome 5 Free' !important; font-weight: 900 !important; color: inherit !important;"></i>
                                         Scan QR Code
                                     </label>
                                     <input type="file" 
@@ -100,17 +100,11 @@
                                            style="display: none;">
                                     <input type="radio" class="btn-check" name="qr_method" id="upload_qr" value="upload">
                                     <label class="btn btn-outline-primary" for="upload_qr" style="flex: 1; text-align: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif !important;">
-                                        <i class="fas fa-upload me-2" style="font-family: 'Font Awesome 5 Free' !important; font-weight: 900 !important; color: inherit !important;"></i>
+                                        <i style="font-family: 'Font Awesome 5 Free' !important; font-weight: 900 !important; color: inherit !important;"></i>
                                         Upload QR Code
                                     </label>
                                 </div>
-                                <div class="row mt-2">
-                                    <div class="col-md-6">
-                                        <small class="form-text text-muted d-block text-center">Use camera to scan QR code</small>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <small class="form-text text-muted d-block text-center">Upload QR code image</small>
-                                    </div>
+                                
                                 </div>
                             </div>
                         </div>                        <!-- Resident Information Display -->
