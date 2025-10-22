@@ -60,6 +60,17 @@ Route::middleware(['role:Barangay Captain,Barangay Secretary'])->prefix('admin')
 
 // Public routes
 Route::get('/', [PublicController::class, 'home'])->name('public.home');
+
+// CSRF Token Refresh Route - Returns current token without regenerating
+Route::get('/csrf-token', function(Illuminate\Http\Request $request) {
+    // Return current token - DO NOT regenerate it
+    // Regenerating causes race conditions when multiple requests happen
+    
+    return response()->json([
+        'token' => csrf_token(),
+        'timestamp' => now()->toIso8601String()
+    ]);
+})->name('csrf-token');
 Route::get('/about', [PublicController::class, 'about'])->name('public.about');
 Route::get('/services', [PublicController::class, 'services'])->name('public.services');
 Route::get('/contact', [PublicController::class, 'contact'])->name('public.contact');

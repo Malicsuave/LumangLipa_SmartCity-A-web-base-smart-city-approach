@@ -45,7 +45,6 @@ class PreRegistrationApproved extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         $idType = $this->isSenior ? 'Senior Citizen ID' : 'Resident ID';
-        $validityPeriod = $this->isSenior ? '5 years' : '3 years';
         
         $message = (new MailMessage)
             ->subject('Pre-Registration Approved - Barangay Lumanglipa')
@@ -60,7 +59,6 @@ class PreRegistrationApproved extends Notification
         }
 
         $message->line('• **ID Type:** ' . $idType)
-            ->line('• **Validity:** ' . $validityPeriod)
             ->line('')
             ->line('Your digital ' . $idType . ' is attached to this email. You can use this digital copy along with your physical ID when available.')
             ->line('Please visit the Barangay Hall to claim your physical ID card during office hours.')

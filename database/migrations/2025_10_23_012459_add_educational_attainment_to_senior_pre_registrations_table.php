@@ -12,8 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('senior_pre_registrations', function (Blueprint $table) {
-            $table->unsignedBigInteger('senior_citizen_id')->nullable()->after('approved_by');
-            $table->foreign('senior_citizen_id')->references('id')->on('senior_citizens')->onDelete('set null');
+            if (!Schema::hasColumn('senior_pre_registrations', 'educational_attainment')) {
+                $table->string('educational_attainment', 100)->nullable()->after('emergency_contact_address');
+            }
         });
     }
 
@@ -23,8 +24,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('senior_pre_registrations', function (Blueprint $table) {
-            $table->dropForeign(['senior_citizen_id']);
-            $table->dropColumn('senior_citizen_id');
+            if (Schema::hasColumn('senior_pre_registrations', 'educational_attainment')) {
+                $table->dropColumn('educational_attainment');
+            }
         });
     }
 };
