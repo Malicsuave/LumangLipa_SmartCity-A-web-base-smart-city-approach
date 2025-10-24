@@ -98,7 +98,7 @@ Route::get('/admin-chat-debug', function() {
 
 // Public Pre-Registration Routes - Multi-step
 Route::get('/register', [\App\Http\Controllers\Public\PreRegistrationController::class, 'chooseRegistrationType'])->name('public.register');
-Route::prefix('pre-registration')->name('public.pre-registration.')->group(function () {
+Route::prefix('pre-registration')->name('public.pre-registration.')->middleware('refresh.csrf')->group(function () {
     Route::get('step1', [\App\Http\Controllers\Public\PreRegistrationController::class, 'createStep1'])->name('step1');
     Route::post('step1', [\App\Http\Controllers\Public\PreRegistrationController::class, 'storeStep1'])->name('step1.store');
     Route::get('step2', [\App\Http\Controllers\Public\PreRegistrationController::class, 'createStep2'])->name('step2');
@@ -115,10 +115,11 @@ Route::prefix('pre-registration')->name('public.pre-registration.')->group(funct
     Route::post('submit', [\App\Http\Controllers\Public\PreRegistrationController::class, 'store'])->name('submit');
     Route::get('success', [\App\Http\Controllers\Public\PreRegistrationController::class, 'success'])->name('success');
     Route::match(['get', 'post'], 'check-status', [\App\Http\Controllers\Public\PreRegistrationController::class, 'checkStatus'])->name('check-status');
+    Route::get('refresh-csrf', [\App\Http\Controllers\Public\PreRegistrationController::class, 'refreshCsrfToken'])->name('refresh-csrf');
 });
 
 // Senior Citizen Pre-Registration Routes
-Route::prefix('senior-registration')->name('public.senior-registration.')->group(function () {
+Route::prefix('senior-registration')->name('public.senior-registration.')->middleware('refresh.csrf')->group(function () {
     Route::get('step1', [\App\Http\Controllers\Public\SeniorRegistrationController::class, 'createStep1'])->name('step1');
     Route::post('step1', [\App\Http\Controllers\Public\SeniorRegistrationController::class, 'storeStep1'])->name('step1.store');
     Route::get('step2', [\App\Http\Controllers\Public\SeniorRegistrationController::class, 'createStep2'])->name('step2');

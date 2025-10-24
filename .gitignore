@@ -24,3 +24,6 @@ storage/logs/*.log
 /storage/app/public/*
 /storage/app/public/*
 !/storage/app/public/.gitignore
+/storage/app/public/profile-photos/*
+!/storage/app/public/.gitignore
+/storage/framework/cache/*
