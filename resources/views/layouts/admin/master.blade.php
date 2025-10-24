@@ -58,6 +58,73 @@
     .text-success {
       transition: color 0.3s ease;
     }
+    /* Sidebar search positioning */
+    .sidebar .form-inline {
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+    /* Sidebar search results styling */
+    .sidebar-search-results {
+      background: #fff;
+      border-radius: 4px;
+      margin: 10px 15px;
+      padding: 10px 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .search-result-item {
+      padding: 0;
+    }
+    .search-result-link {
+      display: flex;
+      align-items: center;
+      padding: 10px 15px;
+      color: #495057;
+      text-decoration: none;
+      transition: all 0.3s;
+      border-left: 3px solid transparent;
+    }
+    .search-result-link:hover {
+      background-color: #f4f6f9;
+      color: #007bff;
+      border-left-color: #007bff;
+      text-decoration: none;
+    }
+    .search-result-link i {
+      margin-right: 10px;
+      width: 20px;
+      text-align: center;
+      font-size: 14px;
+    }
+    .search-result-link span {
+      font-size: 14px;
+    }
+    .search-no-results {
+      text-align: center;
+      padding: 30px 20px;
+      color: #6c757d;
+    }
+    .search-no-results i {
+      font-size: 48px;
+      margin-bottom: 15px;
+      opacity: 0.5;
+    }
+    .search-no-results p {
+      margin: 0;
+      font-size: 14px;
+    }
+
+    /* Sidebar search clear button style for hover/focus */
+    .sidebar-search-clear:hover, .sidebar-search-clear:focus {
+      color: #007bff;
+    }
+
+    /* Hide browser's default search cancel button */
+    .sidebar-search-input::-webkit-search-cancel-button {
+      display: none;
+    }
+    .sidebar-search-input::-moz-search-cancel-button {
+      display: none;
+    }
   </style>
   
   <!-- Toastr CSS for global notifications -->
@@ -75,63 +142,16 @@
       <li class="nav-item">
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
       </li>
-      <li class="nav-item d-none d-sm-inline-block">
-        <a href="{{ route('admin.dashboard') }}" class="nav-link">Home</a>
-      </li>
-      <li class="nav-item d-none d-sm-inline-block">
-        <a href="#" class="nav-link">Contact</a>
-      </li>
+    
     </ul>
 
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
       <!-- Navbar Search -->
-      <li class="nav-item">
-        <a class="nav-link" data-widget="navbar-search" href="#" role="button">
-          <i class="fas fa-search"></i>
-        </a>
-        <div class="navbar-search-block">
-          <form class="form-inline">
-            <div class="input-group input-group-sm">
-              <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search">
-              <div class="input-group-append">
-                <button class="btn btn-navbar" type="submit">
-                  <i class="fas fa-search"></i>
-                </button>
-                <button class="btn btn-navbar" type="button" data-widget="navbar-search">
-                  <i class="fas fa-times"></i>
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
-      </li>
+     
 
       <!-- Messages Dropdown Menu -->
-      <li class="nav-item dropdown">
-        <a class="nav-link" data-toggle="dropdown" href="#">
-          <i class="far fa-comments"></i>
-          <span class="badge badge-danger navbar-badge">3</span>
-        </a>
-        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-          <a href="#" class="dropdown-item">
-            <!-- Message start -->
-            <div class="media">
-              <img src="{{ asset('images/logo.png') }}" alt="User Avatar" class="img-size-50 mr-3 img-circle">
-              <div class="media-body">
-                <h3 class="dropdown-item-title">System
-                  <span class="float-right text-sm text-danger"><i class="fas fa-star"></i></span>
-                </h3>
-                <p class="text-sm">You have a new message</p>
-                <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>
-              </div>
-            </div>
-            <!-- Message end -->
-          </a>
-          <div class="dropdown-divider"></div>
-          <a href="#" class="dropdown-item dropdown-footer">See All Messages</a>
-        </div>
-      </li>
+    
       <!-- Notifications Dropdown Menu -->
       <li class="nav-item dropdown">
         <a class="nav-link" data-toggle="dropdown" href="#">
@@ -210,12 +230,13 @@
     <div class="sidebar">
       <!-- SidebarSearch Form -->
       <div class="form-inline">
-        <div class="input-group" data-widget="sidebar-search">
-          <input class="form-control form-control-sidebar" type="search" placeholder="Search" aria-label="Search">
-          <div class="input-group-append">
-            <button class="btn btn-sidebar">
-              <i class="fas fa-search fa-fw"></i>
-            </button>
+        <div class="input-group" data-widget="sidebar-search" style="display:flex;align-items:center;">
+          <input class="form-control form-control-sidebar sidebar-search-input" type="search" placeholder="Search" aria-label="Search" style="flex:1;min-width:0;">
+          <div class="input-group-append" style="margin-left:4px;">
+              <button class="btn btn-sidebar sidebar-search-clear" type="button" tabindex="-1" title="Clear search" style="display:none;">
+                <i class="fas fa-times fa-fw"></i>
+              </button>
+             
           </div>
         </div>
       </div>
@@ -1173,6 +1194,143 @@ $(document).ready(function() {
     
     // Reinitialize if AdminLTE reloads
     $(document).on('adminlte.ready', initMobileSidebar);
+    
+    // Sidebar Search Functionality
+    function initSidebarSearch() {
+        const $searchInput = $('.sidebar-search-input');
+        const $clearBtn = $('.sidebar-search-clear');
+        const $sidebarMenu = $('.nav-sidebar');
+
+        // Create search result container if it doesn't exist
+        if (!$('.sidebar-search-results').length) {
+            $('<div class="sidebar-search-results" style="display: none;"></div>').insertAfter('.form-inline');
+        }
+
+        const $searchResults = $('.sidebar-search-results');
+        let lastValue = '';
+
+        // Function to search menu items
+        function performSearch(query) {
+            query = query.toLowerCase().trim();
+
+            if (query === '') {
+                // Show all menu items
+                $sidebarMenu.show();
+                $searchResults.hide();
+                $('.nav-item').show();
+                $('.nav-treeview').hide();
+                $('.menu-open').removeClass('menu-open');
+                lastValue = '';
+                $clearBtn.hide();
+                return;
+            }
+
+            // Show clear button when there's text
+            $clearBtn.show();
+
+            // Hide original menu
+            $sidebarMenu.hide();
+            $searchResults.show().empty();
+
+            let resultsFound = false;
+
+            // Search through all menu items
+            $('.nav-sidebar .nav-item').each(function() {
+                const $navItem = $(this);
+                const $link = $navItem.children('.nav-link').first();
+                const text = $link.text().toLowerCase().trim();
+                const href = $link.attr('href');
+
+                // Check main menu item
+                if (text.includes(query)) {
+                    resultsFound = true;
+                    const icon = $link.find('i.nav-icon').clone();
+                    const itemText = $link.find('p').first().clone().children().remove().end().text();
+
+                    $searchResults.append(`
+                        <div class="search-result-item">
+                            <a href="${href}" class="search-result-link">
+                                ${icon.length ? icon[0].outerHTML : '<i class="nav-icon fas fa-circle"></i>'}
+                                <span>${itemText}</span>
+                            </a>
+                        </div>
+                    `);
+                }
+
+                // Check submenu items
+                $navItem.find('.nav-treeview .nav-item').each(function() {
+                    const $subItem = $(this);
+                    const $subLink = $subItem.children('.nav-link');
+                    const subText = $subLink.text().toLowerCase().trim();
+                    const subHref = $subLink.attr('href');
+
+                    if (subText.includes(query)) {
+                        resultsFound = true;
+                        const subIcon = $subLink.find('i.nav-icon').clone();
+                        const parentText = $link.find('p').first().clone().children().remove().end().text();
+                        const subItemText = $subLink.find('p').first().text().trim();
+
+                        $searchResults.append(`
+                            <div class="search-result-item">
+                                <a href="${subHref}" class="search-result-link">
+                                    ${subIcon.length ? subIcon[0].outerHTML : '<i class="nav-icon far fa-circle"></i>'}
+                                    <span>${parentText} → ${subItemText}</span>
+                                </a>
+                            </div>
+                        `);
+                    }
+                });
+            });
+
+            // If no results found, just show empty results
+            if (!resultsFound) {
+                $searchResults.empty();
+            }
+        }
+
+        // Handle input events (typing and clearing)
+        $searchInput.on('input', function() {
+            const value = $(this).val();
+            if (value.trim() === '') {
+                $clearBtn.hide();
+            } else {
+                $clearBtn.show();
+            }
+            performSearch(value);
+        });
+
+        // Clear search when clear button is clicked
+        $clearBtn.on('click', function() {
+            $searchInput.val('');
+            $clearBtn.hide();
+            performSearch('');
+            $searchInput.focus();
+        });
+
+        // Handle search button click
+        $('.sidebar [data-widget="sidebar-search"] .btn').on('click', function(e) {
+            e.preventDefault();
+            performSearch($searchInput.val());
+        });
+
+        // Handle Enter key
+        $searchInput.on('keypress', function(e) {
+            if (e.which === 13) {
+                e.preventDefault();
+                performSearch($(this).val());
+            }
+        });
+
+        // Handle browser's default X clear icon
+        $searchInput.on('search', function() {
+            if ($(this).val() === '') {
+                performSearch('');
+            }
+        });
+    }
+    
+    // Initialize sidebar search
+    initSidebarSearch();
 });
 </script>
 
