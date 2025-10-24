@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\AdminApproval;
+use App\Providers\RouteServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -107,17 +108,17 @@ class GoogleController extends Controller
             
             // Check if user has a role (approved admin)
             if ($user->role) {
-                Log::info('Redirecting authorized admin to dashboard', [
+                Log::info('Redirecting authorized admin to intended URL or dashboard', [
                     'role' => $user->role->name
                 ]);
-                
-                // Redirect based on role
+
+                // Redirect based on role, but respect intended URL
                 if (in_array($user->role->name, ['Barangay Captain', 'Barangay Secretary'])) {
-                    return redirect()->route('admin.dashboard')
+                    return redirect()->intended(RouteServiceProvider::ADMIN_HOME)
                         ->with('status', 'Welcome, ' . $user->role->name . '!');
                 }
-                
-                return redirect('/dashboard')
+
+                return redirect()->intended(RouteServiceProvider::HOME)
                     ->with('status', 'Welcome back, ' . $user->name . '!');
             }
             

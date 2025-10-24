@@ -463,18 +463,6 @@ class PreRegistrationController extends Controller
             
             Log::info('Pre-registration record created', ['id' => $preRegistration->id]);
 
-            // Send SMS notification
-            try {
-                Log::info('Attempting to send SMS notification');
-                $smsService = new SmsService();
-                $fullName = trim($step1['first_name'] . ' ' . $step1['last_name']);
-                $smsService->sendPreRegistrationConfirmation($step2['contact_number'], $fullName);
-                Log::info('SMS notification sent successfully');
-            } catch (\Exception $e) {
-                Log::warning('SMS notification failed: ' . $e->getMessage());
-                // Don't fail the registration if SMS fails
-            }
-
             // Clear all registration session data
             Log::info('Clearing registration session data');
             $this->clearRegistrationData();

@@ -192,9 +192,17 @@ class BlotterComplaintController extends Controller
      */
     private function decodeQrFromImage($imageFile)
     {
+        $tempPath = null;
         try {
             // Store the uploaded file temporarily
             $tempPath = $imageFile->store('temp', 'local');
+            
+            // Check if file was stored successfully
+            if (!$tempPath) {
+                Log::error('Blotter QR decode error: Failed to store temporary file.');
+                return null;
+            }
+
             $fullPath = storage_path('app/' . $tempPath);
             
             Log::info('Blotter QR decode attempt', [
@@ -203,10 +211,15 @@ class BlotterComplaintController extends Controller
                 'file_exists' => file_exists($fullPath)
             ]);
             
-            // Use the PHP QR code library
-            $qrcode = new QrReader($fullPath);
-            $qrData = $qrcode->text();
-            
+            $qrData = null;
+            try {
+                // Use the PHP QR code library
+                $qrcode = new QrReader($fullPath);
+                $qrData = $qrcode->text();
+            } catch (\Exception $e) {
+                Log::error('QrReader library error: ' . $e->getMessage());
+            }
+
             Log::info('Blotter QR Reader result', [
                 'raw_result' => $qrData,
                 'result_type' => gettype($qrData),
@@ -235,7 +248,7 @@ class BlotterComplaintController extends Controller
             ]);
             
             // Clean up temp file if it exists
-            if (isset($tempPath)) {
+            if (isset($tempPath) && $tempPath) {
                 try {
                     Storage::disk('local')->delete($tempPath);
                 } catch (\Exception $cleanupError) {

@@ -64,23 +64,21 @@
                         </div>
                             
                         <!-- Barangay ID Section -->
-                        <div class="mb-3" style="margin-top: 0;">
+                     <div class="mb-3" style="margin-top: 0;">
                             <label for="barangay_id" style="margin-bottom: 0.25rem; margin-top: -0.5rem;">Barangay ID <span class="text-danger">*</span></label>
 
                             <!-- Manual Input Section -->
                             <div id="manualInputSection">
                                 <div class="input-group" style="display: flex; align-items: stretch;">
-                                    <input type="text" 
+                                   <input type="text" 
                                            class="form-control" 
                                            id="barangay_id" 
                                            name="barangay_id" 
                                            placeholder="Enter your Barangay ID"
-                                           style="height: 38px; border: 1px solid #ced4da !important; padding: 0.375rem 0.75rem !important; flex: 1;"
                                            required>
                                     <button type="button" 
                                             class="btn btn-outline-primary" 
-                                            id="checkResidentBtn"
-                                            style="height: 38px; padding: 0.375rem 0.75rem; display: flex; align-items: center; justify-content: center; border: 1px solid #0d6efd !important; white-space: nowrap;">
+                                            id="checkResidentBtn">
                                         <i class="fas fa-search"></i> Verify
                                     </button>
                                 </div>
@@ -92,7 +90,7 @@
                                 <div class="btn-group w-100" role="group" style="display: flex;">
                                     <input type="radio" class="btn-check" name="qr_method" id="scan_qr" value="scan">
                                     <label class="btn btn-outline-primary" for="scan_qr" style="flex: 1; text-align: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif !important;">
-                                        <i class="fas fa-camera me-2" style="font-family: 'Font Awesome 5 Free' !important; font-weight: 900 !important; color: inherit !important;"></i>
+                                        <i style="font-family: 'Font Awesome 5 Free' !important; font-weight: 900 !important; color: inherit !important;"></i>
                                         Scan QR Code
                                     </label>
                                     <input type="file" 
@@ -102,18 +100,11 @@
                                            style="display: none;">
                                     <input type="radio" class="btn-check" name="qr_method" id="upload_qr" value="upload">
                                     <label class="btn btn-outline-primary" for="upload_qr" style="flex: 1; text-align: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif !important;">
-                                        <i class="fas fa-upload me-2" style="font-family: 'Font Awesome 5 Free' !important; font-weight: 900 !important; color: inherit !important;"></i>
+                                        <i style="font-family: 'Font Awesome 5 Free' !important; font-weight: 900 !important; color: inherit !important;"></i>
                                         Upload QR Code
                                     </label>
                                 </div>
-                                <div class="row mt-2">
-                                    <div class="col-md-6">
-                                        <small class="form-text text-muted d-block text-center">Use camera to scan QR code</small>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <small class="form-text text-muted d-block text-center">Upload QR code image</small>
-                                    </div>
-                                </div>
+                                
                             </div>
                         </div>                        <!-- Resident Information Display -->
                         <div id="residentInfo" class="card border-success mb-4" style="display: none;">
@@ -428,6 +419,51 @@
 </section>
 
 <style>
+.input-group .form-control {
+    font-size: 1rem !important;
+    font-weight: 400 !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif !important;
+}
+/* Match input group and button design to document request form */
+
+.input-group {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+}
+.input-group .form-control {
+    height: 38px !important;
+    border: 1px solid #ced4da !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    padding: 0.5rem 0.75rem !important;
+    border-radius: 0.375rem 0 0 0.375rem !important;
+    box-shadow: none !important;
+}
+.input-group .btn {
+    height: 38px !important;
+    border: 1px solid #0d6efd !important;
+    color: #0d6efd !important;
+    background: #fff !important;
+    padding: 0.5rem 1rem !important;
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+    width: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 0 0.375rem 0.375rem 0 !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+.input-group .btn:focus,
+.input-group .btn:active {
+    background: #0d6efd !important;
+    color: #fff !important;
+    border-color: #0d6efd !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
 /* Force FontAwesome for all icons, prevent Material Symbols override */
 .btn i,
 .btn-outline-primary i,
@@ -443,6 +479,16 @@ button i {
 .btn-outline-primary,
 label {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif !important;
+}
+
+/* Match button height to document request form */
+.btn-outline-primary,
+.btn-primary {
+    height: 38px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.375rem 0.75rem !important;
 }
 
 /* Enforce blue color scheme for all buttons */
@@ -467,10 +513,6 @@ label {
     transition: all 0.3s ease;
 }
 
-.card:hover {
-    transform: translateY(-2px);
-}
-
 /* Form Control Styling */
 .form-control,
 .form-select,
@@ -479,6 +521,8 @@ textarea.form-control {
     border-radius: 0.375rem !important;
     padding: 0.5rem 0.75rem !important;
     font-size: 1rem !important;
+    font-weight: 400 !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif !important;
     line-height: 1.5 !important;
     color: #212529 !important;
     background-color: #fff !important;
@@ -835,15 +879,6 @@ textarea.form-control:disabled {
 }
 
 @keyframes modalSlideUp {
-    from {
-        opacity: 0;
-        transform: translateY(50px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
 </style>
 
 <script>
@@ -986,7 +1021,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.error('QR Code decode failed:', error);
-                showError('Failed to process QR code. Please check your internet connection and try again.');
+                showError('Failed to process QR code. Error: ' + error.message);
             })
             .finally(() => {
                 const uploadLabel = document.querySelector('label[for="upload_qr"]');

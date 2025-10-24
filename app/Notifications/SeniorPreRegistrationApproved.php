@@ -50,7 +50,6 @@ class SeniorPreRegistrationApproved extends Notification
             ->line('• **Name:** ' . $this->seniorPreRegistration->first_name . ' ' . $this->seniorPreRegistration->last_name)
             ->line('• **Senior ID:** ' . $this->seniorCitizen->senior_id_number)
             ->line('• **ID Type:** Senior Citizen ID')
-            ->line('• **Validity:** 5 years')
             ->line('')
             ->line('Your digital Senior Citizen ID is attached to this email. You can use this digital copy along with your physical ID when available.')
             ->line('Please visit the Barangay Hall to claim your physical ID card during office hours.')

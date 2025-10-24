@@ -2,38 +2,45 @@
 
 @section('page-title', 'Blotter/Complaint Management')
 
-@push('scripts')
-<script src="/adminlte/plugins/datatables/jquery.dataTables.min.js"></script>
-<script src="/adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
-<script src="/adminlte/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
-<script src="/adminlte/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
-<script src="/adminlte/plugins/jszip/jszip.min.js"></script>
-<script src="/adminlte/plugins/pdfmake/pdfmake.min.js"></script>
-<script src="/adminlte/plugins/pdfmake/vfs_fonts.js"></script>
-<script src="/adminlte/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
-<script src="/adminlte/plugins/datatables-buttons/js/buttons.print.min.js"></script>
-<script src="/adminlte/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
-<script>
-$(document).ready(function() {
-    if ($.fn.DataTable.isDataTable('#blotterComplaintsTable')) {
-        $('#blotterComplaintsTable').DataTable().destroy();
-    }
-    $('#blotterComplaintsTable').DataTable({
-        dom: 'Bfrtip',
-        buttons: [
-            'copy', 'csv', 'excel', 'pdf', 'print', 'colvis'
-        ],
-        order: [[ 5, "desc" ]], // Sort by submitted date
-        columnDefs: [
-            { orderable: false, targets: -1 }
-        ]
-    });
-});
-</script>
+@push('styles')
+@include('admin.components.datatable-styles')
+<!-- Toastr CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+<style>
+/* Status badge colors matching the design */
+.badge-pending { background-color: #ffc107 !important; color: #000 !important; }
+.badge-under-investigation { background-color: #17a2b8 !important; color: #fff !important; }
+.badge-resolved { background-color: #28a745 !important; color: #fff !important; }
+.badge-dismissed { background-color: #dc3545 !important; color: #fff !important; }
+
+/* Modal styling to match announcements */
+.info-row {
+    display: flex;
+    align-items: flex-start;
+}
+.info-label {
+    min-width: 100px;
+    flex-shrink: 0;
+}
+.info-value {
+    flex: 1;
+    word-break: break-word;
+}
+.section-title {
+    border-bottom: 2px solid #2A7BC4;
+    padding-bottom: 4px;
+    margin-bottom: 12px;
+}
+.content-box {
+    background: #f8f9fa;
+    border-radius: 8px;
+    line-height: 1.6;
+}
+.dropdown-menu {
+    z-index: 9999 !important;
+}
+</style>
 @endpush
-
-
- </style>
 
 @section('content')
 <div class="row">
@@ -123,16 +130,16 @@ $(document).ready(function() {
 </div>
 
 <!-- Main Table Card -->
-<div class="card">
-    <div class="card-header bg-primary text-white">
-        <h3 class="card-title">
-            <i class="fas fa-exclamation-triangle mr-2"></i>
-            Blotter/Complaint Cases
-        </h3>
+<div class="card shadow-lg border-0 mb-4 admin-card-shadow">
+    <div class="card-header">
+        <strong class="card-title">
+            <i class="fas fa-exclamation-triangle mr-2"></i>Blotter/Complaint Cases
+            
+        </strong>
     </div>
     <div class="card-body">
         <div class="table-responsive">
-            <table id="blotterComplaintsTable" class="table table-bordered table-striped table-hover">
+            <table id="blotterComplaintsTable" class="table table-bordered table-striped">
                 <thead>
                     <tr>
                         <th>Case ID</th>
@@ -236,29 +243,29 @@ $(document).ready(function() {
                                     Actions
                                 </button>
                                 <div class="dropdown-menu dropdown-menu-right">
-                                    <a class="dropdown-item text-dark" href="#" onclick="viewComplaintDetails('{{ $complaint->id }}')">
-                                        <i class="fas fa-eye mr-2 text-dark"></i>View Details
+                                    <a class="dropdown-item" href="#" onclick="viewComplaintDetails('{{ $complaint->id }}')">
+                                        <i class="fas fa-eye mr-2"></i>View Details
                                     </a>
                                     @if($complaint->status == 'pending')
-                                    <a class="dropdown-item text-dark" href="#" onclick="acceptComplaint({{ $complaint->id }})">
-                                        <i class="fas fa-check mr-2 text-dark"></i>Accept
+                                    <a class="dropdown-item text-success" href="#" onclick="acceptComplaint({{ $complaint->id }})">
+                                        <i class="fas fa-check mr-2"></i>Accept
                                     </a>
-                                    <a class="dropdown-item text-dark" href="#" onclick="showRejectModal({{ $complaint->id }})">
-                                        <i class="fas fa-times mr-2 text-dark"></i>Reject
+                                    <a class="dropdown-item text-danger" href="#" onclick="showRejectModal({{ $complaint->id }})">
+                                        <i class="fas fa-times mr-2"></i>Reject
                                     </a>
                                     @elseif($complaint->status == 'waiting_for_meeting')
-                                    <a class="dropdown-item text-dark" href="#" onclick="scheduleMeeting({{ $complaint->id }})">
-                                        <i class="fas fa-calendar mr-2 text-dark"></i>Schedule Meeting
+                                    <a class="dropdown-item text-primary" href="#" onclick="scheduleMeeting({{ $complaint->id }})">
+                                        <i class="fas fa-calendar mr-2"></i>Schedule Meeting
                                     </a>
                                     @elseif($complaint->status == 'meeting_scheduled')
-                                    <a class="dropdown-item text-dark" href="#" onclick="updateComplaintStatus({{ $complaint->id }}, 'resolved')">
-                                        <i class="fas fa-check-circle mr-2 text-dark"></i>Mark Resolved
+                                    <a class="dropdown-item text-success" href="#" onclick="updateComplaintStatus({{ $complaint->id }}, 'resolved')">
+                                        <i class="fas fa-check-circle mr-2"></i>Mark Resolved
                                     </a>
                                     @endif
                                     @if(in_array($complaint->status, ['pending', 'waiting_for_meeting', 'rejected']))
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-dark" href="#" onclick="confirmDelete({{ $complaint->id }}, '{{ $complaint->case_number }}')">
-                                        <i class="fas fa-trash mr-2 text-dark"></i>Delete
+                                    <a class="dropdown-item text-danger" href="#" onclick="confirmDelete({{ $complaint->id }}, '{{ $complaint->case_number }}')">
+                                        <i class="fas fa-trash mr-2"></i>Delete
                                     </a>
                                     @endif
                                 </div>
@@ -475,5 +482,498 @@ $(document).ready(function() {
         </div>
     </div>
 </div>
+
+<!-- Accept Complaint Modal -->
+<div class="modal fade" id="acceptComplaintModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Approve Blotter/Complaint</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Are you sure you want to approve this complaint?</label>
+                    <small class="text-muted d-block mb-2">This will notify the complainant via email.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" id="confirmAcceptBtn">
+                    <i class="fas fa-check"></i> Approve Complaint
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
+@push('scripts')
+<script>
+// Toastr JS
+if (typeof toastr === 'undefined') {
+    var script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js';
+    document.head.appendChild(script);
+}
+
+// Toastr notification helpers
+function showSuccess(message) {
+    toastr.options = {
+        "closeButton": true,
+        "progressBar": true,
+        "positionClass": "toast-top-right",
+        "timeOut": "4000"
+    };
+    toastr.success(message);
+}
+function showError(message) {
+    toastr.options = {
+        "closeButton": true,
+        "progressBar": true,
+        "positionClass": "toast-top-right",
+        "timeOut": "6000"
+    };
+    toastr.error(message);
+}
+$(document).ready(function() {
+    if ($.fn.DataTable.isDataTable('#blotterComplaintsTable')) {
+        $('#blotterComplaintsTable').DataTable().destroy();
+    }
+    $('#blotterComplaintsTable').DataTable({
+        dom: '<"row mb-2"<"col-md-6"B><"col-md-6"f>>' +
+             '<"row"<"col-sm-12"tr>>' +
+             '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+        buttons: [
+            {
+                extend: 'copy',
+                text: 'Copy',
+                className: 'btn btn-secondary btn-sm'
+            },
+            {
+                extend: 'csv',
+                text: 'CSV',
+                className: 'btn btn-secondary btn-sm'
+            },
+            {
+                extend: 'excel',
+                text: 'Excel',
+                className: 'btn btn-secondary btn-sm'
+            },
+            {
+                extend: 'pdf',
+                text: 'PDF',
+                className: 'btn btn-secondary btn-sm'
+            },
+            {
+                extend: 'print',
+                text: 'Print',
+                className: 'btn btn-secondary btn-sm'
+            },
+            {
+                extend: 'colvis',
+                text: 'Columns',
+                className: 'btn btn-secondary btn-sm'
+            }
+        ],
+        pageLength: 10,
+        lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+        order: [[ 5, "desc" ]], // Sort by submitted date
+        columnDefs: [
+            { orderable: false, targets: -1 }
+        ],
+        language: {
+            search: "Search:",
+            lengthMenu: "Show _MENU_ entries",
+            info: "Showing _START_ to _END_ of _TOTAL_ entries",
+            infoEmpty: "Showing 0 to 0 of 0 entries",
+            infoFiltered: "(filtered from _MAX_ total entries)",
+            paginate: {
+                first: "First",
+                last: "Last",
+                next: "Next",
+                previous: "Previous"
+            },
+            emptyTable: "No blotter/complaint cases available"
+        }
+    });
+});
+
+function viewComplaintDetails(complaintId) {
+    // Reset modal content
+    $('#modal-case-number').text('Loading...');
+    $('#modal-status').text('Loading...');
+    $('#modal-filed-date').text('Loading...');
+    $('#modal-complainants').text('Loading...');
+    $('#modal-respondents').text('Loading...');
+    $('#modal-details').text('Loading...');
+    $('#modal-resolution').text('Loading...');
+    $('#modal-reporter-name').text('Loading...');
+    $('#modal-barangay-id').text('Loading...');
+    $('#modal-contact').text('Loading...');
+    $('#modal-address').text('Loading...');
+    $('#modal-verification').text('Loading...');
+    $('#modal-updated').text('Loading...');
+    
+    // Reset meeting details
+    $('#meeting-details-section').hide();
+    $('#modal-meeting-date').text('');
+    $('#modal-meeting-time').text('');
+    $('#modal-meeting-location').text('');
+    $('#modal-meeting-notes').text('');
+    $('#modal-meeting-notes-row').hide();
+    $('#modal-meeting-notes').hide();
+    
+    // Open modal first
+    $('#viewComplaintModal').modal('show');
+    
+    // Fetch data via AJAX
+    $.ajax({
+        url: '/admin/blotter-complaints/' + complaintId,
+        method: 'GET',
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        success: function(response) {
+            // Populate modal with data
+            $('#modal-case-number').text(response.case_number);
+            $('#modal-status').html(getComplaintStatusBadge(response.status));
+            $('#modal-filed-date').text(formatDate(response.created_at));
+            $('#modal-complainants').html(response.complainants.replace(/\n/g, '<br>'));
+            $('#modal-respondents').html(response.respondents.replace(/\n/g, '<br>'));
+            $('#modal-details').html(response.complaint_details.replace(/\n/g, '<br>'));
+            $('#modal-resolution').html(response.resolution_sought.replace(/\n/g, '<br>'));
+            $('#modal-verification').text(response.verification_method.charAt(0).toUpperCase() + response.verification_method.slice(1));
+            $('#modal-updated').text(formatDate(response.updated_at));
+            
+            // Reporter information
+            if (response.resident) {
+                $('#modal-reporter-name').text(response.resident.first_name + ' ' + response.resident.last_name);
+                $('#modal-contact').text(response.resident.contact_number || 'N/A');
+                $('#modal-address').text(response.resident.address || 'N/A');
+            } else {
+                $('#modal-reporter-name').text('N/A');
+                $('#modal-contact').text('N/A');
+                $('#modal-address').text('N/A');
+            }
+            $('#modal-barangay-id').text(response.barangay_id);
+            
+            // Show meeting details if meeting is scheduled
+            if (response.status === 'meeting_scheduled' && response.meeting_date) {
+                $('#modal-meeting-date').text(formatDate(response.meeting_date));
+                $('#modal-meeting-time').text(formatTime(response.meeting_time));
+                $('#modal-meeting-location').text(response.meeting_location || 'N/A');
+                
+                if (response.meeting_notes) {
+                    $('#modal-meeting-notes-row').show();
+                    $('#modal-meeting-notes').html(response.meeting_notes.replace(/\n/g, '<br>')).show();
+                } else {
+                    $('#modal-meeting-notes-row').hide();
+                    $('#modal-meeting-notes').hide();
+                }
+                
+                $('#meeting-details-section').show();
+            } else {
+                $('#meeting-details-section').hide();
+            }
+            
+            // Update action buttons based on status
+            updateModalActions(complaintId, response.status);
+        },
+        error: function() {
+            alert('Failed to load complaint details. Please try again.');
+            $('#viewComplaintModal').modal('hide');
+        }
+    });
+}
+
+function getComplaintStatusBadge(status) {
+    const statusClasses = {
+        'pending': 'warning',
+        'waiting_for_meeting': 'info',
+        'meeting_scheduled': 'primary',
+        'rejected': 'danger',
+        'resolved': 'success'
+    };
+    const statusLabels = {
+        'pending': 'Pending Review',
+        'waiting_for_meeting': 'Waiting for Meeting',
+        'meeting_scheduled': 'Meeting Scheduled',
+        'rejected': 'Rejected',
+        'resolved': 'Resolved'
+    };
+    
+    const badgeClass = statusClasses[status] || 'secondary';
+    const label = statusLabels[status] || status;
+    
+    return `<span class="badge badge-${badgeClass}">${label}</span>`;
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function formatTime(timeString) {
+    if (!timeString) return 'N/A';
+    
+    // Parse time string (HH:MM:SS format)
+    const [hours, minutes] = timeString.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour % 12 || 12;
+    
+    return `${displayHour}:${minutes} ${ampm}`;
+}
+
+function updateModalActions(complaintId, status) {
+    let actionsHtml = '';
+    
+    if (status === 'pending') {
+        actionsHtml = `
+            <button type="button" class="btn btn-success mr-2" onclick="acceptComplaint(${complaintId})">
+                <i class="fas fa-check"></i> Accept
+            </button>
+            <button type="button" class="btn btn-danger" onclick="showRejectModal(${complaintId})">
+                <i class="fas fa-times"></i> Reject
+            </button>
+        `;
+    } else if (status === 'waiting_for_meeting') {
+        actionsHtml = `
+            <button type="button" class="btn btn-primary" onclick="scheduleMeeting(${complaintId})">
+                <i class="fas fa-calendar"></i> Schedule Meeting
+            </button>
+        `;
+    } else if (status === 'meeting_scheduled') {
+        actionsHtml = `
+            <button type="button" class="btn btn-success" onclick="updateComplaintStatus(${complaintId}, 'resolved')">
+                <i class="fas fa-check-circle"></i> Mark Resolved
+            </button>
+        `;
+    } else if (status === 'rejected') {
+        actionsHtml = `<span class="text-muted">This complaint has been rejected</span>`;
+    } else if (status === 'resolved') {
+        actionsHtml = `<span class="text-muted">This complaint has been resolved</span>`;
+    }
+    
+    $('#modal-actions').html(actionsHtml);
+}
+
+function updateComplaintStatus(complaintId, newStatus) {
+    if (!confirm('Are you sure you want to update the status of this complaint?')) {
+        return;
+    }
+    
+    $.ajax({
+        url: `/admin/blotter-complaints/${complaintId}/update-status`,
+        method: 'POST',
+        data: {
+            status: newStatus,
+            _token: $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response) {
+            if (response.success) {
+                alert('Status updated successfully!');
+                location.reload(); // Refresh the page to show updated data
+            } else {
+                alert('Failed to update status: ' + response.message);
+            }
+        },
+        error: function() {
+            alert('Failed to update status. Please try again.');
+        }
+    });
+}
+
+function scheduleMeeting(complaintId) {
+    // Set minimum date to today
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('meeting-date').min = today;
+    
+    // Get complaint details for the modal
+    $.ajax({
+        url: `/admin/blotter-complaints/${complaintId}`,
+        method: 'GET',
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        success: function(response) {
+            document.getElementById('meeting-complaint-id').value = complaintId;
+            document.getElementById('meeting-case-number').value = response.case_number;
+            $('#scheduleMeetingModal').modal('show');
+        },
+        error: function() {
+            alert('Failed to load complaint details.');
+        }
+    });
+}
+
+function saveMeeting() {
+    const complaintId = document.getElementById('meeting-complaint-id').value;
+    const meetingDate = document.getElementById('meeting-date').value;
+    const meetingTime = document.getElementById('meeting-time').value;
+    const meetingLocation = document.getElementById('meeting-location').value;
+    const meetingNotes = document.getElementById('meeting-notes').value;
+    
+    if (!meetingDate || !meetingTime || !meetingLocation) {
+        alert('Please fill in all required fields.');
+        return;
+    }
+    
+    $.ajax({
+        url: `/admin/blotter-complaints/${complaintId}/schedule-meeting`,
+        method: 'POST',
+        data: {
+            meeting_date: meetingDate,
+            meeting_time: meetingTime,
+            meeting_location: meetingLocation,
+            meeting_notes: meetingNotes,
+            _token: $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response) {
+            if (response.success) {
+                alert('Meeting scheduled successfully!');
+                $('#scheduleMeetingModal').modal('hide');
+                location.reload();
+            } else {
+                alert('Failed to schedule meeting: ' + response.message);
+            }
+        },
+        error: function() {
+            alert('Failed to schedule meeting. Please try again.');
+        }
+    });
+}
+
+function acceptComplaint(complaintId) {
+    // Open the custom modal and store complaint ID
+    $('#acceptComplaintModal').data('complaint-id', complaintId);
+    $('#acceptComplaintModal').modal('show');
+    }
+    // Approve Complaint modal button handler
+    $('#confirmAcceptBtn').off('click').on('click', function() {
+        var complaintId = $('#acceptComplaintModal').data('complaint-id');
+        if (!complaintId) return;
+        $(this).prop('disabled', true);
+        $.ajax({
+            url: `/admin/blotter-complaints/${complaintId}/accept`,
+            method: 'POST',
+            data: {
+                _token: $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                if (response.success) {
+                    showSuccess(response.message);
+                    $('#acceptComplaintModal').modal('hide');
+                    $('#viewComplaintModal').modal('hide');
+                    location.reload();
+                } else {
+                    showError(response.message);
+                }
+            },
+            error: function(xhr) {
+                const message = xhr.responseJSON?.message || 'Failed to accept complaint. Please try again.';
+                showError(message);
+            },
+            complete: function() {
+                $('#confirmAcceptBtn').prop('disabled', false);
+            }
+        });
+    });
+
+function showRejectModal(complaintId) {
+    // Create reject modal if it doesn't exist
+    if (!$('#rejectComplaintModal').length) {
+        const rejectModalHtml = `
+            <div class="modal fade" id="rejectComplaintModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Reject Blotter/Complaint</h5>
+                            <button type="button" class="close" data-dismiss="modal">
+                                <span>&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="rejection-reason">Reason for Rejection <span class="text-danger">*</span></label>
+                                <textarea id="rejection-reason" class="form-control" rows="4" 
+                                    placeholder="Please provide a detailed reason for rejecting this complaint..." required></textarea>
+                                <small class="text-muted">This reason will be sent to the complainant via email.</small>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-danger" onclick="confirmRejectComplaint()">
+                                <i class="fas fa-times"></i> Reject Complaint
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        $('body').append(rejectModalHtml);
+    }
+    
+    // Store complaint ID and clear previous reason
+    $('#rejectComplaintModal').data('complaint-id', complaintId);
+    $('#rejection-reason').val('');
+    $('#rejectComplaintModal').modal('show');
+}
+
+function confirmRejectComplaint() {
+    const complaintId = $('#rejectComplaintModal').data('complaint-id');
+    const rejectionReason = $('#rejection-reason').val().trim();
+    
+    if (!rejectionReason) {
+        showError('Please provide a reason for rejection.');
+        return;
+    }
+    
+    // Only use the custom modal, do not show browser confirm dialog
+    $.ajax({
+        url: `/admin/blotter-complaints/${complaintId}/reject`,
+        method: 'POST',
+        data: {
+            rejection_reason: rejectionReason,
+            _token: $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response) {
+            if (response.success) {
+                showSuccess(response.message);
+                $('#rejectComplaintModal').modal('hide');
+                $('#viewComplaintModal').modal('hide');
+                location.reload();
+            } else {
+                showError(response.message);
+            }
+        },
+        error: function(xhr) {
+            const message = xhr.responseJSON?.message || 'Failed to reject complaint. Please try again.';
+            showError(message);
+        }
+    });
+}
+
+function confirmDelete(id, caseNumber) {
+    document.getElementById('deleteCaseNumber').textContent = caseNumber;
+    document.getElementById('deleteForm').action = `/admin/blotter-complaints/${id}`;
+    $('#deleteModal').modal('show');
+}
+
+// Auto-hide alerts after 5 seconds
+setTimeout(function() {
+    $('.alert').fadeOut();
+}, 5000);
+</script>
+@endpush

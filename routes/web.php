@@ -60,6 +60,17 @@ Route::middleware(['role:Barangay Captain,Barangay Secretary'])->prefix('admin')
 
 // Public routes
 Route::get('/', [PublicController::class, 'home'])->name('public.home');
+
+// CSRF Token Refresh Route - Returns current token without regenerating
+Route::get('/csrf-token', function(Illuminate\Http\Request $request) {
+    // Return current token - DO NOT regenerate it
+    // Regenerating causes race conditions when multiple requests happen
+    
+    return response()->json([
+        'token' => csrf_token(),
+        'timestamp' => now()->toIso8601String()
+    ]);
+})->name('csrf-token');
 Route::get('/about', [PublicController::class, 'about'])->name('public.about');
 Route::get('/services', [PublicController::class, 'services'])->name('public.services');
 Route::get('/contact', [PublicController::class, 'contact'])->name('public.contact');
@@ -140,6 +151,7 @@ Route::post('/health/send-otp', [App\Http\Controllers\HealthServiceController::c
 Route::post('/health/verify-otp', [App\Http\Controllers\HealthServiceController::class, 'verifyOtp'])->name('health.verify-otp');
 Route::post('/health/decode-qr', [App\Http\Controllers\HealthServiceController::class, 'decodeQr'])->name('health.decode-qr');
 Route::post('/health/request', [App\Http\Controllers\HealthServiceController::class, 'store'])->name('health.store');
+Route::get('/health/available-dates', [App\Http\Controllers\HealthServiceController::class, 'getAvailableAppointmentDates'])->name('health.available-dates');
 
 // NEW: Blotter/Complaint Public Routes (Unified System)
 Route::get('/blotter-complaint/request', [BlotterComplaintController::class, 'create'])->name('blotter-complaint.request');
@@ -427,6 +439,15 @@ Route::middleware([
         });
         
         // GAD Archived Management
+        
+        // Health Appointment Dates Management Routes
+        Route::prefix('admin/health/appointment-dates')->name('admin.health.appointment-dates.')->group(function() {
+            Route::get('/',[HealthServiceController::class, 'appointmentDatesIndex'])->name('index');
+            Route::get('/create',[HealthServiceController::class, 'createAppointmentDate'])->name('create');
+            Route::post('/',[HealthServiceController::class, 'storeAppointmentDate'])->name('store');
+            Route::get('/{ id}/view',[HealthServiceController::class, 'viewAppointmentsByDate'])->name('view');
+            Route::post('/{id}/status',[HealthServiceController::class, 'updateAppointmentDateStatus'])->name('update-status');
+        });
         Route::get('/admin/gad/archived', [GadController::class, 'archived'])->name('admin.gad.archived');
         
         // GAD Reports Management
@@ -483,6 +504,15 @@ Route::middleware([
         });
         
         // GAD Archived Management
+        
+        // Health Appointment Dates Management Routes
+        Route::prefix('admin/health/appointment-dates')->name('admin.health.appointment-dates.')->group(function() {
+            Route::get('/',[HealthServiceController::class, 'appointmentDatesIndex'])->name('index');
+            Route::get('/create',[HealthServiceController::class, 'createAppointmentDate'])->name('create');
+            Route::post('/',[HealthServiceController::class, 'storeAppointmentDate'])->name('store');
+            Route::get('/{ id}/view',[HealthServiceController::class, 'viewAppointmentsByDate'])->name('view');
+            Route::post('/{id}/status',[HealthServiceController::class, 'updateAppointmentDateStatus'])->name('update-status');
+        });
         Route::get('/admin/gad/archived', [GadController::class, 'archived'])->name('admin.gad.archived');
         
         // GAD Reports Management
