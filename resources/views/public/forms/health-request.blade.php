@@ -1,6 +1,6 @@
 @extends('layouts.public.master')
 
-@section('title', 'Appointment Booking')
+@section('title', 'Health Service Request')
 
 @section('content')
 <!-- QR Code Scanner Library -->
@@ -9,8 +9,8 @@
 <section class="position-relative" style="background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8b 100%); padding-top: 4rem; padding-bottom: 2rem; margin-top: 0;">
     <div class="container">
         <div class="text-center">
-            <h1 class="fw-bold mb-1 text-white" style="font-size: 2.5rem; margin-top: 2.5rem; margin-bottom: 0.5rem;">Book an Appointment</h1>
-            <p class="text-white opacity-9" style="font-size: 1.1rem;">Schedule an appointment for health services at Barangay Lumanglipa</p>
+            <h1 class="fw-bold mb-1 text-white" style="font-size: 2.5rem; margin-top: 2.5rem; margin-bottom: 0.5rem;">Health Service Request</h1>
+            <p class="text-white opacity-9" style="font-size: 1.1rem;">Request health services from Barangay Lumanglipa</p>
         </div>
     </div>
 </section>
@@ -22,9 +22,9 @@
                 <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center" style="border-radius: 12px 12px 0 0; padding: 1.5rem;">
                     <div>
                         <h4 class="mb-0 fw-bold" style="color: #2A7BC4;">
-                            <i class="fas fa-calendar-alt me-2"></i>Appointment Booking
+                            <i class="fas fa-user-md me-2"></i>Health Services
                         </h4>
-                        <p class="mb-0 text-muted small">Fill out the form below to book an appointment for health services</p>
+                        <p class="mb-0 text-muted small">Complete the form below to request health services from Barangay Lumanglipa</p>
                     </div>
                 </div>
                 <div class="card-body p-4" style="background: #ffffff;">
@@ -36,8 +36,8 @@
                     </div>
 
                     <!-- Error Alert -->
-                    <div id="errorAlert" class="alert alert-primary alert-dismissible fade" role="alert" style="display: none;">
-                        <i class="fas fa-exclamation-circle text-primary me-2"></i>
+                    <div id="errorAlert" class="alert alert-danger alert-dismissible fade" role="alert" style="display: none;">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
                         <span id="errorMessage"></span>
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
@@ -47,24 +47,24 @@
                         
                         <!-- Identity Verification Section -->
                         <div class="mb-3">
-                            <label>Identity Verification <span class="text-primary">*</span></label>
+                            <label>Identity Verification <span class="text-danger">*</span></label>
 
                             <!-- Verification Method Toggle -->
                             <div class="btn-group w-100" role="group" aria-label="Verification method" style="display: flex;">
                                 <input type="radio" class="btn-check" name="verification_method" id="manual_input" value="manual" checked>
                                 <label class="btn btn-outline-primary" for="manual_input" style="flex: 1; text-align: center;">
-                                    <i class="fas fa-keyboard text-primary me-2"></i>Manual Input
+                                    <i class="fas fa-keyboard me-2"></i>Manual Input
                                 </label>
                                 <input type="radio" class="btn-check" name="verification_method" id="qr_scan" value="qr">
                                 <label class="btn btn-outline-primary" for="qr_scan" style="flex: 1; text-align: center;">
-                                    <i class="fas fa-qrcode text-primary me-2"></i>QR Code
+                                    <i class="fas fa-qrcode me-2"></i>QR Code
                                 </label>
                             </div>
                         </div>
 
                         <!-- Barangay ID Section -->
                         <div class="mb-3" style="margin-top: 0;">
-                            <label for="barangay_id" style="margin-bottom: 0.25rem; margin-top: -0.5rem;">Barangay ID <span class="text-primary">*</span></label>
+                            <label for="barangay_id" style="margin-bottom: 0.25rem; margin-top: -0.5rem;">Barangay ID <span class="text-danger">*</span></label>
 
                             <!-- Manual Input Section -->
                             <div id="manualInputSection">
@@ -91,7 +91,7 @@
                                 <div class="btn-group w-100" role="group" style="display: flex;">
                                     <input type="radio" class="btn-check" name="qr_method" id="scan_qr" value="scan">
                                     <label class="btn btn-outline-primary" for="scan_qr" style="flex: 1; text-align: center;">
-                                        <i class="fas fa-camera text-primary me-2"></i>
+                                        <i class="fas fa-camera me-2"></i>
                                         Scan QR Code
                                     </label>
                                     <input type="file"
@@ -101,7 +101,7 @@
                                            style="display: none;">
                                     <input type="radio" class="btn-check" name="qr_method" id="upload_qr" value="upload">
                                     <label class="btn btn-outline-primary" for="upload_qr" style="flex: 1; text-align: center;">
-                                        <i class="fas fa-upload text-primary me-2"></i>
+                                        <i class="fas fa-upload me-2"></i>
                                         Upload QR Code
                                     </label>
                                 </div>
@@ -218,7 +218,7 @@
                             <div class="mb-4">
                                 <label for="service_type" class="form-label fw-bold">
                                     <i class="fas fa-stethoscope text-primary me-2"></i>
-                                    Service Type <span class="text-primary">*Required</span>
+                                    Service Type <span class="text-danger">*Required</span>
                                 </label>
                                 <select class="form-select form-select-lg" id="service_type" name="service_type" required disabled>
                                     <option value="">Select Service Type</option>
@@ -241,7 +241,7 @@
                             <div class="mb-4">
                                 <label for="appointment_type" class="form-label fw-bold">
                                     <i class="fas fa-calendar-alt text-primary me-2"></i>
-                                    Appointment Type <span class="text-primary">*Required</span>
+                                    Appointment Type <span class="text-danger">*Required</span>
                                 </label>
                                 <select class="form-select form-select-lg" id="appointment_type" name="appointment_type" required disabled>
                                     <option value="">Select Appointment Type</option>
@@ -264,13 +264,13 @@
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
                                                 <label for="preferred_date" class="form-label fw-bold">
-                                                    Preferred Date <span class="text-primary">*</span>
+                                                    Preferred Date <span class="text-danger">*</span>
                                                 </label>
                                                 <input type="date" class="form-control" id="preferred_date" name="preferred_date" disabled>
                                             </div>
                                             <div class="col-md-6 mb-3">
                                                 <label for="preferred_time" class="form-label fw-bold">
-                                                    Preferred Time <span class="text-primary">*</span>
+                                                    Preferred Time <span class="text-danger">*</span>
                                                 </label>
                                                 <select class="form-select" id="preferred_time" name="preferred_time" disabled>
                                                     <option value="">Select Time</option>
@@ -293,7 +293,7 @@
                             <div class="mb-4">
                                 <label for="health_concern" class="form-label fw-bold">
                                     <i class="fas fa-clipboard-list text-primary me-2"></i>
-                                    Health Concern/Symptoms <span class="text-primary">*Required</span>
+                                    Health Concern/Symptoms <span class="text-danger">*Required</span>
                                 </label>
                                 <textarea class="form-control" 
                                           id="health_concern" 
@@ -312,7 +312,7 @@
                             <div class="mb-4">
                                 <label for="priority" class="form-label fw-bold">
                                     <i class="fas fa-exclamation-triangle text-warning me-2"></i>
-                                    Priority Level <span class="text-primary">*Required</span>
+                                    Priority Level <span class="text-danger">*Required</span>
                                 </label>
                                 <select class="form-select form-select-lg" id="priority" name="priority" required disabled>
                                     <option value="">Select Priority</option>
@@ -330,7 +330,7 @@
                             <!-- Additional Symptoms -->
                             <div class="mb-4">
                                 <label for="symptoms" class="form-label fw-bold">
-                                    <i class="fas fa-thermometer-half text-primary me-2"></i>
+                                    <i class="fas fa-thermometer-half text-danger me-2"></i>
                                     Additional Symptoms (Optional)
                                 </label>
                                 <textarea class="form-control" 
@@ -348,43 +348,42 @@
                             <!-- Submit Button -->
                             <div class="d-grid" id="submitButtonSection" style="display: none !important;">
                                 <button type="submit" 
-                                        class="btn btn-primary btn-lg" 
+                                        class="btn btn-success btn-lg" 
                                         id="submitBtn"
                                         disabled>
                                     <i class="fas fa-paper-plane me-2"></i>
-                                    Submit Appointment Request
+                                    Submit Health Request
                                 </button>
-                            </form>
-
-                            <!-- Information Section -->
-                            <div class="mt-5 p-4 bg-light rounded">
-                                <h5 class="mb-3" style="color: #0d6efd;">
-                                    <i class="fas fa-info-circle me-2" style="color: #0d6efd;"></i>
-                                    Important Information
-                                </h5>
-                                <ul class="list-unstyled mb-0">
-                                    <li class="mb-2">
-                                        <i class="fas fa-check text-success me-2"></i>
-                                        Identity verification is required for all appointment requests (QR code verification skips email OTP)
-                                    </li>
-                                    <li class="mb-2">
-                                        <i class="fas fa-check text-success me-2"></i>
-                                        All appointment requests will be reviewed by the Barangay Health Office
-                                    </li>
-                                    <li class="mb-2">
-                                        <i class="fas fa-check text-success me-2"></i>
-                                        Processing time is typically 1-3 business days
-                                    </li>
-                                    <li class="mb-2">
-                                        <i class="fas fa-check text-success me-2"></i>
-                                        You will be notified once your appointment is approved
-                                    </li>
-                                    <li class="mb-0">
-                                        <i class="fas fa-check text-success me-2"></i>
-                                        Make sure all information provided is accurate and complete
-                                    </li>
-                                </ul>
                             </div>
+                        </div>
+                    </form>
+
+                    <!-- Information Section -->
+                    <div class="mt-5 p-4 bg-light rounded">
+                        <h5 class="text-primary mb-3">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Important Information
+                        </h5>                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Identity verification is required for all document requests (QR code verification skips email OTP)
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                All document requests will be reviewed by the Barangay Office
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Processing time is typically 1-3 business days
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                You will be notified once your request is approved
+                            </li>
+                            <li class="mb-0">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Make sure all information provided is accurate and complete
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -437,6 +436,10 @@
 <style>
 .card {
     transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
 }
 
 .form-control:focus,
@@ -1022,7 +1025,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function verifyResidentWithQr(barangayId) {
-    fetch('{{ route("health.check-resident") }}', {
+        fetch('{{ route("health.check-resident") }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1120,7 +1123,7 @@ document.addEventListener('DOMContentLoaded', function() {
         checkResidentBtn.disabled = true;
         checkResidentBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
 
-    fetch('{{ route("health.check-resident") }}', {
+        fetch('{{ route("health.check-resident") }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

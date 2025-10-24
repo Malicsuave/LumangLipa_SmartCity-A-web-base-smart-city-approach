@@ -110,18 +110,18 @@
                                         Actions
                                     </button>
                                     <div class="dropdown-menu dropdown-menu-right">
-                                        <a class="dropdown-item text-dark" href="{{ route('admin.residents.edit', $resident) }}">
-                                            <i class="fas fa-edit mr-2 text-dark"></i>Update Information
+                                        <a class="dropdown-item" href="{{ route('admin.residents.edit', $resident) }}">
+                                            <i class="fas fa-edit mr-2"></i>Update Information
                                         </a>
-                                        <a class="dropdown-item text-dark" href="{{ route('admin.residents.services', $resident) }}">
-                                            <i class="fas fa-clipboard mr-2 text-dark"></i>Services & Documents
+                                        <a class="dropdown-item" href="{{ route('admin.residents.services', $resident) }}">
+                                            <i class="fas fa-clipboard mr-2"></i>Services & Documents
                                         </a>
-                                        <a class="dropdown-item text-dark" href="javascript:void(0)" onclick="viewResidentDetails({{ $resident->id }})">
-                                            <i class="fas fa-eye mr-2 text-dark"></i>View Details
+                                        <a class="dropdown-item" href="javascript:void(0)" onclick="viewResidentDetails({{ $resident->id }})">
+                                            <i class="fas fa-eye mr-2"></i>View Details
                                         </a>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item text-dark" href="javascript:void(0)" onclick="handleArchiveClick(event, {{ $resident->id }}, '{{ addslashes($resident->first_name . ' ' . $resident->last_name) }}')">
-                                            <i class="fas fa-archive mr-2 text-dark"></i>Archive Resident
+                                            <i class="fas fa-archive mr-2"></i>Archive Resident
                                         </a>
                                     </div>
                                 </div>

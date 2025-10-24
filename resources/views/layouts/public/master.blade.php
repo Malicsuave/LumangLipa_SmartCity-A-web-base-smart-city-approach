@@ -101,7 +101,7 @@
                                           <img src="{{ asset('assets/img/down-arrow-dark.svg') }}" alt="down-arrow" class="arrow ms-auto ms-md-2">
                                       </a>
                                       <ul class="dropdown-menu dropdown-menu-animation ms-n3 dropdown-md p-3 border-radius-xl mt-0 mt-lg-3" aria-labelledby="dropdownMenuServices">
-                                          <li><a class="dropdown-item" href="{{ route('health.request') }}">Health Appointment</a></li>
+                                          <li><a class="dropdown-item" href="{{ route('health.request') }}">Health Services</a></li>
                                           <li><a class="dropdown-item" href="{{ route('documents.request') }}">Document Request</a></li>
                                           <li><a class="dropdown-item" href="{{ route('blotter-complaint.request') }}">Blotter/Complaint Report</a></li>
                                       </ul>
@@ -202,7 +202,7 @@
               <h6 class="text-sm">eServices</h6>
               <ul class="flex-column ms-n3 nav">
                 <li class="nav-item">
-                  <a class="nav-link" href="{{ route('health.request') }}">Health Appointment</a>
+                  <a class="nav-link" href="{{ route('health.request') }}">Health Services</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" href="{{ route('documents.request') }}">Document Request</a>

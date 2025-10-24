@@ -360,26 +360,6 @@
 @section('scripts')
 <script>
 $(document).ready(function() {
-    // Refresh CSRF token every 5 minutes to prevent 419 errors
-    function refreshCsrfToken() {
-        $.get('{{ route('csrf-token') }}', function(data) {
-            $('input[name="_token"]').val(data.token);
-            $('meta[name="csrf-token"]').attr('content', data.token);
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': data.token
-                }
-            });
-            console.log('CSRF token refreshed');
-        });
-    }
-    
-    // Refresh token immediately on page load
-    refreshCsrfToken();
-    
-    // Then refresh every 5 minutes (300000 ms)
-    setInterval(refreshCsrfToken, 300000);
-    
     // Debug: Log session data availability
     console.log('Step 1 data:', {{ session('registration.step1') ? 'true' : 'false' }});
     console.log('Step 2 data:', {{ session('registration.step2') ? 'true' : 'false' }});
@@ -399,7 +379,7 @@ $(document).ready(function() {
         }, 500);
     @endif
     
-    // Form submission handling with CSRF token refresh
+    // Form submission handling
     $('#finalSubmitForm').on('submit', function(e) {
         if (!$('#confirmation').is(':checked')) {
             e.preventDefault();
@@ -407,15 +387,24 @@ $(document).ready(function() {
             return false;
         }
         
-        console.log('Form validation passed, submitting...');
+        console.log('Form submitted, processing registration...');
         
-        // Disable submit button to prevent double submission
-        $('#submitBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i>Processing...');
-        
-        // Show loading notification
+        // Show loading toastr notification
         showInfo('Please wait while we create the resident record...', 'Registering Resident');
         
-        // Let the form submit naturally - the CSRF token is already fresh from periodic refresh
+        // Disable form inputs to prevent changes during submission
+        $(this).find('input, button, a').prop('disabled', true);
+        
+        // Add a timeout to handle potential server issues
+        setTimeout(function() {
+            if ($('#finalSubmitForm').find('input, button, a').first().prop('disabled')) {
+                showError('Registration is taking longer than expected. Please check your connection and try again.', 'Request Timeout');
+                $('#finalSubmitForm').find('input, button, a').prop('disabled', false);
+                console.error('Registration timeout - check server logs');
+            }
+        }, 30000); // 30 seconds timeout
+        
+        // Allow form to submit
         return true;
     });
     

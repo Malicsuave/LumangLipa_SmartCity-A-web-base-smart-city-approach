@@ -2,124 +2,138 @@
 
 @section('title', 'Health Services Dashboard')
 
-@push('styles')
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-@endpush
-
 @section('content')
 <div class="row">
-    <div class="col-md-12 mb-4">
-        <div class="row align-items-center">
-            <div class="col">
-                <h1 class="h3 mb-0 text-gray-800">Health Services Dashboard</h1>
-                <p class="text-muted mb-0">Manage health service requests and appointments</p>
-            </div>
-            <div class="col-auto">
-                <a href="{{ route('admin.health-services.index') }}" class="btn btn-primary mr-2">
-                    <i class="fas fa-arrow-right mr-2"></i>View All Requests
-                </a>
-                <a href="{{ route('admin.health.appointment-dates.index') }}" class="btn btn-success">
-                    <i class="fas fa-calendar mr-2"></i>Manage Appointment Dates
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Statistics Cards -->
-<div class="row mb-4">
-    <div class="col-lg-4 col-6">
-        <div class="small-box bg-info">
-            <div class="inner">
-                <h3 class="metric-counter">{{ $totalRequests ?? 0 }}</h3>
-                <p>Total Requests</p>
-            </div>
-            <div class="icon">
-                <i class="fas fa-users"></i>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-4 col-6">
-        <div class="small-box bg-warning">
-            <div class="inner">
-                <h3 class="metric-counter">{{ $pendingRequests ?? 0 }}</h3>
-                <p>Pending</p>
-            </div>
-            <div class="icon">
-                <i class="fas fa-clock"></i>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-4 col-6">
-        <div class="small-box bg-success">
-            <div class="inner">
-                <h3 class="metric-counter">{{ $completedRequests ?? 0 }}</h3>
-                <p>Completed</p>
-            </div>
-            <div class="icon">
-                <i class="fas fa-check"></i>
-            </div>
+    <div class="col-md-12 mb-4 d-flex justify-content-between align-items-center">
+        <h1 class="h3 mb-0 text-gray-800">Health Services</h1>
+        <div class="page-metrics small text-muted">
+            <span id="pageLoadMetric"></span>
         </div>
     </div>
 </div>
 
 <div class="row">
     <div class="col-md-12">
-        <div class="card shadow-lg border-0 admin-card-shadow">
+        <div class="card shadow">
             <div class="card-header">
-                <strong class="card-title">Recent Health Service Requests</strong>
+                <strong class="card-title">Health Services Dashboard</strong>
             </div>
             <div class="card-body">
-                <div class="d-flex justify-content-end mb-3">
-                    @if(isset($recentRequests) && $recentRequests->count() > 0)
-                        <button class="btn btn-outline-secondary" id="refreshTableBtn" type="button">
-                            <i class="fas fa-sync-alt mr-2"></i>Refresh
-                        </button>
-                    @endif
+                <p class="mb-4">Welcome to the health services management module.</p>
+                <!-- Metrics Section - Match Complaints Dashboard -->
+                <div class="row mb-4">
+                    <div class="col-md-4 mb-4">
+                        <div class="card document-metric-card shadow h-100">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-3 text-center">
+                                        <span class="circle circle-sm bg-primary">
+                                            <i class="fe fe-users text-white mb-0"></i>
+                                        </span>
+                                    </div>
+                                    <div class="col pr-0">
+                                        <p class="small text-muted mb-0">Total Requests</p>
+                                    </div>
+                                    <div class="col-auto">
+                                        <span class="h3 mb-0" id="totalRequests">{{ $totalRequests ?? 0 }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="card document-metric-card shadow h-100">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-3 text-center">
+                                        <span class="circle circle-sm bg-warning">
+                                            <i class="fe fe-clock text-white mb-0"></i>
+                                        </span>
+                                    </div>
+                                    <div class="col pr-0">
+                                        <p class="small text-muted mb-0">Pending</p>
+                                    </div>
+                                    <div class="col-auto">
+                                        <span class="h3 mb-0" id="pendingRequests">{{ $pendingRequests ?? 0 }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="card document-metric-card shadow h-100">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-3 text-center">
+                                        <span class="circle circle-sm bg-success">
+                                            <i class="fe fe-check text-white mb-0"></i>
+                                        </span>
+                                    </div>
+                                    <div class="col pr-0">
+                                        <p class="small text-muted mb-0">Completed</p>
+                                    </div>
+                                    <div class="col-auto">
+                                        <span class="h3 mb-0" id="completedRequests">{{ $completedRequests ?? 0 }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+                <!-- End Metrics Section -->
                 
-                <div id="recentRequestsContainer">
-                    @if(isset($recentRequests) && $recentRequests->count() > 0)
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-striped" id="recentRequestsTable">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Resident</th>
-                                        <th>Service</th>
-                                        <th>Status</th>
-                                        <th>Date Requested</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($recentRequests as $request)
-                                    <tr>
-                                        <td><strong>{{ $request->id }}</strong></td>
-                                        <td><strong>{{ $request->resident_name }}</strong></td>
-                                        <td>{{ ucwords(str_replace('_', ' ', $request->service_type)) }}</td>
-                                        <td>{!! $request->status_badge !!}</td>
-                                        <td>{{ $request->requested_at->format('M d, Y') }}<br><small class="text-muted">{{ $request->requested_at->format('h:i A') }}</small></td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                                <tfoot>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Resident</th>
-                                        <th>Service</th>
-                                        <th>Status</th>
-                                        <th>Date Requested</th>
-                                    </tr>
-                                </tfoot>
-                            </table>
+                <!-- Recent Requests Table - Optimized with deferred loading -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="mb-0">Recent Health Service Requests</h5>
+                            <div class="d-flex gap-2">
+                                <a href="{{ route('admin.health-services.index') }}" class="btn btn-sm btn-primary" style="margin-right: 10px;">
+                                    <i class="fe fe-arrow-right me-1"></i>
+                                    View Requests
+                                </a>
+                                @if(isset($recentRequests) && $recentRequests->count() > 0)
+                                    <button class="btn btn-sm btn-outline-secondary" id="refreshTableBtn" type="button">
+                                        <i class="fe fe-refresh-cw me-1"></i> Refresh
+                                    </button>
+                                @endif
+                            </div>
                         </div>
-                    @else
-                        <div class="text-center py-4">
-                            <i class="fas fa-heartbeat fa-3x text-muted mb-3"></i>
-                            <h6 class="text-muted">No health service requests yet</h6>
-                            <p class="text-muted">Health service requests will appear here once residents submit them.</p>
+                        <div id="recentRequestsContainer">
+                            @if(isset($recentRequests) && $recentRequests->count() > 0)
+                                <div class="table-responsive">
+                                    <table class="table table-borderless table-striped table-sm complaints-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Resident</th>
+                                                <th>Service</th>
+                                                <th>Status</th>
+                                                <th>Date Requested</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($recentRequests as $request)
+                                            <tr>
+                                                <td>{{ $request->id }}</td>
+                                                <td>{{ $request->resident_name }}</td>
+                                                <td>{{ ucwords(str_replace('_', ' ', $request->service_type)) }}</td>
+                                                <td>{!! $request->status_badge !!}</td>
+                                                <td>{{ $request->requested_at->format('M d, Y') }}</td>
+                                            </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @else
+                                <div class="text-center py-4">
+                                    <i class="fe fe-heart fe-32 text-muted mb-3"></i>
+                                    <h6 class="text-muted">No health service requests yet</h6>
+                                    <p class="text-muted">Health service requests will appear here once residents submit them.</p>
+                                </div>
+                            @endif
                         </div>
-                    @endif
+                    </div>
                 </div>
             </div>
         </div>
@@ -129,14 +143,12 @@
 
 @push('scripts')
 <script>
-$(function () {
-    // Auto-hide success alerts after 10 seconds
-    setTimeout(function() {
-        $('.alert-success').fadeOut('slow');
-    }, 10000);
-    
-    // Load metrics with animation
-    animateCounters();
+document.addEventListener('DOMContentLoaded', function() {
+    // Display page load metrics
+    if (window.performanceMetrics && window.performanceMetrics.totalLoadTime) {
+        document.getElementById('pageLoadMetric').textContent = 
+            'Page Load: ' + (parseInt(window.performanceMetrics.totalLoadTime) / 1000).toFixed(2) + 's';
+    }
     
     // Initialize refresh button
     const refreshBtn = document.getElementById('refreshTableBtn');
@@ -145,14 +157,15 @@ $(function () {
             refreshRecentRequests();
         });
     }
+    
+    // Load metrics with animation
+    animateCounters();
 });
 
 // Animate metric counters
 function animateCounters() {
     document.querySelectorAll('.metric-counter').forEach(counter => {
         const target = parseInt(counter.textContent);
-        if (isNaN(target)) return;
-        
         const duration = 1000;
         const step = target / duration * 10;
         let current = 0;
@@ -169,7 +182,7 @@ function animateCounters() {
         
         setTimeout(() => {
             animate();
-        }, 200);
+        }, 200); // Slight delay before animation starts
     });
 }
 
@@ -177,18 +190,132 @@ function animateCounters() {
 function refreshRecentRequests() {
     const refreshBtn = document.getElementById('refreshTableBtn');
     refreshBtn.disabled = true;
-    refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Loading...';
+    refreshBtn.innerHTML = '<i class="fe fe-loader fe-spin me-1"></i> Loading...';
     
     // AJAX request would go here in a real implementation
     setTimeout(() => {
         refreshBtn.disabled = false;
-        refreshBtn.innerHTML = '<i class="fas fa-sync-alt mr-2"></i>Refresh';
+        refreshBtn.innerHTML = '<i class="fe fe-refresh-cw me-1"></i> Refresh';
         
-        // Show success message using toastr if available
-        if (typeof toastr !== 'undefined') {
-            toastr.success('Table refreshed successfully!');
-        }
+        // Show toast notification
+        showToast('Table refreshed successfully!');
     }, 500);
 }
+
+// Simple toast notification
+function showToast(message) {
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification';
+    toast.innerHTML = `
+        <div class="toast-content">
+            <i class="fe fe-check-circle text-success me-2"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 10);
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+            document.body.removeChild(toast);
+        }, 300);
+    }, 3000);
+}
 </script>
+@endpush
+@push('styles')
+<style>
+/* Performance optimized styles */
+.health-metric-card {
+    transition: transform 0.2s ease;
+}
+
+.health-metric-card:hover {
+    transform: translateY(-5px);
+}
+
+.border-left-primary {
+    border-left: 4px solid var(--primary) !important;
+}
+
+.border-left-success {
+    border-left: 4px solid var(--success) !important;
+}
+
+.border-left-warning {
+    border-left: 4px solid var(--warning) !important;
+}
+
+.circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Optimize icon rendering */
+.fe {
+    will-change: transform;
+}
+
+.fe-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Toast notification */
+.toast-notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: white;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border-radius: 4px;
+    padding: 12px 20px;
+    z-index: 9999;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.toast-notification.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.toast-content {
+    display: flex;
+    align-items: center;
+}
+
+/* Add critical CSS inline for faster rendering */
+#recentRequestsTable {
+    table-layout: fixed;
+    width: 100%;
+}
+
+/* Optimize repaint operations */
+.card {
+    backface-visibility: hidden;
+    will-change: transform;
+}
+
+.table-responsive,
+.card-body,
+.collapse,
+#filterSection {
+    overflow: visible !important;
+}
+.dropdown-menu {
+    z-index: 9999 !important;
+}
+</style>
 @endpush

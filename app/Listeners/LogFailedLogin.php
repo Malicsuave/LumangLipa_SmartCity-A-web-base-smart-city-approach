@@ -38,11 +38,6 @@ class LogFailedLogin
             return;
         }
         
-        // Skip if no credentials (OAuth scenarios)
-        if (!isset($event->credentials['email'])) {
-            return;
-        }
-        
         // If we have credentials but no user, it's a failed attempt with incorrect email
         if (!$event->user && isset($event->credentials['email'])) {
             // Check if the user exists
@@ -57,7 +52,7 @@ class LogFailedLogin
         }
         
         // If we have a user, it's a failed password attempt for an existing user
-        if ($event->user && $event->user instanceof User) {
+        if ($event->user) {
             $this->handleFailedAttempt($event->user);
         }
     }

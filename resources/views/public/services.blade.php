@@ -29,21 +29,22 @@
             </div>
         </div>
         
-        <!-- Appointment Booking -->
+        <!-- Health Services -->
         <div class="col-lg-4 col-md-6">
             <div class="card h-100 shadow">
                 <div class="card-body text-center">
-                    <i class="fe fe-calendar fe-48 text-success mb-3"></i>
-                    <h4>Appointment</h4>
-                    <p>Book an appointment for health consultation and services:</p>
+                    <i class="fe fe-heart fe-48 text-danger mb-3"></i>
+                    <h4>Health Services</h4>
+                    <p>Access health programs and services:</p>
                     <ul class="list-unstyled text-start">
                         <li>• Medical Consultation</li>
                         <li>• Blood Pressure Check</li>
                         <li>• Vaccination Programs</li>
                         <li>• Prenatal Checkup</li>
+                        <li>• Health Certificates</li>
                         <li>• Medicine Distribution</li>
                     </ul>
-                    <a href="{{ route('health.request') }}" class="btn btn-success">Book Appointment</a>
+                    <a href="{{ route('health.request') }}" class="btn btn-danger">Request Service</a>
                 </div>
             </div>
         </div>

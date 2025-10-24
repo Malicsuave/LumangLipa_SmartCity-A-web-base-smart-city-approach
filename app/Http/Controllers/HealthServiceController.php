@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Resident;
 use App\Models\HealthServiceRequest;
-use App\Models\HealthAppointmentDate;
 use App\Services\OtpService;
 use Carbon\Carbon;
 use Zxing\QrReader;
@@ -113,9 +112,13 @@ class HealthServiceController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'barangay_id' => 'required|string',
-                'appointment_date_id' => 'required|exists:health_appointment_dates,id',
-                'service_type' => 'nullable|string',
-                'purpose' => 'nullable|string',
+                'service_type' => 'required|string',
+                'appointment_type' => 'required|string|in:walk-in,scheduled',
+                'health_concern' => 'required|string',
+                'priority' => 'required|string|in:low,medium,high,emergency',
+                'symptoms' => 'nullable|string',
+                'preferred_date' => 'nullable|date|after:today',
+                'preferred_time' => 'nullable|string',
                 'verification_method' => 'required|string|in:manual,qr'
             ]);
 
@@ -135,46 +138,29 @@ class HealthServiceController extends Controller
                 ], 404);
             }
 
-            // Check if appointment date is still available
-            $appointmentDate = HealthAppointmentDate::findOrFail($request->appointment_date_id);
-            
-            if ($appointmentDate->status !== 'open') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'This appointment date is no longer available.'
-                ], 400);
-            }
-
-            if ($appointmentDate->is_full) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'This appointment date is fully booked.'
-                ], 400);
-            }
-
-            // Create health service request
+            // Create health service request using the existing table structure
             $healthService = HealthServiceRequest::create([
                 'barangay_id' => $request->barangay_id,
-                'appointment_date_id' => $request->appointment_date_id,
-                'service_type' => $request->service_type ?? 'General Health Check-up',
-                'purpose' => $request->purpose ?? 'Scheduled health check-up appointment',
+                'service_type' => $request->service_type,
+                'priority' => $request->priority,
+                'purpose' => $request->health_concern, // Map health_concern to purpose field in DB
+                'health_concern' => $request->health_concern,
+                'symptoms' => $request->symptoms,
                 'status' => 'pending',
                 'requested_at' => now(),
-                'scheduled_at' => $appointmentDate->appointment_date
+                'scheduled_at' => $request->appointment_type === 'scheduled' && $request->preferred_date && $request->preferred_time 
+                    ? $request->preferred_date . ' ' . $request->preferred_time 
+                    : null
             ]);
-
-            // Increment booked slots
-            $appointmentDate->increment('booked_slots');
 
             return response()->json([
                 'success' => true,
-                'message' => 'Health appointment booked successfully!',
+                'message' => 'Health service request submitted successfully!',
                 'data' => [
                     'request_id' => $healthService->id,
                     'resident_name' => $resident->first_name . ' ' . $resident->last_name,
-                    'appointment_date' => $appointmentDate->appointment_date->format('F d, Y'),
-                    'appointment_time' => $appointmentDate->start_time . ' - ' . $appointmentDate->end_time,
-                    'location' => $appointmentDate->location,
+                    'service_type' => $healthService->service_type,
+                    'appointment_type' => $request->appointment_type,
                     'status' => $healthService->status
                 ]
             ]);
@@ -183,45 +169,7 @@ class HealthServiceController extends Controller
             Log::error('Health Service - Store Error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to book appointment. Please try again.'
-            ], 500);
-        }
-    }
-
-    /**
-     * Get available appointment dates for residents to book
-     */
-    public function getAvailableAppointmentDates()
-    {
-        try {
-            $dates = HealthAppointmentDate::where('status', 'open')
-                ->where('appointment_date', '>=', now()->toDateString())
-                ->orderBy('appointment_date', 'asc')
-                ->get()
-                ->map(function($date) {
-                    return [
-                        'id' => $date->id,
-                        'title' => $date->title,
-                        'date' => $date->appointment_date->format('Y-m-d'),
-                        'date_formatted' => $date->appointment_date->format('F d, Y'),
-                        'time' => $date->start_time . ' - ' . $date->end_time,
-                        'location' => $date->location,
-                        'available_slots' => $date->available_slots,
-                        'max_slots' => $date->max_slots,
-                        'is_full' => $date->is_full,
-                        'description' => $date->description
-                    ];
-                });
-
-            return response()->json([
-                'success' => true,
-                'dates' => $dates
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Get Available Appointment Dates Error: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to fetch available dates.'
+                'message' => 'Failed to submit health service request. Please try again.'
             ], 500);
         }
     }
@@ -462,124 +410,4 @@ class HealthServiceController extends Controller
             return null;
         }
     }
-
-    /**
-     * Admin: View all appointment dates
-     */
-    public function appointmentDatesIndex()
-    {
-        try {
-            $appointmentDates = HealthAppointmentDate::with('creator')
-                ->orderBy('appointment_date', 'desc')
-                ->paginate(15);
-
-            return view('admin.health.appointment-dates.index', compact('appointmentDates'));
-        } catch (\Exception $e) {
-            Log::error('Appointment Dates Index Error: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Error loading appointment dates.');
-        }
-    }
-
-    /**
-     * Admin: Create appointment date form
-     */
-    public function createAppointmentDate()
-    {
-        return view('admin.health.appointment-dates.create');
-    }
-
-    /**
-     * Admin: Store new appointment date
-     */
-    public function storeAppointmentDate(Request $request)
-    {
-        try {
-            $validator = Validator::make($request->all(), [
-                'appointment_date' => 'required|date|after_or_equal:today',
-                'title' => 'required|string|max:255',
-                'description' => 'nullable|string',
-                'location' => 'required|string|max:255',
-                'start_time' => 'required',
-                'end_time' => 'required',
-                'max_slots' => 'required|integer|min:1|max:500',
-            ]);
-
-            if ($validator->fails()) {
-                return redirect()->back()
-                    ->withErrors($validator)
-                    ->withInput();
-            }
-
-            HealthAppointmentDate::create([
-                'appointment_date' => $request->appointment_date,
-                'title' => $request->title,
-                'description' => $request->description,
-                'location' => $request->location,
-                'start_time' => $request->start_time,
-                'end_time' => $request->end_time,
-                'max_slots' => $request->max_slots,
-                'booked_slots' => 0,
-                'status' => 'open',
-                'created_by' => auth()->id(),
-            ]);
-
-            return redirect()->route('admin.health.appointment-dates.index')
-                ->with('success', 'Appointment date created successfully!');
-
-        } catch (\Exception $e) {
-            Log::error('Store Appointment Date Error: ' . $e->getMessage());
-            return redirect()->back()
-                ->with('error', 'Failed to create appointment date.')
-                ->withInput();
-        }
-    }
-
-    /**
-     * Admin: View appointments for a specific date
-     */
-    public function viewAppointmentsByDate($id)
-    {
-        try {
-            $appointmentDate = HealthAppointmentDate::with(['appointments.resident'])->findOrFail($id);
-            
-            return view('admin.health.appointment-dates.view', compact('appointmentDate'));
-        } catch (\Exception $e) {
-            Log::error('View Appointments By Date Error: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Error loading appointments.');
-        }
-    }
-
-    /**
-     * Admin: Update appointment date status
-     */
-    public function updateAppointmentDateStatus($id, Request $request)
-    {
-        try {
-            $validator = Validator::make($request->all(), [
-                'status' => 'required|in:open,closed,completed,cancelled'
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => $validator->errors()
-                ], 422);
-            }
-
-            $appointmentDate = HealthAppointmentDate::findOrFail($id);
-            $appointmentDate->update(['status' => $request->status]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Appointment date status updated successfully.'
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Update Appointment Date Status Error: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Error updating appointment date status.'
-            ], 500);
-        }
-    }
 }
-

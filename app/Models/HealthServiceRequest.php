@@ -14,7 +14,6 @@ class HealthServiceRequest extends Model
 
     protected $fillable = [
         'barangay_id',
-        'appointment_date_id',
         'service_type',
         'purpose',
         'status',
@@ -46,11 +45,6 @@ class HealthServiceRequest extends Model
     public function resident()
     {
         return $this->belongsTo(Resident::class, 'barangay_id', 'barangay_id');
-    }
-
-    public function appointmentDate(): BelongsTo
-    {
-        return $this->belongsTo(HealthAppointmentDate::class, 'appointment_date_id');
     }
 
     public function approver(): BelongsTo
