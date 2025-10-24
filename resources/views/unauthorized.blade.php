@@ -4,18 +4,251 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
     <title>Unauthorized Access - {{ config('app.name', 'Lumanglipa') }}</title>
-
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- Unauthorized Page Styles -->
-    <link rel="stylesheet" href="{{ asset('css/unauthorized.css') }}">
+    <style>
+        body {
+            background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8b 100%);
+            font-family: 'Poppins', 'Nunito', Arial, sans-serif;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 16px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(42,123,196,0.12);
+            overflow: hidden;
+            padding: 0;
+        }
+        .header-bar {
+            background: #f8fafc;
+            padding: 1.25rem 2rem 1.25rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .logo-img {
+            height: 40px;
+            width: 40px;
+            border-radius: 8px;
+            background: #e5e7eb;
+            object-fit: contain;
+        }
+        .logo-text {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: #2A7BC4;
+        }
+        .header-actions a {
+            color: #2A7BC4;
+            font-weight: 500;
+            margin-left: 1.5rem;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .header-actions a:hover {
+            color: #1e5f8b;
+        }
+        .content {
+            padding: 2rem 2rem 1.5rem 2rem;
+        }
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2A7BC4;
+            margin-bottom: 1.25rem;
+            text-align: center;
+        }
+        .alert {
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .alert-success { background: #e6f7ee; color: #22c55e; border: 1px solid #22c55e; }
+        .alert-warning { background: #fffbe6; color: #f59e42; border: 1px solid #f59e42; }
+        .alert-info { background: #e6f0fa; color: #2A7BC4; border: 1px solid #2A7BC4; }
+        .alert-error { background: #ffe6e6; color: #ef4444; border: 1px solid #ef4444; }
+        .info-box {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+        .info-primary { border-left: 4px solid #2A7BC4; }
+        .info-accent { border-left: 4px solid #f59e42; }
+        .pending-request {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 1.5rem 1.25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(42,123,196,0.07);
+        }
+        .pending-icon {
+            font-size: 2.5rem;
+            color: #f59e42;
+            text-align: center;
+        }
+        .pending-status {
+            color: #f59e42;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        .pending-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #2A7BC4;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        .pending-detail {
+            margin-bottom: 0.5rem;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #1e5f8b;
+            font-size: 0.95rem;
+        }
+        .reason-text {
+            background: #e6f0fa;
+            border-radius: 6px;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.98rem;
+        }
+        .pending-note {
+            font-size: 0.95rem;
+            color: #64748b;
+            margin-top: 1rem;
+            text-align: center;
+        }
+        .steps-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            justify-content: space-between;
+        }
+        .step-box {
+            background: #e6f0fa;
+            border-radius: 10px;
+            flex: 1 1 110px;
+            min-width: 110px;
+            max-width: 120px;
+            padding: 1rem 0.5rem;
+            text-align: center;
+            box-shadow: 0 1px 4px rgba(42,123,196,0.07);
+        }
+        @media (max-width: 600px) {
+            .container { max-width: 100%; }
+            .card { border-radius: 10px; }
+            .header-bar, .content { padding: 1rem; }
+            .steps-container { flex-direction: column; gap: 0.75rem; }
+            .step-box {
+                min-width: 0;
+                max-width: 100%;
+                width: 100%;
+                padding: 1rem;
+            }
+        }
+        .request-form {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 1.5rem 1.25rem;
+            box-shadow: 0 2px 8px rgba(42,123,196,0.07);
+            margin-bottom: 1.5rem;
+        }
+        .form-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #2A7BC4;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .form-row {
+            margin-bottom: 1.25rem;
+        }
+        .form-label {
+            font-weight: 600;
+            color: #1e5f8b;
+            margin-bottom: 0.25rem;
+            display: block;
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+            font-size: 1rem;
+            background: #fff;
+            margin-bottom: 0.25rem;
+        }
+        .form-text {
+            font-size: 0.92rem;
+            color: #64748b;
+            margin-top: 0.25rem;
+        }
+        .form-footer {
+            text-align: right;
+        }
+        .btn-primary {
+            background: linear-gradient(90deg, #2A7BC4 0%, #1e5f8b 100%);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 0.5rem 1.25rem;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(90deg, #1e5f8b 0%, #2A7BC4 100%);
+        }
+        .badge-info {
+            background: #2A7BC4;
+            color: #fff;
+            border-radius: 6px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+        .required {
+            color: #ef4444;
+        }
+        .footer {
+            text-align: center;
+            font-size: 0.98rem;
+            color: #64748b;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+        .footer a {
+            color: #2A7BC4;
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -25,7 +258,6 @@
                     <img src="{{ asset('images/logo.png') }}" alt="{{ config('app.name') }} Logo" class="logo-img">
                     <div class="logo-text">{{ config('app.name', 'Lumanglipa') }}</div>
                 </div>
-                
                 <div class="header-actions">
                     <a href="{{ route('public.home') }}"><i class="fas fa-home"></i> Home</a>
                     <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -36,10 +268,8 @@
                     </form>
                 </div>
             </div>
-            
             <div class="content">
-                <h1>Access Required</h1>
-                
+                <h1><i class="fas fa-lock"></i> Access Required</h1>
                 <!-- Alerts -->
                 @if (session('status'))
                     <div class="alert alert-success">
@@ -114,33 +344,7 @@
                         <h3 class="access-overview-title">
                             <i class="fas fa-info-circle"></i> How to Get Access
                         </h3>
-                        <p class="access-overview-text">Follow these simple steps to request system access:</p>
-                    </div>
-                    
-                    <div class="steps-container">
-                        <div class="step-box">
-                            <div class="step-number">1</div>
-                            <div class="step-title">Submit Request</div>
-                            <div class="step-description">Fill out the form below with your role and reason</div>
-                        </div>
-                        
-                        <div class="step-box">
-                            <div class="step-number">2</div>
-                            <div class="step-title">Admin Review</div>
-                            <div class="step-description">Request is reviewed by Barangay Captain</div>
-                        </div>
-                        
-                        <div class="step-box">
-                            <div class="step-number">3</div>
-                            <div class="step-title">Email Notification</div>
-                            <div class="step-description">You'll be notified once decision is made</div>
-                        </div>
-                        
-                        <div class="step-box">
-                            <div class="step-number">4</div>
-                            <div class="step-title">Access Granted</div>
-                            <div class="step-description">If approved, log in with your new role</div>
-                        </div>
+                        <p class="access-overview-text">To request access, please fill out the form below with your full name, desired role, and reason for access. Your request will be reviewed by the barangay administrator and you will be notified via email once a decision is made.</p>
                     </div>
 
                     <!-- Request Form -->
