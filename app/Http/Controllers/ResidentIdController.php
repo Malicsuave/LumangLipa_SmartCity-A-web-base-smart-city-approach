@@ -555,9 +555,7 @@ class ResidentIdController extends Controller
         // Apply sorting for issued IDs
         $issuedIdsQuery = $applySorting($issuedIdsQuery, 'sort', 'direction');
         
-        $issuedIds = $issuedIdsQuery
-            ->paginate(10, ['*'], 'issued_page')
-            ->appends(request()->except('issued_page'));
+        $issuedIds = $issuedIdsQuery->get();
         
         // 2. Pending renewals - use independent filters
         $pendingRenewalQuery = Resident::query()->where('id_status', 'needs_renewal');
@@ -987,7 +985,6 @@ class ResidentIdController extends Controller
         }
 
         $request->validate([
-            'id_number' => 'nullable|string|max:50',
             'id_issued_at' => 'nullable|date',
             'id_expires_at' => 'nullable|date|after_or_equal:id_issued_at',
             'id_status' => 'required|string|in:issued,needs_renewal,expired',
@@ -995,7 +992,6 @@ class ResidentIdController extends Controller
 
         // Update resident ID information
         $resident->update([
-            'id_number' => $request->id_number,
             'id_issued_at' => $request->id_issued_at,
             'id_expires_at' => $request->id_expires_at,
             'id_status' => $request->id_status,
@@ -1004,7 +1000,7 @@ class ResidentIdController extends Controller
         // Record activity
         Activity::causedBy(auth()->user())
             ->performedOn($resident)
-            ->withProperties($request->only(['id_number', 'id_issued_at', 'id_expires_at', 'id_status']))
+            ->withProperties($request->only(['id_issued_at', 'id_expires_at', 'id_status']))
             ->log('updated_id_information');
 
         return back()->with('success', 'ID information has been updated successfully.');
@@ -1034,7 +1030,7 @@ class ResidentIdController extends Controller
         do {
             $randomNumber = random_int(1, 999);
             $idNumber = $prefix . $year . '-' . str_pad($randomNumber, 3, '0', STR_PAD_LEFT);
-            $exists = \App\Models\Resident::where('id_number', $idNumber)->exists();
+            $exists = \App\Models\Resident::where('barangay_id', $idNumber)->exists();
         } while ($exists);
         return $idNumber;
     }

@@ -280,6 +280,7 @@ Route::middleware([
             Route::get('/barangay-id-registration', [ResidentController::class, 'barangayIdRegistration'])->name('barangay-id-registration');
             Route::get('census-data', [ResidentController::class, 'censusData'])->name('census-data');
             // Census CRUD routes
+            Route::get('census-data/{household}', [ResidentController::class, 'showCensusRecord'])->name('census-data.show');
             Route::post('census-data', [ResidentController::class, 'storeCensusRecord'])->name('census-data.store');
             Route::get('census-data/{household}/edit', [ResidentController::class, 'editCensusRecord'])->name('census-data.edit');
             Route::put('census-data/{household}', [ResidentController::class, 'updateCensusRecord'])->name('census-data.update');

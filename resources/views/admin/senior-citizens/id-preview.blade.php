@@ -221,8 +221,8 @@
                                                 </div>
                                                 <div class="mb-2">
                                                     <strong>Emergency Contact</strong><br>
-                                                    <span>{{ $seniorCitizen->emergency_contact_name ?: 'N/A' }} @if($seniorCitizen->emergency_contact_relationship)({{ $seniorCitizen->emergency_contact_relationship }})@endif</span>
-                                                    <span style="display: block; margin-top: 1px;">{{ $seniorCitizen->emergency_contact_number ?: 'N/A' }}</span>
+                                                    <span>{{ $seniorCitizen->emergency_contact_name ?: '' }} @if($seniorCitizen->emergency_contact_relationship)({{ $seniorCitizen->emergency_contact_relationship }})@endif</span>
+                                                    <span style="display: block; margin-top: 1px;">{{ $seniorCitizen->emergency_contact_number ?: '' }}</span>
                                                 </div>
                                                 
                                                 <!-- Validation Date -->

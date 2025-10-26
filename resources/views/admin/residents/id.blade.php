@@ -135,13 +135,13 @@
                                 <div class="card-body">
                                     <!-- Status Overview -->
                                     <div class="row mb-3">
-                                        <div class="col-sm-4">
+                                        <div class="col-sm-3">
                                             <div class="description-block border-right">
                                                 <h5 class="description-header">{{ $resident->barangay_id ?: 'Not Set' }}</h5>
                                                 <span class="description-text">BARANGAY ID</span>
                                             </div>
                                         </div>
-                                        <div class="col-sm-4">
+                                        <div class="col-sm-3">
                                             <div class="description-block border-right">
                                                 <span class="badge {{ $resident->id_status == 'issued' ? 'badge-success' : 'badge-warning' }} description-header">
                                                     {{ ucfirst(str_replace('_', ' ', $resident->id_status ?? 'pending')) }}
@@ -149,9 +149,15 @@
                                                 <span class="description-text">STATUS</span>
                                             </div>
                                         </div>
-                                        <div class="col-sm-4">
+                                        <div class="col-sm-3">
+                                            <div class="description-block border-right">
+                                                <h5 class="description-header">{{ $resident->id_issued_at ? $resident->id_issued_at->format('M d, Y') : 'N/A' }}</h5>
+                                                <span class="description-text">ISSUED</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3">
                                             <div class="description-block">
-                                                <h5 class="description-header">{{ $resident->id_expires_at ? $resident->id_expires_at->format('M Y') : 'N/A' }}</h5>
+                                                <h5 class="description-header">{{ $resident->id_expires_at ? $resident->id_expires_at->format('M d, Y') : 'N/A' }}</h5>
                                                 <span class="description-text">EXPIRES</span>
                                             </div>
                                         </div>

@@ -412,9 +412,6 @@ $(document).ready(function() {
         // Disable submit button to prevent double submission
         $('#submitBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i>Processing...');
         
-        // Show loading notification
-        showInfo('Please wait while we create the resident record...', 'Registering Resident');
-        
         // Let the form submit naturally - the CSRF token is already fresh from periodic refresh
         return true;
     });

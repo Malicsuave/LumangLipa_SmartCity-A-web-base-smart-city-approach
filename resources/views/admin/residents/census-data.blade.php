@@ -1,5 +1,9 @@
 @extends('layouts.admin.master')
 
+@push('styles')
+@include('admin.components.datatable-styles')
+@endpush
+
 @section('breadcrumbs')
 <li class="breadcrumb-item"><a href="{{ route('admin.residents.index') }}">Residents</a></li>
 <li class="breadcrumb-item active" aria-current="page">Census Data</li>
@@ -27,9 +31,9 @@
             </div>
         </div>
 
-        <!-- Statistics Cards -->
+        <!-- Metric Cards -->
         <div class="row mb-4">
-            <div class="col-lg-3 col-6">
+            <div class="col-lg-3 col-md-6">
                 <div class="small-box bg-info">
                     <div class="inner">
                         <h3>{{ $stats['total_households'] }}</h3>
@@ -40,7 +44,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-3 col-6">
+            <div class="col-lg-3 col-md-6">
                 <div class="small-box bg-primary">
                     <div class="inner">
                         <h3>{{ $stats['total_population'] }}</h3>
@@ -51,25 +55,25 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-3 col-6">
+            <div class="col-lg-3 col-md-6">
                 <div class="small-box bg-success">
                     <div class="inner">
-                        <h3>{{ $stats['owned_houses'] }}</h3>
-                        <p>Owned Houses</p>
+                        <h3>{{ $households->count() }}</h3>
+                        <p>Records Added</p>
                     </div>
                     <div class="icon">
-                        <i class="fas fa-house-user"></i>
+                        <i class="fas fa-file-alt"></i>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-3 col-6">
+            <div class="col-lg-3 col-md-6">
                 <div class="small-box bg-warning">
                     <div class="inner">
-                        <h3>{{ $stats['rented_houses'] + $stats['apartments'] }}</h3>
-                        <p>Rented/Apartments</p>
+                        <h3>{{ round($stats['total_population'] / max($stats['total_households'], 1), 1) }}</h3>
+                        <p>Avg Members/Household</p>
                     </div>
                     <div class="icon">
-                        <i class="fas fa-building"></i>
+                        <i class="fas fa-chart-pie"></i>
                     </div>
                 </div>
             </div>
@@ -85,11 +89,13 @@
                     <table class="table table-bordered table-striped" id="censusTable" data-export-title="Census Data">
                         <thead>
                             <tr>
+                                <th>Household No.</th>
                                 <th>Household Head</th>
+                                <th>Gender</th>
+                                <th>Age</th>
+                                <th>Occupation</th>
                                 <th>Address</th>
-                                <th>Housing Type</th>
                                 <th>Total Members</th>
-                                <th>Contact Number</th>
                                 <th>Date Recorded</th>
                                 <th>Actions</th>
                             </tr>
@@ -101,36 +107,32 @@
                                     $isLastTwo = $loop->remaining < 2;
                                 @endphp
                                 <tr>
+                                    <td class="font-weight-bold text-dark">
+                                        {{ $household->household_id }}
+                                    </td>
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            <div class="mr-3">
-                                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white font-weight-bold" 
-                                                     style="width: 40px; height: 40px;">
-                                                    {{ substr($household->head_name, 0, 1) }}
-                                                </div>
-                                            </div>
                                             <div>
                                                 <strong>{{ $household->head_name }}</strong>
-                                                @if($household->members->where('relationship_to_head', 'Head')->first())
-                                                    <br><small class="text-muted">{{ $household->members->where('relationship_to_head', 'Head')->first()->gender }}</small>
-                                                @endif
                                             </div>
                                         </div>
                                     </td>
-                                    <td>{{ $household->address }}</td>
                                     <td>
-                                        <span class="badge badge-info">{{ $household->housing_type }}</span>
+                                        {{ $household->head_gender ?? 'N/A' }}
                                     </td>
                                     <td class="text-center">
-                                        <span class="badge badge-primary">{{ $household->total_members }}</span>
+                                        {{ $household->head_age ?? 'N/A' }}
+                                    </td>
+                                    <td>
+                                        {{ $household->head_occupation ?? 'N/A' }}
+                                    </td>
+                                    <td>{{ $household->address }}</td>
+                                    <td class="text-center">
+                                        {{ $household->total_members }}
                                         @if($household->members->count() > 0)
-                                            <br><small class="text-muted">
-                                                {{ $household->members->where('gender', 'Male')->count() }}M / 
-                                                {{ $household->members->where('gender', 'Female')->count() }}F
-                                            </small>
+                                            
                                         @endif
                                     </td>
-                                    <td>{{ $household->contact_number ?: 'N/A' }}</td>
                                     <td>
                                         {{ $household->created_at->format('M d, Y') }}
                                         <br><small class="text-muted">{{ $household->created_at->diffForHumans() }}</small>
@@ -141,11 +143,11 @@
                                                 Actions
                                             </button>
                                             <div class="dropdown-menu dropdown-menu-right">
-                                                <a class="dropdown-item" href="#" onclick="viewHousehold({{ $household->household_id }})">
+                                                <a class="dropdown-item" href="#" onclick="viewHouseholdDetails({{ $household->household_id }})">
                                                     <i class="fas fa-eye mr-2 text-primary"></i>View Details
                                                 </a>
-                                                <a class="dropdown-item" href="#" onclick="editHousehold({{ $household->household_id }})">
-                                                    <i class="fas fa-edit mr-2 text-info"></i>Edit
+                                                <a class="dropdown-item" href="#" onclick="viewHousehold({{ $household->household_id }})">
+                                                    <i class="fas fa-edit mr-2 text-info"></i>Update Information
                                                 </a>
                                                 <div class="dropdown-divider"></div>
                                                 <a class="dropdown-item text-danger" href="#" onclick="deleteHousehold({{ $household->household_id }})">
@@ -173,37 +175,19 @@
                         </tbody>
                         <tfoot>
                             <tr>
+                                <th>Household No.</th>
                                 <th>Household Head</th>
+                                <th>Gender</th>
+                                <th>Age</th>
+                                <th>Occupation</th>
                                 <th>Address</th>
-                                <th>Housing Type</th>
                                 <th>Total Members</th>
-                                <th>Contact Number</th>
                                 <th>Date Recorded</th>
                                 <th>Actions</th>
                             </tr>
                         </tfoot>
                     </table>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- View Household Details Modal -->
-<div class="modal fade" id="viewHouseholdModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Household Details</h5>
-                <button type="button" class="close" data-dismiss="modal">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body" id="householdDetailsContent">
-                <!-- Content will be loaded here -->
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -229,6 +213,7 @@
         </div>
     </div>
 </div>
+
 @endsection
 
 @push('scripts')
@@ -236,30 +221,35 @@
 <script>
 let currentHouseholdId = null;
 
-// Initialize DataTable with export functionality
+// Initialize DataTable
 $(document).ready(function() {
-    if (window.DataTableHelpers) {
-        DataTableHelpers.initDataTable('#censusTable', {
-            pageLength: 25,
-            order: [[5, 'desc']], // Sort by Date Recorded descending
-            columnDefs: [
-                { orderable: false, targets: [6] } // Disable ordering on Actions column
-            ],
-            language: {
-                emptyTable: "No census records available"
-            },
-            buttons: ["copy", "csv", "excel", "pdf", "print", "colvis"]
-        });
+    // Destroy existing DataTable instance if it exists
+    if ($.fn.DataTable.isDataTable('#censusTable')) {
+        $('#censusTable').DataTable().destroy();
     }
+    
+    // Initialize DataTable with export buttons using DataTableHelpers
+    const censusTable = DataTableHelpers.initDataTable("#censusTable", {
+        buttons: ["copy", "csv", "excel", "pdf", "print", "colvis"],
+        columnDefs: [
+            { orderable: false, targets: -1 } // Disable ordering on Actions column (last column)
+        ],
+        order: [], // No initial sort - respect database order (newest first)
+        language: {
+            emptyTable: "No census records available"
+        }
+    });
 });
 
 // View household details
 function viewHousehold(householdId) {
-    $('#householdDetailsContent').html('<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Loading...</div>');
-    $('#viewHouseholdModal').modal('show');
-    
-    // For now, show basic info (you can implement detailed view later)
-    $('#householdDetailsContent').html('<div class="alert alert-info">Household details view will be implemented soon.</div>');
+    window.location.href = `/admin/residents/census-data/${householdId}`;
+}
+
+// View household details in modal
+function viewHouseholdDetails(householdId) {
+    // Redirect to census show page with view details parameter
+    window.location.href = `/admin/residents/census-data/${householdId}?view_details=1`;
 }
 
 // Edit household

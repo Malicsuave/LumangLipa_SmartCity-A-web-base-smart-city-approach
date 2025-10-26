@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class ResidentController extends Controller
 {
@@ -502,8 +503,11 @@ class ResidentController extends Controller
             $resident->photo = $photoPath ? basename($photoPath) : null;
             $resident->signature = $signaturePath ? basename($signaturePath) : null;
             
-            // Set ID status (dates will be set by model events if needed)
+            // Set ID card data
+            $issuedAt = Carbon::now();
             $resident->id_status = 'issued';
+            $resident->id_issued_at = $issuedAt;
+            $resident->id_expires_at = $issuedAt->copy()->addYears(5);
             
             // Save the resident
             $resident->save();
@@ -645,16 +649,6 @@ class ResidentController extends Controller
             // Issue ID and send email notification if email address is provided
             if (!empty($resident->email_address)) {
                 try {
-                    // Update ID status and dates
-                    $issuedAt = Carbon::now();
-                    $expiresAt = $issuedAt->copy()->addYears(5);
-                    
-                    $resident->update([
-                        'id_status' => 'issued',
-                        'id_issued_at' => $issuedAt,
-                        'id_expires_at' => $expiresAt,
-                    ]);
-                    
                     // Generate QR code data
                     $qrData = json_encode([
                         'id' => $resident->barangay_id,
@@ -1227,13 +1221,27 @@ class ResidentController extends Controller
         // Get statistics for census data
         $stats = [
             'total_households' => CensusHousehold::count(),
-            'total_population' => CensusMember::count(),
-            'owned_houses' => CensusHousehold::where('housing_type', 'Owned House')->count(),
-            'rented_houses' => CensusHousehold::where('housing_type', 'Rented House')->count(),
-            'apartments' => CensusHousehold::where('housing_type', 'Apartment')->count(),
+            'total_population' => CensusHousehold::withCount('members')->get()->sum(function($household) {
+                return $household->members_count + 1; // +1 for household head
+            }),
+            'owned_houses' => 0,
+            'rented_houses' => 0,
+            'apartments' => 0,
         ];
 
-        return view('admin.residents.census-data', compact('households', 'stats'));
+        $totalPopulation = $stats['total_population'];
+
+        return view('admin.residents.census-data', compact('households', 'stats', 'totalPopulation'));
+    }
+
+    /**
+     * Show household census record details with members.
+     */
+    public function showCensusRecord($householdId)
+    {
+        $household = CensusHousehold::with('members')->findOrFail($householdId);
+
+        return view('admin.residents.census-show', compact('household'));
     }
 
     /**
@@ -1285,34 +1293,96 @@ class ResidentController extends Controller
     }
 
     /**
-     * Update census record (household).
+     * Update census record (household and members).
      */
-    public function updateCensusRecord(Request $request, Household $household)
+    public function updateCensusRecord(Request $request, $householdId)
     {
-        $request->validate([
-            'primary_name' => 'required|string|max:255',
-            'primary_birthday' => 'required|date',
-            'primary_gender' => 'required|in:Male,Female',
-            'primary_phone' => 'nullable|string|max:20',
-            'primary_work' => 'nullable|string|max:255',
-            'emergency_contact_name' => 'required|string|max:255',
-            'emergency_relationship' => 'required|string|max:255',
-            'emergency_phone' => 'required|string|max:20',
+        $validated = $request->validate([
+            'head_name' => 'required|string|max:255',
+            'head_age' => 'nullable|integer|min:1|max:120',
+            'head_gender' => 'nullable|string|max:20',
+            'head_civil_status' => 'nullable|string|max:20',
+            'head_education' => 'nullable|string|max:50',
+            'head_occupation' => 'nullable|string|max:100',
+            'contact_number' => 'nullable|string|max:20',
+            'address' => 'required|string|max:500',
+            'members' => 'sometimes|array',
+            'members.*.fullname' => 'required_if:members,*|string|max:255',
+            'members.*.relationship_to_head' => 'required_if:members,*|string|max:100',
+            'members.*.dob' => 'nullable|date',
+            'members.*.birthdate' => 'nullable|date',
+            'members.*.gender' => 'required_if:members,*|string|in:Male,Female,Non-binary,Transgender,Other',
+            'members.*.civil_status' => 'required_if:members,*|string|in:Single,Married,Widowed,Separated,Divorced',
+            'members.*.education' => 'nullable|string|max:100',
+            'members.*.occupation' => 'nullable|string|max:100',
+            'members.*.category' => 'nullable|string|max:100',
         ]);
 
         try {
-            $household->update($request->all());
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Census record updated successfully!',
-                'data' => $household->load('resident')
+            DB::beginTransaction();
+
+            // Debug: Log the incoming request data
+            Log::info('Census Update Request Data:', [
+                'household_id' => $householdId,
+                'all_data' => $request->all(),
+                'members_data' => $request->input('members', [])
             ]);
+
+            // Find the census household
+            $household = \App\Models\CensusHousehold::findOrFail($householdId);
+            
+            // Update household data
+            $household->update([
+                'head_name' => $validated['head_name'],
+                'head_age' => $validated['head_age'],
+                'head_gender' => $validated['head_gender'],
+                'head_civil_status' => $validated['head_civil_status'],
+                'head_education' => $validated['head_education'],
+                'head_occupation' => $validated['head_occupation'],
+                'contact_number' => $validated['contact_number'],
+                'address' => $validated['address'],
+            ]);
+
+            // Delete existing members and create new ones
+            $household->members()->delete();
+            
+            if (isset($validated['members']) && is_array($validated['members']) && count($validated['members']) > 0) {
+                foreach ($validated['members'] as $memberData) {
+                    // Skip empty member entries
+                    if (empty($memberData['fullname']) || empty($memberData['relationship_to_head'])) {
+                        continue;
+                    }
+                    
+                    \App\Models\CensusMember::create([
+                        'household_id' => $household->household_id,
+                        'fullname' => $memberData['fullname'],
+                        'relationship_to_head' => $memberData['relationship_to_head'],
+                        'dob' => !empty($memberData['dob']) ? $memberData['dob'] : (!empty($memberData['birthdate']) ? $memberData['birthdate'] : null),
+                        'gender' => $memberData['gender'],
+                        'civil_status' => $memberData['civil_status'],
+                        'education' => !empty($memberData['education']) ? $memberData['education'] : null,
+                        'occupation' => !empty($memberData['occupation']) ? $memberData['occupation'] : null,
+                        'category' => !empty($memberData['category']) ? $memberData['category'] : null,
+                    ]);
+                }
+                
+                Log::info('Created ' . count($validated['members']) . ' members for household ' . $household->household_id);
+            } else {
+                Log::info('No members data received for household ' . $household->household_id);
+            }
+
+            DB::commit();
+            
+            return redirect()->route('admin.residents.census-data.show', $household->household_id)
+                ->with('success', 'Household census record updated successfully!');
+            
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to update census record: ' . $e->getMessage()
-            ], 500);
+            DB::rollback();
+            Log::error('Error updating census record: ' . $e->getMessage());
+            
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Failed to update census record. Please try again.');
         }
     }
 
@@ -1436,19 +1506,29 @@ class ResidentController extends Controller
      */
     public function storeCensusStep1(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'head_name' => 'required|string|max:255',
+            'head_age' => 'nullable|integer|min:1|max:120',
+            'head_gender' => 'nullable|string|max:20',
+            'head_civil_status' => 'nullable|string|max:20',
+            'head_education' => 'nullable|string|max:50',
+            'head_occupation' => 'nullable|string|max:100',
+            'head_contact' => 'nullable|string|max:20',
             'address' => 'required|string|max:500',
-            'contact_number' => 'nullable|string|max:20',
-            'housing_type' => 'required|string|in:Concrete,Semi-concrete,Wood,Bamboo,Mixed Materials,Makeshift,Apartment/Condominium,Other',
+            'head_id' => 'nullable|string|max:50',
         ]);
 
-        // Store step 1 data in session
+        // Store all step 1 data in session
         Session::put('census.step1', [
-            'head_name' => $request->head_name,
-            'address' => $request->address,
-            'contact_number' => $request->contact_number,
-            'housing_type' => $request->housing_type,
+            'head_name' => $validated['head_name'],
+            'head_id' => $validated['head_id'] ?? null,
+            'head_age' => $validated['head_age'] ?? null,
+            'head_gender' => $validated['head_gender'] ?? null,
+            'head_civil_status' => $validated['head_civil_status'] ?? null,
+            'head_education' => $validated['head_education'] ?? null,
+            'head_occupation' => $validated['head_occupation'] ?? null,
+            'head_contact' => $validated['head_contact'] ?? null,
+            'address' => $validated['address'],
         ]);
 
         return redirect()->route('admin.residents.census.step2');
@@ -1480,20 +1560,27 @@ class ResidentController extends Controller
         }
 
         $request->validate([
-            'members' => 'required|array|min:1',
+            'members' => 'sometimes|array',
             'members.*.fullname' => 'required|string|max:255',
             'members.*.relationship_to_head' => 'required|string|max:100',
-            'members.*.dob' => 'required|date|before:today',
-            'members.*.gender' => 'required|string|in:Male,Female',
+            'members.*.gender' => 'required|string|in:Male,Female,Non-binary,Transgender,Other',
             'members.*.civil_status' => 'required|string|in:Single,Married,Widowed,Separated,Divorced',
             'members.*.education' => 'nullable|string|max:100',
             'members.*.occupation' => 'nullable|string|max:100',
             'members.*.category' => 'nullable|string|max:100',
+            'members.*.age' => 'nullable|integer|min:0|max:150',
+            'members.*.birthdate' => 'nullable|date',
         ]);
 
         // Store step 2 data in session
         Session::put('census.step2', [
-            'members' => $request->members,
+            'members' => $request->members ?? [],
+        ]);
+
+        // Debug: Log step 2 data being stored
+        Log::info('Census Step 2 Data Stored:', [
+            'members_count' => count($request->members ?? []),
+            'members_data' => $request->members ?? []
         ]);
 
         return redirect()->route('admin.residents.census.step3');
@@ -1510,6 +1597,8 @@ class ResidentController extends Controller
                 ->with('error', 'Please complete all previous steps first.');
         }
 
+        // Allow step 3 even if there are no members
+        // Optionally, you can show a warning in the view if members are empty
         return view('admin.residents.census.step3');
     }
 
@@ -1533,18 +1622,25 @@ class ResidentController extends Controller
             // Create the household record
             $household = \App\Models\CensusHousehold::create([
                 'head_name' => $step1Data['head_name'],
+                'head_age' => $step1Data['head_age'],
+                'head_gender' => $step1Data['head_gender'],
+                'head_civil_status' => $step1Data['head_civil_status'],
+                'head_education' => $step1Data['head_education'],
+                'head_occupation' => $step1Data['head_occupation'],
                 'address' => $step1Data['address'],
-                'contact_number' => $step1Data['contact_number'],
-                'housing_type' => $step1Data['housing_type'],
+                'contact_number' => $step1Data['head_contact'],
+                
             ]);
 
             // Create member records
             foreach ($step2Data['members'] as $memberData) {
+                Log::info('Creating member with data:', $memberData);
+                
                 \App\Models\CensusMember::create([
                     'household_id' => $household->household_id,
                     'fullname' => $memberData['fullname'],
                     'relationship_to_head' => $memberData['relationship_to_head'],
-                    'dob' => $memberData['dob'],
+                    'dob' => $memberData['birthdate'] ?? null,
                     'gender' => $memberData['gender'],
                     'civil_status' => $memberData['civil_status'],
                     'education' => $memberData['education'] ?? null,
@@ -1646,6 +1742,7 @@ class ResidentController extends Controller
             'sex as gender',
             'civil_status',
             'current_address as address',
+            'purok',
             'contact_number',
             'educational_attainment',
             'profession_occupation',
@@ -1662,7 +1759,8 @@ class ResidentController extends Controller
                 'full_name' => trim($resident->first_name . ' ' . ($resident->middle_name ? $resident->middle_name . ' ' : '') . $resident->last_name),
                 'age' => $age,
                 'gender' => $resident->gender,
-                'address' => $resident->address,
+                'address' => ($resident->purok ? '' . $resident->purok . ', ' : '') . $resident->address,
+                'purok' => $resident->purok,
                 'contact_number' => $resident->contact_number,
                 'birthdate' => $resident->birthdate,
                 'civil_status' => $resident->civil_status,
