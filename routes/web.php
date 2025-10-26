@@ -115,6 +115,7 @@ Route::prefix('pre-registration')->name('public.pre-registration.')->group(funct
     Route::post('submit', [\App\Http\Controllers\Public\PreRegistrationController::class, 'store'])->name('submit');
     Route::get('success', [\App\Http\Controllers\Public\PreRegistrationController::class, 'success'])->name('success');
     Route::match(['get', 'post'], 'check-status', [\App\Http\Controllers\Public\PreRegistrationController::class, 'checkStatus'])->name('check-status');
+    Route::get('refresh-csrf', [\App\Http\Controllers\Public\PreRegistrationController::class, 'refreshCsrfToken'])->name('refresh-csrf');
 });
 
 // Senior Citizen Pre-Registration Routes
@@ -284,6 +285,7 @@ Route::middleware([
             Route::get('census-data/{household}', [ResidentController::class, 'showCensusRecord'])->name('census-data.show');
  Route::get('census-data/{household}/details', [ResidentController::class, 'getCensusDetails'])->name('census-data.details');
             // Census CRUD routes
+            Route::get('census-data/{household}', [ResidentController::class, 'showCensusRecord'])->name('census-data.show');
             Route::post('census-data', [ResidentController::class, 'storeCensusRecord'])->name('census-data.store');
             Route::get('census-data/{household}/edit', [ResidentController::class, 'editCensusRecord'])->name('census-data.edit');
             Route::put('census-data/{household}', [ResidentController::class, 'updateCensusRecord'])->name('census-data.update');
