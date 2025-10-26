@@ -17,7 +17,7 @@ $(function () {
     // Initialize DataTable for documents table using the same helper as Residents
     const documentsTable = DataTableHelpers.initDataTable("#documentsTable", {
         buttons: ["copy", "csv", "excel", "pdf", "print", "colvis"],
-        order: [[ 0, "desc" ]],
+        order: [[ 4, "desc" ]], // Order by Date Requested column (index 4) in descending order
         pageLength: 10,
         lengthChange: true,
         lengthMenu: [ [10, 25, 50, 100, -1], [10, 25, 50, 100, "All"] ],
@@ -104,7 +104,7 @@ $(function () {
             },
             complete: function() {
                 // Re-enable button
-                $('#confirmMarkClaimed').prop('disabled', false).html('<i class="fe fe-check-square fe-16 mr-2 text-white"></i> Mark as Claimed');
+                $('#confirmMarkClaimed').prop('disabled', false).html('<i class="fas fa-check-square mr-2"></i> Mark as Claimed');
             }
         });
     });
@@ -148,7 +148,7 @@ $(function () {
             },
             complete: function() {
                 // Re-enable button
-                $('#confirmApprove').prop('disabled', false).html('<i class="fe fe-check-circle fe-16 mr-2 text-white"></i> Approve Request');
+                $('#confirmApprove').prop('disabled', false).html('<i class="fas fa-check-circle mr-2"></i> Approve Request');
             }
         });
     });
@@ -275,24 +275,24 @@ $(function () {
                                         Actions
                                     </button>
                                     <div class="dropdown-menu dropdown-menu-right">
-                                        <a class="dropdown-item" href="javascript:void(0)" onclick="viewDetails({{ $request->id }})">
-                                            <i class="fas fa-eye mr-2" aria-hidden="true"></i>View Details
+                                        <a class="dropdown-item text-dark" href="javascript:void(0)" onclick="viewDetails({{ $request->id }})">
+                                            <i class="fas fa-eye mr-2 text-dark" aria-hidden="true"></i>View Details
                                         </a>
                                         @if($request->status == 'pending')
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-success" href="javascript:void(0)" onclick="approveRequest({{ $request->id }})">
-                                                <i class="fas fa-check mr-2" aria-hidden="true"></i>Approve
+                                            <a class="dropdown-item text-dark" href="javascript:void(0)" onclick="approveRequest({{ $request->id }})">
+                                                <i class="fas fa-check mr-2 text-dark" aria-hidden="true"></i>Approve
                                             </a>
-                                            <a class="dropdown-item text-danger" href="javascript:void(0)" onclick="rejectRequest({{ $request->id }})">
-                                                <i class="fas fa-times mr-2" aria-hidden="true"></i>Reject
+                                            <a class="dropdown-item text-dark" href="javascript:void(0)" onclick="rejectRequest({{ $request->id }})">
+                                                <i class="fas fa-times mr-2 text-dark" aria-hidden="true"></i>Reject
                                             </a>
                                         @elseif($request->status == 'approved')
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-info" href="javascript:void(0)" onclick="markAsClaimed({{ $request->id }})">
-                                                <i class="fas fa-check-square mr-2" aria-hidden="true"></i>Mark as Claimed
+                                            <a class="dropdown-item text-dark" href="javascript:void(0)" onclick="markAsClaimed({{ $request->id }})">
+                                                <i class="fas fa-check-square mr-2 text-dark" aria-hidden="true"></i>Mark as Claimed
                                             </a>
-                                            <a class="dropdown-item" href="javascript:void(0)" onclick="previewDocument({{ $request->id }})">
-                                                <i class="fas fa-file-pdf mr-2" aria-hidden="true"></i>Preview Document
+                                            <a class="dropdown-item text-dark" href="javascript:void(0)" onclick="previewDocument({{ $request->id }})">
+                                                <i class="fas fa-file-pdf mr-2 text-dark" aria-hidden="true"></i>Preview Document
                                             </a>
                                         @endif
                                     </div>
@@ -399,8 +399,8 @@ $(function () {
                             <div class="modal-dialog modal-md modal-dialog-centered" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header justify-content-end align-items-center">
-                                        <button type="button" class="btn p-0 border-0 bg-transparent" id="closeEnlargeReceipt" aria-label="Close" style="font-size:1.3rem;">
-                                            <i class="fe fe-x" style="font-size:1.4rem;"></i>
+                                        <button type="button" class="btn p-0 border-0 bg-transparent" data-dismiss="modal" aria-label="Close" style="font-size:1.3rem;">
+                                            <i class="fas fa-times" style="font-size:1.4rem;"></i>
                                         </button>
                                     </div>
                                     <div class="modal-body text-center p-2" id="enlargeReceiptBody" style="min-height:40px;">
@@ -440,13 +440,13 @@ $(function () {
             <div class="modal-body">
                 <p>Are you sure you want to approve this document request?</p>
                 <p class="text-info">
-                    <i class="fe fe-info"></i> This will generate the document and notify the resident via email.
+                    <i class="fas fa-info-circle"></i> This will generate the document and notify the resident via email.
                 </p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-success" id="confirmApprove">
-                    <i class="fe fe-check-circle fe-16 mr-2 text-white"></i> Approve Request
+                    <i class="fas fa-check-circle mr-2"></i> Approve Request
                 </button>
             </div>
         </div>
@@ -492,17 +492,17 @@ $(function () {
             <div class="modal-body">
                 <p>Are you sure you want to mark this document as claimed?</p>
                 <p class="text-info">
-                    <i class="fe fe-info"></i> This indicates that the resident has personally collected the document from the barangay office.
+                    <i class="fas fa-info-circle"></i> This indicates that the resident has personally collected the document from the barangay office.
                 </p>
                 <div class="alert alert-warning">
-                    <i class="fe fe-alert-triangle"></i>
+                    <i class="fas fa-exclamation-triangle"></i>
                     <strong>Note:</strong> This action should only be performed when the resident has physically collected the document.
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-success" id="confirmMarkClaimed">
-                    <i class="fe fe-check-square fe-16 mr-2 text-white"></i> Mark as Claimed
+                    <i class="fas fa-check-square mr-2"></i> Mark as Claimed
                 </button>
             </div>
         </div>
@@ -511,21 +511,21 @@ $(function () {
 
 <!-- Document Preview Modal -->
 <div class="modal fade" id="documentPreviewModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-xl admin-modal-xl" role="document">
-        <div class="modal-content">
+    <div class="modal-dialog" role="document" style="max-width: 95vw; margin: 1rem auto;">
+        <div class="modal-content" style="height: 95vh;">
             <div class="modal-header">
                 <h5 class="modal-title">Document Preview</h5>
                 <div class="ml-auto">
                     <button type="button" class="btn btn-primary mr-2" id="printDocumentBtn">
-                        <i class="fe fe-printer fe-16 mr-2"></i>Print Document
+                        <i class="fas fa-print mr-2"></i>Print Document
                     </button>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
             </div>
-            <div class="modal-body admin-modal-body-iframe">
-                <iframe id="documentFrame" src="" class="admin-iframe-full"></iframe>
+            <div class="modal-body" style="padding: 0; height: calc(95vh - 60px); overflow: hidden;">
+                <iframe id="documentFrame" src="" style="width: 100%; height: 100%; border: none; display: block;"></iframe>
             </div>
         </div>
     </div>

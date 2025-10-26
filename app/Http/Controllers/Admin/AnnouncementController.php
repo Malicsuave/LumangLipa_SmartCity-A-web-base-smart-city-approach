@@ -18,7 +18,7 @@ class AnnouncementController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Announcement::with('registrations')->latest();
+        $query = Announcement::with('registrations')->oldest();
 
         // Search functionality
         if ($request->has('search') && $request->search) {
@@ -43,13 +43,13 @@ class AnnouncementController extends Controller
             }
         }
 
-        $announcements = $query->paginate(10);
+        $announcements = $query->get();
 
         // Calculate metrics for display
         $metrics = [
             'total' => Announcement::count(),
             'active' => Announcement::where('is_active', true)->count(),
-            'expired' => Announcement::where('end_date', '<', now())->count(),
+            'expired' => Announcement::where('date', '<', now()->toDateString())->count(),
             'total_registrations' => Announcement::sum('current_slots')
         ];
 
@@ -76,10 +76,10 @@ class AnnouncementController extends Controller
         $validator = Validator::make($requestData, [
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'type' => 'required|in:general,limited_slots,event,service,program',
-            'max_slots' => 'required_if:type,limited_slots|nullable|integer|min:1',
-            'start_date' => 'nullable|date|after_or_equal:today',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'type' => 'required|in:general,health_related,event,service,program',
+            'max_slots' => 'nullable|integer|min:1',
+            'date' => 'nullable|date|after_or_equal:today',
+            'time' => 'nullable',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'is_active' => 'boolean'
         ]);
@@ -98,8 +98,8 @@ class AnnouncementController extends Controller
             $data['image'] = $request->file('image')->store('announcements', 'public');
         }
 
-        // Set max_slots to null if not limited_slots type
-        if ($data['type'] !== 'limited_slots') {
+        // Set max_slots to null if not health_related type
+        if ($data['type'] !== 'health_related') {
             $data['max_slots'] = null;
         }
 
@@ -126,8 +126,8 @@ class AnnouncementController extends Controller
                 'type_display' => $announcement->type_display,
                 'max_slots' => $announcement->max_slots,
                 'current_slots' => $announcement->current_slots,
-                'start_date' => $announcement->start_date,
-                'end_date' => $announcement->end_date,
+                'date' => $announcement->date,
+                'time' => $announcement->time,
                 'is_active' => $announcement->is_active,
                 'status' => $announcement->status,
                 'image' => $announcement->image,
@@ -168,10 +168,10 @@ class AnnouncementController extends Controller
         $validator = Validator::make($requestData, [
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'type' => 'required|in:general,limited_slots,event,service,program',
-            'max_slots' => 'required_if:type,limited_slots|nullable|integer|min:' . $announcement->current_slots,
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'type' => 'required|in:general,health_related,event,service,program',
+            'max_slots' => 'nullable|integer|min:' . $announcement->current_slots,
+            'date' => 'nullable|date',
+            'time' => 'nullable',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'is_active' => 'boolean'
         ]);
@@ -195,8 +195,8 @@ class AnnouncementController extends Controller
                 $data['image'] = $request->file('image')->store('announcements', 'public');
             }
 
-            // Set max_slots to null if not limited_slots type
-            if ($data['type'] !== 'limited_slots') {
+            // Set max_slots to null if not health_related type
+            if ($data['type'] !== 'health_related') {
                 $data['max_slots'] = null;
             }
 

@@ -9,6 +9,7 @@ use App\Services\DocumentService;
 use App\Services\ComplaintService;
 use App\Services\EnhancedHealthServiceService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 
 class AnalyticsController extends Controller
@@ -43,13 +44,20 @@ class AnalyticsController extends Controller
 
         // Get chart data from the correct sources
         $genderDistribution = $dashboardData['population']['gender_distribution'] ?? [];
-        $ageGroups = $dashboardData['population']['age_distribution'] ?? [];
+        $ageDistribution = $dashboardData['population']['age_distribution'] ?? [];
         $monthlyRegistrations = $this->analyticsService->getMonthlyTrends();
+        $activityTrends = $this->analyticsService->getActivityTrends();
 
         // Get recent data for activity sections
         $recentResidents = $dashboardData['population']['recent_registrations'] ?? collect();
         $recentDocuments = $dashboardData['documents']['recent_requests'] ?? collect();
         $recentComplaints = $dashboardData['complaints']['recent_complaints'] ?? collect();
+
+        // NEW: Get additional analytics data
+        $feedbackMetrics = $this->analyticsService->getFeedbackMetrics();
+        $userActivityMetrics = $this->analyticsService->getUserActivityMetrics();
+        $announcementMetrics = $this->analyticsService->getAnnouncementMetrics();
+        $chatbotMetrics = $this->analyticsService->getChatbotMetrics();
 
         return view('admin.analytics.index', compact(
             'totalResidents',
@@ -57,12 +65,17 @@ class AnalyticsController extends Controller
             'pendingPreRegistrations',
             'totalDocumentRequests',
             'genderDistribution',
-            'ageGroups',
+            'ageDistribution',
             'monthlyRegistrations',
+            'activityTrends',
             'recentResidents',
             'recentDocuments',
             'recentComplaints',
-            'dashboardData'
+            'dashboardData',
+            'feedbackMetrics',
+            'userActivityMetrics',
+            'announcementMetrics',
+            'chatbotMetrics'
         ));
     }
 
@@ -95,6 +108,52 @@ class AnalyticsController extends Controller
         return response()->json([
             'success' => true,
             'data' => $reportData
+        ]);
+    }
+
+    /**
+     * NEW: Get real-time analytics data for AJAX updates
+     */
+    public function getRealtimeData()
+    {
+        // Get fresh data without cache for real-time updates
+        // Clear specific analytics cache first
+        Cache::forget('analytics.feedback_metrics');
+        Cache::forget('analytics.user_activity_metrics');
+        Cache::forget('analytics.announcement_metrics');
+        Cache::forget('analytics.chatbot_metrics');
+        Cache::forget('document.statistics');
+        Cache::forget('resident.statistics');
+        
+        // Get fresh statistics using the same logic as index method
+        $residentData = $this->residentService->getDashboardData();
+        $documentData = $this->documentService->getDashboardData();
+        
+        $totalResidents = $residentData['statistics']['total'] ?? 0;
+        $newResidentsThisMonth = $residentData['statistics']['this_month'] ?? 0;
+        $pendingPreRegistrations = $residentData['statistics']['pending'] ?? 0;
+        $totalDocumentRequests = $documentData['statistics']['total'] ?? 0;
+        
+        $feedbackMetrics = $this->analyticsService->getFeedbackMetrics();
+        $userActivityMetrics = $this->analyticsService->getUserActivityMetrics();
+        $announcementMetrics = $this->analyticsService->getAnnouncementMetrics();
+        $chatbotMetrics = $this->analyticsService->getChatbotMetrics();
+
+        return response()->json([
+            // Main statistics
+            'totalResidents' => $totalResidents,
+            'newResidentsThisMonth' => $newResidentsThisMonth,
+            'pendingPreRegistrations' => $pendingPreRegistrations,
+            'totalDocumentRequests' => $totalDocumentRequests,
+            
+            // Detailed metrics
+            'feedbackMetrics' => $feedbackMetrics,
+            'userActivityMetrics' => $userActivityMetrics,
+            'announcementMetrics' => $announcementMetrics,
+            'chatbotMetrics' => $chatbotMetrics,
+            
+            'timestamp' => now()->toISOString(),
+            'status' => 'success'
         ]);
     }
 

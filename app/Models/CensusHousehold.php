@@ -14,9 +14,13 @@ class CensusHousehold extends Model
     
     protected $fillable = [
         'head_name',
+        'head_age',
+        'head_gender',
+        'head_civil_status',
+        'head_education',
+        'head_occupation',
         'address',
         'contact_number',
-        'housing_type',
     ];
 
     /**
@@ -32,6 +36,6 @@ class CensusHousehold extends Model
      */
     public function getTotalMembersAttribute()
     {
-        return $this->members()->count();
+        return $this->members()->count() + 1; // +1 for the household head
     }
 }

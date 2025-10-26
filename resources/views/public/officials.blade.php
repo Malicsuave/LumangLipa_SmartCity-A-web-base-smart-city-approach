@@ -71,11 +71,17 @@
                                 </div>
                             @endif
                         </div>
-                        <div class="card-body text-center p-3 d-flex flex-column justify-content-center" style="background:#fff; border-radius:0 0 15px 15px; border:2px solid #2A7BC4; border-top:none; box-shadow: 0 4px 15px rgba(42, 123, 196, 0.2); min-height: 80px;">
+                        <div class="card-body text-center p-3 d-flex flex-column justify-content-center" style="background:#fff; border-radius:0 0 15px 15px; border:2px solid #2A7BC4; border-top:none; box-shadow: 0 4px 15px rgba(42, 123, 196, 0.2); min-height: 100px;">
                             <h6 class="fw-bold mb-1" style="color:#1e293b; font-size:1rem; line-height:1.2;">HON. {{ $councilor->name }}</h6>
-                            <p class="text-muted mb-0" style="font-size:0.85rem; font-weight:600;">Councilor</p>
+                            <p class="text-muted mb-2" style="font-size:0.85rem; font-weight:600;">Councilor</p>
                             @if($councilor->committee)
-                                <p class="text-muted small mb-0 mt-1" style="font-size:0.7rem; line-height:1.2; background:#f8f9fa; padding:2px 4px; border-radius:4px;">{{ $councilor->committee }}</p>
+                                <div class="badge bg-primary text-white px-2 py-1 small" style="font-size:0.72rem; line-height:1.2; background: linear-gradient(135deg, #2A7BC4, #1e5f8c) !important; border-radius: 8px;">
+                                    <i class="fas fa-users me-1"></i>{{ $councilor->committee }}
+                                </div>
+                            @else
+                                <div class="badge bg-light text-muted px-2 py-1 small" style="font-size:0.72rem; line-height:1.2; border-radius: 8px;">
+                                    <i class="fas fa-info-circle me-1"></i>No Committee Assigned
+                                </div>
                             @endif
                         </div>
                     </div>
@@ -152,9 +158,18 @@
                             @endif
                             <span class="badge bg-light text-dark" style="position:absolute; top:10px; right:10px; font-size:0.6rem; padding:4px 8px; border-radius:10px;">SK</span>
                         </div>
-                        <div class="card-body text-center p-3 d-flex flex-column justify-content-center" style="background:#fff; border-radius:0 0 15px 15px; border:2px solid #2A7BC4; border-top:none; box-shadow: 0 4px 15px rgba(42, 123, 196, 0.2); height: 80px; min-height: 80px;">
+                        <div class="card-body text-center p-3 d-flex flex-column justify-content-center" style="background:#fff; border-radius:0 0 15px 15px; border:2px solid #2A7BC4; border-top:none; box-shadow: 0 4px 15px rgba(42, 123, 196, 0.2); min-height: 100px;">
                             <h6 class="fw-bold mb-1" style="color:#1e293b; font-size:1rem; line-height:1.2;">HON. {{ $skChairman->name }}</h6>
-                            <p class="text-muted mb-0" style="font-size:0.85rem; font-weight:600;">SK Chairman</p>
+                            <p class="text-muted mb-2" style="font-size:0.85rem; font-weight:600;">SK Chairman</p>
+                            @if($skChairman->committee)
+                                <div class="badge bg-success text-white px-2 py-1 small" style="font-size:0.72rem; line-height:1.2; background: linear-gradient(135deg, #28a745, #20c997) !important; border-radius: 8px;">
+                                    <i class="fas fa-star me-1"></i>{{ $skChairman->committee }}
+                                </div>
+                            @else
+                                <div class="badge bg-light text-muted px-2 py-1 small" style="font-size:0.72rem; line-height:1.2; border-radius: 8px;">
+                                    <i class="fas fa-info-circle me-1"></i>No Committee Assigned
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>

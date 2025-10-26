@@ -47,24 +47,24 @@
                         
                         <!-- Identity Verification Section -->
                         <div class="mb-3">
-                            <label>Identity Verification <span class="text-primary">*</span></label>
-
+                            <label>Identity Verification <span class="text-danger">*</span></label>
+                            
                             <!-- Verification Method Toggle -->
                             <div class="btn-group w-100" role="group" aria-label="Verification method" style="display: flex;">
                                 <input type="radio" class="btn-check" name="verification_method" id="manual_input" value="manual" checked>
                                 <label class="btn btn-outline-primary" for="manual_input" style="flex: 1; text-align: center;">
-                                    <i class="fas fa-keyboard text-primary me-2"></i>Manual Input
+                                    <i class="fas fa-keyboard me-2"></i>Manual Input
                                 </label>
                                 <input type="radio" class="btn-check" name="verification_method" id="qr_scan" value="qr">
                                 <label class="btn btn-outline-primary" for="qr_scan" style="flex: 1; text-align: center;">
-                                    <i class="fas fa-qrcode text-primary me-2"></i>QR Code
+                                    <i class="fas fa-qrcode me-2"></i>QR Code
                                 </label>
                             </div>
                         </div>
 
                         <!-- Barangay ID Section -->
                         <div class="mb-3" style="margin-top: 0;">
-                            <label for="barangay_id" style="margin-bottom: 0.25rem; margin-top: -0.5rem;">Barangay ID <span class="text-primary">*</span></label>
+                            <label for="barangay_id" style="margin-bottom: 0.25rem; margin-top: -0.5rem;">Barangay ID <span class="text-danger">*</span></label>
 
                             <!-- Manual Input Section -->
                             <div id="manualInputSection">
@@ -76,8 +76,8 @@
                                            placeholder="Enter your Barangay ID"
                                            style="height: 38px; border: 1px solid #ced4da !important; padding: 0.375rem 0.75rem !important; flex: 1;"
                                            required>
-                                    <button type="button"
-                                            class="btn btn-outline-primary"
+                                    <button type="button" 
+                                            class="btn btn-outline-primary" 
                                             id="checkResidentBtn"
                                             style="height: 38px; padding: 0.375rem 0.75rem; display: flex; align-items: center; justify-content: center; border: 1px solid #0d6efd !important; white-space: nowrap;">
                                         <i class="fas fa-search"></i> Verify
@@ -91,7 +91,7 @@
                                 <div class="btn-group w-100" role="group" style="display: flex;">
                                     <input type="radio" class="btn-check" name="qr_method" id="scan_qr" value="scan">
                                     <label class="btn btn-outline-primary" for="scan_qr" style="flex: 1; text-align: center;">
-                                        <i class="fas fa-camera text-primary me-2"></i>
+                                        <i class="fas fa-camera me-2"></i>
                                         Scan QR Code
                                     </label>
                                     <input type="file"
@@ -101,7 +101,7 @@
                                            style="display: none;">
                                     <input type="radio" class="btn-check" name="qr_method" id="upload_qr" value="upload">
                                     <label class="btn btn-outline-primary" for="upload_qr" style="flex: 1; text-align: center;">
-                                        <i class="fas fa-upload text-primary me-2"></i>
+                                        <i class="fas fa-upload me-2"></i>
                                         Upload QR Code
                                     </label>
                                 </div>
@@ -218,7 +218,7 @@
                             <div class="mb-4">
                                 <label for="service_type" class="form-label fw-bold">
                                     <i class="fas fa-stethoscope text-primary me-2"></i>
-                                    Service Type <span class="text-primary">*Required</span>
+                                    Service Type <span class="text-danger">*Required</span>
                                 </label>
                                 <select class="form-select form-select-lg" id="service_type" name="service_type" required disabled>
                                     <option value="">Select Service Type</option>
@@ -241,7 +241,7 @@
                             <div class="mb-4">
                                 <label for="appointment_type" class="form-label fw-bold">
                                     <i class="fas fa-calendar-alt text-primary me-2"></i>
-                                    Appointment Type <span class="text-primary">*Required</span>
+                                    Appointment Type <span class="text-danger">*Required</span>
                                 </label>
                                 <select class="form-select form-select-lg" id="appointment_type" name="appointment_type" required disabled>
                                     <option value="">Select Appointment Type</option>
@@ -264,13 +264,13 @@
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
                                                 <label for="preferred_date" class="form-label fw-bold">
-                                                    Preferred Date <span class="text-primary">*</span>
+                                                    Preferred Date <span class="text-danger">*</span>
                                                 </label>
                                                 <input type="date" class="form-control" id="preferred_date" name="preferred_date" disabled>
                                             </div>
                                             <div class="col-md-6 mb-3">
                                                 <label for="preferred_time" class="form-label fw-bold">
-                                                    Preferred Time <span class="text-primary">*</span>
+                                                    Preferred Time <span class="text-danger">*</span>
                                                 </label>
                                                 <select class="form-select" id="preferred_time" name="preferred_time" disabled>
                                                     <option value="">Select Time</option>
@@ -293,7 +293,7 @@
                             <div class="mb-4">
                                 <label for="health_concern" class="form-label fw-bold">
                                     <i class="fas fa-clipboard-list text-primary me-2"></i>
-                                    Health Concern/Symptoms <span class="text-primary">*Required</span>
+                                    Health Concern/Symptoms <span class="text-danger">*Required</span>
                                 </label>
                                 <textarea class="form-control" 
                                           id="health_concern" 
@@ -312,7 +312,7 @@
                             <div class="mb-4">
                                 <label for="priority" class="form-label fw-bold">
                                     <i class="fas fa-exclamation-triangle text-warning me-2"></i>
-                                    Priority Level <span class="text-primary">*Required</span>
+                                    Priority Level <span class="text-danger">*Required</span>
                                 </label>
                                 <select class="form-select form-select-lg" id="priority" name="priority" required disabled>
                                     <option value="">Select Priority</option>
@@ -445,6 +445,65 @@
     box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
 }
 
+/* Ensure placeholder text is visible like document request form */
+.form-control::placeholder {
+    color: #6c757d;
+    opacity: 1;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif !important;
+    font-size: 1rem !important;
+}
+
+/* Form Control Styling - Make borders visible and fix text alignment */
+.form-control,
+.form-select {
+    border: 1px solid #ced4da !important;
+    background-color: #fff !important;
+    padding: 0.5rem 0.75rem !important;
+    font-weight: 400 !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif !important;
+    text-align: left !important;
+    font-size: 1rem !important;
+}
+
+/* Ensure placeholder text is visible like document request form */
+.form-control::placeholder {
+    color: #6c757d !important;
+    opacity: 1 !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif !important;
+    font-size: 1rem !important;
+}
+
+/* Input Group Styling - Match document request exactly */
+.input-group {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+}
+
+.input-group .form-control {
+    font-size: 1rem !important;
+    font-weight: 400 !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif !important;
+    border: 1px solid #ced4da !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    padding: 0.5rem 0.75rem !important;
+}
+
+.input-group .btn {
+    border: 2px solid #0d6efd !important;
+    padding: 0.5rem 1rem !important;
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+    width: auto !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+
+
+
+
 .btn-primary {
     background: linear-gradient(45deg, #0d6efd, #0a58ca);
     border: none;
@@ -565,9 +624,117 @@
 
 /* QR Code Scanner Styles */
 .btn-check:checked + .btn-outline-primary {
-    background-color: #0d6efd;
-    border-color: #0d6efd;
-    color: white;
+    background-color: #0d6efd !important;
+    border-color: #0d6efd !important;
+    color: white !important;
+}
+
+/* Force FontAwesome for all icons, prevent Material Symbols override */
+.btn i,
+.btn-outline-primary i,
+.btn-primary i,
+label i,
+button i,
+.fas, .far, .fal, .fab {
+    font-family: 'Font Awesome 5 Free', 'Font Awesome 5 Brands' !important;
+    font-weight: 900 !important;
+    font-style: normal;
+    font-variant: normal;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Ensure button text and labels use system font */
+.btn,
+.btn-outline-primary,
+label,
+h1, h2, h3, h4, h5, h6 {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif !important;
+}
+
+/* Enforce blue color scheme for all buttons */
+.btn-outline-primary {
+    color: #0d6efd !important;
+    border-color: #0d6efd !important;
+}
+
+.btn-outline-primary:hover {
+    background-color: #0d6efd !important;
+    border-color: #0d6efd !important;
+    color: white !important;
+}
+
+.btn-check:checked + .btn-outline-primary {
+    background-color: #0d6efd !important;
+    border-color: #0d6efd !important;
+    color: white !important;
+}
+
+/* Button Group for Radio Buttons (Manual Input / QR Code) */
+.btn-group .btn-outline-primary {
+    background: #ffffff !important;
+    border: 1px solid #0d6efd !important;
+    color: #0d6efd !important;
+    padding: 0.5rem 1rem !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.btn-group .btn-check:checked + .btn-outline-primary {
+    background: #0d6efd !important;
+    color: #ffffff !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.btn-group .btn-outline-primary:hover {
+    background: #e7f1ff !important;
+    color: #0d6efd !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.btn-group .btn-outline-primary:focus,
+.btn-group .btn-outline-primary:active {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Button Group icons */
+.btn-group .btn i {
+    font-family: "Font Awesome 5 Free" !important;
+    font-weight: 900 !important;
+}
+
+/* Force FontAwesome icon colors */
+.btn-outline-primary i,
+.btn-primary i {
+    color: inherit !important;
+    font-family: "Font Awesome 5 Free" !important;
+}
+
+/* Hide any emoji/unicode fallback content */
+.btn::before,
+.btn::after {
+    content: none !important;
+}
+
+.btn-check:focus + .btn-outline-primary {
+    border-color: #0d6efd !important;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25) !important;
+}
+
+/* Force icon colors to match button text color */
+.btn-outline-primary i {
+    color: inherit !important;
+}
+
+.btn-check:checked + .btn-outline-primary i,
+.btn-outline-primary:hover i,
+.btn-outline-primary:focus i,
+.btn-outline-primary:active i,
+.btn-outline-primary.active i {
+    color: inherit !important;
 }
 
 #qr-reader {

@@ -26,10 +26,11 @@ class AgentConversationController extends Controller
                 ->first();
 
             if ($existingConversation) {
+                $queuePosition = AgentConversation::getQueuePosition($existingConversation->session_id);
                 return response()->json([
                     'success' => true,
                     'session_id' => $existingConversation->session_id,
-                    'queue_position' => AgentConversation::getQueuePosition($existingConversation->session_id),
+                    'queue_position' => $queuePosition,
                     'queue_status' => $existingConversation->queue_status,
                     'message' => 'You are already in the queue'
                 ]);
@@ -38,9 +39,6 @@ class AgentConversationController extends Controller
             // Generate unique session ID for this conversation
             $sessionId = 'agent_conv_' . time() . '_' . Str::random(10);
             
-            // Get next queue position
-            $queuePosition = AgentConversation::getNextQueuePosition();
-            
             // Create initial queue entry (will be updated with messages as conversation progresses)
             AgentConversation::create([
                 'session_id' => $sessionId,
@@ -48,11 +46,11 @@ class AgentConversationController extends Controller
                 'sender_type' => 'user',
                 'user_session' => $validated['user_session'],
                 'is_read' => false,
-                'is_active' => true,
-                'queue_position' => $queuePosition,
-                'queue_status' => 'waiting',
-                'queued_at' => now()
+                'queue_status' => 'waiting'
             ]);
+
+            // Get queue position based on creation time
+            $queuePosition = AgentConversation::getQueuePosition($sessionId);
 
             return response()->json([
                 'success' => true,
@@ -94,10 +92,11 @@ class AgentConversationController extends Controller
 
             // Only allow messages if conversation is active
             if ($conversation->queue_status !== 'active') {
+                $queuePosition = AgentConversation::getQueuePosition($validated['session_id']);
                 return response()->json([
                     'success' => false,
                     'message' => 'Please wait for your turn in the queue',
-                    'queue_position' => AgentConversation::getQueuePosition($validated['session_id'])
+                    'queue_position' => $queuePosition
                 ], 403);
             }
 
@@ -107,12 +106,8 @@ class AgentConversationController extends Controller
                 'sender_type' => 'user',
                 'user_session' => $validated['user_session'],
                 'is_read' => false,
-                'is_active' => true,
                 'queue_status' => 'active',
-                'assigned_admin_id' => $conversation->assigned_admin_id,
-                'queue_position' => $conversation->queue_position,
-                'queued_at' => $conversation->queued_at,
-                'assigned_at' => $conversation->assigned_at
+                'assigned_admin_id' => $conversation->assigned_admin_id
             ]);
 
             return response()->json([

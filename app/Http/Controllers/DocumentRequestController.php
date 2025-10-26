@@ -100,12 +100,16 @@ class DocumentRequestController extends Controller
         // Check if this is QR verification or manual verification
         $isQrVerification = $request->input('verification_method') === 'qr';
 
+        // Define free documents that don't require payment receipt
+        $freeDocuments = ['Certificate of Indigency', 'Certificate of Low Income'];
+        $isFreDocument = in_array($request->input('document_type'), $freeDocuments);
+
         $validationRules = [
             'barangay_id' => 'required|string|exists:residents,barangay_id',
             'document_type' => 'required|string|in:Barangay Clearance,Certificate of Residency,Certificate of Indigency,Certificate of Low Income,Business Permit',
             'purpose' => 'required|string|max:500',
             'verification_method' => 'required|string|in:manual,qr',
-            'receipt' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120', // Always required regardless of verification method
+            'receipt' => $isFreDocument ? 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120' : 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ];
 
         $validator = Validator::make($request->all(), $validationRules);

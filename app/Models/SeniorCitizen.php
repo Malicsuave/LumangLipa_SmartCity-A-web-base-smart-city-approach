@@ -132,7 +132,8 @@ class SeniorCitizen extends Model
         $prefix = "SC-LUM-{$year}-";
         
         // Get the last senior citizen registered this year
-        $lastSenior = self::where('senior_id_number', 'like', $prefix . '%')
+        $lastSenior = self::withTrashed()
+            ->where('senior_id_number', 'like', $prefix . '%')
             ->orderBy('senior_id_number', 'desc')
             ->first();
         

@@ -622,7 +622,8 @@ class SeniorCitizenController extends Controller
         $prefix = "SC-LUM-{$year}-";
         
         // Get the last senior citizen registered this year
-        $lastSeniorCitizen = SeniorCitizen::where('senior_id_number', 'like', $prefix . '%')
+        $lastSeniorCitizen = SeniorCitizen::withTrashed()
+            ->where('senior_id_number', 'like', $prefix . '%')
             ->orderBy('senior_id_number', 'desc')
             ->first();
         
@@ -1433,6 +1434,7 @@ class SeniorCitizenController extends Controller
                 'profession_occupation' => $senior->profession_occupation,
                 'citizenship' => $senior->citizenship,
                 'religion' => $senior->religion,
+                'contact_number' => $senior->contact_number,
             ];
         });
         

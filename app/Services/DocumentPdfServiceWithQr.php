@@ -69,8 +69,8 @@ class DocumentPdfServiceWithQr
                 throw new \Exception('Resident not found for document request');
             }
             
-            // Get barangay officials data
-            $officials = \App\Models\BarangayOfficial::first();
+            // Get officials data for the documents
+            $officials = app(\App\Services\DocumentPdfService::class)->getOfficialsForDocuments();
             
             if (!$officials) {
                 throw new \Exception('Barangay officials data not found. Please ensure officials information is configured in the system.');

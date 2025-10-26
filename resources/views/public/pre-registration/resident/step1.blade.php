@@ -257,6 +257,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const birthdateInput = document.getElementById('birthdate');
   const ageErrorDiv = document.getElementById('age-error');
   const ageErrorText = document.getElementById('age-error-text');
+  const form = document.getElementById('residentPreRegStep1Form');
 
   // Set max date to today
   const today = new Date().toISOString().split('T')[0];
@@ -305,6 +306,7 @@ document.addEventListener('DOMContentLoaded', function() {
       setRedOutline();
       ageErrorDiv.style.display = 'block';
       ageErrorText.textContent = errorMsg;
+      return false;
     } else {
       birthdateInput.classList.remove('is-invalid');
       birthdateInput.classList.add('is-valid');
@@ -313,8 +315,21 @@ document.addEventListener('DOMContentLoaded', function() {
       birthdateInput.style.setProperty('outline', '', 'important');
       ageErrorDiv.style.display = 'none';
       ageErrorText.textContent = '';
+      return true;
     }
   }
+
+  // Prevent form submission if birthdate is invalid
+  form.addEventListener('submit', function(e) {
+    if (!validateBirthdate()) {
+      e.preventDefault();
+      e.stopPropagation();
+      // Scroll to the birthdate field
+      birthdateInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      birthdateInput.focus();
+      return false;
+    }
+  });
 
   birthdateInput.addEventListener('blur', function() {
     validateBirthdate();

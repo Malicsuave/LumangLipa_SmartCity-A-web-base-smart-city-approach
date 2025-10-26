@@ -51,22 +51,22 @@ class AuthenticateUser
             if ($user) {
                 AccountLockoutMiddleware::recordFailedAttempt($email);
                 $this->handleFailedLogin($user, $request);
+            } else {
+                // Log failed attempt only if user doesn't exist (security logging)
+                UserActivity::create([
+                    'user_id' => null,
+                    'activity_type' => 'login_failed',
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                    'device_type' => $this->detectDeviceType($request->userAgent()),
+                    'is_suspicious' => true,
+                    'details' => [
+                        'email' => $email,
+                        'reason' => 'user_not_found',
+                        'attempts' => AccountLockoutMiddleware::getFailedAttempts($email),
+                    ],
+                ]);
             }
-            
-            // Log failed attempt even if user doesn't exist (security logging)
-            UserActivity::create([
-                'user_id' => $user?->id,
-                'activity_type' => 'login_failed',
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent(),
-                'device_type' => $this->detectDeviceType($request->userAgent()),
-                'is_suspicious' => true,
-                'details' => [
-                    'email' => $email,
-                    'reason' => $user ? 'invalid_password' : 'user_not_found',
-                    'attempts' => AccountLockoutMiddleware::getFailedAttempts($email),
-                ],
-            ]);
             
             return null;
         }
@@ -141,16 +141,20 @@ class AuthenticateUser
             ]);
         } else {
             // Log failed login attempt
+            // Mark as suspicious if this is 3rd attempt or more
+            $isSuspicious = $user->failed_login_attempts >= 3;
+            
             UserActivity::create([
                 'user_id' => $user->id,
                 'activity_type' => 'login_failed',
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent(),
                 'device_type' => $this->detectDeviceType($request->userAgent()),
-                'is_suspicious' => false,
+                'is_suspicious' => $isSuspicious,
                 'details' => [
                     'attempt_number' => $user->failed_login_attempts,
                     'max_attempts' => $this->maxAttempts,
+                    'reason' => 'invalid_password',
                 ],
             ]);
         }

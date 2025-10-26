@@ -7,6 +7,7 @@ use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\AdminChatController;
 use App\Http\Controllers\LiveChatController;
 use App\Http\Controllers\UserConversationController;
+use App\Http\Controllers\Admin\AgentConversationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -45,48 +46,6 @@ Route::post('/live-chat/close/{sessionId}', [LiveChatController::class, 'closeSe
 // Admin Chat API route - allows user escalations without authentication
 Route::post('/admin/chat', [AdminChatController::class, 'chat']);
 
-// Test route for escalations (temporary - no auth required)
-Route::get('/admin/live-chat/escalations-test', [LiveChatController::class, 'getActiveEscalations']);
-
-// Test route for admin response (temporary - no auth required)
-Route::post('/admin/live-chat/respond-test', function(Request $request) {
-    Log::info('Test admin response endpoint called', $request->all());
-    
-    try {
-        $validated = $request->validate([
-            'session_id' => 'required|string',
-            'message' => 'required|string'
-        ]);
-        
-        // Create the message without authentication
-        $message = \App\Models\AdminChatMessage::create([
-            'conversation_id' => $validated['session_id'],
-            'message' => $validated['message'],
-            'sender_type' => 'admin',
-            'sender_id' => 'Test Admin',
-        ]);
-        
-        Log::info('Test admin message created', ['message_id' => $message->id]);
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Test response sent successfully',
-            'message_id' => $message->id
-        ]);
-        
-    } catch (\Exception $e) {
-        Log::error('Test admin response error', [
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]);
-        
-        return response()->json([
-            'success' => false,
-            'error' => $e->getMessage()
-        ], 500);
-    }
-});
-
 // Admin-only routes requiring authentication
 Route::middleware(['auth'])->group(function () {
     // Live chat admin routes - simplified auth for testing
@@ -100,40 +59,25 @@ Route::middleware(['auth'])->group(function () {
     });
 });
 
-// Simplified admin routes without authentication for testing
-Route::post('/admin/live-chat/respond-simple', function(Request $request) {
-    Log::info('Simple admin response endpoint called', $request->all());
+// Agent Conversation User Tracking Routes (no CSRF protection needed for real-time tracking)
+Route::prefix('agent-conversation')->group(function () {
+    Route::post('/heartbeat', [AgentConversationController::class, 'userHeartbeat']);
+    Route::post('/connect', [AgentConversationController::class, 'userConnect']);
+    Route::post('/disconnect', [AgentConversationController::class, 'userDisconnect']);
     
-    try {
-        $validated = $request->validate([
-            'session_id' => 'required|string',
-            'message' => 'required|string'
-        ]);
-        
-        // Create the message without authentication
-        $message = \App\Models\AdminChatMessage::create([
-            'conversation_id' => $validated['session_id'],
-            'message' => $validated['message'],
-            'sender_type' => 'admin',
-            'sender_id' => 'Admin',
-        ]);
-        
-        Log::info('Simple admin message created successfully');
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Admin response sent successfully'
-        ]);
-        
-    } catch (\Exception $e) {
-        Log::error('Simple admin response error', [
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]);
-        
-        return response()->json([
-            'success' => false,
-            'error' => $e->getMessage()
-        ], 500);
-    }
+    // Add these missing routes that your chatbot needs:
+    Route::post('/escalate', [AgentConversationController::class, 'escalateToAgent']);
+    Route::get('/{sessionId}/queue-status', [AgentConversationController::class, 'getQueueStatus']);
+    Route::get('/{sessionId}/new-messages', [AgentConversationController::class, 'getNewMessagesForUser']);
+    Route::post('/send-message', [AgentConversationController::class, 'sendUserMessage']);
+});
+
+// Admin Agent Conversation Routes (with authentication)
+Route::middleware(['auth'])->prefix('admin/agent-conversation')->group(function () {
+    Route::get('/active', [AgentConversationController::class, 'getActiveConversations']);
+    Route::get('/{sessionId}/messages', [AgentConversationController::class, 'getMessages']);
+    Route::get('/{sessionId}/new-messages', [AgentConversationController::class, 'getNewMessages']);
+    Route::post('/send', [AgentConversationController::class, 'sendMessage']);
+    Route::post('/{sessionId}/complete', [AgentConversationController::class, 'completeConversation']);
+    Route::post('/{sessionId}/mark-read', [AgentConversationController::class, 'markAsRead']);
 });

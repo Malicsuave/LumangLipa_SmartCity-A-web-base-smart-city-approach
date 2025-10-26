@@ -16,8 +16,8 @@ class AnnouncementController extends Controller
     {
         $announcements = Announcement::currentlyActive()
                                    ->with('registrations')
-                                   ->latest()
-                                   ->paginate(12);
+                                   ->oldest()
+                                   ->get();
 
         return view('public.announcements.index', compact('announcements'));
     }

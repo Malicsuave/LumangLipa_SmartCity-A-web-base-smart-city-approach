@@ -14,4 +14,11 @@ interface AnalyticsRepositoryInterface
     public function getDocumentTypeDistribution(): array;
     public function getComplaintStatusDistribution(): array;
     public function getSystemUsageMetrics(): array;
+    
+    // NEW: Additional analytics methods
+    public function getFeedbackMetrics(): array;
+    public function getUserActivityMetrics(): array;
+    public function getAnnouncementMetrics(): array;
+    public function getChatbotMetrics(): array;
+    public function getActivityTrends(): array;
 }

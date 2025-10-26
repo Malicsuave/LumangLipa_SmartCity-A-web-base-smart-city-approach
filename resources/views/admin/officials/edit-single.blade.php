@@ -38,14 +38,23 @@
         <div class="form-group border-bottom pb-4 mb-4">
             <h5 class="text-primary">Barangay Councilors</h5>
             @for($i = 1; $i <= 7; $i++)
-            <div class="row mb-3">
-                <div class="col-md-8">
-                    <label for="councilor{{ $i }}_name">Councilor {{ $i }} Name</label>
+            <div class="row mb-4 border rounded p-3" style="background-color: #f8f9fa;">
+                <div class="col-12 mb-2">
+                    <h6 class="text-secondary fw-bold">Councilor {{ $i }}</h6>
+                </div>
+                <div class="col-md-6">
+                    <label for="councilor{{ $i }}_name">Name</label>
                     <input type="text" name="councilor{{ $i }}_name" id="councilor{{ $i }}_name" class="form-control @error('councilor'.$i.'_name') is-invalid @enderror" value="{{ old('councilor'.$i.'_name', $officials->{'councilor'.$i.'_name'}) }}">
                     @error('councilor'.$i.'_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     <div class="mt-1 text-muted"><strong>Current:</strong> {{ $officials->{'councilor'.$i.'_name'} }}</div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
+                    <label for="councilor{{ $i }}_committee">Committee</label>
+                    <input type="text" name="councilor{{ $i }}_committee" id="councilor{{ $i }}_committee" class="form-control @error('councilor'.$i.'_committee') is-invalid @enderror" value="{{ old('councilor'.$i.'_committee', $officials->{'councilor'.$i.'_committee'}) }}" placeholder="e.g., Health Committee, Peace and Order">
+                    @error('councilor'.$i.'_committee')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    <div class="mt-1 text-muted"><strong>Current:</strong> {{ $officials->{'councilor'.$i.'_committee'} ?? 'Not assigned' }}</div>
+                </div>
+                <div class="col-md-12 mt-3">
                     <label for="councilor{{ $i }}_photo">Photo</label>
                     <input type="file" name="councilor{{ $i }}_photo" id="councilor{{ $i }}_photo" class="form-control @error('councilor'.$i.'_photo') is-invalid @enderror" accept="image/*">
                     @error('councilor'.$i.'_photo')<div class="invalid-feedback">{{ $message }}</div>@enderror
@@ -67,13 +76,19 @@
         <div class="form-group border-bottom pb-4 mb-4">
             <h5 class="text-primary">SK Chairperson</h5>
             <div class="row">
-                <div class="col-md-8">
+                <div class="col-md-6">
                     <label for="sk_chairperson_name">Name</label>
                     <input type="text" name="sk_chairperson_name" id="sk_chairperson_name" class="form-control @error('sk_chairperson_name') is-invalid @enderror" value="{{ old('sk_chairperson_name', $officials->sk_chairperson_name) }}">
                     @error('sk_chairperson_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     <div class="mt-1 text-muted"><strong>Current:</strong> {{ $officials->sk_chairperson_name }}</div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
+                    <label for="sk_chairperson_committee">Committee</label>
+                    <input type="text" name="sk_chairperson_committee" id="sk_chairperson_committee" class="form-control @error('sk_chairperson_committee') is-invalid @enderror" value="{{ old('sk_chairperson_committee', $officials->sk_chairperson_committee) }}" placeholder="e.g., Committee on Sports and Youth">
+                    @error('sk_chairperson_committee')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    <div class="mt-1 text-muted"><strong>Current:</strong> {{ $officials->sk_chairperson_committee ?? 'Not assigned' }}</div>
+                </div>
+                <div class="col-md-12 mt-3">
                     <label for="sk_chairperson_photo">Photo</label>
                     <input type="file" name="sk_chairperson_photo" id="sk_chairperson_photo" class="form-control @error('sk_chairperson_photo') is-invalid @enderror" accept="image/*">
                     @error('sk_chairperson_photo')<div class="invalid-feedback">{{ $message }}</div>@enderror

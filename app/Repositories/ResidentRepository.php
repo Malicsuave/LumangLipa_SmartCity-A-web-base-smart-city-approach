@@ -66,9 +66,9 @@ class ResidentRepository implements ResidentRepositoryInterface
             'children' => $this->getChildrenCount(),
             'adults' => $this->getAdultsCount(),
             'seniors' => $this->getSeniorsCount(),
-            'new_this_month' => $this->getNewResidentsThisMonth(),
-            'active' => Resident::where('status', 'active')->count(),
-            'inactive' => Resident::where('status', 'inactive')->count(),
+            'this_month' => $this->getNewResidentsThisMonth(),
+            'pending' => 0, // No pending status for residents
+            // Note: 'active' and 'inactive' status removed as column doesn't exist
         ];
     }
 

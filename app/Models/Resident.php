@@ -105,7 +105,8 @@ class Resident extends Model
         $prefix = 'BRG-LUM-' . $year . '-';
         
         // Find the highest existing ID number for this year
-        $lastResident = self::where('barangay_id', 'like', $prefix . '%')
+        $lastResident = self::withTrashed()
+            ->where('barangay_id', 'like', $prefix . '%')
             ->orderBy('barangay_id', 'desc')
             ->first();
         

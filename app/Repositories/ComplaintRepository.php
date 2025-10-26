@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-use App\Models\Complaint;
+use App\Models\BlotterComplaint;
 use App\Repositories\Contracts\ComplaintRepositoryInterface;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -11,22 +11,19 @@ class ComplaintRepository implements ComplaintRepositoryInterface
 {
     public function getFiltered(array $filters, int $perPage = 20)
     {
-        $query = Complaint::with(['approver', 'resident']);
+        $query = BlotterComplaint::with(['approver', 'resident']);
 
         if (!empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
-        if (!empty($filters['complaint_type'])) {
-            $query->where('complaint_type', $filters['complaint_type']);
-        }
-
         if (!empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
-                $q->where('subject', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhere('complaint_type', 'like', "%{$search}%")
+                $q->where('complainants', 'like', "%{$search}%")
+                  ->orWhere('respondents', 'like', "%{$search}%")
+                  ->orWhere('complaint_details', 'like', "%{$search}%")
+                  ->orWhere('case_number', 'like', "%{$search}%")
                   ->orWhereHas('resident', function ($residentQuery) use ($search) {
                       $residentQuery->where('first_name', 'like', "%{$search}%")
                                    ->orWhere('last_name', 'like', "%{$search}%");
@@ -48,15 +45,15 @@ class ComplaintRepository implements ComplaintRepositoryInterface
     public function getStatistics(): array
     {
         return [
-            'total' => Complaint::count(),
-            'pending' => Complaint::where('status', 'pending')->count(),
-            'in_progress' => Complaint::where('status', 'in_progress')->count(),
-            'resolved' => Complaint::where('status', 'resolved')->count(),
-            'closed' => Complaint::where('status', 'closed')->count(),
-            'this_month' => Complaint::whereMonth('created_at', now()->month)
+            'total' => BlotterComplaint::count(),
+            'pending' => BlotterComplaint::where('status', 'pending')->count(),
+            'in_progress' => BlotterComplaint::where('status', 'in_progress')->count(),
+            'resolved' => BlotterComplaint::where('status', 'resolved')->count(),
+            'closed' => BlotterComplaint::where('status', 'closed')->count(),
+            'this_month' => BlotterComplaint::whereMonth('created_at', now()->month)
                                    ->whereYear('created_at', now()->year)
                                    ->count(),
-            'resolved_this_month' => Complaint::where('status', 'resolved')
+            'resolved_this_month' => BlotterComplaint::where('status', 'resolved')
                                               ->whereMonth('resolved_at', now()->month)
                                               ->whereYear('resolved_at', now()->year)
                                               ->count(),
@@ -65,7 +62,7 @@ class ComplaintRepository implements ComplaintRepositoryInterface
 
     public function getByStatus(string $status)
     {
-        return Complaint::where('status', $status)
+        return BlotterComplaint::where('status', $status)
                        ->with(['approver', 'resident'])
                        ->orderBy('created_at', 'desc')
                        ->get();
@@ -73,7 +70,8 @@ class ComplaintRepository implements ComplaintRepositoryInterface
 
     public function getByCategory(string $category)
     {
-        return Complaint::where('complaint_type', $category)
+        // Since BlotterComplaint is unified, search by status instead
+        return BlotterComplaint::where('status', $category)
                        ->with(['approver', 'resident'])
                        ->orderBy('created_at', 'desc')
                        ->get();
@@ -81,7 +79,7 @@ class ComplaintRepository implements ComplaintRepositoryInterface
 
     public function getRecentComplaints(int $limit = 10)
     {
-        return Complaint::with(['approver', 'resident'])
+        return BlotterComplaint::with(['approver', 'resident'])
                        ->orderBy('created_at', 'desc')
                        ->limit($limit)
                        ->get();
@@ -89,7 +87,7 @@ class ComplaintRepository implements ComplaintRepositoryInterface
 
     public function getResolutionTimeMetrics(): array
     {
-        return Complaint::where('status', 'resolved')
+        return BlotterComplaint::where('status', 'resolved')
                        ->whereNotNull('resolved_at')
                        ->select(
                            DB::raw('AVG(DATEDIFF(resolved_at, created_at)) as avg_days'),
@@ -102,12 +100,12 @@ class ComplaintRepository implements ComplaintRepositoryInterface
 
     public function create(array $data)
     {
-        return Complaint::create($data);
+        return BlotterComplaint::create($data);
     }
 
     public function update(int $id, array $data)
     {
-        $complaint = Complaint::findOrFail($id);
+        $complaint = BlotterComplaint::findOrFail($id);
         $complaint->update($data);
         return $complaint->fresh();
     }
@@ -132,12 +130,12 @@ class ComplaintRepository implements ComplaintRepositoryInterface
                 break;
         }
 
-        return Complaint::where('id', $id)->update($updateData) > 0;
+        return BlotterComplaint::where('id', $id)->update($updateData) > 0;
     }
 
     public function getMonthlyComplaintCounts(): array
     {
-        return Complaint::select(
+        return BlotterComplaint::select(
                     DB::raw('MONTH(created_at) as month'),
                     DB::raw('YEAR(created_at) as year'),
                     DB::raw('COUNT(*) as count')
@@ -151,8 +149,9 @@ class ComplaintRepository implements ComplaintRepositoryInterface
 
     public function getCategoryDistribution(): array
     {
-        return Complaint::select('complaint_type', DB::raw('COUNT(*) as count'))
-                       ->groupBy('complaint_type')
+        // Return status distribution instead of complaint types
+        return BlotterComplaint::select('status', DB::raw('COUNT(*) as count'))
+                       ->groupBy('status')
                        ->orderBy('count', 'desc')
                        ->get()
                        ->toArray();

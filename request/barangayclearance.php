@@ -334,7 +334,8 @@
                             <br>
                             <div class="officials-list">
                                 <?php
-                                $officials = \App\Models\BarangayOfficial::first();
+                                // Use the same service method as DocumentPdfService
+                                $officials = app(\App\Services\DocumentPdfService::class)->getOfficialsForDocuments();
                                 echo '<div class="official-name">HON. ' . $officials->captain_name . '</div>';
                                 echo '<div class="official-position">Barangay Captain</div><br><br>';
                                 for ($i = 1; $i <= 7; $i++) {

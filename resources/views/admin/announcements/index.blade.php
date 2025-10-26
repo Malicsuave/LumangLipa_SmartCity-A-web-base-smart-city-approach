@@ -106,14 +106,14 @@
                                                 @php
                                                     $typeLabels = [
                                                         'general' => 'General',
-                                                        'limited_slots' => 'Registration Required',
+                                                        'health_related' => 'Health Related',
                                                         'event' => 'Event',
                                                         'service' => 'Service',
                                                         'program' => 'Program'
                                                     ];
                                                     $typeLabel = $typeLabels[$announcement->type] ?? ucfirst(str_replace('_', ' ', $announcement->type));
                                                 @endphp
-                                                <span class="badge badge-pill badge-{{ $announcement->type === 'limited_slots' ? 'warning' : 'info' }}">
+                                                <span class="badge badge-pill badge-{{ $announcement->type === 'health_related' ? 'warning' : 'info' }}">
                                                     {{ $typeLabel }}
                                                 </span>
                                             </td>
@@ -140,23 +140,22 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                @if($announcement->start_date)
+                                                @if($announcement->date)
                                                     <div class="small">
-                                                        <i class="fas fa-calendar-start text-success"></i> 
-                                                        {{ $announcement->start_date->format('M j, Y') }}
+                                                        <i class="fas fa-calendar text-success"></i> 
+                                                        {{ $announcement->date->format('M j, Y') }}
                                                     </div>
-                                                @endif
-                                                @if($announcement->end_date)
-                                                    <div class="small">
-                                                        <i class="fas fa-calendar-times text-danger"></i> 
-                                                        {{ $announcement->end_date->format('M j, Y') }}
-                                                    </div>
-                                                @endif
-                                                @if(!$announcement->start_date && !$announcement->end_date)
+                                                    @if($announcement->time)
+                                                        <div class="small">
+                                                            <i class="fas fa-clock text-info"></i> 
+                                                            {{ date('h:i A', strtotime($announcement->time)) }}
+                                                        </div>
+                                                    @endif
+                                                @else
                                                     <span class="text-muted">—</span>
                                                 @endif
                                             </td>
-                                            <td>
+                                            <td data-sort="{{ $announcement->created_at->timestamp }}">
                                                 {{ $announcement->created_at->format('M j, Y') }}<br>
                                                 <small class="text-muted">{{ $announcement->created_at->format('h:i A') }}</small>
                                             </td>
@@ -366,7 +365,7 @@ function viewAnnouncementDetails(announcementId) {
                 `;
                 $('#modal-slots-info').html(slotsHtml);
             } else {
-                $('#modal-slots-info').html('<span class="text-muted">No registration required</span>');
+                $('#modal-slots-info').html('<span class="text-muted">No appointment slots</span>');
             }
             
             // Handle image
@@ -481,10 +480,31 @@ document.addEventListener('DOMContentLoaded', function() {
         if (document.getElementById('announcementsTable')) {
             DataTableHelpers.initDataTable('#announcementsTable', {
                 buttons: ["copy", "csv", "excel", "pdf", "print", "colvis"],
-                order: [[ 5, "desc" ]], // Sort by created date
+                order: [[ 5, "asc" ]], // Sort by created date (oldest first)
+                pageLength: 10, // Show 10 records per page
+                lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+                pagingType: "simple_numbers",
+                paging: true, // Enable DataTables pagination
+                searching: true, // Enable DataTables search
+                info: true, // Enable DataTables info
+                language: {
+                    search: "Search announcements:",
+                    lengthMenu: "Show _MENU_ announcements per page",
+                    info: "Showing _START_ to _END_ of _TOTAL_ announcements",
+                    infoEmpty: "No announcements found",
+                    infoFiltered: "(filtered from _MAX_ total announcements)",
+                    paginate: {
+                        first: "First",
+                        last: "Last",
+                        next: "Next",
+                        previous: "Previous"
+                    }
+                },
                 columnDefs: [
                     { "orderable": false, "targets": -1 } // Disable sorting on actions column
-                ]
+                ],
+                responsive: true,
+                dom: 'Blfrtip' // B=buttons, l=length, f=filter, r=processing, t=table, i=info, p=pagination
             });
         }
     }
@@ -523,6 +543,41 @@ document.addEventListener('DOMContentLoaded', function() {
     border-bottom: 2px solid #2A7BC4;
     padding-bottom: 4px;
     margin-bottom: 12px;
+}
+
+/* DataTables Pagination Styling */
+.dataTables_wrapper .dataTables_paginate {
+    margin-top: 1rem;
+    text-align: center;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    padding: 0.375rem 0.75rem;
+    margin: 0 0.125rem;
+    border: 1px solid #dee2e6;
+    background: #fff;
+    color: #495057;
+    border-radius: 0.25rem;
+    text-decoration: none;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: #007bff;
+    border-color: #007bff;
+    color: #fff;
+}
+.dataTables_wrapper .dataTables_info {
+    margin-top: 1rem;
+    padding-top: 0.5rem;
+}
+.dataTables_wrapper .dataTables_length {
+    margin-bottom: 1rem;
+}
+.dataTables_wrapper .dataTables_filter {
+    margin-bottom: 1rem;
+    text-align: right;
 }
 </style>
 @endsection

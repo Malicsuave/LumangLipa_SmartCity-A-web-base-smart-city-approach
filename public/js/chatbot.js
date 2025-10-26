@@ -16,8 +16,23 @@ class BarangayChatbot {
         this.queueStatus = 'waiting'; // 'waiting', 'active', 'completed'
         this.queueStatusElement = null;
         
+        // User connection tracking
+        this.heartbeatInterval = null;
+        this.isConnected = false;
+        this.lastHeartbeat = null;
+        
+        // Inactivity tracking
+        this.inactivityTimer = null;
+        this.warningTimer = null;
+        this.lastUserActivity = Date.now();
+        this.inactivityWarningShown = false;
+        this.INACTIVITY_WARNING_TIME = 30000; // 30 seconds
+        this.INACTIVITY_DISCONNECT_TIME = 60000; // 1 minute
+        this.disconnectedByInactivity = false; // Flag to prevent reconnection
+        
         this.init();
         this.knowledgeBase = this.initKnowledgeBase();
+        this.initializeUserTracking();
     }
 
     init() {
@@ -46,6 +61,13 @@ class BarangayChatbot {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 this.sendMessage();
+            }
+        });
+        
+        // Track user activity while typing (reset inactivity timer)
+        this.input.addEventListener('input', () => {
+            if (this.isAgentMode && this.agentSessionId && this.queueStatus === 'active') {
+                this.resetInactivityTimer();
             }
         });
     }
@@ -89,6 +111,14 @@ class BarangayChatbot {
     sendMessage() {
         const message = this.input.value.trim();
         if (!message || this.isTyping) return;
+
+        // Prevent sending messages if disconnected due to inactivity
+        if (this.disconnectedByInactivity) {
+            return;
+        }
+
+        // Reset inactivity timer on user activity
+        this.resetInactivityTimer();
 
         // If in agent mode, send to agent instead
         if (this.isAgentMode && this.agentSessionId) {
@@ -299,6 +329,13 @@ class BarangayChatbot {
 
                 // Handle specific actions
                 if (action) {
+                    // Handle QR generation action specially
+                    if (action === 'generate-qr' && service) {
+                        const category = service === 'document_request' ? 'document' : 'complaint';
+                        this.generateFeedbackQr(category, service);
+                        return;
+                    }
+                    
                     this.showTyping();
                     setTimeout(() => {
                         this.hideTyping();
@@ -415,6 +452,15 @@ class BarangayChatbot {
             return "Hello! Welcome to Barangay Lumanglipa. I'm Dexter AI, here to help you with information about our services. What would you like to know about?";
         }
 
+        // Check for feedback QR request FIRST before knowledge base
+        if (message.toLowerCase().includes('get feedback qr') || 
+            message.toLowerCase().includes('feedback qr') || 
+            message.toLowerCase().includes('📱 get feedback qr')) {
+            // Don't return text, just trigger the options
+            this.showFeedbackQrOptions();
+            return ""; // Return empty to avoid duplicate messages
+        }
+
         // Check knowledge base
         for (const [keywords, response] of this.knowledgeBase) {
             if (keywords.some(keyword => message.includes(keyword))) {
@@ -431,7 +477,7 @@ class BarangayChatbot {
             'registration', 'register', 'resident', 'id', 'identification', 'service',
             'assistance', 'help', 'application', 'request', 'file', 'submit', 'process',
             'emergency', 'urgent', 'mediation', 'conciliation', 'dispute', 'lumanglipa',
-            'mataas na kahoy', 'batangas', 'purok', 'secretary', 'requirements'
+            'mataas na kahoy', 'batangas', 'purok', 'secretary', 'requirements', 'feedback', 'qr'
         ];
 
         const isBarangayRelated = barangayRelatedKeywords.some(keyword => 
@@ -469,13 +515,13 @@ class BarangayChatbot {
 
     getOnlineGuide(service) {
         const guides = {
-            'document': `Online Document Request\n            <br><br>\n\nWhat you need:\n<br><br>\n\n• Barangay ID\n<br><br>\n\n1-3 Business Days for Processing\n<br><br>\n\n\n<div class="quick-actions" style="margin-top: 15px;">\n    <button class="quick-action-btn" onclick="window.open('${window.location.origin}/request-document', '_blank')">🚀 Request Document Now</button>\n    <button class="quick-action-btn" data-action="barangay-id">❓ Barangay ID</button>\n</div>`,
+            'document': `Online Document Request\n            <br><br>\n\nWhat you need:\n<br><br>\n\n• Barangay ID\n<br><br>\n\n1-3 Business Days for Processing\n<br><br>\n\n\n<div class="quick-actions" style="margin-top: 15px;">\n    <button class="quick-action-btn" onclick="window.open('${window.location.origin}/request-document', '_blank')">🚀 Request Document Now</button>\n    <button class="quick-action-btn" data-action="barangay-id">❓ Barangay ID</button>\n    <button class="quick-action-btn" onclick="chatbot.generateFeedbackQr('document', 'Document Request')">📱 Get Feedback QR</button>\n</div>`,
 
-            'barangay-id': `📱 Online Barangay ID Application\n            <br><br>\n\nWhat you need:\n<br><br>\n\n\n• Any ID\n<br>\n• Proof of Residency\n<br><br>\n\nProcessing: 1-3 business days after admin approval\n<br><br>\n\nClick \"Register Now\" to submit your pre-application\n\n<div class="quick-actions" style="margin-top: 15px;">\n    <button class="quick-action-btn" onclick="window.open('/pre-registration', '_blank')">📝 Register Now</button>\n    <button class="quick-action-btn" data-action="what-is-barangay-id">❓ What is Barangay ID?</button>\n</div>`,
+            'barangay-id': `📱 Online Barangay ID Application\n            <br><br>\n\nWhat you need:\n<br><br>\n\n\n• Any ID\n<br>\n• Proof of Residency\n<br><br>\n\nProcessing: 1-3 business days after admin approval\n<br><br>\n\nClick \"Register Now\" to submit your pre-application\n\n<div class="quick-actions" style="margin-top: 15px;">\n    <button class="quick-action-btn" onclick="window.open('/pre-registration', '_blank')">📝 Register Now</button>\n    <button class="quick-action-btn" data-action="what-is-barangay-id">❓ What is Barangay ID?</button>\n    <button class="quick-action-btn" onclick="chatbot.generateFeedbackQr('barangay-id', 'Barangay ID Application')">📱 Get Feedback QR</button>\n</div>`,
 
-            'health': `Online Health Services\n            <br><br>\n\nWhat you need:\n<br><br>\n\n• Barangay ID\n<br><br>\n\nAvailable Services: Medical consultation, Health certificates, BP monitoring\n<br><br>\n\n<div class="quick-actions" style="margin-top: 15px;">\n    <button class="quick-action-btn" onclick="window.open('${window.location.origin}/health/request', '_blank')">🩺 Request Health Service</button>\n    <button class="quick-action-btn" onclick="chatbot.addMessage('How to get Barangay ID?', 'user'); chatbot.processMessage('barangay id requirements')">🆔 Barangay ID</button>\n</div>`,
+            'health': `Online Health Services\n            <br><br>\n\nWhat you need:\n<br><br>\n\n• Barangay ID\n<br><br>\n\nAvailable Services: Medical consultation, Health certificates, BP monitoring\n<br><br>\n\n<div class="quick-actions" style="margin-top: 15px;">\n    <button class="quick-action-btn" onclick="window.open('${window.location.origin}/health/request', '_blank')">🩺 Request Health Service</button>\n    <button class="quick-action-btn" onclick="chatbot.addMessage('How to get Barangay ID?', 'user'); chatbot.processMessage('barangay id requirements')">🆔 Barangay ID</button>\n    <button class="quick-action-btn" onclick="chatbot.generateFeedbackQr('health', 'Health Services')">📱 Get Feedback QR</button>\n</div>`,
 
-            'complaint': `Online Blotter/Complaint Filing\n            <br><br>\n\nWhat you need:\n<br><br>\n\n• Barangay ID\n<br><br>\n\n1-3 Business Days for Processing\n\n<br><br>\n\n<div class="quick-actions" style="margin-top: 15px;">\n    <button class="quick-action-btn" onclick="window.open('${window.location.origin}/blotter-complaint/request', '_blank')">📋 File Blotter/Complaint Now</button>\n    <button class="quick-action-btn" onclick="chatbot.addMessage('How to get Barangay ID?', 'user'); chatbot.processMessage('barangay id requirements')">🆔 Barangay ID</button>\n</div>`
+            'complaint': `Online Blotter/Complaint Filing\n            <br><br>\n\nWhat you need:\n<br><br>\n\n• Barangay ID\n<br><br>\n\n1-3 Business Days for Processing\n\n<br><br>\n\n<div class="quick-actions" style="margin-top: 15px;">\n    <button class="quick-action-btn" onclick="window.open('${window.location.origin}/blotter-complaint/request', '_blank')">📋 File Blotter/Complaint Now</button>\n    <button class="quick-action-btn" onclick="chatbot.addMessage('How to get Barangay ID?', 'user'); chatbot.processMessage('barangay id requirements')">🆔 Barangay ID</button>\n    <button class="quick-action-btn" onclick="chatbot.generateFeedbackQr('complaint', 'Blotter/Complaint Filing')">📱 Get Feedback QR</button>\n</div>`
         };
 
         return guides[service] || this.getServiceOptions(service);
@@ -551,6 +597,253 @@ class BarangayChatbot {
     // Generate unique user session
     generateUserSession() {
         return 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    // Initialize user connection tracking
+    initializeUserTracking() {
+        console.log('[USER CHATBOT] Initializing user tracking...');
+        
+        // Mark user as connected when chatbot is initialized
+        this.markUserConnected();
+        
+        // Start heartbeat when user first interacts
+        this.setupHeartbeat();
+        
+        // Handle page unload events
+        this.setupDisconnectHandlers();
+    }
+
+    // Set up heartbeat system
+    setupHeartbeat() {
+        // Send heartbeat every 30 seconds when chatbot is active
+        this.heartbeatInterval = setInterval(() => {
+            if (this.isConnected) {
+                this.sendHeartbeat();
+            }
+        }, 30000); // 30 seconds
+    }
+
+    // Send heartbeat to server
+    async sendHeartbeat() {
+        try {
+            const response = await fetch('/api/agent-conversation/heartbeat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                },
+                body: JSON.stringify({
+                    session_id: this.agentSessionId,
+                    user_session: this.userSession
+                })
+            });
+
+            if (response.ok) {
+                this.lastHeartbeat = Date.now();
+                console.log('[USER CHATBOT] Heartbeat sent successfully');
+            }
+        } catch (error) {
+            console.warn('[USER CHATBOT] Heartbeat failed:', error);
+        }
+    }
+
+    // Mark user as connected
+    async markUserConnected() {
+        try {
+            this.isConnected = true;
+            
+            const response = await fetch('/api/agent-conversation/connect', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                },
+                body: JSON.stringify({
+                    session_id: this.agentSessionId,
+                    user_session: this.userSession
+                })
+            });
+
+            if (response.ok) {
+                console.log('[USER CHATBOT] User marked as connected');
+            }
+        } catch (error) {
+            console.warn('[USER CHATBOT] Failed to mark user as connected:', error);
+        }
+    }
+
+    // Mark user as disconnected
+    async markUserDisconnected() {
+        try {
+            this.isConnected = false;
+            
+            // Clear heartbeat interval
+            if (this.heartbeatInterval) {
+                clearInterval(this.heartbeatInterval);
+                this.heartbeatInterval = null;
+            }
+            
+            const response = await fetch('/api/agent-conversation/disconnect', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                },
+                body: JSON.stringify({
+                    session_id: this.agentSessionId,
+                    user_session: this.userSession
+                })
+            });
+
+            if (response.ok) {
+                console.log('[USER CHATBOT] User marked as disconnected');
+            }
+        } catch (error) {
+            console.warn('[USER CHATBOT] Failed to mark user as disconnected:', error);
+        }
+    }
+
+    // Setup disconnect event handlers
+    setupDisconnectHandlers() {
+        // Handle page unload (user closing tab/browser)
+        window.addEventListener('beforeunload', () => {
+            // Use sendBeacon for reliable delivery during page unload
+            if (this.isConnected) {
+                const data = JSON.stringify({
+                    session_id: this.agentSessionId,
+                    user_session: this.userSession
+                });
+                
+                navigator.sendBeacon('/api/agent-conversation/disconnect', data);
+            }
+        });
+
+        // Handle page hiding (user switching tabs, minimizing browser, etc.)
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                // User switched away from the page
+                console.log('[USER CHATBOT] Page hidden, user might be inactive');
+            } else {
+                // User returned to the page
+                console.log('[USER CHATBOT] Page visible, user is back');
+                if (this.isConnected) {
+                    this.sendHeartbeat();
+                }
+            }
+        });
+
+        // Handle page focus/blur
+        window.addEventListener('blur', () => {
+            console.log('[USER CHATBOT] Window lost focus');
+        });
+
+        window.addEventListener('focus', () => {
+            console.log('[USER CHATBOT] Window gained focus');
+            if (this.isConnected) {
+                this.sendHeartbeat();
+            }
+        });
+    }
+
+    // Inactivity tracking methods
+    startInactivityTimer() {
+        // Clear any existing timers
+        this.clearInactivityTimers();
+        
+        // Reset the warning flag
+        this.inactivityWarningShown = false;
+        
+        // Set warning timer (30 seconds)
+        this.warningTimer = setTimeout(() => {
+            this.showInactivityWarning();
+        }, this.INACTIVITY_WARNING_TIME);
+        
+        // Set disconnect timer (1 minute)
+        this.inactivityTimer = setTimeout(() => {
+            this.handleInactivityDisconnect();
+        }, this.INACTIVITY_DISCONNECT_TIME);
+        
+        console.log('[USER CHATBOT] Inactivity timers started');
+    }
+    
+    resetInactivityTimer() {
+        this.lastUserActivity = Date.now();
+        
+        // Only start timer if user is in active agent conversation (not just waiting in queue)
+        if (this.isAgentMode && this.agentSessionId && this.queueStatus === 'active') {
+            this.startInactivityTimer();
+            console.log('[USER CHATBOT] Inactivity timer reset due to user activity');
+        }
+    }
+    
+    clearInactivityTimers() {
+        if (this.warningTimer) {
+            clearTimeout(this.warningTimer);
+            this.warningTimer = null;
+        }
+        
+        if (this.inactivityTimer) {
+            clearTimeout(this.inactivityTimer);
+            this.inactivityTimer = null;
+        }
+    }
+    
+    showInactivityWarning() {
+        if (this.inactivityWarningShown) return;
+        
+        this.inactivityWarningShown = true;
+        this.addMessage(`
+            <div style="padding: 15px; border: 2px solid #ffc107; border-radius: 10px; background: #fff3cd; margin: 10px 0;">
+                <h5 style="color: #856404; margin: 0 0 10px 0;">⚠️ Inactivity Warning</h5>
+                <p style="color: #856404; margin: 0;">
+                    You will be disconnected in 30 seconds due to inactivity. Please send a message to stay connected.
+                </p>
+            </div>
+        `, 'bot');
+        
+        console.log('[USER CHATBOT] Inactivity warning shown');
+    }
+    
+    async handleInactivityDisconnect() {
+        console.log('[USER CHATBOT] Handling inactivity disconnect');
+        
+        // Show disconnect message (no reconnection option)
+        this.addMessage(`
+            <div style="padding: 15px; border: 2px solid #dc3545; border-radius: 10px; background: #f8d7da; margin: 10px 0;">
+                <h5 style="color: #721c24; margin: 0 0 10px 0;">⏰ Session Ended</h5>
+                <p style="color: #721c24; margin: 0;">
+                    You have been disconnected due to 1 minute of inactivity. Thank you for using our service. Please refresh the page if you need assistance again.
+                </p>
+            </div>
+        `, 'bot');
+        
+        // Mark as disconnected
+        await this.markUserDisconnected();
+        
+        // Clear timers
+        this.clearInactivityTimers();
+        
+        // Reset agent mode
+        this.exitAgentMode();
+        
+        // Set flag to prevent reconnection
+        this.disconnectedByInactivity = true;
+        
+        // Disable input field to prevent further interaction
+        if (this.input) {
+            this.input.disabled = true;
+            this.input.placeholder = 'Please refresh the page to start a new session';
+        }
+        
+        // Disable send button
+        if (this.send) {
+            this.send.disabled = true;
+        }
+        
+        // Update any queue status displays
+        if (this.queueStatusElement) {
+            this.queueStatusElement.style.display = 'none';
+        }
     }
 
     // Track questions for satisfaction checking
@@ -630,6 +923,19 @@ class BarangayChatbot {
 
     // Escalate to human agent
     async escalateToAgent() {
+        // Prevent escalation if user was disconnected due to inactivity
+        if (this.disconnectedByInactivity) {
+            this.addMessage(`
+                <div style="padding: 15px; border: 2px solid #6c757d; border-radius: 10px; background: #e2e3e5; margin: 10px 0;">
+                    <h5 style="color: #383d41; margin: 0 0 10px 0;">🔒 Session Expired</h5>
+                    <p style="color: #383d41; margin: 0;">
+                        You were previously disconnected due to inactivity. Please refresh the page to start a new session.
+                    </p>
+                </div>
+            `, 'bot');
+            return;
+        }
+        
         this.agentEscalationOffered = true;
         
         this.addMessage('Connecting you to a barangay staff member. Please wait...', 'bot');
@@ -702,6 +1008,9 @@ class BarangayChatbot {
         this.agentSessionId = sessionId;
         this.isAgentMode = true;
         
+        // Mark user as connected when entering agent mode
+        this.markUserConnected();
+        
         // Initialize last message check time to current time to avoid loading old messages
         this.lastMessageCheck = new Date().toISOString();
         
@@ -730,6 +1039,36 @@ class BarangayChatbot {
                 this.checkForAgentMessages();
             }
         }, 3000);
+    }
+
+    // Exit agent mode and clean up
+    exitAgentMode() {
+        // Clear inactivity timers
+        this.clearInactivityTimers();
+        
+        // Stop polling
+        if (this.agentPollInterval) {
+            clearInterval(this.agentPollInterval);
+            this.agentPollInterval = null;
+        }
+        
+        // Reset agent mode properties
+        this.isAgentMode = false;
+        this.agentSessionId = null;
+        this.queueStatus = 'waiting';
+        
+        // Update UI back to normal chatbot
+        const header = this.window.querySelector('.chatbot-header h4');
+        if (header) {
+            header.innerHTML = '💬 Barangay Chatbot';
+        }
+        
+        // Hide queue status if visible
+        if (this.queueStatusElement) {
+            this.queueStatusElement.style.display = 'none';
+        }
+        
+        console.log('[USER CHATBOT] Exited agent mode');
     }
 
     // Check queue status and update position
@@ -767,16 +1106,9 @@ class BarangayChatbot {
                         header.innerHTML = '💬 Barangay Chatbot';
                     }
                     
-                    // Stop polling
-                    if (this.agentPollInterval) {
-                        clearInterval(this.agentPollInterval);
-                        this.agentPollInterval = null;
-                    }
-                    
                     // Reset agent mode after a delay to allow user to see the message
                     setTimeout(() => {
-                        this.isAgentMode = false;
-                        this.agentSessionId = null;
+                        this.exitAgentMode();
                     }, 2000);
                     
                     return; // Exit early
@@ -793,6 +1125,9 @@ class BarangayChatbot {
                             </p>
                         </div>
                     `, 'bot');
+                    
+                    // Start inactivity tracking when conversation becomes active
+                    this.startInactivityTimer();
                     
                     // Update header
                     const header = this.window.querySelector('.chatbot-header h4');
@@ -838,6 +1173,9 @@ class BarangayChatbot {
                         this.addMessage(msg.message, 'bot', msg.created_at);
                     }
                 });
+                
+                // Reset inactivity timer when receiving agent messages (conversation activity)
+                this.resetInactivityTimer();
                 
                 // Update last check time to the timestamp of the newest message
                 const newestMessage = data.messages[data.messages.length - 1];
@@ -917,6 +1255,142 @@ class BarangayChatbot {
             this.addMessage('Connection error. Please check your internet and try again.', 'bot');
         }
     }
+    
+    // Show feedback QR options
+    showFeedbackQrOptions() {
+        // Show typing indicator first
+        this.showTyping();
+        
+        setTimeout(() => {
+            this.hideTyping();
+            
+            const qrOptionsMessage = `
+                📱 **Generate Feedback QR Code**
+                
+                Select a service to generate a feedback QR code:
+                
+                <div class="quick-actions" style="margin-top: 15px;">
+                    <button class="quick-action-btn" data-action="generate-qr" data-service="document_request" style="background: #17a2b8; color: white;">📄 Document Services</button>
+                    <button class="quick-action-btn" data-action="generate-qr" data-service="blotter_complaint" style="background: #ffc107; color: white;">⚖️ Blotter/Complaint</button>
+                </div>
+                
+                <div style="margin-top: 15px; padding: 10px; background: #e3f2fd; border-radius: 5px; font-size: 0.9em;">
+                    <i class="fas fa-info-circle" style="color: #1976d2;"></i> 
+                    <strong>How it works:</strong> Select a service above to generate a QR code that you can scan anytime to provide feedback about that specific service.
+                </div>
+                
+                <div style="margin-top: 10px; padding: 8px; background: #fff3cd; border-radius: 5px; font-size: 0.85em; color: #856404;">
+                    <i class="fas fa-exclamation-triangle" style="color: #f0ad4e;"></i> 
+                    <strong>Note:</strong> QR feedback is currently available only for Document Services and Blotter/Complaint services.
+                </div>
+            `;
+            
+            this.addMessage(qrOptionsMessage, 'bot');
+        }, 500);
+    }
+    
+    // Generate feedback QR code for e-services
+    async generateFeedbackQr(serviceType, serviceName) {
+        console.log('[QR DEBUG] Starting QR generation for:', serviceType, serviceName);
+        this.addMessage(`🔄 Generating feedback QR code for ${this.getServiceDisplayName(serviceName)}...`, 'bot');
+        this.showTyping();
+        
+        try {
+            // Debug: Check if CSRF token exists
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            console.log('[QR DEBUG] CSRF Token:', csrfToken ? 'Found' : 'Missing');
+            
+            if (!csrfToken) {
+                throw new Error('CSRF token not found. Please refresh the page and try again.');
+            }
+            
+            const payload = {
+                service_type: serviceName
+            };
+            console.log('[QR DEBUG] Sending payload:', payload);
+            
+            const response = await fetch('/feedback/generate-qr', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+            
+            console.log('[QR DEBUG] Response status:', response.status);
+            console.log('[QR DEBUG] Response ok:', response.ok);
+            
+            // Check if response is JSON
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                const text = await response.text();
+                console.error('[QR DEBUG] Non-JSON response:', text);
+                throw new Error('Server returned invalid response format. Please try again.');
+            }
+            
+            const data = await response.json();
+            console.log('[QR DEBUG] Response data:', data);
+            
+            this.hideTyping();
+            
+            if (data.success) {
+                const qrMessage = `
+                    <div style="text-align: center; padding: 20px; border: 2px solid #007bff; border-radius: 10px; background: #f8f9fa;">
+                        <h5 style="color: #007bff; margin-bottom: 15px;">📱 Feedback QR Code</h5>
+                        <p style="margin-bottom: 15px;">Scan this QR code to provide feedback for: <strong>${this.getServiceDisplayName(serviceName)}</strong></p>
+                        <img src="${data.qr_code}" alt="Feedback QR Code" style="max-width: 150px; width: 100%; height: auto; border: 1px solid #ddd; border-radius: 5px;">
+                        <div style="margin-top: 15px; font-size: 0.9em; color: #666;">
+                            <p>📝 <strong>How to use:</strong></p>
+                            <p>1. Use your phone camera to scan the QR code</p>
+                            <p>2. Open the feedback form that appears</p>
+                            <p>3. Rate your experience and leave comments</p>
+                            <p style="margin-top: 10px; color: #28a745;"><i class="fas fa-clock"></i> Valid for 7 days</p>
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <a href="${data.feedback_url}" target="_blank" style="display: inline-block; background: #007bff; color: white; padding: 8px 16px; text-decoration: none; border-radius: 5px; font-size: 0.9em;">
+                                🌐 Open Feedback Form
+                            </a>
+                        </div>
+                    </div>
+                `;
+                this.addMessage(qrMessage, 'bot');
+                this.addMessage(`Your feedback QR code for ${this.getServiceDisplayName(serviceName)} has been generated! You can scan it anytime within the next 7 days to share your experience with our services. 😊`, 'bot');
+            } else {
+                console.error('[QR DEBUG] QR generation failed:', data);
+                const errorMsg = data.message || data.error || 'Unknown error occurred';
+                this.addMessage(`❌ Sorry, I encountered an issue generating the feedback QR code: ${errorMsg}. Please try again later or contact our office directly.`, 'bot');
+            }
+        } catch (error) {
+            this.hideTyping();
+            console.error('[QR DEBUG] Error generating feedback QR:', error);
+            
+            // Provide more specific error messages
+            let errorMessage = '❌ Failed to generate feedback QR code: ';
+            if (error.message.includes('CSRF')) {
+                errorMessage += 'Security token missing. Please refresh the page and try again.';
+            } else if (error.message.includes('network') || error.message.includes('fetch')) {
+                errorMessage += 'Network connection issue. Please check your internet connection and try again.';
+            } else if (error.message.includes('response format')) {
+                errorMessage += 'Server error. Please try again later or contact our office.';
+            } else {
+                errorMessage += error.message || 'Please try again later or contact our office directly.';
+            }
+            
+            this.addMessage(errorMessage, 'bot');
+        }
+    }
+    
+    // Convert service type to display name
+    getServiceDisplayName(serviceType) {
+        const displayNames = {
+            'document_request': 'Document Request',
+            'blotter_complaint': 'Blotter/Complaint'
+        };
+        return displayNames[serviceType] || serviceType;
+    }
 
     // Get conversation history for escalation
     getConversationHistory() {
@@ -937,6 +1411,23 @@ class BarangayChatbot {
             }
             return true;
         });
+    }
+
+    // Cleanup method
+    cleanup() {
+        console.log('[USER CHATBOT] Cleaning up...');
+        
+        // Mark user as disconnected
+        this.markUserDisconnected();
+        
+        // Clear intervals
+        if (this.heartbeatInterval) {
+            clearInterval(this.heartbeatInterval);
+        }
+        
+        if (this.agentPollInterval) {
+            clearInterval(this.agentPollInterval);
+        }
     }
 }
 
@@ -963,5 +1454,12 @@ document.addEventListener('DOMContentLoaded', function() {
         window.chatbot = window.barangayChatbot;
     } else {
         console.log('[USER CHATBOT] Elements not found, skipping initialization');
+    }
+});
+
+// Cleanup when page unloads
+window.addEventListener('beforeunload', function() {
+    if (window.barangayChatbot) {
+        window.barangayChatbot.cleanup();
     }
 });

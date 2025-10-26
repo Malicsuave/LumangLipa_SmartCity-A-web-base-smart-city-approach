@@ -548,7 +548,7 @@ textarea.form-control:disabled {
 
 .form-control::placeholder {
     color: #6c757d !important;
-    opacity: 0.6 !important;
+    opacity: 1 !important;
 }
 
 /* Primary Buttons - White background with blue border */
@@ -879,6 +879,15 @@ textarea.form-control:disabled {
 }
 
 @keyframes modalSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 </style>
 
 <script>

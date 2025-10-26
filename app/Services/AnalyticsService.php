@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\Repositories\Contracts\AnalyticsRepositoryInterface;
+use App\Models\UserActivity;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class AnalyticsService
@@ -136,5 +138,47 @@ class AnalyticsService
             'document_types' => $this->getDocumentTypeDistribution(),
             'complaint_categories' => $this->getComplaintStatusDistribution(),
         ];
+    }
+
+    /**
+     * NEW: Get feedback analytics
+     */
+    public function getFeedbackMetrics(): array
+    {
+        return $this->analyticsRepository->getFeedbackMetrics();
+    }
+
+    /**
+     * NEW: Get user activity analytics
+     */
+    public function getUserActivityMetrics(): array
+    {
+        return $this->analyticsRepository->getUserActivityMetrics();
+    }
+
+    /**
+     * NEW: Get announcement analytics
+     */
+    public function getAnnouncementMetrics(): array
+    {
+        return $this->analyticsRepository->getAnnouncementMetrics();
+    }
+
+    /**
+     * NEW: Get chatbot analytics
+     */
+    public function getChatbotMetrics(): array
+    {
+        return $this->analyticsRepository->getChatbotMetrics();
+    }
+
+    /**
+     * Get activity trends for the last 30 days
+     */
+    public function getActivityTrends(): array
+    {
+        return Cache::remember('analytics.activity_trends', 300, function () {
+            return $this->analyticsRepository->getActivityTrends();
+        });
     }
 }

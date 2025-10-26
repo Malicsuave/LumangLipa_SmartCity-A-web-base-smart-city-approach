@@ -1665,14 +1665,45 @@ document.addEventListener('DOMContentLoaded', function() {
     // Form validation
     function checkFormValidity() {
         const receiptInput = document.getElementById('receipt');
-        // All users need receipt upload, QR only skips OTP verification
+        const selectedDocument = documentTypeSelect.value;
+        const freeDocuments = ['Certificate of Indigency', 'Certificate of Low Income'];
+        
+        // For free documents, receipt is not required
+        const receiptRequired = !freeDocuments.includes(selectedDocument);
+        const receiptValid = receiptRequired ? receiptInput.files.length > 0 : true;
+        
         const isValid = residentVerified && 
                        (otpVerified || qrVerified) &&
                        documentTypeSelect.value && 
                        purposeTextarea.value.trim() &&
-                       receiptInput.files.length > 0;
+                       receiptValid;
         submitBtn.disabled = !isValid;
     }
+
+    // Handle document type changes for free documents
+    documentTypeSelect.addEventListener('change', function() {
+        const selectedDocument = documentTypeSelect.value;
+        const paymentSection = document.getElementById('paymentSection');
+        const receiptSection = document.getElementById('receiptSection');
+        const receiptInput = document.getElementById('receipt');
+        
+        // Free documents that don't require payment
+        const freeDocuments = ['Certificate of Indigency', 'Certificate of Low Income'];
+        
+        if (freeDocuments.includes(selectedDocument)) {
+            // Hide payment and receipt sections for free documents
+            paymentSection.style.display = 'none';
+            receiptSection.style.display = 'none';
+            receiptInput.removeAttribute('required');
+        } else {
+            // Show payment and receipt sections for paid documents
+            paymentSection.style.display = 'block';
+            receiptSection.style.display = 'block';
+            receiptInput.setAttribute('required', 'required');
+        }
+        
+        checkFormValidity();
+    });
 
     documentTypeSelect.addEventListener('change', checkFormValidity);
     purposeTextarea.addEventListener('input', checkFormValidity);
@@ -1693,8 +1724,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         const receiptInput = document.getElementById('receipt');
-        // All users need to upload receipt regardless of verification method
-        if (!receiptInput.files.length) {
+        const selectedDocument = documentTypeSelect.value;
+        const freeDocuments = ['Certificate of Indigency', 'Certificate of Low Income'];
+        
+        // Check receipt requirement based on document type
+        if (!freeDocuments.includes(selectedDocument) && !receiptInput.files.length) {
             showError('Please upload your GCash payment receipt.');
             return;
         }
@@ -1706,7 +1740,12 @@ document.addEventListener('DOMContentLoaded', function() {
         formData.append('barangay_id', barangayIdInput.value);
         formData.append('document_type', documentTypeSelect.value);
         formData.append('purpose', purposeTextarea.value);
-        formData.append('receipt', receiptInput.files[0]);
+        
+        // Only append receipt if it's required (not a free document)
+        if (!freeDocuments.includes(selectedDocument) && receiptInput.files[0]) {
+            formData.append('receipt', receiptInput.files[0]);
+        }
+        
         formData.append('verification_method', qrVerified ? 'qr' : 'manual');
 
         fetch('{{ route("documents.store") }}', {

@@ -637,8 +637,8 @@
                             </div>
                             <div class="mb-2">
                                 <strong>Emergency Contact</strong><br>
-                                <span>{{ $resident->household ? $resident->household->emergency_contact_name : ($resident->emergency_contact_name ?: 'Maria Santos Dela Cruz') }} @if($resident->household && $resident->household->emergency_contact_relationship)({{ $resident->household->emergency_contact_relationship }})@elseif($resident->emergency_contact_relationship)({{ $resident->emergency_contact_relationship }})@else(Mother)@endif</span>
-                                <span style="display: block; margin-top: 1px;">{{ $resident->household ? $resident->household->emergency_phone : ($resident->emergency_contact_number ?: '+63-917-123-4567') }}</span>
+                                <span>{{ $resident->emergency_contact_name ?: '' }} @if($resident->emergency_contact_relationship)({{ $resident->emergency_contact_relationship }})@endif</span>
+                                <span style="display: block; margin-top: 1px;">{{ $resident->emergency_contact_number ?: '' }}</span>
                             </div>
                             
                             <!-- Validation Date -->

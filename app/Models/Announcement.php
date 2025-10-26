@@ -16,15 +16,14 @@ class Announcement extends Model
         'type',
         'max_slots',
         'current_slots',
-        'start_date',
-        'end_date',
+        'date',
+        'time',
         'image',
         'is_active'
     ];
 
     protected $casts = [
-        'start_date' => 'date',
-        'end_date' => 'date',
+        'date' => 'date',
         'is_active' => 'boolean',
         'max_slots' => 'integer',
         'current_slots' => 'integer',
@@ -47,20 +46,20 @@ class Announcement extends Model
     {
         return $query->where('is_active', true)
                     ->where(function($q) {
-                        $q->whereNull('end_date')
-                          ->orWhere('end_date', '>=', now());
+                        $q->whereNull('date')
+                          ->orWhereDate('date', '>=', now()->toDateString());
                     });
     }
 
     public function scopeWithSlots($query)
     {
-        return $query->where('type', 'limited_slots');
+        return $query->where('type', 'health_related');
     }
 
     public function scopeAvailable($query)
     {
         return $query->where(function($q) {
-            $q->where('type', '!=', 'limited_slots')
+            $q->where('type', '!=', 'health_related')
               ->orWhereRaw('current_slots < max_slots');
         });
     }
@@ -72,11 +71,18 @@ class Announcement extends Model
             return 'inactive';
         }
 
-        if ($this->end_date && $this->end_date < now()) {
-            return 'expired';
+        // Check if announcement has expired (date-based)
+        if ($this->date) {
+            $announcementDate = Carbon::parse($this->date);
+            $today = Carbon::today();
+            
+            // If the announcement date is before today, it's expired
+            if ($announcementDate->lt($today)) {
+                return 'expired';
+            }
         }
 
-        if ($this->type === 'limited_slots') {
+        if ($this->type === 'health_related') {
             if ($this->current_slots >= $this->max_slots) {
                 return 'full';
             }
@@ -88,7 +94,7 @@ class Announcement extends Model
 
     public function getProgressPercentageAttribute()
     {
-        if ($this->type !== 'limited_slots' || $this->max_slots == 0) {
+        if ($this->type !== 'health_related' || $this->max_slots == 0) {
             return 0;
         }
 
@@ -107,7 +113,7 @@ class Announcement extends Model
 
     public function getSlotsRemainingAttribute()
     {
-        if ($this->type !== 'limited_slots') {
+        if ($this->type !== 'health_related') {
             return null;
         }
 
@@ -116,19 +122,19 @@ class Announcement extends Model
 
     public function getIsExpiredAttribute()
     {
-        return $this->end_date && $this->end_date < now();
+        return $this->date && $this->date < now()->toDateString();
     }
 
     public function getIsFullAttribute()
     {
-        return $this->type === 'limited_slots' && $this->current_slots >= $this->max_slots;
+        return $this->type === 'health_related' && $this->current_slots >= $this->max_slots;
     }
 
     public function getTypeDisplayAttribute()
     {
         $typeLabels = [
             'general' => 'General',
-            'limited_slots' => 'Registration Required',
+            'health_related' => 'Health Related',
             'event' => 'Event',
             'service' => 'Service',
             'program' => 'Program'
@@ -148,7 +154,7 @@ class Announcement extends Model
             return false;
         }
 
-        if ($this->type === 'limited_slots' && $this->is_full) {
+        if ($this->type === 'health_related' && $this->is_full) {
             return false;
         }
 
@@ -174,7 +180,7 @@ class Announcement extends Model
         $registration = $this->registrations()->create($userData);
 
         // Update current slots count
-        if ($this->type === 'limited_slots') {
+        if ($this->type === 'health_related') {
             $this->increment('current_slots');
         }
 
@@ -188,7 +194,7 @@ class Announcement extends Model
 
     public function updateSlotsCount()
     {
-        if ($this->type === 'limited_slots') {
+        if ($this->type === 'health_related') {
             $this->update([
                 'current_slots' => $this->registrations()->count()
             ]);

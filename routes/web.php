@@ -139,7 +139,10 @@ Route::post('/check-resident', [App\Http\Controllers\DocumentRequestController::
 Route::post('/send-otp', [App\Http\Controllers\DocumentRequestController::class, 'sendOtp'])->name('documents.send-otp');
 Route::post('/verify-otp', [App\Http\Controllers\DocumentRequestController::class, 'verifyOtp'])->name('documents.verify-otp');
 Route::post('/decode-qr', [App\Http\Controllers\DocumentRequestController::class, 'decodeQr'])->name('documents.decode-qr');
+// Feedback routes
 Route::post('/feedback/store', [App\Http\Controllers\FeedbackController::class, 'store'])->name('feedback.store');
+Route::post('/feedback/generate-qr', [App\Http\Controllers\FeedbackController::class, 'generateQr'])->name('feedback.generate-qr');
+Route::get('/feedback/qr/{token}', [App\Http\Controllers\FeedbackController::class, 'accessViaQr'])->name('feedback.qr-access');
 Route::get('/verify/{uuid}', [App\Http\Controllers\DocumentVerificationController::class, 'show'])->name('documents.verify');
 
 // Health Request Public Routes
@@ -278,6 +281,8 @@ Route::middleware([
             // Barangay ID Registration page for admin
             Route::get('/barangay-id-registration', [ResidentController::class, 'barangayIdRegistration'])->name('barangay-id-registration');
             Route::get('census-data', [ResidentController::class, 'censusData'])->name('census-data');
+            Route::get('census-data/{household}', [ResidentController::class, 'showCensusRecord'])->name('census-data.show');
+ Route::get('census-data/{household}/details', [ResidentController::class, 'getCensusDetails'])->name('census-data.details');
             // Census CRUD routes
             Route::post('census-data', [ResidentController::class, 'storeCensusRecord'])->name('census-data.store');
             Route::get('census-data/{household}/edit', [ResidentController::class, 'editCensusRecord'])->name('census-data.edit');
@@ -689,6 +694,7 @@ Route::middleware('auth')->prefix('api/admin/agent-conversation')->group(functio
     Route::get('/{sessionId}/new-messages', [AdminAgentConversationController::class, 'getNewMessages']);
     Route::post('/complete-and-next', [AdminAgentConversationController::class, 'completeAndNext']);
     Route::post('/accept-next', [AdminAgentConversationController::class, 'acceptNextUser']);
+    Route::get('/user-status', [AdminAgentConversationController::class, 'getUserStatus']);
 });
 
 // User Agent Conversation API Routes (for user escalation)

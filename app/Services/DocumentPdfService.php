@@ -39,8 +39,8 @@ class DocumentPdfService
                 throw new \Exception('Resident not found for document request');
             }
             
-            // Get barangay officials data
-            $officials = \App\Models\BarangayOfficial::first();
+            // Get officials data for the documents
+            $officials = $this->getOfficialsForDocuments();
             
             if (!$officials) {
                 throw new \Exception('Barangay officials data not found. Please ensure officials information is configured in the system.');
@@ -209,5 +209,59 @@ class DocumentPdfService
         $date = $documentRequest->approved_at->format('Y-m-d');
         
         return "{$documentType}_{$lastName}_{$firstName}_{$date}.pdf";
+    }
+    
+    /**
+     * Get officials data in the format expected by document templates
+     */
+     public function getOfficialsForDocuments()
+    {
+        $officials = \App\Models\Official::all();
+        
+        $result = (object) [
+            'captain_name' => '',
+            'secretary_name' => '',
+            'treasurer_name' => '',
+            'sk_chairperson_name' => '',
+            'sk_chairperson_committee' => '',
+        ];
+        
+        // Add councilor fields
+        for ($i = 1; $i <= 7; $i++) {
+            $result->{"councilor{$i}_name"} = '';
+            $result->{"councilor{$i}_committee"} = '';
+        }
+        
+        $councilors = [];
+        
+        foreach ($officials as $official) {
+            switch ($official->position) {
+                case 'Captain':
+                    $result->captain_name = $official->name;
+                    break;
+                case 'Secretary':
+                    $result->secretary_name = $official->name;
+                    break;
+                case 'Treasurer':
+                    $result->treasurer_name = $official->name;
+                    break;
+                case 'SK Chairman':
+                    $result->sk_chairperson_name = $official->name;
+                    $result->sk_chairperson_committee = $official->committee;
+                    break;
+                case 'Councilor':
+                    $councilors[] = $official;
+                    break;
+            }
+        }
+        
+        // Assign councilors to numbered slots
+        for ($i = 0; $i < min(7, count($councilors)); $i++) {
+            $slotNumber = $i + 1;
+            $result->{"councilor{$slotNumber}_name"} = $councilors[$i]->name;
+            $result->{"councilor{$slotNumber}_committee"} = $councilors[$i]->committee;
+        }
+        
+        return $result;
     }
 }

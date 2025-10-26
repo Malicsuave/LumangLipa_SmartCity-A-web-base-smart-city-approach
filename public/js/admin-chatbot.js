@@ -6,6 +6,9 @@ class AdminChatbot {
         this.pollInterval = null;
         this.conversations = new Map();
         this.currentView = 'inbox'; // 'inbox' or 'chat'
+        this.lastUserStatus = null; // Track last known user status
+        this.disconnectNotificationShown = false; // Track if disconnect notification was shown
+        this.lastMessageTimestamp = null; // Track last message timestamp for polling
         this.init();
     }
 
@@ -84,8 +87,14 @@ class AdminChatbot {
 
     showInboxView() {
         this.currentView = 'inbox';
+        this.currentConversationId = null;
         this.conversationsList.style.display = 'block';
         this.chatView.style.display = 'none';
+        
+        // Reset status tracking when leaving chat view
+        this.lastUserStatus = null;
+        this.disconnectNotificationShown = false;
+        
         this.loadActiveConversations();
     }
 
@@ -95,11 +104,16 @@ class AdminChatbot {
         this.conversationsList.style.display = 'none';
         this.chatView.style.display = 'flex';
         
-        // Set user name and status
-        this.chatUserName.textContent = userName;
-        this.chatUserStatus.textContent = 'Online';
+        // Reset status tracking for new conversation
+        this.lastUserStatus = null;
+        this.disconnectNotificationShown = false;
+        this.lastMessageTimestamp = null; // Reset timestamp for new conversation
         
-        // Load conversation
+        // Set user name
+        this.chatUserName.textContent = userName;
+        
+        // Load user status and conversation
+        this.updateUserStatus(sessionId);
         this.loadConversationHistory(sessionId);
         this.markConversationAsRead(sessionId);
         
@@ -144,6 +158,24 @@ class AdminChatbot {
         const unreadCount = conversation.unread_count || 0;
         const timeAgo = this.timeAgo(conversation.last_activity);
         
+        // Determine user status
+        const userStatusText = conversation.user_status_text || 'Unknown';
+        const isOnline = conversation.is_user_online;
+        
+        let statusIcon = '';
+        let statusColor = '#666';
+        
+        if (isOnline) {
+            statusIcon = '🟢';
+            statusColor = '#28a745';
+        } else if (userStatusText === 'Disconnected') {
+            statusIcon = '🔴';
+            statusColor = '#dc3545';
+        } else {
+            statusIcon = '🟡';
+            statusColor = '#ffc107';
+        }
+        
         this.conversationsList.innerHTML = `
             <div style="padding: 15px; background: #e3f2fd; border-bottom: 2px solid #007bff;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
@@ -171,8 +203,11 @@ class AdminChatbot {
                         <div style="font-weight: bold; font-size: 14px; color: #333;">${userName}</div>
                         <div style="font-size: 12px; color: #666;">${timeAgo}</div>
                     </div>
-                    <div style="font-size: 13px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    <div style="font-size: 13px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px;">
                         ${lastMessage}
+                    </div>
+                    <div style="font-size: 12px; color: ${statusColor}; display: flex; align-items: center; gap: 4px;">
+                        ${statusIcon} ${userStatusText}
                     </div>
                 </div>
                 
@@ -263,7 +298,7 @@ class AdminChatbot {
     displayMessages(messages) {
         this.chatMessages.innerHTML = '';
         
-        // Filter out any [SYSTEM] messages that might have slipped through
+        // Filter out only specific system messages, but keep disconnect messages
         const filteredMessages = messages.filter(message => {
             return !message.message.includes('[SYSTEM]') && 
                    !message.message.includes('User escalated') &&
@@ -280,11 +315,19 @@ class AdminChatbot {
         }
 
         filteredMessages.forEach(message => {
-            this.addMessageToChat(
-                message.message,
-                message.sender_type === 'admin',
-                message.created_at
-            );
+            // Handle system messages (like disconnect notifications)
+            if (message.sender_type === 'system' && message.message.includes('[USER_DISCONNECTED]')) {
+                this.addSystemMessageToChat(message.message, message.created_at);
+            } else {
+                this.addMessageToChat(
+                    message.message,
+                    message.sender_type === 'admin',
+                    message.created_at
+                );
+            }
+            
+            // Update last message timestamp for future polling
+            this.lastMessageTimestamp = message.created_at;
         });
         
         this.scrollToBottom();
@@ -323,6 +366,62 @@ class AdminChatbot {
             <div class="message-content">
                 ${text}
                 <div class="message-time" style="font-size: 11px; color: #999; margin-top: 5px;">${time}</div>
+            </div>
+        `;
+        
+        this.chatMessages.appendChild(messageDiv);
+        this.scrollToBottom();
+    }
+
+    addSystemMessageToChat(text, timestamp = null) {
+        // Parse disconnect message to extract the time
+        const disconnectMatch = text.match(/\[USER_DISCONNECTED\] User disconnected at (.+)/);
+        const disconnectTime = disconnectMatch ? disconnectMatch[1] : null;
+        
+        console.log('[ADMIN CHATBOT] Processing system message:', text);
+        console.log('[ADMIN CHATBOT] Disconnect time:', disconnectTime);
+        
+        // If this is a disconnect message, REMOVE ALL existing disconnect messages first
+        if (disconnectMatch) {
+            console.log('[ADMIN CHATBOT] This is a disconnect message - clearing all existing disconnect messages');
+            
+            // More aggressive cleanup - find ALL messages containing disconnect text
+            const allMessages = this.chatMessages.querySelectorAll('.message');
+            let removedCount = 0;
+            for (let msgDiv of allMessages) {
+                const content = msgDiv.querySelector('.message-content');
+                if (content) {
+                    const textContent = content.textContent || content.innerText || '';
+                    const htmlContent = content.innerHTML || '';
+                    if (textContent.includes('User has disconnected at') || 
+                        htmlContent.includes('User has disconnected at') ||
+                        textContent.includes('disconnected at') ||
+                        htmlContent.includes('disconnected at')) {
+                        console.log('[ADMIN CHATBOT] Removing existing disconnect message:', textContent || htmlContent);
+                        msgDiv.remove();
+                        removedCount++;
+                    }
+                }
+            }
+            console.log('[ADMIN CHATBOT] Removed', removedCount, 'existing disconnect messages');
+        }
+        
+        console.log('[ADMIN CHATBOT] Adding new disconnect message');
+        
+        const displayText = disconnectMatch ? 
+            `<i class="fas fa-unlink"></i> User has disconnected at ${disconnectTime}` : 
+            text.replace('[USER_DISCONNECTED] ', '');
+            
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message system';
+        
+        if (timestamp) {
+            messageDiv.setAttribute('data-timestamp', timestamp);
+        }
+        
+        messageDiv.innerHTML = `
+            <div class="message-content" style="background: #f8d7da; color: #721c24; border: 1px solid #f1aeb5; text-align: center; font-style: italic; padding: 10px 15px; border-radius: 8px; margin: 5px 0;">
+                ${displayText}
             </div>
         `;
         
@@ -384,6 +483,105 @@ class AdminChatbot {
         this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
     }
 
+    async updateUserStatus(sessionId) {
+        try {
+            const response = await fetch(`/api/admin/agent-conversation/user-status?session_id=${sessionId}`, {
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                const statusText = data.status_text || 'Unknown';
+                const isOnline = data.is_online;
+                
+                // Check if status changed from online/offline to disconnected
+                const statusChanged = this.lastUserStatus !== statusText;
+                const justDisconnected = statusChanged && 
+                    statusText === 'Disconnected' && 
+                    (this.lastUserStatus === 'Online' || this.lastUserStatus === 'Offline' || this.lastUserStatus === null);
+                
+                // Update status display
+                this.chatUserStatus.textContent = statusText;
+                
+                // Add visual indicator for status
+                let statusIcon = '';
+                let statusColor = '#666';
+                
+                if (isOnline) {
+                    statusIcon = '🟢 ';
+                    statusColor = '#28a745';
+                } else if (statusText === 'Disconnected') {
+                    statusIcon = '🔴 ';
+                    statusColor = '#dc3545';
+                } else {
+                    statusIcon = '🟡 ';
+                    statusColor = '#ffc107';
+                }
+                
+                this.chatUserStatus.innerHTML = `${statusIcon}${statusText}`;
+                this.chatUserStatus.style.color = statusColor;
+                
+                // Show disconnect notification only if user just disconnected and we haven't shown it yet
+                if (justDisconnected && !this.disconnectNotificationShown && this.currentView === 'chat') {
+                    this.showUserDisconnectedMessage();
+                    this.disconnectNotificationShown = true;
+                }
+                
+                // Update last known status
+                this.lastUserStatus = statusText;
+            }
+        } catch (error) {
+            console.error('Error updating user status:', error);
+            this.chatUserStatus.textContent = 'Status Unknown';
+            this.chatUserStatus.style.color = '#666';
+        }
+    }
+
+    showUserDisconnectedMessage() {
+        // Add a system message to indicate user disconnected
+        const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message system';
+        messageDiv.innerHTML = `
+            <div class="message-content" style="background: #f8d7da; color: #721c24; border: 1px solid #f1aeb5; text-align: center; font-style: italic; padding: 10px 15px; border-radius: 8px; margin: 5px 0;">
+                <i class="fas fa-unlink"></i> User has disconnected at ${timestamp}
+            </div>
+        `;
+        this.chatMessages.appendChild(messageDiv);
+        this.scrollToBottom();
+        
+        // Also save this disconnect message to the database for persistence
+        this.saveDisconnectMessage(timestamp);
+    }
+
+    async saveDisconnectMessage(timestamp) {
+        if (!this.currentSessionId) return;
+        
+        try {
+            const response = await fetch('/api/admin/agent-conversation/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    session_id: this.currentSessionId,
+                    message: `[USER_DISCONNECTED] User disconnected at ${timestamp}`,
+                    sender_type: 'system'
+                })
+            });
+            
+            if (!response.ok) {
+                console.error('Failed to save disconnect message');
+            }
+        } catch (error) {
+            console.error('Error saving disconnect message:', error);
+        }
+    }
+
     startPolling() {
         // Poll for new messages every 3 seconds
         this.pollInterval = setInterval(() => {
@@ -391,13 +589,21 @@ class AdminChatbot {
                 this.loadActiveConversations();
             } else if (this.currentConversationId) {
                 this.checkForNewMessages();
+                // Also update user status when viewing a conversation
+                this.updateUserStatus(this.currentConversationId);
             }
         }, 3000);
     }
 
     async checkForNewMessages() {
         try {
-            const response = await fetch(`/api/admin/agent-conversation/${this.currentConversationId}/new-messages`, {
+            // Build URL with since parameter if we have a last timestamp
+            let url = `/api/admin/agent-conversation/${this.currentConversationId}/new-messages`;
+            if (this.lastMessageTimestamp) {
+                url += `?since=${encodeURIComponent(this.lastMessageTimestamp)}`;
+            }
+            
+            const response = await fetch(url, {
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 }
@@ -406,7 +612,7 @@ class AdminChatbot {
             const data = await response.json();
             
             if (data.success && data.messages.length > 0) {
-                // Filter out any [SYSTEM] messages from new messages
+                // Filter out only specific system messages, but keep disconnect messages
                 const filteredMessages = data.messages.filter(msg => {
                     return !msg.message.includes('[SYSTEM]') && 
                            !msg.message.includes('User escalated') &&
@@ -414,7 +620,15 @@ class AdminChatbot {
                 });
                 
                 filteredMessages.forEach(msg => {
-                    this.addMessageToChat(msg.message, msg.sender_type === 'admin', msg.created_at);
+                    // For disconnect messages, do simple duplicate check before adding
+                    if (msg.sender_type === 'system' && msg.message.includes('[USER_DISCONNECTED]')) {
+                        this.addSystemMessageToChat(msg.message, msg.created_at);
+                    } else {
+                        this.addMessageToChat(msg.message, msg.sender_type === 'admin', msg.created_at);
+                    }
+                    
+                    // Update last message timestamp for future polling
+                    this.lastMessageTimestamp = msg.created_at;
                 });
                 
                 // Mark new messages as read if chat is open and we had filtered messages

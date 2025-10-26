@@ -50,20 +50,20 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label class="form-control-label">Start Date</label>
-                                            <input type="date" class="form-control @error('start_date') is-invalid @enderror" 
-                                                   name="start_date" value="{{ old('start_date') }}">
-                                            @error('start_date')
+                                            <label class="form-control-label">Date</label>
+                                            <input type="date" class="form-control @error('date') is-invalid @enderror" 
+                                                   name="date" value="{{ old('date') }}">
+                                            @error('date')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label class="form-control-label">End Date</label>
-                                            <input type="date" class="form-control @error('end_date') is-invalid @enderror" 
-                                                   name="end_date" value="{{ old('end_date') }}">
-                                            @error('end_date')
+                                            <label class="form-control-label">Time</label>
+                                            <input type="time" class="form-control @error('time') is-invalid @enderror" 
+                                                   name="time" value="{{ old('time') }}">
+                                            @error('time')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
@@ -77,7 +77,7 @@
                                     <select class="form-control @error('type') is-invalid @enderror" name="type" id="announcementType" required>
                                         <option value="">Select Type</option>
                                         <option value="general" {{ old('type') === 'general' ? 'selected' : '' }}>General Announcement</option>
-                                        <option value="limited_slots" {{ old('type') === 'limited_slots' ? 'selected' : '' }}>Registration Required</option>
+                                        <option value="health_related" {{ old('type') === 'health_related' ? 'selected' : '' }}>Health Related</option>
                                         <option value="event" {{ old('type') === 'event' ? 'selected' : '' }}>Event</option>
                                         <option value="service" {{ old('type') === 'service' ? 'selected' : '' }}>Service</option>
                                         <option value="program" {{ old('type') === 'program' ? 'selected' : '' }}>Program</option>
@@ -88,13 +88,13 @@
                                 </div>
 
                                 <div class="form-group" id="maxSlotsGroup" style="display: none;">
-                                    <label class="form-control-label">Maximum Slots <span class="text-danger">*</span></label>
+                                    <label class="form-control-label">Maximum Slots</label>
                                     <input type="number" class="form-control @error('max_slots') is-invalid @enderror" 
                                            name="max_slots" value="{{ old('max_slots') }}" min="1">
                                     @error('max_slots')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
-                                    <small class="form-text text-muted">Number of available slots for registration</small>
+                                    <small class="form-text text-muted">Number of available slots for registration (leave blank for unlimited)</small>
                                 </div>
 
                                 <div class="form-group">
@@ -140,10 +140,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const maxSlotsGroup = document.getElementById('maxSlotsGroup');
     const maxSlotsInput = maxSlotsGroup.querySelector('input');
 
-    function toggleMaxSlots() {
-        if (typeSelect.value === 'limited_slots') {
+    function toggleFields() {
+        if (typeSelect.value === 'health_related') {
             maxSlotsGroup.style.display = 'block';
-            maxSlotsInput.required = true;
+            maxSlotsInput.required = false;
         } else {
             maxSlotsGroup.style.display = 'none';
             maxSlotsInput.required = false;
@@ -151,11 +151,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    typeSelect.addEventListener('change', toggleMaxSlots);
+    typeSelect.addEventListener('change', toggleFields);
     
     // Initial check
-    if (typeSelect.value === 'limited_slots') {
-        toggleMaxSlots();
+    if (typeSelect.value === 'health_related') {
+        toggleFields();
     }
 });
 </script>

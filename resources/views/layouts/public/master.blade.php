@@ -279,7 +279,7 @@
                               <button class="quick-action-btn" onclick="sendQuickMessage('Blotter complaint')">Blotter/Complaint</button>
                               <button class="quick-action-btn" onclick="sendQuickMessage('Contact information')">Contact Info</button>
                               <button class="quick-action-btn" onclick="sendQuickMessage('Office hours')">Office Hours</button>
-                             
+                              <button class="quick-action-btn" onclick="sendQuickMessage('Get Feedback QR')" style="background: #28a745; color: white; font-weight: 600;">📱 Get Feedback QR</button>
                               <button class="quick-action-btn" onclick="window.barangayChatbot.escalateToAgent()" style="background: #007bff; color: white; font-weight: 600;">💬 Talk to Agent</button>
                           </div>
                       </div>
@@ -297,6 +297,6 @@
           <img src="{{ asset('images/logo.png') }}" alt="Barangay Logo" style="width:38px; height:38px; border-radius:50%; box-shadow:0 2px 8px rgba(42,123,196,0.18); background:#fff; object-fit:cover; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);">
       </button>
       </div>
-      <script src="{{ asset('js/chatbot.js') }}?v=2"></script>
+      <script src="{{ asset('js/chatbot.js') }}?v={{ time() }}"></script>
   </body>
   </html>

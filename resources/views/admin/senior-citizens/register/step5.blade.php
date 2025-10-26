@@ -207,13 +207,13 @@
                         <div class="col-md-6 mb-3">
                             <div class="info-item">
                                 <strong class="info-label">Contact Number:</strong>
-                                <div class="info-value text-muted">{{ session('senior_registration.step4.emergency_contact_number') }}</div>
+                                <div class="info-value text-muted">{{ session('senior_registration.step2.emergency_contact_number') }}</div>
                             </div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <div class="info-item">
                                 <strong class="info-label">Address:</strong>
-                                <div class="info-value text-muted">Not collected</div>
+                                <div class="info-value text-muted">{{ session('senior_registration.step2.emergency_contact_address') ?: 'Not provided' }}</div>
                             </div>
                         </div>
                     </div>

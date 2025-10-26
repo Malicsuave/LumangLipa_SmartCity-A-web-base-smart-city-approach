@@ -51,20 +51,20 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label class="form-control-label">Start Date</label>
-                                            <input type="date" class="form-control @error('start_date') is-invalid @enderror" 
-                                                   name="start_date" value="{{ old('start_date', $announcement->start_date ? $announcement->start_date->format('Y-m-d') : '') }}">
-                                            @error('start_date')
+                                            <label class="form-control-label">Date</label>
+                                            <input type="date" class="form-control @error('date') is-invalid @enderror" 
+                                                   name="date" value="{{ old('date', $announcement->date ? $announcement->date->format('Y-m-d') : '') }}">
+                                            @error('date')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label class="form-control-label">End Date</label>
-                                            <input type="date" class="form-control @error('end_date') is-invalid @enderror" 
-                                                   name="end_date" value="{{ old('end_date', $announcement->end_date ? $announcement->end_date->format('Y-m-d') : '') }}">
-                                            @error('end_date')
+                                            <label class="form-control-label">Time</label>
+                                            <input type="time" class="form-control @error('time') is-invalid @enderror" 
+                                                   name="time" value="{{ old('time', $announcement->time) }}">
+                                            @error('time')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
@@ -88,7 +88,7 @@
                                     <select class="form-control @error('type') is-invalid @enderror" name="type" id="announcementType" required>
                                         <option value="">Select Type</option>
                                         <option value="general" {{ old('type', $announcement->type) === 'general' ? 'selected' : '' }}>General Announcement</option>
-                                        <option value="limited_slots" {{ old('type', $announcement->type) === 'limited_slots' ? 'selected' : '' }}>Registration Required</option>
+                                        <option value="health_related" {{ old('type', $announcement->type) === 'health_related' ? 'selected' : '' }}>Health Related</option>
                                         <option value="event" {{ old('type', $announcement->type) === 'event' ? 'selected' : '' }}>Event</option>
                                         <option value="service" {{ old('type', $announcement->type) === 'service' ? 'selected' : '' }}>Service</option>
                                         <option value="program" {{ old('type', $announcement->type) === 'program' ? 'selected' : '' }}>Program</option>
@@ -98,14 +98,14 @@
                                     @enderror
                                 </div>
 
-                                <div class="form-group" id="maxSlotsGroup" @if($announcement->type === 'limited_slots') style="display: block;" @else style="display: none;" @endif>
-                                    <label class="form-control-label">Maximum Slots <span class="text-danger">*</span></label>
+                                <div class="form-group" id="maxSlotsGroup" @if($announcement->type === 'health_related') style="display: block;" @else style="display: none;" @endif>
+                                    <label class="form-control-label">Maximum Slots</label>
                                     <input type="number" class="form-control @error('max_slots') is-invalid @enderror" 
                                            name="max_slots" value="{{ old('max_slots', $announcement->max_slots) }}" min="1">
                                     @error('max_slots')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
-                                    <small class="form-text text-muted">Number of available slots for registration</small>
+                                    <small class="form-text text-muted">Number of available slots for registration (leave blank for unlimited)</small>
                                     @if($announcement->current_slots > 0)
                                         <small class="form-text text-info">
                                             <i class="fas fa-info-circle"></i> Currently {{ $announcement->current_slots }} people registered
@@ -179,17 +179,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const maxSlotsGroup = document.getElementById('maxSlotsGroup');
     const maxSlotsInput = maxSlotsGroup.querySelector('input');
 
-    function toggleMaxSlots() {
-        if (typeSelect.value === 'limited_slots') {
+    function toggleFields() {
+        if (typeSelect.value === 'health_related') {
             maxSlotsGroup.style.display = 'block';
-            maxSlotsInput.required = true;
+            maxSlotsInput.required = false;
         } else {
             maxSlotsGroup.style.display = 'none';
             maxSlotsInput.required = false;
         }
     }
 
-    typeSelect.addEventListener('change', toggleMaxSlots);
+    typeSelect.addEventListener('change', toggleFields);
+    
+    // Initial check
+    toggleFields();
 });
 </script>
 
