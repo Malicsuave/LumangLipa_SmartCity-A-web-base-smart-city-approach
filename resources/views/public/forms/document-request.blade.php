@@ -6,11 +6,10 @@
 <!-- QR Code Scanner Library -->
 <script src="https://unpkg.com/html5-qrcode"></script>
 <!-- Hero Section with Background -->
-<section class="position-relative" style="background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8b 100%); padding-top: 4rem; padding-bottom: 2rem; margin-top: 0;">
-    <div class="container">
+<section class="position-relative" style="background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8b 100%); padding-top: 4rem; padding-bottom: 2rem; margin-top: 0;">    <div class="container">
         <div class="text-center">
-            <h1 class="fw-bold mb-1 text-white" style="font-size: 2.5rem; margin-top: 2.5rem; margin-bottom: 0.5rem;">Document Request</h1>
-            <p class="text-white opacity-9" style="font-size: 1.1rem;">Request official barangay documents online</p>
+            <h1 class="fw-bold mb-1 text-white" style="font-size: 2.5rem; margin-top: 2.5rem; margin-bottom: 0.5rem;">Document Request / Kahilingan ng Dokumento</h1>
+            <p class="text-white opacity-9" style="font-size: 1.1rem;">Request official barangay documents online / Humiling ng opisyal na mga dokumento ng barangay online</p>
         </div>
     </div>
 </section>
@@ -18,13 +17,12 @@
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-10">
-            <div class="card shadow-lg border-0" style="border-radius: 12px; margin-top: -4rem;">
-                <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center" style="border-radius: 12px 12px 0 0; padding: 1.5rem;">
+            <div class="card shadow-lg border-0" style="border-radius: 12px; margin-top: -4rem;">                <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center" style="border-radius: 12px 12px 0 0; padding: 1.5rem;">
                     <div>
                         <h4 class="mb-0 fw-bold" style="color: #2A7BC4;">
-                            <i class="fas fa-file-alt me-2"></i>Document Services
+                            <i class="fas fa-file-alt me-2"></i>Document Services / Mga Serbisyo sa Dokumento
                         </h4>
-                        <p class="mb-0 text-muted small">Complete the form below to request official documents</p>
+                        <p class="mb-0 text-muted small">Complete the form below to request official documents / Kumpletuhin ang form sa ibaba upang humiling ng opisyal na mga dokumento</p>
                     </div>
                 </div>
                 
@@ -38,10 +36,9 @@
 
                     <form id="documentRequestForm">
                         @csrf
-                        
-                        <!-- Identity Verification Section -->
+                          <!-- Identity Verification Section -->
                         <div class="mb-3">
-                            <label>Identity Verification <span class="text-danger">*</span></label>
+                            <label>Identity Verification / Pagpapatunay ng Pagkakakilanlan <span class="text-danger">*</span></label>
                             
                             <!-- Verification Method Toggle -->
                             <div class="btn-group w-100" role="group" aria-label="Verification method" style="display: flex;">
@@ -55,10 +52,9 @@
                                 </label>
                             </div>
                         </div>
-                            
-                        <!-- Barangay ID Section -->
+                              <!-- Barangay ID Section -->
                         <div class="mb-3" style="margin-top: 0;">
-                            <label for="barangay_id" style="margin-bottom: 0.25rem; margin-top: -0.5rem;">Barangay ID <span class="text-danger">*</span></label>
+                            <label for="barangay_id" style="margin-bottom: 0.25rem; margin-top: -0.5rem;">Barangay ID / ID ng Barangay <span class="text-danger">*</span></label>
 
                             <!-- Manual Input Section -->
                             <div id="manualInputSection">
@@ -67,26 +63,24 @@
                                            class="form-control" 
                                            id="barangay_id" 
                                            name="barangay_id" 
-                                           placeholder="Enter your Barangay ID"
+                                           placeholder="Enter your Barangay ID / Ilagay ang inyong Barangay ID"
                                            style="height: 38px; border: 1px solid #ced4da !important; padding: 0.375rem 0.75rem !important; flex: 1;"
                                            required>
                                     <button type="button" 
                                             class="btn btn-outline-primary" 
                                             id="checkResidentBtn"
                                             style="height: 38px; padding: 0.375rem 0.75rem; display: flex; align-items: center; justify-content: center; border: 1px solid #0d6efd !important; white-space: nowrap;">
-                                        <i class="fas fa-search"></i> Verify
+                                        <i class="fas fa-search"></i> I-Verify
                                     </button>
                                 </div>
-                                <small class="form-text text-muted">Enter your registered Barangay ID to verify your information</small>
-                            </div>
-
-                            <!-- QR Code Section -->
+                                <small class="form-text text-muted">Enter your registered Barangay ID to verify your information / Ilagay ang inyong nakarehistro na Barangay ID upang ma-verify ang inyong impormasyon</small>
+                            </div>                            <!-- QR Code Section -->
                             <div id="qrCodeSection" style="display: none;">
                                 <div class="btn-group w-100" role="group" style="display: flex;">
                                     <input type="radio" class="btn-check" name="qr_method" id="scan_qr" value="scan">
                                     <label class="btn btn-outline-primary" for="scan_qr" style="flex: 1; text-align: center;">
                                         <i></i>
-                                        Scan QR Code
+                                        I-scan ang QR Code
                                     </label>
                                     <input type="file" 
                                            class="form-control" 
@@ -96,49 +90,46 @@
                                     <input type="radio" class="btn-check" name="qr_method" id="upload_qr" value="upload">
                                     <label class="btn btn-outline-primary" for="upload_qr" style="flex: 1; text-align: center;">
                                         <i></i>
-                                        Upload QR Code
+                                        Mag-upload ng QR Code
                                     </label>
                                 </div>
                                 
                             </div>
                         </div>
-                        
-                        <!-- Resident Information Display -->
+                          <!-- Resident Information Display -->
                         <div id="residentInfo" class="card mb-3" style="display: none; border-radius: 12px; border: 2px solid #2A7BC4;">
                             <div class="card-header" style="border-radius: 12px 12px 0 0; background: #2A7BC4; border-bottom: none; padding: 1rem 1.5rem;">
                                 <h6 class="mb-0 fw-bold" style="color: #fff; font-size: 1rem; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif !important; display: flex; align-items: center; gap: 0.5rem;">
                                     <i class="fas fa-user-check" style="font-size: 1.1rem; margin-right: 0.5rem; color: #fff;"></i>
-                                    Verified Resident Information
+                                    Verified Resident Information / Na-verify na Impormasyon ng Residente
                                 </h6>
                             </div>
                             <div class="card-body" style="padding: 1.25rem 1.5rem; background: #fff; border-radius: 0 0 12px 12px;">
                                 <div class="row">
                                     <div class="col-md-6 mb-2">
-                                        <p class="mb-1 fw-bold" style="color: #2A7BC4;">Name:</p>
+                                        <p class="mb-1 fw-bold" style="color: #2A7BC4;">Name / Pangalan:</p>
                                         <p id="residentName" class="text-muted mb-2" style="font-size: 1.08rem;"></p>
                                     </div>
                                     <div class="col-md-6 mb-2">
-                                        <p class="mb-1 fw-bold" style="color: #2A7BC4;">Address:</p>
+                                        <p class="mb-1 fw-bold" style="color: #2A7BC4;">Address / Tirahan:</p>
                                         <p id="residentAddress" class="text-muted mb-2" style="font-size: 1.08rem;"></p>
                                     </div>
                                     <div class="col-md-6 mb-2">
-                                        <p class="mb-1 fw-bold" style="color: #2A7BC4;">Age:</p>
+                                        <p class="mb-1 fw-bold" style="color: #2A7BC4;">Age / Edad:</p>
                                         <p id="residentAge" class="text-muted mb-2" style="font-size: 1.08rem;"></p>
                                     </div>
                                     <div class="col-md-6 mb-2">
-                                        <p class="mb-1 fw-bold" style="color: #2A7BC4;">Contact Number:</p>
+                                        <p class="mb-1 fw-bold" style="color: #2A7BC4;">Contact Number / Numero ng Telepono:</p>
                                         <p id="residentContact" class="text-muted mb-2" style="font-size: 1.08rem;"></p>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- OTP Verification Section -->
+                        </div>                        <!-- OTP Verification Section -->
                         <div id="otpSection" class="card border-warning mb-4" style="display: none;">
                             <div class="card-header bg-warning bg-opacity-10">
                                 <h6 class="mb-0 text-white" style="font-size: 1rem; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif !important; display: flex; align-items: center; gap: 0.5rem;">
                                     <i class="fas fa-shield-alt me-2" style="font-size: 1.1rem;"></i>
-                                    Email Verification Required
+                                    Email Verification Required / Kailangan ang Pagpapatunay ng Email
                                 </h6>
                             </div>
                             <div class="card-body">
@@ -147,21 +138,23 @@
                                         <i class="fas fa-info-circle text-info me-2"></i>
                                         To proceed with your document request, we need to verify your identity. 
                                         An OTP (One-Time Password) will be sent to your registered email address.
+                                        <br><em class="text-muted">Upang magpatuloy sa inyong kahilingan ng dokumento, kailangan naming i-verify ang inyong pagkakakilanlan. 
+                                        Ang isang OTP (One-Time Password) ay ipapadala sa inyong nakarehistro ng email address.</em>
                                     </p>
                                     <button type="button" class="btn btn-warning" id="sendOtpBtn">
                                         <i class="fas fa-envelope me-2"></i>
-                                        Send OTP to Email
+                                        Ipadala ang OTP sa Email
                                     </button>
                                 </div>
-                                
-                                <div id="otpVerifyStep" style="display: none;">
+                                  <div id="otpVerifyStep" style="display: none;">
                                     <p class="mb-3">
                                         
                                         A 6-digit OTP has been sent to: <strong id="emailHint"></strong>
+                                        <br><em class="text-muted">Ang 6-digit na OTP ay ipinadala na sa:</em>
                                     </p>
                                     <div class="row align-items-end">
                                         <div class="col-md-6">
-                                            <label for="otp_code" class="form-label">Enter OTP Code</label>
+                                            <label for="otp_code" class="form-label">Enter OTP Code / Ilagay ang OTP Code</label>
                                             <input type="text" 
                                                    class="form-control form-control-lg text-center" 
                                                    id="otp_code" 
@@ -174,115 +167,157 @@
                                                 Verify OTP
                                             </button>
                                             <button type="button" class="btn btn-outline-secondary flex-fill" id="resendOtpBtn">
-                                                Resend
+                                                Resend 
                                             </button>
                                         </div>
                                     </div>
                                     <div class="form-text mt-2">
                                         <i class="fas fa-clock text-muted me-1"></i>
-                                        <span id="otpTimer">OTP expires in 10:00</span>
+                                        <span id="otpTimer">OTP expires in 10:00 / Mag-eexpire ang OTP sa 10:00</span>
                                     </div>
                                 </div>
-                                
-                                <div id="otpVerifiedStep" style="display: none;">
+                                  <div id="otpVerifiedStep" style="display: none;">
                                     <div class="alert alert-success mb-0">
                                         <i class="fas fa-check-circle me-2"></i>
                                         Email verified successfully! You can now proceed with your document request.
+                                        <br><em>Na-verify na ang email! Maaari nang magpatuloy sa inyong kahilingan ng dokumento.</em>
                                     </div>
                                 </div>
-                            </div>                        </div>
-
-                        <!-- Form Fields Section (Blurred until OTP verified) -->
+                            </div>                        </div>                        <!-- Form Fields Section (Blurred until OTP verified) -->
                         <div id="formFieldsSection" class="form-fields-blur">
                             <div class="blur-overlay">
                                 <div class="blur-message">
                                     <i class="fas fa-shield-alt fa-2x text-warning mb-2"></i>
-                                    <h5>Identity Verification Required</h5>
-                                    <p class="mb-0">Please verify your identity using Barangay ID or QR Code to access the form</p>
+                                    <h5>Identity Verification Required / Kailangan ang Pagpapatunay ng Pagkakakilanlan</h5>
+                                    <p class="mb-0">Please verify your identity using Barangay ID or QR Code to access the form<br><em>Paki-verify ang inyong pagkakakilanlan gamit ang Barangay ID o QR Code upang ma-access ang form</em></p>
                                 </div>
-                            </div>
-
-                            <!-- Document Type Section -->
+                            </div>                            <!-- Document Type Section -->
                             <div class="mb-3">
-                                <label for="document_type">Document Type <span class="text-danger">*</span></label>
+                                <label for="document_type">Document Type / Uri ng Dokumento <span class="text-danger">*</span></label>
                                 <select class="form-control" id="document_type" name="document_type" required disabled>
-                                    <option value="">Select Document Type</option>
-                                    <option value="Barangay Clearance">Barangay Clearance</option>
+                                    <option value="">Select Document Type / Piliin ang Uri ng Dokumento</option>
+                                    <option value="Barangay Clearance">Barangay Clearanc</option>
                                     <option value="Certificate of Residency">Certificate of Residency</option>
                                     <option value="Certificate of Indigency">Certificate of Indigency</option>
                                     <option value="Certificate of Low Income">Certificate of Low Income</option>
-                                    <option value="Business Permit">Business Permit</option>
+                                    <option value="Certificate of No/Low Income">Certificate of No/Low Income</option>
+                                    <option value="Certificate of Relationship">Certificate of Relationship</option>
                                 </select>
-                            </div>
-
-                            <!-- Purpose Section -->
+                            </div>                            <!-- Purpose Section -->
                             <div class="mb-3">
-                                <label for="purpose">Purpose <span class="text-danger">*</span></label>
+                                <label for="purpose">Purpose / Layunin <span class="text-danger">*</span></label>
                                 <textarea class="form-control" 
                                           id="purpose" 
                                           name="purpose" 
                                           rows="4" 
-                                          placeholder="Please specify the purpose for requesting this document..."
+                                          placeholder="Please specify the purpose for requesting this document... / Paki-tukoy ang layunin ng paghiling ng dokumentong ito..."
                                           required
                                           disabled></textarea>
-                                <small class="form-text text-muted">Provide detailed information about why you need this document</small>
-                            </div>
+                                <small class="form-text text-muted">Provide detailed information about why you need this document / Magbigay ng detalyadong impormasyon kung bakit kailangan ang dokumentong ito</small>
+                            </div>                            <!-- Additional Fields for Certificate of Low Income -->
+                            <div id="lowIncomeFields" style="display: none;">
+                                <div class="mb-3">
+                                    <label for="monthly_income">Monthly Income / Buwanang Kita <span class="text-danger">*</span></label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="monthly_income" 
+                                           name="monthly_income" 
+                                           placeholder="e.g., ₱5,000 / hal., ₱5,000"
+                                           disabled>
+                                    <small class="form-text text-muted">Enter your approximate monthly income / Ilagay ang inyong tinatayang buwanang kita</small>
+                                </div>
 
-                            <!-- GCash Payment Instructions -->
+                                <div class="mb-3">
+                                    <label for="occupation">Occupation / Hanapbuhay <span class="text-danger">*</span></label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="occupation" 
+                                           name="occupation" 
+                                           placeholder="e.g., Construction Worker, Farmer / hal., Manggagawa sa Konstruksyon, Magsasaka"
+                                           disabled>
+                                    <small class="form-text text-muted">Enter your current occupation or source of income / Ilagay ang inyong kasalukuyang hanapbuhay o pinagkukunan ng kita</small>
+                                </div>
+                            </div>                            <!-- Additional Fields for Certificate of Relationship -->
+                            <div id="relationshipFields" style="display: none;">
+                                <div class="mb-3">
+                                    <label for="relationship_type">Relationship Type / Uri ng Relasyon <span class="text-danger">*</span></label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="relationship_type" 
+                                           name="relationship_type" 
+                                           placeholder="e.g., Son, Daughter, Parent, Sibling, Spouse"
+                                           disabled>
+                                    <small class="form-text text-muted">Specify your relationship to the person mentioned below / Tukuyin ang inyong relasyon sa taong nabanggit sa ibaba</small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="related_person_name">Related Person's Full Name / Buong Pangalan ng Kaugnay na Tao <span class="text-danger">*</span></label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="related_person_name" 
+                                           name="related_person_name" 
+                                           placeholder="e.g., Juan Dela Cruz"
+                                           disabled>
+                                    <small class="form-text text-muted">Enter the full name of the person you are related to / Ilagay ang buong pangalan ng taong may kaugnayan sa inyo</small>
+                                </div>
+                            </div>                            <!-- GCash Payment Instructions -->
                             <div class="mb-3" id="paymentSection">
-                                <label class="fw-bold">Payment Instructions</label>
-                                <div class="alert alert-info mb-3">
+                                <label class="fw-bold">Payment Instructions / Mga Tagubilin sa Bayad</label>
+                                <div class="alert mb-3" style="background: #ffffff; border: 2px solid #0d6efd; border-radius: 10px; color: #0d6efd;">
                                     <i class="fas fa-info-circle me-2"></i>
                                     Please pay <strong>₱50</strong> via GCash to <strong>0912345678 (LumangLipaGcash)</strong>.<br>
                                     Upload a screenshot or photo of your payment receipt below to proceed.
+                                    <br><em style="color: #6c757d;">Paki-bayad ng <strong>₱50</strong> gamit ang GCash sa <strong>0912345678 (LumangLipaGcash)</strong>.<br>
+                                    Mag-upload ng screenshot o larawan ng inyong resibo ng bayad sa ibaba upang magpatuloy.</em>
                                 </div>
                             </div>
 
                             <!-- Receipt Upload -->
                             <div class="mb-4" id="receiptSection">
-                                <label for="receipt">Upload GCash Payment Receipt <span class="text-danger">*</span></label>
+                                <label for="receipt">Upload GCash Payment Receipt / Mag-upload ng GCash Resibo ng Bayad <span class="text-danger">*</span></label>
                                 <input type="file" class="form-control" id="receipt" name="receipt" accept="image/*,.pdf" required disabled>
-                                <small class="form-text text-muted">Accepted formats: JPG, PNG, PDF. Max size: 5MB.</small>
-                            </div>
-
-                            <!-- Submit Button -->
+                                <small class="form-text text-muted">Accepted formats: JPG, PNG, PDF. Max size: 5MB. / Tinatanggap na format: JPG, PNG, PDF. Pinakamataas na laki: 5MB.</small>
+                            </div>                            <!-- Submit Button -->
                             <div class="d-grid" id="submitButtonSection" style="display: none !important;">
                                 <button type="submit" 
                                         class="btn btn-primary btn-lg" 
                                         id="submitBtn"
                                         disabled>
                                     <i class="fas fa-paper-plane me-2"></i>
-                                    Submit Request
+                                    Submit Request / Isumite ang Kahilingan
                                 </button>
                             </div>
                         </div>
-                    </form>
-
-                    <!-- Information Section -->
+                    </form>                    <!-- Information Section -->
                     <div class="mt-5 p-4 bg-light rounded">
                         <h5 class="mb-3" style="color: #0d6efd;">
                             <i class="fas fa-info-circle me-2" style="color: #0d6efd;"></i>
-                            Important Information
+                            Important Information / Mahahalagang Impormasyon
                         </h5>                        <ul class="list-unstyled mb-0">
                             <li class="mb-2">
                                 <i class="fas fa-check text-success me-2"></i>
                                 Identity verification is required for all document requests (QR code verification skips email OTP)
+                                <br><em class="text-muted">Kailangan ang pagpapatunay ng pagkakakilanlan para sa lahat ng kahilingan ng dokumento (ang QR code verification ay hindi na kailangan ng email OTP)</em>
                             </li>
                             <li class="mb-2">
                                 <i class="fas fa-check text-success me-2"></i>
                                 All document requests will be reviewed by the Barangay Office
+                                <br><em class="text-muted">Lahat ng kahilingan ng dokumento ay susuriin ng Barangay Office</em>
                             </li>
                             <li class="mb-2">
                                 <i class="fas fa-check text-success me-2"></i>
                                 Processing time is typically 1-3 business days
+                                <br><em class="text-muted">Ang oras ng pagproseso ay karaniwang 1-3 araw ng negosyo</em>
                             </li>
                             <li class="mb-2">
                                 <i class="fas fa-check text-success me-2"></i>
                                 You will be notified once your request is approved
+                                <br><em class="text-muted">Aabisuhan kayo kapag naaprubahan na ang inyong kahilingan</em>
                             </li>
                             <li class="mb-0">
                                 <i class="fas fa-check text-success me-2"></i>
                                 Make sure all information provided is accurate and complete
+                                <br><em class="text-muted">Siguraduhing tama at kumpleto ang lahat ng impormasyong ibinigay</em>
                             </li>
                         </ul>
                     </div>
@@ -299,16 +334,16 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="qrScannerModalLabel">
                     <i class="fas fa-qrcode me-2"></i>
-                    Scan QR Code
+                    Scan QR Code / I-scan ang QR Code
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="text-center mb-3">
-                    <p class="text-muted">Position your QR code within the camera frame</p>
+                    <p class="text-muted">Position your QR code within the camera frame<br><em>Ilagay ang inyong QR code sa loob ng camera frame</em></p>
                     <div id="scannerStatus" class="alert alert-info" style="display: none;">
                         <i class="fas fa-camera me-2"></i>
-                        <span id="statusText">Initializing camera...</span>
+                        <span id="statusText">Initializing camera... / Sinisimulan ang camera...</span>
                     </div>
                 </div>
                 <div class="row justify-content-center">
@@ -317,9 +352,9 @@
                     </div>
                 </div>
                 <div class="text-center mt-3">
-                    <small class="text-muted d-block mb-2">Make sure your camera is allowed and QR code is well-lit</small>
+                    <small class="text-muted d-block mb-2">Make sure your camera is allowed and QR code is well-lit<br><em>Siguraduhing pinahihintulutan ang inyong camera at maliwanag ang QR code</em></small>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-2"></i>Cancel
+                        <i class="fas fa-times me-2"></i>Cancel / Kanselahin
                     </button>
                 </div>
             </div>
@@ -342,11 +377,9 @@
                         </div>
                     </div>
                     <h3 class="fw-bold mb-3">Request Submitted Successfully!</h3>
-                </div>
-
-                <!-- Rating Section -->
+                </div>                <!-- Rating Section -->
                 <div class="text-center mb-4">
-                    <p class="text-muted mb-3">How was your experience with our document request service?</p>
+                    <p class="text-muted mb-3">How was your experience with our document request service?<br><em>Kumusta ang inyong karanasan sa aming serbisyo ng kahilingan ng dokumento?</em></p>
                     <div class="stars-container mb-3" style="font-size: 3rem; cursor: pointer;">
                         <i class="fas fa-star star" data-rating="1"></i>
                         <i class="fas fa-star star" data-rating="2"></i>
@@ -355,21 +388,19 @@
                         <i class="fas fa-star star" data-rating="5"></i>
                     </div>
                     <p class="rating-text fw-bold" style="color: #ffc107; font-size: 1.2rem; min-height: 30px;"></p>
-                </div>
-
-                <!-- Comment Section (Initially Hidden) -->
+                </div>                <!-- Comment Section (Initially Hidden) -->
                 <div class="comment-section mb-4" style="display: none;">
-                    <label for="ratingComment" class="form-label text-muted">Tell us more (optional)</label>
-                    <textarea class="form-control" id="ratingComment" rows="3" placeholder="Share your thoughts..."></textarea>
+                    <label for="ratingComment" class="form-label text-muted">Tell us more (optional) / Sabihin sa amin ang higit pa (opsyonal)</label>
+                    <textarea class="form-control" id="ratingComment" rows="3" placeholder="Share your thoughts... / Ibahagi ang inyong opinyon..."></textarea>
                 </div>
 
                 <!-- Action Buttons -->
                 <div class="d-grid gap-2">
                     <button type="button" class="btn btn-primary btn-lg" id="submitRatingBtn" disabled style="border-radius: 8px;">
-                        <i class="fas fa-paper-plane me-2"></i>Submit Feedback
+                        <i class="fas fa-paper-plane me-2"></i>Submit Feedback / Isumite ang Feedback
                     </button>
                     <button type="button" class="btn btn-outline-secondary" id="skipRatingBtn" style="border-radius: 8px;">
-                        Skip for now
+                        Skip for now / Laktawan muna
                     </button>
                 </div>
             </div>
@@ -1417,9 +1448,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function showQrVerificationSuccess() {
        
-    }
-
-    function enableFormFields() {
+    }    function enableFormFields() {
         // Remove blur effect and enable form fields
         formFieldsSection.classList.remove('blurred');
         formFieldsSection.classList.add('form-fields-reveal');
@@ -1431,6 +1460,26 @@ document.addEventListener('DOMContentLoaded', function() {
         const receiptInput = document.getElementById('receipt');
         if (receiptInput) {
             receiptInput.disabled = false;
+        }
+        
+        // Enable Certificate of Low Income fields
+        const monthlyIncomeInput = document.getElementById('monthly_income');
+        const occupationInput = document.getElementById('occupation');
+        if (monthlyIncomeInput) {
+            monthlyIncomeInput.disabled = false;
+        }
+        if (occupationInput) {
+            occupationInput.disabled = false;
+        }
+        
+        // Enable Certificate of Relationship fields
+        const relationshipTypeInput = document.getElementById('relationship_type');
+        const relatedPersonNameInput = document.getElementById('related_person_name');
+        if (relationshipTypeInput) {
+            relationshipTypeInput.disabled = false;
+        }
+        if (relatedPersonNameInput) {
+            relatedPersonNameInput.disabled = false;
         }
         
         // Show submit button section
@@ -1660,35 +1709,57 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('otpTimer').textContent = 
                 `OTP expires in ${minutes}:${seconds.toString().padStart(2, '0')}`;
         }, 1000);
-    }
-
-    // Form validation
+    }    // Form validation
     function checkFormValidity() {
         const receiptInput = document.getElementById('receipt');
         const selectedDocument = documentTypeSelect.value;
-        const freeDocuments = ['Certificate of Indigency', 'Certificate of Low Income'];
+        const freeDocuments = ['Certificate of Indigency', 'Certificate of Low Income', 'Certificate of No/Low Income', 'Certificate of Relationship'];
         
         // For free documents, receipt is not required
         const receiptRequired = !freeDocuments.includes(selectedDocument);
         const receiptValid = receiptRequired ? receiptInput.files.length > 0 : true;
         
+        // For Certificate of Low Income, check if income and occupation are filled
+        const monthlyIncomeInput = document.getElementById('monthly_income');
+        const occupationInput = document.getElementById('occupation');
+        let lowIncomeFieldsValid = true;
+        
+        if (selectedDocument === 'Certificate of Low Income') {
+            lowIncomeFieldsValid = monthlyIncomeInput.value.trim() !== '' && occupationInput.value.trim() !== '';
+        }
+        
+        // For Certificate of Relationship, check if relationship fields are filled
+        const relationshipTypeInput = document.getElementById('relationship_type');
+        const relatedPersonNameInput = document.getElementById('related_person_name');
+        let relationshipFieldsValid = true;
+        
+        if (selectedDocument === 'Certificate of Relationship') {
+            relationshipFieldsValid = relationshipTypeInput.value.trim() !== '' && relatedPersonNameInput.value.trim() !== '';
+        }
+        
         const isValid = residentVerified && 
                        (otpVerified || qrVerified) &&
                        documentTypeSelect.value && 
                        purposeTextarea.value.trim() &&
-                       receiptValid;
+                       receiptValid &&
+                       lowIncomeFieldsValid &&
+                       relationshipFieldsValid;
         submitBtn.disabled = !isValid;
-    }
-
-    // Handle document type changes for free documents
+    }// Handle document type changes for free documents
     documentTypeSelect.addEventListener('change', function() {
         const selectedDocument = documentTypeSelect.value;
         const paymentSection = document.getElementById('paymentSection');
         const receiptSection = document.getElementById('receiptSection');
         const receiptInput = document.getElementById('receipt');
+        const lowIncomeFields = document.getElementById('lowIncomeFields');
+        const monthlyIncomeInput = document.getElementById('monthly_income');
+        const occupationInput = document.getElementById('occupation');
+        const relationshipFields = document.getElementById('relationshipFields');
+        const relationshipTypeInput = document.getElementById('relationship_type');
+        const relatedPersonNameInput = document.getElementById('related_person_name');
         
         // Free documents that don't require payment
-        const freeDocuments = ['Certificate of Indigency', 'Certificate of Low Income'];
+        const freeDocuments = ['Certificate of Indigency', 'Certificate of Low Income', 'Certificate of No/Low Income', 'Certificate of Relationship'];
         
         if (freeDocuments.includes(selectedDocument)) {
             // Hide payment and receipt sections for free documents
@@ -1702,12 +1773,40 @@ document.addEventListener('DOMContentLoaded', function() {
             receiptInput.setAttribute('required', 'required');
         }
         
+        // Show additional fields only for Certificate of Low Income
+        if (selectedDocument === 'Certificate of Low Income') {
+            lowIncomeFields.style.display = 'block';
+            monthlyIncomeInput.setAttribute('required', 'required');
+            occupationInput.setAttribute('required', 'required');
+        } else {
+            lowIncomeFields.style.display = 'none';
+            monthlyIncomeInput.removeAttribute('required');
+            occupationInput.removeAttribute('required');
+            monthlyIncomeInput.value = '';
+            occupationInput.value = '';
+        }        // Show additional fields only for Certificate of Relationship
+        if (selectedDocument === 'Certificate of Relationship') {
+            relationshipFields.style.display = 'block';
+            relationshipTypeInput.setAttribute('required', 'required');
+            relatedPersonNameInput.setAttribute('required', 'required');
+        } else {
+            relationshipFields.style.display = 'none';
+            relationshipTypeInput.removeAttribute('required');
+            relatedPersonNameInput.removeAttribute('required');
+            relationshipTypeInput.value = '';
+            relatedPersonNameInput.value = '';
+        }
+        
         checkFormValidity();
     });
-
+    
     documentTypeSelect.addEventListener('change', checkFormValidity);
     purposeTextarea.addEventListener('input', checkFormValidity);
     document.getElementById('receipt').addEventListener('change', checkFormValidity);
+    document.getElementById('monthly_income').addEventListener('input', checkFormValidity);
+    document.getElementById('occupation').addEventListener('input', checkFormValidity);
+    document.getElementById('relationship_type').addEventListener('input', checkFormValidity);
+    document.getElementById('related_person_name').addEventListener('input', checkFormValidity);
 
     // Form submission
     form.addEventListener('submit', function(e) {
@@ -1721,11 +1820,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!otpVerified && !qrVerified) {
             showError('Please complete the verification process first');
             return;
-        }
-
-        const receiptInput = document.getElementById('receipt');
+        }        const receiptInput = document.getElementById('receipt');
         const selectedDocument = documentTypeSelect.value;
-        const freeDocuments = ['Certificate of Indigency', 'Certificate of Low Income'];
+        const freeDocuments = ['Certificate of Indigency', 'Certificate of Low Income', 'Certificate of No/Low Income', 'Certificate of Relationship'];
         
         // Check receipt requirement based on document type
         if (!freeDocuments.includes(selectedDocument) && !receiptInput.files.length) {
@@ -1734,12 +1831,22 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
-
-        const formData = new FormData();
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';        const formData = new FormData();
         formData.append('barangay_id', barangayIdInput.value);
         formData.append('document_type', documentTypeSelect.value);
         formData.append('purpose', purposeTextarea.value);
+        
+        // Append monthly income and occupation if Certificate of Low Income
+        if (selectedDocument === 'Certificate of Low Income') {
+            formData.append('monthly_income', document.getElementById('monthly_income').value);
+            formData.append('occupation', document.getElementById('occupation').value);
+        }
+        
+        // Append relationship fields if Certificate of Relationship
+        if (selectedDocument === 'Certificate of Relationship') {
+            formData.append('relationship_type', document.getElementById('relationship_type').value);
+            formData.append('related_person_name', document.getElementById('related_person_name').value);
+        }
         
         // Only append receipt if it's required (not a free document)
         if (!freeDocuments.includes(selectedDocument) && receiptInput.files[0]) {
@@ -1783,7 +1890,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Show rating modal instead of just success message
                 // Access request_id from data.data object
                 const requestId = data.data?.request_id || data.request_id;
-                showRatingModal(requestId);
+                console.log('Request ID:', requestId);
+                try {
+                    showRatingModal(requestId);
+                } catch (error) {
+                    console.error('Error showing rating modal:', error);
+                    // Fallback to showing success message
+                    showSuccess('Document request submitted successfully! Your request ID: ' + requestId);
+                }
                 form.reset();
                 resetForm();
             } else {
@@ -1948,8 +2062,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (otpRequestStep) otpRequestStep.style.display = 'block';
         if (otpVerifyStep) otpVerifyStep.style.display = 'none';
         if (otpVerifiedStep) otpVerifiedStep.style.display = 'none';
-        
-        // Clear OTP input
+          // Clear OTP input
         const otpCodeInput = document.getElementById('otp_code');
         if (otpCodeInput) otpCodeInput.value = '';
         
@@ -1995,19 +2108,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     function hideError() {
         // No-op for toast
-    }
-
-    // ============ RATING SYSTEM ============
-    const ratingModal = new bootstrap.Modal(document.getElementById('ratingModal'));
-    const stars = document.querySelectorAll('.star');
-    const ratingText = document.querySelector('.rating-text');
-    const commentSection = document.querySelector('.comment-section');
-    const ratingComment = document.getElementById('ratingComment');
-    const submitRatingBtn = document.getElementById('submitRatingBtn');
-    const skipRatingBtn = document.getElementById('skipRatingBtn');
+    }    // ============ RATING SYSTEM ============
+    let ratingModal = null;
     let selectedRating = 0;
     let currentRequestId = null;
-
+    let originalModalBodyHTML = ''; // Store original modal body HTML at higher scope
+    
     const ratingMessages = {
         1: "😞 We're sorry to hear that",
         2: "😕 We can do better",
@@ -2015,34 +2121,140 @@ document.addEventListener('DOMContentLoaded', function() {
         4: "😃 Great!",
         5: "🌟 Excellent!"
     };
-
-    // Star hover and click effects
-    stars.forEach(star => {
-        star.addEventListener('mouseenter', function() {
-            const rating = parseInt(this.dataset.rating);
-            highlightStars(rating);
-        });
-
-        star.addEventListener('click', function() {
-            selectedRating = parseInt(this.dataset.rating);
-            highlightStars(selectedRating, true);
-            ratingText.textContent = ratingMessages[selectedRating];
-            ratingText.style.color = '#ffc107';
-            commentSection.style.display = 'block';
-            submitRatingBtn.disabled = false;
-        });
-    });
-
-    // Reset stars on mouse leave
-    document.querySelector('.stars-container').addEventListener('mouseleave', function() {
-        if (selectedRating > 0) {
-            highlightStars(selectedRating, true);
+    
+    try {
+        const ratingModalElement = document.getElementById('ratingModal');
+        if (ratingModalElement) {
+            ratingModal = new bootstrap.Modal(ratingModalElement);
+            console.log('Rating modal initialized successfully');
+            
+            // Save original modal body HTML BEFORE any modifications
+            const modalBody = document.querySelector('#ratingModal .modal-body');
+            if (modalBody) {
+                originalModalBodyHTML = modalBody.innerHTML;
+                console.log('Original modal body HTML saved');
+            }
         } else {
-            resetStars();
+            console.error('Rating modal element not found');
+        }
+    } catch (error) {
+        console.error('Error initializing rating modal:', error);
+    }
+      // Use EVENT DELEGATION for rating modal interactions (works after HTML restoration)
+    document.addEventListener('click', function(e) {
+        // Star click
+        if (e.target && e.target.classList.contains('star')) {
+            selectedRating = parseInt(e.target.dataset.rating);
+            const stars = document.querySelectorAll('.star');
+            const ratingText = document.querySelector('.rating-text');
+            const commentSection = document.querySelector('.comment-section');
+            const submitRatingBtn = document.getElementById('submitRatingBtn');
+            
+            console.log('Star clicked, rating:', selectedRating);
+            console.log('Submit button found:', submitRatingBtn);
+            console.log('Submit button disabled before:', submitRatingBtn ? submitRatingBtn.disabled : 'N/A');
+            
+            highlightStars(selectedRating, stars, true);
+            if (ratingText) {
+                ratingText.textContent = ratingMessages[selectedRating];
+                ratingText.style.color = '#ffc107';
+            }
+            if (commentSection) commentSection.style.display = 'block';
+            if (submitRatingBtn) {
+                submitRatingBtn.disabled = false;
+                submitRatingBtn.removeAttribute('disabled');
+                console.log('Submit button disabled after:', submitRatingBtn.disabled);
+            }
+        }
+        
+        // Submit Rating Button
+        if (e.target && e.target.id === 'submitRatingBtn') {
+            if (selectedRating === 0) return;
+
+            const submitBtn = e.target;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
+
+            const ratingComment = document.getElementById('ratingComment');
+            const feedbackData = {
+                request_id: currentRequestId,
+                rating: selectedRating,
+                comment: ratingComment ? ratingComment.value.trim() : '',
+                service_type: 'document_request'
+            };
+
+            fetch('{{ route("feedback.store") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify(feedbackData)
+            })
+            .then(response => {
+                console.log('Feedback response status:', response.status);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Feedback response:', data);
+                if (data.success) {
+                    // Show thank you message
+                    document.querySelector('#ratingModal .modal-body').innerHTML = `
+                        <div class="text-center py-4">
+                            <i class="fas fa-heart text-danger mb-3" style="font-size: 4rem;"></i>
+                            <h4 class="fw-bold mb-3">Thank You for Your Feedback! / Salamat sa Iyong Feedback!</h4>
+                            <p class="text-muted mb-4">Your feedback helps us improve our services.<br><em>Ang iyong feedback ay nakakatulong sa amin na mapabuti ang aming mga serbisyo.</em></p>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close / Isara</button>
+                        </div>
+                    `;
+                    setTimeout(() => {
+                        ratingModal.hide();
+                    }, 3000);
+                } else {
+                    throw new Error(data.message || 'Failed to submit feedback');
+                }
+            })
+            .catch(error => {
+                console.error('Error submitting feedback:', error);
+                showError('Failed to submit feedback. Please try again. Error: ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit Feedback / Isumite ang Feedback';
+            });
+        }
+        
+        // Skip Rating Button
+        if (e.target && e.target.id === 'skipRatingBtn') {
+            if (ratingModal) {
+                ratingModal.hide();
+            }
         }
     });
-
-    function highlightStars(rating, permanent = false) {
+    
+    // Star hover effects using event delegation
+    document.addEventListener('mouseenter', function(e) {
+        if (e.target && e.target.classList.contains('star')) {
+            const rating = parseInt(e.target.dataset.rating);
+            const stars = document.querySelectorAll('.star');
+            highlightStars(rating, stars, false);
+        }
+    }, true);
+    
+    // Stars container mouse leave
+    document.addEventListener('mouseleave', function(e) {
+        if (e.target && e.target.classList.contains('stars-container')) {
+            const stars = document.querySelectorAll('.star');
+            const ratingText = document.querySelector('.rating-text');
+            if (selectedRating > 0) {
+                highlightStars(selectedRating, stars, true);
+            } else {
+                resetStars(stars, ratingText);
+            }
+        }
+    }, true);
+    function highlightStars(rating, stars, permanent = false) {
         stars.forEach(star => {
             const starRating = parseInt(star.dataset.rating);
             if (starRating <= rating) {
@@ -2056,92 +2268,57 @@ document.addEventListener('DOMContentLoaded', function() {
                 star.classList.remove('active', 'hovered');
             }
         });
-    }
-
-    function resetStars() {
+    }    function resetStars(stars, ratingText) {
         stars.forEach(star => {
             star.classList.remove('active', 'hovered');
         });
-        ratingText.textContent = '';
-    }
-
-    // Submit rating
-    submitRatingBtn.addEventListener('click', function() {
-        if (selectedRating === 0) return;
-
-        submitRatingBtn.disabled = true;
-        submitRatingBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
-
-        const feedbackData = {
-            request_id: currentRequestId,
-            rating: selectedRating,
-            comment: ratingComment.value.trim(),
-            service_type: 'document_request'
-        };
-
-        fetch('{{ route("feedback.store") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify(feedbackData)
-        })
-        .then(response => {
-            console.log('Response status:', response.status);
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Feedback response:', data);
-            if (data.success) {
-                // Show thank you message
-                document.querySelector('#ratingModal .modal-body').innerHTML = `
-                    <div class="text-center py-4">
-                        <i class="fas fa-heart text-danger mb-3" style="font-size: 4rem;"></i>
-                        <h4 class="fw-bold mb-3">Thank You for Your Feedback!</h4>
-                        <p class="text-muted mb-4">Your feedback helps us improve our services.</p>
-                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
-                    </div>
-                `;
-                setTimeout(() => {
-                    ratingModal.hide();
-                    resetRatingModal();
-                }, 3000);
-            } else {
-                // Handle error response
-                throw new Error(data.message || 'Failed to submit feedback');
-            }
-        })
-        .catch(error => {
-            console.error('Error submitting feedback:', error);
-            alert('Failed to submit feedback. Please try again. Error: ' + error.message);
-            submitRatingBtn.disabled = false;
-            submitRatingBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit Feedback';
-        });
-    });
-
-    // Skip rating
-    skipRatingBtn.addEventListener('click', function() {
-        ratingModal.hide();
-        resetRatingModal();
-    });
-
-    function resetRatingModal() {
-        selectedRating = 0;
-        resetStars();
-        ratingComment.value = '';
-        commentSection.style.display = 'none';
-        submitRatingBtn.disabled = true;
-        submitRatingBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit Feedback';
-        ratingText.textContent = '';
+        if (ratingText) {
+            ratingText.textContent = '';
+        }
     }
 
     function showRatingModal(requestId) {
+        console.log('showRatingModal called with requestId:', requestId);
         currentRequestId = requestId;
-        ratingModal.show();
+        
+        // Check if ratingModal exists
+        if (!ratingModal) {
+            console.error('ratingModal not initialized');
+            showSuccess('Document request submitted successfully! Your request ID: ' + requestId);
+            return;
+        }
+        
+        // Restore original modal body HTML before showing
+        const modalBody = document.querySelector('#ratingModal .modal-body');
+        if (modalBody && originalModalBodyHTML) {
+            modalBody.innerHTML = originalModalBodyHTML;
+            console.log('Modal body HTML restored');
+            
+            // Reset rating state
+            selectedRating = 0;
+            
+            // Reset UI elements
+            const stars = document.querySelectorAll('.star');
+            const ratingText = document.querySelector('.rating-text');
+            const commentSection = document.querySelector('.comment-section');
+            const ratingComment = document.getElementById('ratingComment');
+            const submitRatingBtn = document.getElementById('submitRatingBtn');
+            
+            resetStars(stars, ratingText);
+            if (ratingComment) ratingComment.value = '';
+            if (commentSection) commentSection.style.display = 'none';
+            if (submitRatingBtn) {
+                submitRatingBtn.disabled = true;
+            }
+        }
+        
+        try {
+            ratingModal.show();
+            console.log('Rating modal shown successfully');
+        } catch (error) {
+            console.error('Error showing modal:', error);
+            showSuccess('Document request submitted successfully! Your request ID: ' + requestId);
+        }
     }
     // ======================================
 });

@@ -21,7 +21,9 @@
                         <li>• Barangay Clearance</li>
                         <li>• Certificate of Residency</li>
                         <li>• Certificate of Indigency</li>
-                        <li>• Business Permit</li>
+                        <li>• Certificate of Low Income</li>
+                        <li>• Certificate of No/Low Income</li>
+                        <li>• Certificate of Relationship</li>
                         <li>• Other Official Documents</li>
                     </ul>
                     <a href="{{ route('documents.request') }}" class="btn btn-primary">Request Now</a>

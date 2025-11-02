@@ -60,7 +60,7 @@ class DocumentRequestController extends Controller
         }
         
         // Sorting functionality
-        $sortField = $request->get('sort', 'requested_at');
+        $sortField = $request->get('sort', 'id');
         $sortDirection = $request->get('direction', 'desc');
         
         // Define allowed sort fields for security
@@ -71,8 +71,8 @@ class DocumentRequestController extends Controller
         if (in_array($sortField, $allowedSortFields)) {
             $query->orderBy($sortField, $sortDirection);
         } else {
-            // Default sorting
-            $query->orderBy('requested_at', 'desc');
+            // Default sorting by ID in descending order (newest first)
+            $query->orderBy('id', 'desc');
         }
         
         // Get all document requests and let DataTables handle pagination
@@ -93,24 +93,30 @@ class DocumentRequestController extends Controller
     public function create()
     {
         return view('public.forms.document-request');
-    }
-
-    public function store(Request $request)
+    }    public function store(Request $request)
     {
         // Check if this is QR verification or manual verification
         $isQrVerification = $request->input('verification_method') === 'qr';
 
         // Define free documents that don't require payment receipt
-        $freeDocuments = ['Certificate of Indigency', 'Certificate of Low Income'];
-        $isFreDocument = in_array($request->input('document_type'), $freeDocuments);
-
-        $validationRules = [
+        $freeDocuments = ['Certificate of Indigency', 'Certificate of Low Income', 'Certificate of No/Low Income', 'Certificate of Relationship'];
+        $isFreDocument = in_array($request->input('document_type'), $freeDocuments);$validationRules = [
             'barangay_id' => 'required|string|exists:residents,barangay_id',
-            'document_type' => 'required|string|in:Barangay Clearance,Certificate of Residency,Certificate of Indigency,Certificate of Low Income,Business Permit',
+            'document_type' => 'required|string|in:Barangay Clearance,Certificate of Residency,Certificate of Indigency,Certificate of Low Income,Certificate of No/Low Income,Certificate of Relationship',
             'purpose' => 'required|string|max:500',
             'verification_method' => 'required|string|in:manual,qr',
             'receipt' => $isFreDocument ? 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120' : 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
-        ];
+        ];        // Add validation for Certificate of Low Income specific fields
+        if ($request->input('document_type') === 'Certificate of Low Income') {
+            $validationRules['monthly_income'] = 'required|string|max:100';
+            $validationRules['occupation'] = 'required|string|max:100';
+        }
+
+        // Add validation for Certificate of Relationship specific fields
+        if ($request->input('document_type') === 'Certificate of Relationship') {
+            $validationRules['relationship_type'] = 'required|string|max:100';
+            $validationRules['related_person_name'] = 'required|string|max:200';
+        }
 
         $validator = Validator::make($request->all(), $validationRules);
 
@@ -136,19 +142,19 @@ class DocumentRequestController extends Controller
                 'success' => false,
                 'message' => 'Please verify your identity with the OTP sent to your email before submitting the request.'
             ], 422);
-        }
-
-        // Handle file upload
+        }        // Handle file upload
         $receiptPath = null;
         if ($request->hasFile('receipt')) {
             $receiptPath = $request->file('receipt')->store('receipts', 'public');
-        }
-
-        // Create document request
+        }        // Create document request
         $documentRequest = DocumentRequest::create([
             'barangay_id' => $request->barangay_id,
             'document_type' => $request->document_type,
             'purpose' => $request->purpose,
+            'monthly_income' => $request->input('monthly_income'),
+            'occupation' => $request->input('occupation'),
+            'relationship_type' => $request->input('relationship_type'),
+            'related_person_name' => $request->input('related_person_name'),
             'status' => 'pending',
             'resident_id' => $resident->id, // Set resident_id
             'receipt_path' => $receiptPath,
@@ -188,25 +194,26 @@ class DocumentRequestController extends Controller
             'approved_by' => auth()->id(),
         ]);
 
-        // Send notification to resident with PDF attachment asynchronously (queue)
+        // Send notification to resident with PDF attachment asynchronously (after response)
         if ($documentRequest->resident && $documentRequest->resident->email_address) {
-            try {
-                $notification = new \App\Notifications\DocumentRequestApproved($documentRequest);
-                // Dispatch notification to queue
-                $documentRequest->resident->notify($notification);
-            } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error('Failed to queue document approval notification', [
-                    'document_request_id' => $documentRequest->id,
-                    'resident_email' => $documentRequest->resident->email_address,
-                    'error' => $e->getMessage()
-                ]);
-                // Continue with success response even if queuing fails
-            }
+            // Dispatch notification after response is sent to user
+            app()->terminating(function () use ($documentRequest) {
+                try {
+                    $notification = new \App\Notifications\DocumentRequestApproved($documentRequest);
+                    $documentRequest->resident->notify($notification);
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error('Failed to send document approval notification', [
+                        'document_request_id' => $documentRequest->id,
+                        'resident_email' => $documentRequest->resident->email_address,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            });
         }
 
         return response()->json([
             'success' => true,
-            'message' => 'Document request approved successfully! An email with the PDF document has been sent to the resident.'
+            'message' => 'Document request approved successfully! An email with the PDF document will be sent to the resident.'
         ]);
     }
 
@@ -291,13 +298,11 @@ class DocumentRequestController extends Controller
                 'success' => false,
                 'message' => 'No resident found with the provided Barangay ID.'
             ], 404);
-        }
-
-        return response()->json([
+        }        return response()->json([
             'success' => true,
             'resident' => [
                 'name' => trim("{$resident->first_name} {$resident->middle_name} {$resident->last_name}"),
-                'address' => $resident->address,
+                'address' => $resident->current_address ?? 'N/A',
                 'barangay_id' => $resident->barangay_id,
                 'age' => $resident->birthdate ? Carbon::parse($resident->birthdate)->age : 'N/A',
                 'contact_number' => $resident->contact_number,

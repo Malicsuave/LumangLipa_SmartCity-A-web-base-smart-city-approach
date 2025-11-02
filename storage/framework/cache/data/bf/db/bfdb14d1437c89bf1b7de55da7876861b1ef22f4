@@ -1,1 +1,0 @@
-1761501856a:4:{s:7:"success";b:0;s:8:"error_id";s:19:"error_68fe61745dbf4";s:7:"message";s:50:"A database error occurred. Please try again later.";s:10:"debug_info";a:3:{s:9:"exception";s:34:"Illuminate\Database\QueryException";s:4:"file";s:96:"/home/lumanglipa.com/public_html/vendor/laravel/framework/src/Illuminate/Database/Connection.php";s:4:"line";i:829;}}

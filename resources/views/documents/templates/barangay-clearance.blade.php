@@ -6,10 +6,39 @@
     <title>Barangay Clearance - {{ $fullName }}</title>
     @php
         $isPrintMode = $isPrintMode ?? false;
+        $watermarkUrl = asset('images/kahoylogo.png');
     @endphp
     <style>
+        @font-face {
+            font-family: 'Liberation Serif';
+            src: url('{{ public_path('fonts/LiberationSerif-Regular.ttf') }}') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Liberation Serif';
+            src: url('{{ public_path('fonts/LiberationSerif-Bold.ttf') }}') format('truetype');
+            font-weight: bold;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Liberation Serif';
+            src: url('{{ public_path('fonts/LiberationSerif-Italic.ttf') }}') format('truetype');
+            font-weight: normal;
+            font-style: italic;
+        }
+        @font-face {
+            font-family: 'Liberation Serif';
+            src: url('{{ public_path('fonts/LiberationSerif-BoldItalic.ttf') }}') format('truetype');
+            font-weight: bold;
+            font-style: italic;
+        }
+        * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
         body {
-            font-family: Arial, sans-serif;
+            font-family: Arial, Helvetica, sans-serif;
             margin: 20px;
             background: #f5f5f5;
         }
@@ -20,17 +49,14 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
         }
         .certificate-container {
-            border: 2px solid #000;
+            border: 3px solid #000;
             background: white;
+            /* Short bond paper: 8.5 x 11 inches = 816 x 1056px at 96dpi */
             width: 816px;
             height: 1056px;
-            font-family: 'Times New Roman', Times, serif;
+            font-family: 'Times New Roman', 'Liberation Serif', Times, serif !important;
             margin: 0 auto;
             padding: 0;
             display: flex;
@@ -38,67 +64,74 @@
             justify-content: flex-start;
             box-sizing: border-box;
             overflow: hidden;
-            position: relative;
-            transform-origin: center center;
+        }
+        .certificate-container * {
+            font-family: 'Times New Roman', 'Liberation Serif', Times, serif !important;
         }
         .cert-table {
             width: 100%;
             height: 100%;
             border-collapse: collapse;
             table-layout: fixed;
+            font-family: 'Times New Roman', 'Liberation Serif', Times, serif !important;
         }
         .cert-left {
             width: 34%;
-            border-right: 2px solid #000;
+            border-right: 4px solid #000;
             vertical-align: top;
-            padding: 18px 15px 25px 18px;
+            padding: 18px 15px 10px 18px;
             position: relative;
-            padding-bottom: 25px !important;
+            padding-bottom: 0 !important;
         }
         .cert-right {
             width: 66%;
             vertical-align: top;
-            padding: 10px 25px 25px 25px;
-            position: relative;
+            padding: 10px 25px 10px 25px;
+            position: relative; /* Watermark is attached here */
             height: 100%;
             background: none;
-            padding-bottom: 25px !important;
+            padding-bottom: 0 !important;
         }
+        
+        /* THIS IS THE FIX: Replaced 'transform' with 'margin' for PDF compatibility */
         .cert-right::before {
             content: "";
             position: absolute;
             top: 50%; 
             left: 50%;
-            transform: translate(-50%, -50%);
-            width: 300px;
-            height: 300px;
-            background: url('{{ 'file://' . public_path('images/kahoylogo.png') }}') no-repeat center center;
+            /* This is the PDF-safe centering fix: */
+            margin-top: -225px;  /* Half of height (450px) */
+            margin-left: -225px; /* Half of width (450px) */
+            width: 450px;
+            height: 450px;
+            background: url('{{ $watermarkUrl }}') no-repeat center center;
             background-size: contain;
             background-position: center center;
-            opacity: 0.08;
+            opacity: 0.08; /* Kept your 0.08 opacity */
             z-index: 0;
             pointer-events: none;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
         }
+
         .cert-right > * {
             position: relative;
             z-index: 1;
         }
         .officials-title {
             font-weight: bold;
-            font-size: 14px;
-            margin-bottom: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
             letter-spacing: 1px;
         }
         .officials-list {
             font-size: 13px;
             line-height: 1.2;
-            margin-bottom: 20px;
         }
         .official-name {
             font-weight: bold;
-            font-size: 13px;
+            font-size: 15px;
+            margin-top: 14px; /* Kept your 14px spacing */
         }
         .official-position {
             font-size: 12px;
@@ -113,10 +146,11 @@
             font-size: 12px;
             font-weight: bold;
             color: #1a4fa3;
-            margin-top: 15px;
+            margin-top: 30px;
             border-top: 1px solid #000;
             padding-top: 5px;
             width: 100%;
+            box-sizing: border-box;
         }
         .logo {
             width: 130px;
@@ -125,7 +159,7 @@
         }
         .republic-text {
             font-size: 14px;
-            font-family: Arial, sans-serif;
+            font-family: Arial, Helvetica, sans-serif;
             line-height: 1.1;
         }
         .barangay-title {
@@ -135,7 +169,7 @@
         }
         .office-text {
             font-size: 14px;
-            font-family: Arial, sans-serif;
+            font-family: Arial, Helvetica, sans-serif;
             color: #1a4fa3;
             font-weight: bold;
             margin-bottom: 10px;
@@ -144,7 +178,7 @@
             font-size: 28px;
             font-weight: bold;
             text-align: center;
-            margin: 18px 0 18px 0;
+            margin: 18px 0 10px 0;
             font-style: italic;
             color: #000;
             text-decoration: underline;
@@ -153,10 +187,11 @@
         }
         .certificate-body {
             font-size: 16px;
-            line-height: 1.7;
+            line-height: 1.6;
             text-align: left;
-            margin: 20px 0 0 0;
+            margin: 15px 0 0 0;
             color: #000;
+            font-family: 'Times New Roman', 'Liberation Serif', Times, serif !important;
         }
         .cert-bold {
             font-weight: bold;
@@ -202,44 +237,10 @@
         .signature-line {
             border-bottom: 2px solid #000;
             width: 220px;
-            margin: 0 0 5px 0;
+            margin: 30px 0 5px 0;
             height: 0;
-            display: inline-block;
-            vertical-align: baseline;
-        }
-        .signature-section {
-            margin-top: auto;
-            margin-bottom: 10px;
-            font-size: 16px;
-        }
-        .signature-row {
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-        }
-        .signature-label {
-            display: inline-block;
-            width: 180px;
-            margin-right: 5px;
-            white-space: nowrap;
-            vertical-align: baseline;
-        }
-        .signature-item:last-child .signature-label {
-            margin-right: 2px;
-        }
-        .signature-container {
-            display: flex;
-            flex-direction: column;
-            margin-top: 20px;
-            font-size: 16px;
-        }
-        .signature-item {
-            display: flex;
-            align-items: baseline;
-            margin-bottom: 15px;
-        }
-        .signature-item:last-child {
-            margin-bottom: 0;
+            display: block;
+            margin-bottom: 0 !important;
         }
         .print-button {
             background: #007bff;
@@ -250,9 +251,6 @@
             cursor: pointer;
             margin: 20px 0;
             font-size: 16px;
-        }
-        .print-button.hidden {
-            display: none !important;
         }
         .print-button:hover {
             background: #0056b3;
@@ -270,7 +268,7 @@
             .container {
                 box-shadow: none !important;
                 border-radius: 0 !important;
-                padding: 0.05in !important; /* reduced from 0.2in */
+                padding: 0 !important;
                 margin: 0 !important;
                 background: white !important;
                 width: 100% !important;
@@ -287,7 +285,7 @@
                 height: 100% !important;
                 margin: 0 !important;
                 padding: 0 !important;
-                border: 2px solid #000 !important;
+                border: 3px solid #000 !important;
                 overflow: hidden !important;
                 background: white !important;
                 box-shadow: none !important;
@@ -296,156 +294,141 @@
                 box-sizing: border-box !important;
             }
             .cert-right::before {
-                width: 250px !important;
-                height: 250px !important;
-                top: 45% !important;
-                opacity: 0.06 !important;
+                width: 450px !important;
+                height: 450px !important;
+                top: 50% !important;
+                opacity: 0.08 !important;
             }
         }
     </style>
 </head>
-<body>    <div class="container">        @if($isPrintMode)
+<body>    <div class="container">
+        @if($isPrintMode)
         <div style="text-align: center; margin-bottom: 20px;">
             <button class="print-button" onclick="window.print()">🖨️ Print Document</button>
         </div>
         @endif
-        
-        <div class="certificate-container" id="certificate">
+          <div class="certificate-container" id="certificate">
             <table class="cert-table" style="height:100%;">
                 <tr>
-                    <!-- LEFT COLUMN -->
                     <td class="cert-left" style="vertical-align: top; position: relative; padding-bottom: 0;">
-                        <div style="height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div style="display: flex; flex-direction: column; height: 100%; justify-content: space-between;">
                             <div>
                                 <div class="officials-title">SANGGUNIANG BARANGAY</div>
-                                <br><br>
                                 <div class="officials-list">
                                     <div class="official-name">HON. {{ $officials->captain_name }}</div>
-                                    <div class="official-position">Barangay Captain</div><br><br>
-                                    @for($i = 1; $i <= 7; $i++)
+                                    <div class="official-position">Barangay Captain</div>
+                                    @for($i = 1; $i <= 6; $i++)
                                         <div class="official-name">HON. {{ $officials->{'councilor'.$i.'_name'} }}</div>
                                         <div class="official-position">Councilor</div>
                                         @php $committee = $officials->{'councilor'.$i.'_committee'} ?? null; @endphp
                                         @if($committee)
                                             <div class="official-committee" style="color: #007bff;">{{ $committee }}</div>
                                         @endif
-                                        <br>
-                                    @endfor
+                                        @endfor
                                     <div class="official-name">HON. {{ $officials->sk_chairperson_name }}</div>
                                     <div class="official-position">SK Chairman</div>
                                     @php $sk_committee = $officials->sk_chairperson_committee ?? null; @endphp
                                     @if($sk_committee)
                                         <div class="official-committee" style="color: #007bff;">{{ $sk_committee }}</div>
                                     @endif
-                                    <br>
                                     <div class="official-name">{{ $officials->secretary_name }}</div>
-                                    <div class="official-position">Secretary</div><br>
+                                    <div class="official-position">Secretary</div>
                                     <div class="official-name">{{ $officials->treasurer_name }}</div>
                                     <div class="official-position">Treasurer</div>
                                 </div>
                             </div>
-                            <div style="margin-top: auto; padding-top: 10px;">
-                                <div class="note-section" style="border-top:1px solid #000; padding-top:4px; font-size:13px; color:#1a4fa3; margin-bottom: 8px;">
+                            <div style="margin-top: auto; padding-top: 30px; padding-bottom: 20px; margin-left: -18px; margin-right: -15px;">
+                                <div class="note-section" style="border-top:2px solid #000; padding-top:4px; font-size:13px; color:#1a4fa3; margin-bottom: 15px; padding-left: 18px; padding-right: 15px; margin-right: 0;">
                                     Note: Not Valid Without Official Dry Seal
                                 </div>
                                 @if(isset($qrCode))
-                                    <div style="text-align:center;">
-                                        <img src="data:image/png;base64,{{ $qrCode }}" alt="QR Code" width="170" height="170" style="display:block; margin:0 auto; border:4px solid #1a4fa3; background:#fff; padding:4px; border-radius:8px;">
+                                    <div style="text-align:center; margin-top: 20px; margin-bottom: 20px;">
+                                        <img src="data:image/png;base64,{{ $qrCode }}" alt="QR Code" width="170" height="170" style="display:block; margin:0 auto; border:2px solid #1a4fa3; background:#fff; padding:4px; border-radius:8px;">
                                     </div>
                                 @endif
                             </div>
                         </div>
                     </td>
-                    <!-- RIGHT COLUMN -->
-                    <td class="cert-right" style="vertical-align: top; position: relative; padding-bottom: 0;">
-                        <!-- Background watermark for better PDF compatibility -->
-                        <img src="{{ 'file://' . public_path('images/kahoylogo.png') }}" alt="Watermark" style="position: absolute; top: 55%; left: 50%; transform: translate(-50%, -50%); width: 520px; height: 520px; opacity: 0.08; z-index: 0; pointer-events: none;">
-                        <div style="height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
-                            <div>
-                                <table style="width:100%; border-collapse:collapse; position: relative; z-index: 1;">
-                                    <tr>
-                                        <td colspan="2" style="position:relative; padding-bottom:0;">
-                                            <!-- LOGO TOP LEFT -->
-                                            <img src="{{ 'file://' . public_path('images/logo.png') }}" alt="Barangay Logo" class="logo" style="position:absolute; top:0; left:8px; margin-top:-20px; margin-left:0;"> <!-- moved left to 8px for better balance -->
-                                            <div style="text-align:center;">
-                                                <div class="republic-text">
-                                                    Republic of the Philippines<br>
-                                                    Province of Batangas<br>
-                                                    Municipality of Mataas na Kahoy<br>
-                                                    <span class="barangay-title">BARANGAY LUMANGLIPA</span>
-                                                </div>
+                      <td class="cert-right" style="vertical-align: top; position: relative; padding-bottom: 0;">
+                        <table style="width:100%; border-collapse:collapse; height: 100%;">
+                            <tr>
+                                <td colspan="2" style="position:relative; padding-bottom:0; vertical-align: top;">
+                                    <img src="{{ asset('images/logo.png') }}" alt="Barangay Logo" class="logo" style="position:absolute; top:0; left:-35px; margin-top:-20px; margin-left:0;">
+                                    
+                                    <div style="text-align:center; margin-top: 20px;">
+                                        <div class="republic-text" style="margin-bottom: 15px;">
+                                            Republic of the Philippines<br>
+                                            Province of Batangas<br>
+                                            Municipality of Mataasnakahoy<br>
+                                            <span class="barangay-title">BARANGAY LUMANGLIPA</span>
+                                        </div>
+                                        
+                                        <div class="office-text" style="color:#1a4fa3; margin-bottom: 50px;">
+                                            OFFICE OF THE PUNONG BARANGAY
+                                        </div>
 
-                                                <br><br>
-
-                                                <div class="office-text">
-                                                    OFFICE OF THE BARANGAY CAPTAIN
-                                                </div>
-
-                                                <br>
-
-                                                <div class="certificate-title" style="margin-bottom:10px;">
-                                                    BARANGAY CLEARANCE
-                                                </div>
-
-                                                <br><br>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="2" style="padding-top:0;">
-                                            <div class="certificate-body" style="margin-top:0;">
-                                                <div class="cert-italic" style="margin-bottom: 10px; font-size:16px;"><strong>To Whom It May Concern:</strong></div>
-                                                <div style="text-indent: 40px;">
-                                                    <br>
-                                                    <span class="cert-bold">THIS IS TO CERTIFY that</span>
-                                                    <span class="cert-fill">{{ strtoupper($fullName) }}</span>
-                                                    is a bona fide resident of Barangay Lumanglipa, Mataas na Kahoy, Batangas. He/She is known to me to be a person of good moral character and law-abiding citizen.
-                                                </div>
-                                                <div style="text-indent: 40px; margin-top: 18px;">
-                                                    This further certifies that he/she has never been connected nor committed in any subversive organization that seeks to overthrow our government.
-                                                </div>
-                                                <div style="text-indent: 40px; margin-top: 18px;">
-                                                    Issued upon request of
-                                                    <span class="cert-fill-short">{{ strtoupper($purpose) }}</span>
-                                                    this
-                                                    <span class="cert-fill-day">{{ \Carbon\Carbon::parse($dateIssued)->format('j') }}</span> day of
-                                                    <span class="cert-fill-month">{{ \Carbon\Carbon::parse($dateIssued)->format('F') }}</span>,
-                                                    <span class="cert-fill-year">{{ \Carbon\Carbon::parse($dateIssued)->format('Y') }}</span> at Barangay Lumanglipa, Mataas na Kahoy, Batangas for any legal purposes it may serve.
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="2" style="padding:0; vertical-align:bottom; height:120px;">
-                                            <table style="width:100%; border-collapse:collapse;">
-                                                <tr>
-                                                    <td colspan="2" style="text-align:center; padding-bottom:10px;">
-                                                        <div style="margin-left:300px; display:inline-block; text-align:center;">
-                                                            <br><br><br><br><br>
-                                                            <div style="font-family:Arial, sans-serif; font-weight:bold; font-size:16px; text-transform:uppercase; margin-bottom:5px;">HON. {{ $officials->captain_name }}</div>
-                                                            <div style="font-family:Arial, sans-serif; font-style:italic; font-size:14px;">Barangay Captain</div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            </table>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                            
-                            <div class="signature-section">
-                                <div class="signature-container">
-                                    <div class="signature-item">
-                                        <span class="signature-label">Applicant Signature:</span>
-                                        <span class="signature-line"></span>
+                                        <div class="certificate-title" style="margin-bottom:-30px;">
+                                            BARANGAY CLEARANCE
+                                        </div>
+                                        
+                                        <br> 
                                     </div>
-                                    <div class="signature-item">
-                                        <span class="signature-label">Issued by:</span>
-                                        <span class="signature-line"></span>
+                                </td>
+                            </tr>
+                          <tr>
+                                <td colspan="2" style="padding-top:0; vertical-align: top;">
+                                    <div class="certificate-body" style="margin-top:0;">
+                                        <div class="cert-italic" style="margin-bottom: 10px; font-size:16px;"><strong>To Whom It May Concern:</strong></div>
+                                        
+                                        <div style="text-indent: 40px;">
+                                            <span class="cert-bold">THIS IS TO CERTIFY that</span>
+                                            <span class="cert-fill">{{ strtoupper($fullName) }}</span>
+                                            is a bona fide resident of Barangay Lumanglipa, Mataasnakahoy, Batangas. He/She is known to me to be a person of good moral character and law-abiding citizen.
+                                        </div>
+                                        
+                                        <div style="text-indent: 40px; margin-top: 15px;">
+                                            This further certifies that he/she has never been connected nor committed in any subversive organization that seeks to overthrow our government.
+                                        </div>
+
+                                        <div style="text-indent: 40px; margin-top: 15px;">
+                                            Issued upon request of
+                                            <span class="cert-fill-short">{{ strtoupper($purpose) }}</span>
+                                            this
+                                            <span class="cert-fill-day">{{ \Carbon\Carbon::parse($dateIssued)->format('j') }}</span> day of
+                                            <span class="cert-fill-month">{{ \Carbon\Carbon::parse($dateIssued)->format('F') }}</span>,
+                                            <span class="cert-fill-year">{{ \Carbon\Carbon::parse($dateIssued)->format('Y') }}</span> at Barangay Lumanglipa, Mataasnakahoy, Batangas for any legal purposes it may serve.
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="padding:0; vertical-align:bottom;">
+                                    <table style="width:100%; border-collapse:collapse;">
+                                        <tr>
+                                            <td colspan="2" style="text-align:center; padding-bottom:10px; padding-top:0px;">
+                                                <div style="margin-left:250px; display:inline-block; text-align:center;">
+                                                    <span class="cert-bold">{{ $officials->captain_name }}</span><br>
+                                                    <span class="cert-italic">Punong Barangay</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2" style="padding: 150px 10px 20px 15px;">
+                                                <div style="font-size:14px; margin-bottom:20px;">
+                                                    Applicant Signature: 
+                                                    <span style="display:inline-block; width:200px; border-bottom:1px solid #000; margin-left:5px; vertical-align:baseline;"></span>
+                                                </div>
+                                                <div style="font-size:14px;">
+                                                    Issued by: 
+                                                    <span style="display:inline-block; width:200px; border-bottom:1px solid #000; margin-left:5px; vertical-align:baseline;"></span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
                     </td>
                 </tr>
             </table>

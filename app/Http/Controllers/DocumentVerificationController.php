@@ -20,8 +20,8 @@ class DocumentVerificationController extends Controller
         $expired = false;
         $expiration = null;
         if ($document->approved_at) {
-            // Example: 1 year validity
-            $expiration = Carbon::parse($document->approved_at)->addYear();
+            // 3 months validity
+            $expiration = Carbon::parse($document->approved_at)->addMonths(3);
             $expired = now()->greaterThan($expiration);
         }
         return view('public.verify-document', [

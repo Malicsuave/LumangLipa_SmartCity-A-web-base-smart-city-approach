@@ -50,7 +50,7 @@ class HealthServiceController extends Controller
             'success' => true,
             'resident' => [
                 'name' => trim("{$resident->first_name} {$resident->middle_name} {$resident->last_name}"),
-                'address' => $resident->address,
+                'address' => $resident->current_address ?? 'N/A',
                 'age' => $age ?? 'N/A',
                 'contact' => $resident->contact_number,
                 'email' => $resident->email

@@ -25,7 +25,7 @@
                             'Barangay Clearance',
                             'Certificate of Residency',
                             'Certificate of Indigency',
-                            'Business Permit',
+                            'Certificate of Relationship',
                             'Medical Consultation',
                             'Complaint'
                         ] as $service)
@@ -49,8 +49,8 @@
                 @include('public.request.residency-form', ['resident' => $resident, 'admin' => true])
             @elseif(request('service') == 'Certificate of Indigency')
                 @include('public.request.indigency-form', ['resident' => $resident, 'admin' => true])
-            @elseif(request('service') == 'Business Permit')
-                @include('public.request.businesspermit-form', ['resident' => $resident, 'admin' => true])
+            @elseif(request('service') == 'Certificate of Relationship')
+                @include('public.request.relationship-form', ['resident' => $resident, 'admin' => true])
             @elseif(request('service') == 'Medical Consultation')
                 @include('public.request.healthservice-form', ['resident' => $resident, 'admin' => true])
             @elseif(request('service') == 'Complaint')
@@ -212,7 +212,7 @@ const serviceTypes = {
         'Barangay Clearance',
         'Certificate of Residency',
         'Certificate of Indigency',
-        'Business Permit',
+        'Certificate of Relationship',
         'Other Official Documents'
     ],
     Health: [

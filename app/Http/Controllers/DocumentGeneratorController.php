@@ -43,8 +43,10 @@ class DocumentGeneratorController extends Controller
                     return $this->generateIndigencyCertificate($documentRequest, $resident, $isPrintMode);
                 case 'Certificate of Low Income':
                     return $this->generateLowIncomeCertificate($documentRequest, $resident, $isPrintMode);
-                case 'Business Permit':
-                    return $this->generateBusinessPermit($documentRequest, $resident, $isPrintMode);
+                case 'Certificate of No/Low Income':
+                    return $this->generateNoLowIncomeCertificate($documentRequest, $resident, $isPrintMode);
+                case 'Certificate of Relationship':
+                    return $this->generateRelationshipCertificate($documentRequest, $resident, $isPrintMode);
                 default:
                     abort(404, 'Document type not supported: ' . $documentRequest->document_type);
             }
@@ -76,7 +78,7 @@ class DocumentGeneratorController extends Controller
 
     private function generateBarangayClearance($documentRequest, $resident, $isPrintMode = false)
     {
-        $officials = BarangayOfficial::first();
+        $officials = app(\App\Services\DocumentPdfService::class)->getOfficialsForDocuments();
         $qrCode = $this->generateQrCode($documentRequest->uuid);
         $data = [
             'resident' => $resident,
@@ -97,7 +99,7 @@ class DocumentGeneratorController extends Controller
 
     private function generateResidencyCertificate($documentRequest, $resident, $isPrintMode = false)
     {
-        $officials = BarangayOfficial::first();
+        $officials = app(\App\Services\DocumentPdfService::class)->getOfficialsForDocuments();
         $qrCode = $this->generateQrCode($documentRequest->uuid);
         $data = [
             'resident' => $resident,
@@ -119,7 +121,7 @@ class DocumentGeneratorController extends Controller
 
     private function generateIndigencyCertificate($documentRequest, $resident, $isPrintMode = false)
     {
-        $officials = BarangayOfficial::first();
+        $officials = app(\App\Services\DocumentPdfService::class)->getOfficialsForDocuments();
         $qrCode = $this->generateQrCode($documentRequest->uuid);
         $data = [
             'resident' => $resident,
@@ -140,7 +142,7 @@ class DocumentGeneratorController extends Controller
 
     private function generateLowIncomeCertificate($documentRequest, $resident, $isPrintMode = false)
     {
-        $officials = BarangayOfficial::first();
+        $officials = app(\App\Services\DocumentPdfService::class)->getOfficialsForDocuments();
         $qrCode = $this->generateQrCode($documentRequest->uuid);
         $data = [
             'resident' => $resident,
@@ -153,8 +155,8 @@ class DocumentGeneratorController extends Controller
             'dateIssued' => $documentRequest->approved_at ? $documentRequest->approved_at : now(),
             'barangayId' => $resident->barangay_id,
             'purok' => $resident->purok ?? 'N/A',
-            'income' => $resident->monthly_income ?? 'N/A',
-            'occupation' => $resident->occupation ?? 'N/A',
+            'income' => $documentRequest->monthly_income ?? 'N/A',
+            'occupation' => $documentRequest->occupation ?? 'N/A',
             'isPrintMode' => $isPrintMode,
             'officials' => $officials,
             'qrCode' => $qrCode,
@@ -162,9 +164,9 @@ class DocumentGeneratorController extends Controller
         return view('documents.templates.certificate-of-low-income-original', $data);
     }
 
-    private function generateBusinessPermit($documentRequest, $resident, $isPrintMode = false)
+    private function generateNoLowIncomeCertificate($documentRequest, $resident, $isPrintMode = false)
     {
-        $officials = BarangayOfficial::first();
+        $officials = app(\App\Services\DocumentPdfService::class)->getOfficialsForDocuments();
         $qrCode = $this->generateQrCode($documentRequest->uuid);
         $data = [
             'resident' => $resident,
@@ -176,12 +178,32 @@ class DocumentGeneratorController extends Controller
             'purpose' => $documentRequest->purpose,
             'dateIssued' => $documentRequest->approved_at ? $documentRequest->approved_at : now(),
             'barangayId' => $resident->barangay_id,
-            'businessName' => $documentRequest->business_name ?? 'N/A',
-            'businessAddress' => $documentRequest->business_address ?? $resident->address,
             'isPrintMode' => $isPrintMode,
             'officials' => $officials,
             'qrCode' => $qrCode,
         ];
-        return view('documents.templates.business-permit', $data);
+        return view('documents.templates.cerficate-of-no-income', $data);
+    }
+
+    private function generateRelationshipCertificate($documentRequest, $resident, $isPrintMode = false)
+    {
+        $officials = app(\App\Services\DocumentPdfService::class)->getOfficialsForDocuments();
+        $qrCode = $this->generateQrCode($documentRequest->uuid);
+        $data = [
+            'resident' => $resident,
+            'documentRequest' => $documentRequest,
+            'fullName' => trim("{$resident->first_name} {$resident->middle_name} {$resident->last_name}"),
+            'age' => Carbon::parse($resident->birthdate)->age,
+            'civilStatus' => $resident->civil_status,
+            'address' => $resident->current_address ?? 'N/A',
+            'purpose' => $documentRequest->purpose,
+            'dateIssued' => $documentRequest->approved_at ? $documentRequest->approved_at : now(),
+            'barangayId' => $resident->barangay_id,
+            'purok' => $resident->purok ?? 'N/A',
+            'isPrintMode' => $isPrintMode,
+            'officials' => $officials,
+            'qrCode' => $qrCode,
+        ];
+        return view('documents.templates.certificate-of-relationship', $data);
     }
 }

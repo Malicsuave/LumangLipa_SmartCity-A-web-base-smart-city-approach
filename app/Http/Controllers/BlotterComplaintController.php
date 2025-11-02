@@ -49,16 +49,16 @@ class BlotterComplaintController extends Controller
             ], 404);
         }
 
-        $age = $resident->date_of_birth ? Carbon::parse($resident->date_of_birth)->age : 'N/A';
+        $age = $resident->birthdate ? Carbon::parse($resident->birthdate)->age : 'N/A';
 
         return response()->json([
             'success' => true,
             'resident' => [
                 'name' => trim($resident->first_name . ' ' . ($resident->middle_name ? $resident->middle_name . ' ' : '') . $resident->last_name),
-                'address' => trim(($resident->house_number ?? '') . ' ' . ($resident->street ?? '') . ', ' . ($resident->zone ?? '')),
+                'address' => $resident->current_address ?? 'N/A',
                 'age' => $age,
-                'contact_number' => $resident->mobile_number ?? $resident->telephone_number ?? 'N/A',
-                'email' => $resident->email ?? 'N/A',
+                'contact_number' => $resident->contact_number ?? 'N/A',
+                'email' => $resident->email_address ?? 'N/A',
             ],
             'qr_verified' => $request->qr_verified ?? false
         ]);

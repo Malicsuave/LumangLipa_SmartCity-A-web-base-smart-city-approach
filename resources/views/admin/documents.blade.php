@@ -17,11 +17,12 @@ $(function () {
     // Initialize DataTable for documents table using the same helper as Residents
     const documentsTable = DataTableHelpers.initDataTable("#documentsTable", {
         buttons: ["copy", "csv", "excel", "pdf", "print", "colvis"],
-        order: [[ 4, "desc" ]], // Order by Date Requested column (index 4) in descending order
+        order: [[ 0, "desc" ]], // Order by Request ID column (index 0) in descending order
         pageLength: 10,
         lengthChange: true,
         lengthMenu: [ [10, 25, 50, 100, -1], [10, 25, 50, 100, "All"] ],
         columnDefs: [
+            { "type": "num", "targets": 0 }, // Treat Request ID as number for proper sorting
             { "orderable": false, "targets": -1 },
             { "responsivePriority": 1, "targets": 0 },
             { "responsivePriority": 2, "targets": 1 },
@@ -116,8 +117,8 @@ $(function () {
             return;
         }
 
-        // Disable button to prevent double clicks
-        $(this).prop('disabled', true).text('Processing...');
+        // Disable button and show loading spinner
+        $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i> Approving document...');
 
         $.ajax({
             url: '/admin/documents/' + window.currentRequestId + '/approve',
@@ -127,6 +128,9 @@ $(function () {
             },
             success: function(response) {
                 if (response.success) {
+                    // Update button to show success
+                    $('#confirmApprove').html('<i class="fas fa-check-circle mr-2"></i> Approved!');
+                    
                     // Close modal
                     $('#approveModal').modal('hide');
                     
@@ -168,9 +172,9 @@ $(function () {
             return;
         }
 
-        // Disable submit button to prevent double submission
+        // Disable submit button and show loading spinner
         var submitBtn = $(this).find('button[type="submit"]');
-        submitBtn.prop('disabled', true).text('Processing...');
+        submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i> Rejecting...');
 
         $.ajax({
             url: '/admin/documents/' + window.currentRequestId + '/reject',
@@ -183,14 +187,19 @@ $(function () {
             },
             success: function(response) {
                 if (response.success) {
-                    // Close modal
-                    $('#rejectModal').modal('hide');
-                    
-                    // Reset form
-                    $('#rejectForm')[0].reset();
+                    // Update button to show success
+                    submitBtn.html('<i class="fas fa-check-circle mr-2"></i> Rejected!');
                     
                     // Show success message with global helper
                     showSuccess(response.message);
+                    
+                    // Close modal
+                    setTimeout(function() {
+                        $('#rejectModal').modal('hide');
+                    }, 800);
+                    
+                    // Reset form
+                    $('#rejectForm')[0].reset();
                     
                     // Reload the page to refresh the table
                     setTimeout(function() {
@@ -199,15 +208,15 @@ $(function () {
                 } else {
                     // Show error message
                     showError(response.message || 'Failed to reject document request.');
+                    // Reset button
+                    submitBtn.prop('disabled', false).html('Reject Request');
                 }
             },
             error: function(xhr, status, error) {
                 console.error('Error rejecting document request:', error);
                 handleAjaxError(xhr, status, error, 'An error occurred while rejecting the document request.');
-            },
-            complete: function() {
-                // Re-enable submit button
-                submitBtn.prop('disabled', false).text('Reject Request');
+                // Reset button
+                submitBtn.prop('disabled', false).html('Reject Request');
             }
         });
     });

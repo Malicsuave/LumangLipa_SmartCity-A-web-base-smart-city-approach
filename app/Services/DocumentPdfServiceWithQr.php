@@ -90,7 +90,7 @@ class DocumentPdfServiceWithQr
                 'purpose' => $documentRequest->purpose,
                 'dateIssued' => $documentRequest->approved_at ? $documentRequest->approved_at : now(),
                 'barangayId' => $resident->barangay_id,
-                'isPrintMode' => false,
+                'isPrintMode' => true, // Use print mode for PDF generation to match preview/print design
                 'officials' => $officials,
                 'qrCode' => $qrCode, // Add QR code to data
             ];
@@ -101,29 +101,29 @@ class DocumentPdfServiceWithQr
             // Generate PDF using Snappy with print-optimized settings
             $pdf = \Barryvdh\Snappy\Facades\SnappyPdf::loadView($viewTemplate['view'], $viewTemplate['data']);
             
-            // Set PDF options
+            // Set PDF options optimized to match browser print preview
             $pdf->setOptions([
-                // Use same reduced page as standard service
-                'page-width' => '7.5in',
-                'page-height' => '9in',
+                // Standard letter size with minimal margins
+                'page-size' => 'Letter',
                 'orientation' => 'Portrait',
-                'margin-top' => '0.15in',
-                'margin-right' => '0.15in',
-                'margin-bottom' => '0.10in',
-                'margin-left' => '0.15in',
+                'margin-top' => '0mm',
+                'margin-right' => '0mm',
+                'margin-bottom' => '0mm',
+                'margin-left' => '0mm',
                 'encoding' => 'UTF-8',
                 'enable-local-file-access' => true,
-                'disable-smart-shrinking' => true,
-                'dpi' => 300,
-                'image-quality' => 100,
-                'zoom' => 0.88,
+                'disable-smart-shrinking' => true, // Prevents auto-shrinking
+                'enable-smart-shrinking' => false, // Double ensure no shrinking
+                'dpi' => 96, // Match browser DPI
+                'image-quality' => 100, // High quality images
+                'zoom' => 1.0, // 100% zoom to match preview exactly
                 'load-error-handling' => 'ignore',
                 'load-media-error-handling' => 'ignore',
                 'enable-external-links' => false,
                 'enable-internal-links' => false,
-                'print-media-type' => true,
+                'print-media-type' => true, // CRITICAL: Use @media print CSS rules
                 'no-background' => false,
-                'javascript-delay' => 1000,
+                'javascript-delay' => 100,
                 'no-stop-slow-scripts' => true,
                 'debug-javascript' => false,
             ]);
@@ -168,8 +168,7 @@ class DocumentPdfServiceWithQr
                     'view' => 'documents.templates.certificate-of-indigency-original',
                     'data' => $baseData
                 ];
-                
-            case 'Certificate of Low Income':
+                  case 'Certificate of Low Income':
                 return [
                     'view' => 'documents.templates.certificate-of-low-income-original',
                     'data' => array_merge($baseData, [
@@ -179,12 +178,11 @@ class DocumentPdfServiceWithQr
                     ])
                 ];
                 
-            case 'Business Permit':
+            case 'Certificate of Relationship':
                 return [
-                    'view' => 'documents.templates.business-permit',
+                    'view' => 'documents.templates.certificate-of-relationship',
                     'data' => array_merge($baseData, [
-                        'businessName' => $baseData['documentRequest']->business_name ?? 'N/A',
-                        'businessAddress' => $baseData['documentRequest']->business_address ?? $baseData['resident']->address,
+                        'purok' => $baseData['resident']->purok ?? 'N/A',
                     ])
                 ];
                 

@@ -5,7 +5,6 @@ namespace App\Notifications;
 use App\Models\DocumentRequest;
 use App\Services\DocumentPdfService;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use PHPMailer\PHPMailer\PHPMailer;

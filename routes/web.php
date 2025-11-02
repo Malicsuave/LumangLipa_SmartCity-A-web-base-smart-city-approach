@@ -706,3 +706,151 @@ Route::prefix('api/agent-conversation')->group(function () {
     Route::get('/{sessionId}/new-messages', [UserAgentConversationController::class, 'getNewMessagesForUser']);
     Route::get('/{sessionId}/queue-status', [UserAgentConversationController::class, 'getQueueStatus']);
 });
+
+// Test Email Route - Send test Barangay Clearance email
+Route::get('/test-email-document', function () {
+    // Set proper headers for JSON response
+    header('Content-Type: application/json');
+    
+    try {
+        $testEmail = request()->get('email', 'reywillardd01@gmail.com');
+        
+        \Log::info('Starting test email process for all document types', ['email' => $testEmail]);
+        
+        // Get or create a resident
+        $resident = \App\Models\Resident::first();
+        
+        if (!$resident) {
+            \Log::error('No resident found in database');
+            return response()->json(['success' => false, 'error' => 'No resident found in database. Please add at least one resident.'], 404);
+        }
+        
+        // Define all document types to send
+        $documentTypes = [
+            'Barangay Clearance',
+            'Certificate of Indigency',
+            'Certificate of Residency',
+            'Certificate of Low Income',
+            'Certificate of No/Low Income'
+        ];
+        
+        $sentDocuments = [];
+        $originalEmail = $resident->email_address;
+        
+        // Send each document type
+        foreach ($documentTypes as $docType) {
+            \Log::info("Processing {$docType}");
+            
+            // Find or create document request for this type
+            $documentRequest = \App\Models\DocumentRequest::with('resident')
+                ->where('document_type', $docType)
+                ->where('status', 'approved')
+                ->latest()
+                ->first();
+            
+            if (!$documentRequest) {
+                \Log::info("No existing {$docType} found, creating new one");
+                $documentRequest = \App\Models\DocumentRequest::create([
+                    'resident_id' => $resident->id,
+                    'document_type' => $docType,
+                    'purpose' => 'Testing Email Template',
+                    'status' => 'approved',
+                    'requested_at' => now(),
+                    'approved_at' => now(),
+                    'uuid' => \Illuminate\Support\Str::uuid(),
+                ]);
+            }
+            
+            // Override the resident's email temporarily for testing
+            $documentRequest->resident->email_address = $testEmail;
+            
+            \Log::info('Attempting to send email notification', [
+                'to' => $testEmail,
+                'document_type' => $documentRequest->document_type,
+                'resident_name' => $documentRequest->resident->first_name . ' ' . $documentRequest->resident->last_name
+            ]);
+            
+            // Send the notification
+            $notification = new \App\Notifications\DocumentRequestApproved($documentRequest);
+            $documentRequest->resident->notify($notification);
+            
+            \Log::info("Email notification sent successfully for {$docType}");
+            
+            $sentDocuments[] = [
+                'document_type' => $docType,
+                'verification_url' => url('/verify/' . $documentRequest->uuid)
+            ];
+            
+            // Small delay between emails to avoid rate limiting
+            sleep(1);
+        }
+        
+        // Restore original email
+        $resident->email_address = $originalEmail;
+        $resident->save();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'All 3 document emails sent successfully to ' . $testEmail,
+            'resident_name' => $resident->first_name . ' ' . $resident->last_name,
+            'documents_sent' => $sentDocuments,
+        ]);
+        
+    } catch (\Exception $e) {
+        \Log::error('Failed to send test emails', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+        return response()->json([
+            'success' => false,
+            'error' => 'Failed to send emails: ' . $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+        ], 500);
+    }
+});
+
+// Simple mail configuration test route
+Route::get('/test-mail-config', function () {
+    try {
+        $testEmail = request()->get('email', 'reywillardd01@gmail.com');
+        
+        \Log::info('Testing mail configuration', [
+            'mailer' => config('mail.default'),
+            'host' => config('mail.mailers.smtp.host'),
+            'port' => config('mail.mailers.smtp.port'),
+            'username' => config('mail.mailers.smtp.username'),
+            'encryption' => config('mail.mailers.smtp.encryption'),
+            'from_address' => config('mail.from.address'),
+        ]);
+        
+        // Send a simple test email
+        \Illuminate\Support\Facades\Mail::raw('This is a test email from Barangay Lumanglipa. If you receive this, your mail configuration is working!', function ($message) use ($testEmail) {
+            $message->to($testEmail)
+                    ->subject('Test Email - Mail Configuration Check');
+        });
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Simple test email sent to ' . $testEmail,
+            'config' => [
+                'mailer' => config('mail.default'),
+                'host' => config('mail.mailers.smtp.host'),
+                'port' => config('mail.mailers.smtp.port'),
+                'username' => config('mail.mailers.smtp.username'),
+                'encryption' => config('mail.mailers.smtp.encryption'),
+            ]
+        ]);
+        
+    } catch (\Exception $e) {
+        \Log::error('Mail configuration test failed', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+        
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ], 500);
+    }
+});

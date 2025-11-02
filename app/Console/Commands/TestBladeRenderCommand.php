@@ -56,8 +56,8 @@ class TestBladeRenderCommand extends Command
                 case 'Barangay Clearance':
                     $template = 'documents.templates.barangay-clearance';
                     break;
-                case 'Business Permit':
-                    $template = 'documents.templates.business-permit';
+                case 'Certificate of Relationship':
+                    $template = 'documents.templates.certificate-of-relationship';
                     break;
                 default:
                     $this->error('Unsupported document type');
