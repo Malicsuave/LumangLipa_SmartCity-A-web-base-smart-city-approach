@@ -212,16 +212,11 @@ class SeniorRegistrationController extends Controller
     }
 
     /**
-     * Store Step 4: Senior Citizen Specific Information
+     * Store Step 4: Pension & Benefits Information
      */
     public function storeStep4(Request $request)
     {
         $request->validate([
-            // Health Information
-            'health_condition' => 'nullable|string|in:excellent,good,fair,poor,critical',
-            'mobility_status' => 'nullable|string|in:independent,assisted,wheelchair,bedridden',
-            'medical_conditions' => 'nullable|string|max:2000',
-            
             // Pension Information
             'receiving_pension' => 'nullable|boolean',
             'pension_type' => 'nullable|required_if:receiving_pension,1|string|in:SSS,GSIS,Government Employee,Private Company,Social Pension,Other',
@@ -233,28 +228,15 @@ class SeniorRegistrationController extends Controller
             
             // Senior Discount Card
             'has_senior_discount_card' => 'nullable|boolean',
-            
-            // Services
-            'services' => 'nullable|array',
-            'services.*' => 'string|in:healthcare,financial_assistance,education,legal_assistance,transportation,discount_privileges,emergency_response',
-            
-            // Additional Notes
-            'notes' => 'nullable|string|max:1000',
         ]);
 
         // Get all request data except _token
         $step4Data = $request->except('_token');
         
-        // Log the services data for debugging
-        Log::info('Step 4 Services Data:', [
-            'services' => $request->input('services'),
-            'all_data' => $step4Data
-        ]);
-        
         Session::put('senior_registration.step4', $step4Data);
         
         return redirect()->route('public.senior-registration.review')
-            ->with('success', 'Senior citizen information saved successfully!');
+            ->with('success', 'Pension and benefits information saved successfully!');
     }
 
     /**
@@ -340,18 +322,13 @@ class SeniorRegistrationController extends Controller
                 'signature' => $step3['signature'] ?? null,
                 'proof_of_residency' => $step3['proof_of_residency'] ?? null,
                 
-                // Step 4: Senior Citizen Specific Information
-                'health_condition' => $step4['health_condition'] ?? null,
-                'mobility_status' => $step4['mobility_status'] ?? null,
-                'medical_conditions' => $step4['medical_conditions'] ?? null,
+                // Step 4: Pension & Benefits Information
                 'receiving_pension' => isset($step4['receiving_pension']) && $step4['receiving_pension'] == '1',
                 'pension_type' => $step4['pension_type'] ?? null,
                 'pension_amount' => $step4['pension_amount'] ?? null,
                 'has_philhealth' => isset($step4['has_philhealth']) && $step4['has_philhealth'] == '1',
                 'philhealth_number' => $step4['philhealth_number'] ?? null,
                 'has_senior_discount_card' => isset($step4['has_senior_discount_card']) && $step4['has_senior_discount_card'] == '1',
-                'services' => $step4['services'] ?? [],
-                'notes' => $step4['notes'] ?? null,
                 
                 // System fields
                 'status' => 'pending',

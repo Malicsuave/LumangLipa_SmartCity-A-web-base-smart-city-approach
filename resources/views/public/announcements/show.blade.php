@@ -94,14 +94,13 @@
             <h1 class="fw-bold mb-4" style="color:#2A7BC4; font-size: 2.8rem; line-height: 1.2;">{{ $announcement->title }}</h1>
             
             <!-- Date Information -->
-            <div class="d-flex justify-content-center align-items-center flex-wrap mb-4">
-                @if($announcement->date)
+            <div class="d-flex justify-content-center align-items-center flex-wrap mb-4">                @if($announcement->date)
                     <div class="me-4 mb-2 d-flex align-items-center">
                         <i class="fas fa-calendar-check me-2" style="color: #2A7BC4;"></i>
                         <span class="fw-semibold" style="color: #555;">Date: {{ $announcement->date->format('F d, Y') }}</span>
-                        @if($announcement->time)
+                        @if($announcement->start_time)
                             <span class="mx-2" style="color: #999;">at</span>
-                            <span class="fw-semibold" style="color: #555;">{{ date('g:i A', strtotime($announcement->time)) }}</span>
+                            <span class="fw-semibold" style="color: #555;">{{ date('g:i A', strtotime($announcement->start_time)) }}</span>
                         @endif
                     </div>
                 @endif
@@ -409,7 +408,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                @if($announcement->time)
+                                @if($announcement->start_time || $announcement->end_time)
                                     <div class="col-12">
                                         <div class="d-flex align-items-center p-3" 
                                              style="background: white; border-radius: 12px; border-left: 4px solid #007bff; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
@@ -418,7 +417,17 @@
                                             </div>
                                             <div class="flex-grow-1">
                                                 <div class="fw-bold mb-1" style="color: #007bff; font-size: 0.85rem;">TIME</div>
-                                                <div class="fw-bold" style="color: #1e5f8c; font-size: 1.1rem;">{{ date('g:i A', strtotime($announcement->time)) }}</div>
+                                                <div class="fw-bold" style="color: #1e5f8c; font-size: 1.1rem;">
+                                                    @if($announcement->start_time)
+                                                        {{ date('g:i A', strtotime($announcement->start_time)) }}
+                                                    @endif
+                                                    @if($announcement->start_time && $announcement->end_time)
+                                                        -
+                                                    @endif
+                                                    @if($announcement->end_time)
+                                                        {{ date('g:i A', strtotime($announcement->end_time)) }}
+                                                    @endif
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

@@ -241,7 +241,13 @@ class HealthServiceController extends Controller
                 'rejected' => HealthServiceRequest::where('status', 'rejected')->count()
             ];
 
-            return view('admin.health', compact('healthServices', 'stats'));
+            // Get health-related announcements (both active and inactive/expired)
+            $healthAnnouncements = \App\Models\Announcement::where('type', 'health_related')
+                ->with('registrations')
+                ->latest()
+                ->get();
+
+            return view('admin.health', compact('healthServices', 'stats', 'healthAnnouncements'));
         } catch (\Exception $e) {
             Log::error('Health Service - Admin Dashboard Error: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Error loading health services dashboard.');

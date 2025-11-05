@@ -362,18 +362,20 @@ $(function () {
         $('#preRegistrationsTable').DataTable().destroy();
     }
 
-    // Initialize DataTable for pre-registrations table - same config as Documents page
+    // Initialize DataTable for pre-registrations table - newest first
     const preRegistrationsTable = DataTableHelpers.initDataTable("#preRegistrationsTable", {
         buttons: ["copy", "csv", "excel", "pdf", "print", "colvis"],
-        order: [[ 7, "desc" ]],  // Order by Submitted date (descending) - column index 7
+        order: [[ 7, "desc" ]],  // Order by Submitted date column (index 7) - newest first
         pageLength: 10,
         lengthChange: true,
         lengthMenu: [ [10, 25, 50, 100, -1], [10, 25, 50, 100, "All"] ],
         paging: true,
         info: true,
         searching: true,
+        stateSave: false,  // Don't save table state to ensure newest always shows first
         columnDefs: [
-            { "orderable": false, "targets": -1 },
+            { "orderable": false, "targets": -1 },  // Disable sorting on Actions column
+            { "type": "date", "targets": 7 },  // Ensure proper date sorting for Submitted column
             { "responsivePriority": 1, "targets": 0 },
             { "responsivePriority": 2, "targets": 1 },
             { "responsivePriority": 3, "targets": 6 },

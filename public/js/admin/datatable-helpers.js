@@ -1,27 +1,5 @@
 /**
- * Common DataTable Function    drawCallback: function() {
-        // Fix dropdown positioning after each redraw
-        $('.dropdown-toggle').off('click.dropdown-fix').on('click.dropdown-fix', function(e) {
-            var dropdown = $(this).next('.dropdown-menu');
-            var button = $(this);
-            var buttonOffset = button.offset();
-            var windowWidth = $(window).width();
-            var dropdownWidth = dropdown.outerWidth();
-            
-            // Reset any previous positioning
-            dropdown.removeClass('dropdown-menu-right dropdown-menu-left');
-            dropdown.css({
-                'position': '',
-                'top': '',
-                'left': '',
-                'right': ''
-            });
-            
-        });
-        
-        // Force AdminLTE 3 pagination styling
-        forcePaginationStyling();
-    },es
+ * Common DataTable Functions
  * Provides reusable functions and configurations for DataTables
  */
 

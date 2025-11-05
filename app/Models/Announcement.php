@@ -8,16 +8,15 @@ use Carbon\Carbon;
 
 class Announcement extends Model
 {
-    use HasFactory;
-
-    protected $fillable = [
+    use HasFactory;    protected $fillable = [
         'title',
         'content',
         'type',
         'max_slots',
         'current_slots',
         'date',
-        'time',
+        'start_time',
+        'end_time',
         'image',
         'is_active'
     ];

@@ -11,6 +11,46 @@
 @section('content')
 <div class="row">
     <div class="col-md-12 mb-4">
+        <!-- Health Record Integration Alert -->
+        @if($gad->resident->healthRecord)
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-heartbeat fa-2x mr-3"></i>
+                <div class="flex-grow-1">
+                    <h5 class="alert-heading mb-1">Health Record Available</h5>
+                    <p class="mb-2">This resident has an existing health record with pregnancy and health data.</p>
+                    <div class="btn-group btn-group-sm">
+                        <a href="{{ route('admin.health-monitoring.show', $gad->resident->healthRecord->id) }}" class="btn btn-sm btn-outline-info">
+                            <i class="fas fa-eye mr-1"></i> View Health Record
+                        </a>
+                        <a href="{{ route('admin.health-monitoring.edit', $gad->resident->healthRecord->id) }}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-edit mr-1"></i> Edit Health Data
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        @else
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-exclamation-triangle fa-2x mr-3"></i>
+                <div class="flex-grow-1">
+                    <h5 class="alert-heading mb-1">No Health Record Found</h5>
+                    <p class="mb-2">Create a comprehensive health record to track vitals, medical history, and health services.</p>
+                    <a href="{{ route('admin.health-monitoring.create') }}?resident_id={{ $gad->resident_id }}" class="btn btn-sm btn-outline-warning">
+                        <i class="fas fa-plus mr-1"></i> Create Health Record
+                    </a>
+                </div>
+            </div>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        @endif
+
         <div class="card shadow mb-4">
             <div class="card-header">
                 <div class="d-flex justify-content-between align-items-center">
@@ -130,25 +170,72 @@
                 </div>
                 
                 <!-- Pregnancy Information -->
-                @if($gad->is_pregnant)
+                @php
+                    $healthRecord = $gad->resident->healthRecord;
+                    $isPregnant = $healthRecord ? $healthRecord->is_pregnant : $gad->is_pregnant;
+                    $dueDate = $healthRecord && $healthRecord->expected_delivery_date ? $healthRecord->expected_delivery_date : $gad->due_date;
+                    $pregnancyWeeks = $healthRecord ? $healthRecord->pregnancy_weeks : null;
+                    $trimester = $healthRecord ? $healthRecord->trimester : null;
+                @endphp
+                
+                @if($isPregnant)
                 <div class="card shadow mb-4">
-                    <div class="card-header bg-light">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
                         <h6 class="mb-0"><i class="fe fe-heart fe-16 mr-2"></i>Pregnancy Information</h6>
+                        @if($healthRecord)
+                            <span class="badge badge-info">From Health Record</span>
+                        @else
+                            <span class="badge badge-secondary">From GAD Record</span>
+                        @endif
                     </div>
                     <div class="card-body">
                         <div class="row">
+                            @if($pregnancyWeeks)
+                            <div class="col-md-3 mb-3">
+                                <h6 class="text-muted mb-1 small">Pregnancy Progress</h6>
+                                <p class="mb-0">
+                                    <strong>{{ $pregnancyWeeks }} weeks</strong><br>
+                                    <small class="text-muted">Trimester {{ $trimester }}</small>
+                                </p>
+                            </div>
+                            @endif
                             <div class="col-md-4 mb-3">
-                                <h6 class="text-muted mb-1 small">Due Date</h6>
-                                <p class="mb-0">{{ $gad->due_date ? $gad->due_date->format('F j, Y') : 'Not specified' }}</p>
-                                @if($gad->due_date)
+                                <h6 class="text-muted mb-1 small">Expected Delivery Date</h6>
+                                <p class="mb-0">{{ $dueDate ? $dueDate->format('F j, Y') : 'Not specified' }}</p>
+                                @if($dueDate)
                                     <small class="text-muted">
-                                        @if($gad->days_until_due > 0)
-                                            {{ $gad->days_until_due }} days remaining
-                                        @elseif($gad->days_until_due == 0)
+                                        @php
+                                            $daysUntilDue = now()->diffInDays($dueDate, false);
+                                        @endphp
+                                        @if($daysUntilDue > 0)
+                                            {{ abs($daysUntilDue) }} days remaining
+                                        @elseif($daysUntilDue == 0)
                                             <span class="text-danger">Due today!</span>
                                         @else
-                                            <span class="text-danger">Past due date</span>
+                                            <span class="text-danger">{{ abs($daysUntilDue) }} days past due</span>
                                         @endif
+                                    </small>
+                                @endif
+                            </div>
+                            @if($healthRecord && $healthRecord->next_prenatal_visit)
+                            <div class="col-md-5 mb-3">
+                                <h6 class="text-muted mb-1 small">Next Prenatal Visit</h6>
+                                <p class="mb-0">
+                                    {{ $healthRecord->next_prenatal_visit->format('F j, Y') }}
+                                    @if($healthRecord->next_prenatal_visit < now())
+                                        <span class="badge badge-danger ml-2">Overdue</span>
+                                    @endif
+                                </p>
+                            </div>
+                            @endif
+                        </div>
+                        
+                        @if(!$healthRecord)
+                        <div class="alert alert-sm alert-warning mb-0 mt-2">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            <strong>Tip:</strong> Create a health record for more detailed pregnancy tracking including prenatal visits, complications, and vitals.
+                        </div>
+                        @endif
                                     </small>
                                 @endif
                             </div>

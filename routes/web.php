@@ -370,6 +370,18 @@ Route::middleware([
             Route::put('/{residentId}/update-id-info', [App\Http\Controllers\ResidentIdController::class, 'updateIdInfo'])->name('update-id-info');
         });
         
+        // Admin Blotter/Complaint Management Routes
+        Route::prefix('admin/blotter-complaints')->name('admin.blotter-complaints.')->group(function() {
+            Route::get('/', [App\Http\Controllers\Admin\BlotterComplaintController::class, 'index'])->name('index');
+            Route::get('/{id}', [App\Http\Controllers\Admin\BlotterComplaintController::class, 'show'])->name('show');
+            Route::post('/{id}/accept', [App\Http\Controllers\Admin\BlotterComplaintController::class, 'acceptComplaint'])->name('accept');
+            Route::post('/{id}/reject', [App\Http\Controllers\Admin\BlotterComplaintController::class, 'rejectComplaint'])->name('reject');
+            Route::post('/{id}/update-status', [App\Http\Controllers\Admin\BlotterComplaintController::class, 'updateStatus'])->name('update-status');
+            Route::post('/{id}/schedule-meeting', [App\Http\Controllers\Admin\BlotterComplaintController::class, 'scheduleMeeting'])->name('schedule-meeting');
+            Route::delete('/{id}', [App\Http\Controllers\Admin\BlotterComplaintController::class, 'destroy'])->name('destroy');
+            Route::get('/export/csv', [App\Http\Controllers\Admin\BlotterComplaintController::class, 'export'])->name('export');
+        });
+        
         // Resident ID Pending Management - Add this route for the navigation menu
         Route::get('/admin/residents/id/pending', [ResidentIdController::class, 'pendingIds'])->name('admin.residents.id.pending');
         
@@ -435,6 +447,18 @@ Route::middleware([
             Route::post('/{id}/cancel', [HealthMeetingController::class, 'cancel'])->name('cancel');
         });
         
+        // Health Monitoring Routes
+        Route::prefix('admin/health-monitoring')->name('admin.health-monitoring.')->group(function() {
+            Route::get('/', [\App\Http\Controllers\Admin\HealthMonitoringController::class, 'index'])->name('index');
+            Route::get('/seniors', [\App\Http\Controllers\Admin\HealthMonitoringController::class, 'seniors'])->name('seniors');
+            Route::get('/pregnant', [\App\Http\Controllers\Admin\HealthMonitoringController::class, 'pregnant'])->name('pregnant');
+            Route::get('/malnourished', [\App\Http\Controllers\Admin\HealthMonitoringController::class, 'malnourished'])->name('malnourished');
+            Route::get('/record/{id}', [\App\Http\Controllers\Admin\HealthMonitoringController::class, 'show'])->name('show');
+            Route::post('/record/store', [\App\Http\Controllers\Admin\HealthMonitoringController::class, 'storeOrUpdate'])->name('store');
+            Route::get('/api/record/{barangayId}', [\App\Http\Controllers\Admin\HealthMonitoringController::class, 'getRecord'])->name('api.record');
+            Route::get('/export', [\App\Http\Controllers\Admin\HealthMonitoringController::class, 'export'])->name('export');
+        });
+        
         // GAD (Gender and Development) Routes
         Route::prefix('admin/gad')->name('admin.gad.')->group(function() {
             Route::get('/', [GadController::class, 'index'])->name('index');
@@ -498,6 +522,21 @@ Route::middleware([
             Route::post('/', [HealthMeetingController::class, 'store'])->name('store');
             Route::post('/{id}/complete', [HealthMeetingController::class, 'complete'])->name('complete');
             Route::post('/{id}/cancel', [HealthMeetingController::class, 'cancel'])->name('cancel');
+        });
+        
+        // Health Monitoring Routes
+        Route::prefix('admin/health-monitoring')->name('admin.health-monitoring.')->group(function() {
+            Route::get('/', [\App\Http\Controllers\Admin\HealthMonitoringController::class, 'index'])->name('index');
+            Route::get('/seniors', [\App\Http\Controllers\Admin\HealthMonitoringController::class, 'seniors'])->name('seniors');
+            Route::get('/pregnant', [\App\Http\Controllers\Admin\HealthMonitoringController::class, 'pregnant'])->name('pregnant');
+            Route::get('/malnourished', [\App\Http\Controllers\Admin\HealthMonitoringController::class, 'malnourished'])->name('malnourished');
+            Route::get('/create', [\App\Http\Controllers\Admin\HealthMonitoringController::class, 'create'])->name('create');
+            Route::get('/record/{id}', [\App\Http\Controllers\Admin\HealthMonitoringController::class, 'show'])->name('show');
+            Route::get('/record/{id}/edit', [\App\Http\Controllers\Admin\HealthMonitoringController::class, 'edit'])->name('edit');
+            Route::post('/record/store', [\App\Http\Controllers\Admin\HealthMonitoringController::class, 'storeOrUpdate'])->name('store');
+            Route::put('/record/{id}', [\App\Http\Controllers\Admin\HealthMonitoringController::class, 'update'])->name('update');
+            Route::get('/api/record/{barangayId}', [\App\Http\Controllers\Admin\HealthMonitoringController::class, 'getRecord'])->name('api.record');
+            Route::get('/export', [\App\Http\Controllers\Admin\HealthMonitoringController::class, 'export'])->name('export');
         });
         
         // GAD (Gender and Development) Routes

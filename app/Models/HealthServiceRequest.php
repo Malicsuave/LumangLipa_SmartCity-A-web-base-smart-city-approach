@@ -15,12 +15,16 @@ class HealthServiceRequest extends Model
     protected $fillable = [
         'barangay_id',
         'appointment_date_id',
+        'health_record_id',
         'service_type',
         'purpose',
+        'service_details',
+        'vitals_recorded',
         'status',
         'requested_at',
         'approved_at',
         'approved_by',
+        'administered_by',
         'scheduled_at',
         'completed_at',
         'rejection_reason',
@@ -32,6 +36,7 @@ class HealthServiceRequest extends Model
         'approved_at' => 'datetime',
         'scheduled_at' => 'datetime',
         'completed_at' => 'datetime',
+        'vitals_recorded' => 'array',
     ];
 
     public function getActivitylogOptions(): LogOptions
@@ -51,6 +56,11 @@ class HealthServiceRequest extends Model
     public function appointmentDate(): BelongsTo
     {
         return $this->belongsTo(HealthAppointmentDate::class, 'appointment_date_id');
+    }
+
+    public function healthRecord(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\HealthRecord::class, 'health_record_id');
     }
 
     public function approver(): BelongsTo

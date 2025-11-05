@@ -24,11 +24,29 @@
                             <tr>
                                 <td><strong>{{ $resident->barangay_id }}</strong></td>
                                 <td>
-                                    <strong>{{ $resident->last_name }}, {{ $resident->first_name }}</strong>
-                                    @if($resident->middle_name)
-                                        {{ substr($resident->middle_name, 0, 1) }}.
-                                    @endif
-                                    {{ $resident->suffix }}
+                                    <div class="d-flex align-items-center">
+                                        <div class="mr-2">
+                                            @if($resident->photo && file_exists(storage_path('app/public/residents/photos/' . $resident->photo)))
+                                                <img src="{{ asset('storage/residents/photos/' . $resident->photo) }}" 
+                                                     alt="{{ $resident->full_name }}" 
+                                                     class="rounded-circle"
+                                                     style="width: 40px; height: 40px; object-fit: cover; border: 1px solid #dee2e6;"
+                                                     onerror="this.onerror=null; this.outerHTML='<div class=\'rounded-circle d-inline-flex align-items-center justify-content-center text-white bg-primary\' style=\'width: 40px; height: 40px; font-size: 14px; font-weight: bold;\'>{{ substr($resident->first_name, 0, 1) }}</div>';">
+                                            @else
+                                                <div class="rounded-circle d-inline-flex align-items-center justify-content-center text-white bg-primary" 
+                                                     style="width: 40px; height: 40px; font-size: 14px; font-weight: bold;">
+                                                    {{ substr($resident->first_name, 0, 1) }}
+                                                </div>
+                                            @endif
+                                        </div>
+                                        <div>
+                                            <strong>{{ $resident->last_name }}, {{ $resident->first_name }}</strong>
+                                            @if($resident->middle_name)
+                                                {{ substr($resident->middle_name, 0, 1) }}.
+                                            @endif
+                                            {{ $resident->suffix }}
+                                        </div>
+                                    </div>
                                 </td>
                                 <td>{{ $resident->type_of_resident }}</td>
                                 <td>

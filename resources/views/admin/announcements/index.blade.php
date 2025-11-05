@@ -2,6 +2,15 @@
 
 @section('title', 'Announcements Management')
 
+@push('styles')
+@include('admin.components.datatable-styles')
+@endpush
+
+@push('scripts')
+@include('admin.components.datatable-scripts')
+<script src="{{ asset('js/admin/datatable-helpers.js') }}"></script>
+@endpush
+
 @section('content')
 <div class="container-fluid">
     <div class="row justify-content-center">
@@ -72,21 +81,17 @@
                 <div class="card-header">
                     <strong class="card-title">
                         <i class="fas fa-bullhorn mr-2"></i>All Announcements 
-                        <span class="badge badge-primary">
-                            {{ is_object($announcements) && method_exists($announcements, 'total') ? $announcements->total() : (is_array($announcements) ? count($announcements) : 0) }}
-                        </span>
+                       
                     </strong>
                 </div>
                 <div class="card-body">
                     @if((is_object($announcements) && $announcements->count() > 0) || (is_array($announcements) && count($announcements) > 0))
                         <div class="table-responsive">
-                            <table id="announcementsTable" class="table table-bordered table-striped">
-                                <thead>
+                            <table id="announcementsTable" class="table table-bordered table-striped">                                <thead>
                                     <tr>
                                         <th>Title</th>
                                         <th>Type</th>
                                         <th>Status</th>
-                                        <th>Slots</th>
                                         <th>Dates</th>
                                         <th>Created</th>
                                         <th class="text-center">Actions</th>
@@ -116,8 +121,7 @@
                                                 <span class="badge badge-pill badge-{{ $announcement->type === 'health_related' ? 'warning' : 'info' }}">
                                                     {{ $typeLabel }}
                                                 </span>
-                                            </td>
-                                            <td>
+                                            </td>                                            <td>
                                                 <span class="badge badge-pill badge-{{ $announcement->is_active ? 'success' : 'secondary' }}">
                                                     {{ $announcement->is_active ? 'Active' : 'Inactive' }}
                                                 </span>
@@ -127,28 +131,23 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                @if($announcement->type === 'limited_slots')
-                                                    <div class="font-weight-bold">{{ $announcement->current_slots }}/{{ $announcement->max_slots }}</div>
-                                                    <div class="progress progress-sm mt-1">
-                                                        <div class="progress-bar bg-{{ $announcement->progress_color }}" 
-                                                             data-progress="{{ $announcement->progress_percentage }}">
-                                                        </div>
-                                                    </div>
-                                                    <small class="text-muted">{{ $announcement->progress_percentage }}% filled</small>
-                                                @else
-                                                    <span class="text-muted">—</span>
-                                                @endif
-                                            </td>
-                                            <td>
                                                 @if($announcement->date)
                                                     <div class="small">
                                                         <i class="fas fa-calendar text-success"></i> 
                                                         {{ $announcement->date->format('M j, Y') }}
                                                     </div>
-                                                    @if($announcement->time)
+                                                    @if($announcement->start_time || $announcement->end_time)
                                                         <div class="small">
                                                             <i class="fas fa-clock text-info"></i> 
-                                                            {{ date('h:i A', strtotime($announcement->time)) }}
+                                                            @if($announcement->start_time)
+                                                                {{ date('h:i A', strtotime($announcement->start_time)) }}
+                                                            @endif
+                                                            @if($announcement->start_time && $announcement->end_time)
+                                                                -
+                                                            @endif
+                                                            @if($announcement->end_time)
+                                                                {{ date('h:i A', strtotime($announcement->end_time)) }}
+                                                            @endif
                                                         </div>
                                                     @endif
                                                 @else
@@ -475,36 +474,32 @@ document.addEventListener('DOMContentLoaded', function() {
         var progress = bar.getAttribute('data-progress');
         bar.style.width = progress + '%';
     });
-    
-    if (window.DataTableHelpers) {
+      if (window.DataTableHelpers) {
         if (document.getElementById('announcementsTable')) {
+            // Destroy existing DataTable instance if it exists
+            if ($.fn.DataTable.isDataTable('#announcementsTable')) {
+                $('#announcementsTable').DataTable().destroy();
+            }
+
+            // Initialize DataTable matching document requests style
             DataTableHelpers.initDataTable('#announcementsTable', {
                 buttons: ["copy", "csv", "excel", "pdf", "print", "colvis"],
-                order: [[ 5, "asc" ]], // Sort by created date (oldest first)
-                pageLength: 10, // Show 10 records per page
-                lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
-                pagingType: "simple_numbers",
-                paging: true, // Enable DataTables pagination
-                searching: true, // Enable DataTables search
-                info: true, // Enable DataTables info
-                language: {
-                    search: "Search announcements:",
-                    lengthMenu: "Show _MENU_ announcements per page",
-                    info: "Showing _START_ to _END_ of _TOTAL_ announcements",
-                    infoEmpty: "No announcements found",
-                    infoFiltered: "(filtered from _MAX_ total announcements)",
-                    paginate: {
-                        first: "First",
-                        last: "Last",
-                        next: "Next",
-                        previous: "Previous"
-                    }
-                },
+                order: [[ 4, "desc" ]], // Sort by created date (newest first)
+                pageLength: 10,
+                lengthChange: true,
+                lengthMenu: [ [10, 25, 50, 100, -1], [10, 25, 50, 100, "All"] ],
                 columnDefs: [
-                    { "orderable": false, "targets": -1 } // Disable sorting on actions column
+                    { "orderable": false, "targets": -1 }, // Disable sorting on actions column
+                    { "responsivePriority": 1, "targets": 0 }, // Title
+                    { "responsivePriority": 2, "targets": 1 }, // Type
+                    { "responsivePriority": 3, "targets": 2 }, // Status
+                    { "responsivePriority": 4, "targets": 3 }, // Dates
+                    { "responsivePriority": 5, "targets": 4 }, // Created
+                    { "responsivePriority": 10, "targets": -1 } // Actions
                 ],
-                responsive: true,
-                dom: 'Blfrtip' // B=buttons, l=length, f=filter, r=processing, t=table, i=info, p=pagination
+                dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+                     '<"row"<"col-sm-12"tr>>' +
+                     '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
             });
         }
     }
@@ -543,41 +538,6 @@ document.addEventListener('DOMContentLoaded', function() {
     border-bottom: 2px solid #2A7BC4;
     padding-bottom: 4px;
     margin-bottom: 12px;
-}
-
-/* DataTables Pagination Styling */
-.dataTables_wrapper .dataTables_paginate {
-    margin-top: 1rem;
-    text-align: center;
-}
-.dataTables_wrapper .dataTables_paginate .paginate_button {
-    padding: 0.375rem 0.75rem;
-    margin: 0 0.125rem;
-    border: 1px solid #dee2e6;
-    background: #fff;
-    color: #495057;
-    border-radius: 0.25rem;
-    text-decoration: none;
-}
-.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-    background: #e9ecef;
-    border-color: #adb5bd;
-}
-.dataTables_wrapper .dataTables_paginate .paginate_button.current {
-    background: #007bff;
-    border-color: #007bff;
-    color: #fff;
-}
-.dataTables_wrapper .dataTables_info {
-    margin-top: 1rem;
-    padding-top: 0.5rem;
-}
-.dataTables_wrapper .dataTables_length {
-    margin-bottom: 1rem;
-}
-.dataTables_wrapper .dataTables_filter {
-    margin-bottom: 1rem;
-    text-align: right;
 }
 </style>
 @endsection

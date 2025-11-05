@@ -46,10 +46,8 @@
                                     @error('content')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-6">
+                                </div>                                <div class="row">
+                                    <div class="col-md-12">
                                         <div class="form-group">
                                             <label class="form-control-label">Date</label>
                                             <input type="date" class="form-control @error('date') is-invalid @enderror" 
@@ -58,13 +56,25 @@
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
+                                                                                 </div>
+                                </div>
+                                  <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-control-label">Start Time</label>
+                                            <input type="time" class="form-control @error('start_time') is-invalid @enderror" 
+                                                   name="start_time" value="{{ old('start_time', $announcement->start_time) }}">
+                                            @error('start_time')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label class="form-control-label">Time</label>
-                                            <input type="time" class="form-control @error('time') is-invalid @enderror" 
-                                                   name="time" value="{{ old('time', $announcement->time) }}">
-                                            @error('time')
+                                            <label class="form-control-label">End Time</label>
+                                            <input type="time" class="form-control @error('end_time') is-invalid @enderror" 
+                                                   name="end_time" value="{{ old('end_time', $announcement->end_time) }}">
+                                            @error('end_time')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>

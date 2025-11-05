@@ -70,9 +70,6 @@
                                         <a class="dropdown-item" href="{{ route('admin.senior-citizens.edit', $senior->id) }}">
                                             <i class="fas fa-edit mr-2"></i>Update Information
                                         </a>
-                                        <a class="dropdown-item" href="{{ route('admin.senior-citizens.services', $senior) }}">
-                                            <i class="fas fa-file-alt mr-2"></i>Service & Documents
-                                        </a>
                                         <a class="dropdown-item" href="javascript:void(0)" onclick="viewSeniorDetails({{ $senior->id }})">
                                             <i class="fas fa-eye mr-2"></i>View Details
                                         </a>

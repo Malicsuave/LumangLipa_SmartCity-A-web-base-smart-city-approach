@@ -71,15 +71,14 @@ class AnnouncementController extends Controller
     {
         // Convert checkbox values before validation
         $requestData = $request->all();
-        $requestData['is_active'] = $request->has('is_active') ? true : false;
-
-        $validator = Validator::make($requestData, [
+        $requestData['is_active'] = $request->has('is_active') ? true : false;        $validator = Validator::make($requestData, [
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'type' => 'required|in:general,health_related,event,service,program',
             'max_slots' => 'nullable|integer|min:1',
             'date' => 'nullable|date|after_or_equal:today',
-            'time' => 'nullable',
+            'start_time' => 'nullable',
+            'end_time' => 'nullable',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'is_active' => 'boolean'
         ]);
@@ -163,15 +162,14 @@ class AnnouncementController extends Controller
 
         // Convert checkbox values before validation
         $requestData = $request->all();
-        $requestData['is_active'] = $request->has('is_active') ? true : false;
-
-        $validator = Validator::make($requestData, [
+        $requestData['is_active'] = $request->has('is_active') ? true : false;        $validator = Validator::make($requestData, [
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'type' => 'required|in:general,health_related,event,service,program',
             'max_slots' => 'nullable|integer|min:' . $announcement->current_slots,
             'date' => 'nullable|date',
-            'time' => 'nullable',
+            'start_time' => 'nullable',
+            'end_time' => 'nullable',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'is_active' => 'boolean'
         ]);

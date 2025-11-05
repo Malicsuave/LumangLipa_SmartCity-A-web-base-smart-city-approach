@@ -44,11 +44,17 @@ class FortifyServiceProvider extends ServiceProvider
 
     // Custom redirect after login
     Fortify::redirects('login', function (Request $request) {
-        // Check for intended URL first
+        // Check for intended URL first, but filter out API routes
         if (session()->has('url.intended')) {
             $intended = session('url.intended');
-            session()->forget('url.intended');
-            return $intended;
+            
+            // If the intended URL is an API route, ignore it
+            if (str_starts_with($intended, url('/api/')) || str_contains($intended, '/api/')) {
+                session()->forget('url.intended');
+            } else {
+                session()->forget('url.intended');
+                return $intended;
+            }
         }
 
         // Check user role and redirect accordingly

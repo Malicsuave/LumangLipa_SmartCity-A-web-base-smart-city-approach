@@ -370,20 +370,43 @@
               </li>
             </ul>
           </li>
-             <li class="nav-item">
+
+          <li class="nav-item">
             <a href="{{ route('admin.officials.edit-single') }}" class="nav-link {{ Request::routeIs('admin.officials.edit-single') ? 'active' : '' }}">
               <i class="nav-icon fas fa-user-tie"></i>
               <p>Officials</p>
             </a>
           </li>
 
-         
-
-          <li class="nav-item">
-            <a href="{{ route('admin.health') }}" class="nav-link {{ Request::routeIs('admin.health') ? 'active' : '' }}">
+          <!-- Health Services dropdown menu -->
+          <li class="nav-item {{ Request::routeIs('admin.health*') || Request::routeIs('admin.health-monitoring.*') ? 'menu-open' : '' }}">
+            <a href="#" class="nav-link {{ Request::routeIs('admin.health*') || Request::routeIs('admin.health-monitoring.*') ? 'active' : '' }}">
               <i class="nav-icon fas fa-heartbeat"></i>
-              <p>Health Services</p>
+              <p>
+                Health Services
+                <i class="right fas fa-angle-left"></i>
+              </p>
             </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a class="nav-link {{ Request::routeIs('admin.health') ? 'active' : '' }}" href="{{ route('admin.health') }}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Health Appointment</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {{ Request::routeIs('admin.health-monitoring.index') || Request::routeIs('admin.health-monitoring.show') ? 'active' : '' }}" href="{{ route('admin.health-monitoring.index') }}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Health Monitoring</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {{ Request::routeIs('admin.health-monitoring.create') || Request::routeIs('admin.health-monitoring.edit') ? 'active' : '' }}" href="{{ route('admin.health-monitoring.create') }}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Add Health Record</p>
+                </a>
+              </li>
+            </ul>
           </li>
 
           <li class="nav-item">

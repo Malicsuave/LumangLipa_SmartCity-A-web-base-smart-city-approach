@@ -7,80 +7,14 @@
 
 @section('form-content')
 <div class="card-header bg-white border-0 pb-0">
-  <h5 class="personal-header"><i class="fas fa-heart mr-2"></i>Senior Citizen Specific Information</h5>
-  <small class="text-muted">Please provide health and benefit information to help us serve you better.</small>
+  <h5 class="personal-header"><i class="fas fa-money-check-alt mr-2"></i>Pension & Benefits Information</h5>
+  <small class="text-muted">Please provide pension and benefit information.</small>
 </div>
 <form role="form" id="seniorPreRegStep4Form" method="POST" action="{{ route('public.senior-registration.step4.store') }}" autocomplete="off">
   @csrf
   <div class="card-body">
-    <!-- Health Information -->
-    <div class="row mb-2">
-      <div class="col-md-12">
-        <h5 class="personal-header mb-2">
-          <i class="fas fa-heartbeat mr-2"></i>Health Information
-        </h5>
-      </div>
-    </div>
-    <div class="row mb-3">
-      <div class="col-md-6">
-        <div class="form-group">
-          <label for="health_condition" class="form-label mb-2">Health Condition</label>
-          <select class="form-control custom-rounded-input @error('health_condition') is-invalid @enderror" 
-                  id="health_condition" name="health_condition">
-            <option value="">Select Health Condition</option>
-            <option value="excellent" {{ old('health_condition', $step4['health_condition'] ?? '') == 'excellent' ? 'selected' : '' }}>Excellent</option>
-            <option value="good" {{ old('health_condition', $step4['health_condition'] ?? '') == 'good' ? 'selected' : '' }}>Good</option>
-            <option value="fair" {{ old('health_condition', $step4['health_condition'] ?? '') == 'fair' ? 'selected' : '' }}>Fair</option>
-            <option value="poor" {{ old('health_condition', $step4['health_condition'] ?? '') == 'poor' ? 'selected' : '' }}>Poor</option>
-            <option value="critical" {{ old('health_condition', $step4['health_condition'] ?? '') == 'critical' ? 'selected' : '' }}>Critical</option>
-          </select>
-          @error('health_condition')
-            <div class="invalid-feedback">{{ $message }}</div>
-          @enderror
-        </div>
-      </div>
-      <div class="col-md-6">
-        <div class="form-group">
-          <label for="mobility_status" class="form-label mb-2">Mobility Status</label>
-          <select class="form-control custom-rounded-input @error('mobility_status') is-invalid @enderror" 
-                  id="mobility_status" name="mobility_status">
-            <option value="">Select Mobility Status</option>
-            <option value="independent" {{ old('mobility_status', $step4['mobility_status'] ?? '') == 'independent' ? 'selected' : '' }}>Independent</option>
-            <option value="assisted" {{ old('mobility_status', $step4['mobility_status'] ?? '') == 'assisted' ? 'selected' : '' }}>Assisted</option>
-            <option value="wheelchair" {{ old('mobility_status', $step4['mobility_status'] ?? '') == 'wheelchair' ? 'selected' : '' }}>Wheelchair Bound</option>
-            <option value="bedridden" {{ old('mobility_status', $step4['mobility_status'] ?? '') == 'bedridden' ? 'selected' : '' }}>Bedridden</option>
-          </select>
-          @error('mobility_status')
-            <div class="invalid-feedback">{{ $message }}</div>
-          @enderror
-        </div>
-      </div>
-    </div>
-    <div class="row mb-4">
-      <div class="col-md-12">
-        <div class="form-group">
-          <label for="medical_conditions" class="form-label mb-2">Medical Conditions & Health Details</label>
-          <textarea class="form-control custom-rounded-input @error('medical_conditions') is-invalid @enderror" 
-                    id="medical_conditions" name="medical_conditions" rows="4" 
-                    placeholder="List any medical conditions, medications, allergies, or health concerns...&#10;&#10;Example:&#10;- Hypertension (taking Amlodipine 5mg daily)&#10;- Diabetes Type 2 (insulin dependent)&#10;- Allergic to penicillin&#10;- Uses reading glasses">{{ old('medical_conditions', $step4['medical_conditions'] ?? '') }}</textarea>
-          @error('medical_conditions')
-            <div class="invalid-feedback">{{ $message }}</div>
-          @enderror
-          <small class="form-text text-muted">
-            <strong>Optional but recommended:</strong> Include medical conditions, medications, allergies, and any special health requirements for better service delivery and emergency response.
-          </small>
-        </div>
-      </div>
-    </div>
-    
     <!-- Pension and Benefits Information -->
-    <div class="row mb-2 mt-5">
-      <div class="col-md-12">
-        <h5 class="personal-header mb-2">
-          <i class="fas fa-money-check-alt mr-2"></i>Pension and Benefits Information
-        </h5>
-      </div>
-    </div>
+   
     <div class="row mb-3">
       <div class="col-md-6">
         <div class="form-group">
@@ -168,71 +102,6 @@
             <option value="0" {{ old('has_senior_discount_card', $step4['has_senior_discount_card'] ?? '') == '0' ? 'selected' : '' }}>No</option>
           </select>
           @error('has_senior_discount_card')
-            <div class="invalid-feedback">{{ $message }}</div>
-          @enderror
-        </div>
-      </div>
-    </div>
-    
-    <!-- Services -->
-    <div class="row mb-2 mt-5">
-      <div class="col-md-12">
-        <h5 class="personal-header mb-2">
-          <i class="fas fa-concierge-bell mr-2"></i>Requested Services
-        </h5>
-      </div>
-    </div>
-    <div class="row mb-4">
-      <div class="col-md-6">
-        <div class="custom-control custom-checkbox mb-1">
-          <input type="checkbox" class="custom-control-input" id="service_health" name="services[]" value="healthcare" 
-                 {{ in_array('healthcare', old('services', $step4['services'] ?? [])) ? 'checked' : '' }}>
-          <label class="custom-control-label" for="service_health">Healthcare Services</label>
-        </div>
-        <div class="custom-control custom-checkbox mb-1">
-          <input type="checkbox" class="custom-control-input" id="service_financial" name="services[]" value="financial_assistance" 
-                 {{ in_array('financial_assistance', old('services', $step4['services'] ?? [])) ? 'checked' : '' }}>
-          <label class="custom-control-label" for="service_financial">Financial Assistance</label>
-        </div>
-        <div class="custom-control custom-checkbox mb-1">
-          <input type="checkbox" class="custom-control-input" id="service_education" name="services[]" value="education" 
-                 {{ in_array('education', old('services', $step4['services'] ?? [])) ? 'checked' : '' }}>
-          <label class="custom-control-label" for="service_education">Educational Programs</label>
-        </div>
-      </div>
-      <div class="col-md-6">
-        <div class="custom-control custom-checkbox mb-1">
-          <input type="checkbox" class="custom-control-input" id="service_legal" name="services[]" value="legal_assistance" 
-                 {{ in_array('legal_assistance', old('services', $step4['services'] ?? [])) ? 'checked' : '' }}>
-          <label class="custom-control-label" for="service_legal">Legal Assistance</label>
-        </div>
-        <div class="custom-control custom-checkbox mb-1">
-          <input type="checkbox" class="custom-control-input" id="service_transportation" name="services[]" value="transportation" 
-                 {{ in_array('transportation', old('services', $step4['services'] ?? [])) ? 'checked' : '' }}>
-          <label class="custom-control-label" for="service_transportation">Transportation Services</label>
-        </div>
-        <div class="custom-control custom-checkbox mb-1">
-          <input type="checkbox" class="custom-control-input" id="service_discount" name="services[]" value="discount_privileges" 
-                 {{ in_array('discount_privileges', old('services', $step4['services'] ?? [])) ? 'checked' : '' }}>
-          <label class="custom-control-label" for="service_discount">Discount Privileges</label>
-        </div>
-        <div class="custom-control custom-checkbox mb-1">
-          <input type="checkbox" class="custom-control-input" id="service_emergency" name="services[]" value="emergency_response" 
-                 {{ in_array('emergency_response', old('services', $step4['services'] ?? [])) ? 'checked' : '' }}>
-          <label class="custom-control-label" for="service_emergency">Emergency Response</label>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Additional Notes -->
-    <div class="row mt-1">
-      <div class="col-md-12">
-        <div class="form-group">
-          <label for="notes" class="form-label mb-2">Additional Notes</label>
-          <textarea class="form-control custom-rounded-input @error('notes') is-invalid @enderror" 
-                    id="notes" name="notes" rows="3" 
-                    placeholder="Any additional information or special requirements...">{{ old('notes', $step4['notes'] ?? '') }}</textarea>
-          @error('notes')
             <div class="invalid-feedback">{{ $message }}</div>
           @enderror
         </div>

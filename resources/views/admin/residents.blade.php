@@ -44,33 +44,33 @@
     <div class="col-lg-3 col-6">
         <div class="small-box bg-primary">
             <div class="inner">
-                <h3>{{ $stats['male'] }}</h3>
-                <p>Male Residents</p>
+                <h3>{{ $stats['non_migrant'] }}</h3>
+                <p>Non-Migrant</p>
             </div>
             <div class="icon">
-                <i class="fas fa-male"></i>
+                <i class="fas fa-home"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-warning">
+            <div class="inner">
+                <h3>{{ $stats['migrant'] }}</h3>
+                <p>Migrant</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-user-friends"></i>
             </div>
         </div>
     </div>
     <div class="col-lg-3 col-6">
         <div class="small-box bg-danger">
             <div class="inner">
-                <h3>{{ $stats['female'] }}</h3>
-                <p>Female Residents</p>
+                <h3>{{ $stats['transient'] }}</h3>
+                <p>Transient</p>
             </div>
             <div class="icon">
-                <i class="fas fa-female"></i>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-6">
-        <div class="small-box bg-success">
-            <div class="inner">
-                <h3>{{ $stats['with_id'] }}</h3>
-                <p>With ID Cards</p>
-            </div>
-            <div class="icon">
-                <i class="fas fa-id-card"></i>
+                <i class="fas fa-walking"></i>
             </div>
         </div>
     </div>
@@ -99,7 +99,27 @@
                         @foreach($residents as $resident)
                         <tr>
                             <td><strong>{{ $resident->barangay_id }}</strong></td>
-                            <td><strong>{{ $resident->last_name }}, {{ $resident->first_name }}{{ $resident->middle_name ? ' ' . $resident->middle_name : '' }}{{ $resident->suffix ? ' ' . $resident->suffix : '' }}</strong></td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="mr-2">
+                                        @if($resident->photo && file_exists(storage_path('app/public/residents/photos/' . $resident->photo)))
+                                            <img src="{{ asset('storage/residents/photos/' . $resident->photo) }}" 
+                                                 alt="{{ $resident->full_name }}" 
+                                                 class="rounded-circle"
+                                                 style="width: 40px; height: 40px; object-fit: cover; border: 1px solid #dee2e6;"
+                                                 onerror="this.onerror=null; this.outerHTML='<div class=\'rounded-circle bg-primary d-inline-flex align-items-center justify-content-center text-white\' style=\'width: 40px; height: 40px; font-size: 14px; font-weight: bold;\'>{{ substr($resident->first_name, 0, 1) }}</div>';">
+                                        @else
+                                            <div class="rounded-circle bg-primary d-inline-flex align-items-center justify-content-center text-white" 
+                                                 style="width: 40px; height: 40px; font-size: 14px; font-weight: bold;">
+                                                {{ substr($resident->first_name, 0, 1) }}
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div>
+                                        <strong>{{ $resident->last_name }}, {{ $resident->first_name }}{{ $resident->middle_name ? ' ' . $resident->middle_name : '' }}{{ $resident->suffix ? ' ' . $resident->suffix : '' }}</strong>
+                                    </div>
+                                </div>
+                            </td>
                             <td>{{ $resident->type_of_resident }}</td>
                             <td>{{ \Carbon\Carbon::parse($resident->birthdate)->age }}<br><small class="text-muted">{{ $resident->sex }}</small></td>
                             <td>{{ $resident->created_at->format('M d, Y') }}<br><small class="text-muted">{{ $resident->created_at->format('h:i A') }}</small></td>
@@ -112,9 +132,6 @@
                                     <div class="dropdown-menu dropdown-menu-right">
                                         <a class="dropdown-item text-dark" href="{{ route('admin.residents.edit', $resident) }}">
                                             <i class="fas fa-edit mr-2 text-dark"></i>Update Information
-                                        </a>
-                                        <a class="dropdown-item text-dark" href="{{ route('admin.residents.services', $resident) }}">
-                                            <i class="fas fa-clipboard mr-2 text-dark"></i>Services & Documents
                                         </a>
                                         <a class="dropdown-item text-dark" href="javascript:void(0)" onclick="viewResidentDetails({{ $resident->id }})">
                                             <i class="fas fa-eye mr-2 text-dark"></i>View Details
@@ -373,4 +390,26 @@ function editResident() {
     // Redirect to edit page or implement inline editing
 }
 </script>
+
+<style>
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+    /* Adjust table layout for mobile */
+    .table-responsive table td {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.875rem;
+    }
+    .table-responsive table td .d-flex {
+        flex-direction: row;
+        align-items: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .table-responsive table td {
+        padding: 0.375rem 0.25rem;
+        font-size: 0.8rem;
+    }
+}
+</style>
 @endpush

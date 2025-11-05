@@ -211,33 +211,17 @@
       </div>
     </div>
 
-    <!-- Step 4: Senior Citizen Specific Information -->
+    <!-- Step 4: Pension & Benefits Information -->
     <div class="card mb-3" style="border: 1px solid #dee2e6; border-radius: 10px;">
       <div class="card-header" style="background-color: #007bff; color: white; padding: 0.75rem 1rem;">
         <div class="d-flex justify-content-between align-items-center">
-          <span class="mb-0" style="font-weight: 600; font-size: 1rem;"><i class="fas fa-heart mr-2"></i>Senior Citizen Specific Information</span>
+          <span class="mb-0" style="font-weight: 600; font-size: 1rem;"><i class="fas fa-money-check-alt mr-2"></i>Pension & Benefits Information</span>
           <a href="{{ route('public.senior-registration.step4') }}" class="text-white" style="font-weight: 600; text-decoration: none; font-size: 0.95rem;">
             <i class="fas fa-edit" style="margin-right: 6px;"></i>Edit
           </a>
         </div>
       </div>
       <div class="card-body">
-        <div class="row">
-          <div class="col-md-6 mb-3">
-            <strong>Health Condition:</strong>
-            <p class="mb-0">{{ isset($step4['health_condition']) ? ucfirst($step4['health_condition']) : 'Not specified' }}</p>
-          </div>
-          <div class="col-md-6 mb-3">
-            <strong>Mobility Status:</strong>
-            <p class="mb-0">{{ isset($step4['mobility_status']) ? ucfirst($step4['mobility_status']) : 'Not specified' }}</p>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-12 mb-3">
-            <strong>Medical Conditions & Health Details:</strong>
-            <p class="mb-0">{{ $step4['medical_conditions'] ?? 'None specified' }}</p>
-          </div>
-        </div>
         <div class="row">
           <div class="col-md-6 mb-3">
             <strong>Receiving Pension:</strong>
@@ -268,33 +252,6 @@
             <p class="mb-0">{{ isset($step4['has_senior_discount_card']) && $step4['has_senior_discount_card'] == '1' ? 'Yes' : 'No' }}</p>
           </div>
         </div>
-        <div class="row">
-          <div class="col-md-12 mb-3">
-            <strong>Requested Services:</strong>
-            <div class="mt-2">
-              @php
-                $services = $step4['services'] ?? [];
-              @endphp
-              @if(count($services) > 0)
-                @foreach($services as $service)
-                  <span class="badge badge-info mr-2 mb-1" style="font-size: 0.9rem; padding: 0.4rem 0.8rem; background-color: #17a2b8; color: #fff;">
-                    {{ ucwords(str_replace('_', ' ', $service)) }}
-                  </span>
-                @endforeach
-              @else
-                <p class="mb-0 text-muted">No services requested</p>
-              @endif
-            </div>
-          </div>
-        </div>
-        @if(isset($step4['notes']) && $step4['notes'])
-        <div class="row">
-          <div class="col-md-12 mb-3">
-            <strong>Additional Notes:</strong>
-            <p class="mb-0">{{ $step4['notes'] }}</p>
-          </div>
-        </div>
-        @endif
       </div>
     </div>
 

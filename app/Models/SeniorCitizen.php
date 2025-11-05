@@ -48,12 +48,10 @@ class SeniorCitizen extends Model
         'signature',
         
         // Step 4: Senior Citizen Specific Information
-        'health_condition',
-        'mobility_status',
-        'medical_conditions',
         'emergency_contact_name',
         'emergency_contact_number',
         'emergency_contact_relationship',
+        'emergency_contact_address',
         'receiving_pension',
         'pension_type',
         'pension_amount',

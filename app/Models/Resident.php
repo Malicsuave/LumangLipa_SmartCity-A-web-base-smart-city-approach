@@ -211,6 +211,74 @@ class Resident extends Model
     {
         return $this->hasOne(Gad::class);
     }
+
+    /**
+     * Relationship with health record
+     */
+    public function healthRecord(): HasOne
+    {
+        return $this->hasOne(\App\Models\HealthRecord::class, 'barangay_id', 'barangay_id');
+    }
+
+    /**
+     * Relationship with health service requests
+     */
+    public function healthServiceRequests(): HasMany
+    {
+        return $this->hasMany(\App\Models\HealthServiceRequest::class, 'barangay_id', 'barangay_id');
+    }
+    
+    /**
+     * Get upcoming health appointments (pending or approved)
+     */
+    public function upcomingAppointments()
+    {
+        return $this->healthServiceRequests()
+            ->whereIn('status', ['pending', 'approved'])
+            ->where('scheduled_at', '>=', now());
+    }
+    
+    /**
+     * Get completed appointments
+     */
+    public function completedAppointments()
+    {
+        return $this->healthServiceRequests()
+            ->where('status', 'completed');
+    }
+    
+    /**
+     * Get most recent appointment
+     */
+    public function latestAppointment()
+    {
+        return $this->healthServiceRequests()
+            ->latest('scheduled_at')
+            ->first();
+    }
+    
+    /**
+     * Get appointment summary for display
+     */
+    public function getAppointmentSummaryAttribute()
+    {
+        $upcoming = $this->upcomingAppointments()->count();
+        $total = $this->healthServiceRequests()->count();
+        
+        if ($upcoming > 0) {
+            return [
+                'badge' => 'warning',
+                'text' => "{$upcoming} Upcoming",
+                'total' => $total
+            ];
+        }
+        
+        return [
+            'badge' => 'secondary',
+            'text' => 'No upcoming',
+            'total' => $total
+        ];
+    }
     
     /**
      * Check if resident is a senior citizen (60 years old or above)

@@ -132,9 +132,9 @@ class ResidentController extends Controller
         // Get statistics for residents only (excluding senior citizens)
         $stats = [
             'total' => Resident::count(),
-            'male' => Resident::where('sex', 'Male')->count(),
-            'female' => Resident::where('sex', 'Female')->count(),
-            'with_id' => Resident::whereNotNull('id_issued_at')->count(),
+            'migrant' => Resident::where('type_of_resident', 'Migrant')->count(),
+            'non_migrant' => Resident::where('type_of_resident', 'Non-Migrant')->count(),
+            'transient' => Resident::where('type_of_resident', 'Transient')->count(),
             'pending_id' => Resident::whereNull('id_issued_at')->count(),
         ];
 
@@ -793,13 +793,19 @@ class ResidentController extends Controller
             'civil_status' => 'required|string',
             
             // Address validation with minimum length
-            'address' => ['required', 'string', 'max:255', 'min:5'],
+            'current_address' => ['required', 'string', 'max:255', 'min:5'],
+            'purok' => 'nullable|string|max:100',
             
             // Phone number validation (11 digits)
             'contact_number' => ['required', 'string', 'regex:/^\d{11}$/'],
             
             // Enhanced email validation
-            'email_address' => ['required', 'email:rfc,dns', 'max:100'],
+            'email_address' => ['nullable', 'email:rfc,dns', 'max:100'],
+            
+            // Emergency contact fields
+            'emergency_contact_name' => 'nullable|string|max:255',
+            'emergency_contact_relationship' => 'nullable|string|max:100',
+            'emergency_contact_number' => ['nullable', 'string', 'regex:/^\d{11}$/'],
             
             'type_of_resident' => 'required|string|max:20',
             'birthplace' => 'required|string|max:255',
@@ -902,7 +908,8 @@ class ResidentController extends Controller
             'mother_first_name.regex' => 'The mother\'s first name may only contain letters, spaces, dots, hyphens, and apostrophes.',
             'mother_middle_name.regex' => 'The mother\'s middle name may only contain letters, spaces, dots, hyphens, and apostrophes.',
             'mother_last_name.regex' => 'The mother\'s last name may only contain letters, spaces, dots, hyphens, and apostrophes.',
-            'address.min' => 'The address must be at least 5 characters.',
+            'current_address.required' => 'The address field is required.',
+            'current_address.min' => 'The address must be at least 5 characters.',
             'contact_number.regex' => 'The contact number must be exactly 11 digits.',
             'household.primary_name.regex' => 'The primary person name may only contain letters, spaces, dots, hyphens, and apostrophes.',
             'household.secondary_name.regex' => 'The secondary person name may only contain letters, spaces, dots, hyphens, and apostrophes.',

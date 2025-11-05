@@ -127,8 +127,8 @@ class SeniorCitizenController extends Controller
                 break;
         }
 
-        $seniorCitizens = $query->paginate(15);
-        $seniorCitizens->appends($request->query());
+        // Get all senior citizens (DataTables handles pagination client-side)
+        $seniorCitizens = $query->get();
 
         return view('admin.senior-citizens.index', compact('seniorCitizens'));
     }
@@ -694,48 +694,6 @@ class SeniorCitizenController extends Controller
                 'after_or_equal:today'
             ],
 
-            // Health Information with sanitization and validation
-            'health_conditions' => [
-                'nullable',
-                'string',
-                function ($attribute, $value, $fail) {
-                    if (preg_match('/<script\b[^>]*>.*<\/script>/is', $value)) {
-                        $fail('Health conditions cannot contain script tags.');
-                    }
-                }
-            ],
-            'medications' => [
-                'nullable',
-                'string',
-                function ($attribute, $value, $fail) {
-                    if (preg_match('/<script\b[^>]*>.*<\/script>/is', $value)) {
-                        $fail('Medications cannot contain script tags.');
-                    }
-                }
-            ],
-            'allergies' => [
-                'nullable',
-                'string',
-                function ($attribute, $value, $fail) {
-                    if (preg_match('/<script\b[^>]*>.*<\/script>/is', $value)) {
-                        $fail('Allergies cannot contain script tags.');
-                    }
-                }
-            ],
-            'blood_type' => [
-                'nullable', 
-                'string', 
-                'max:10',
-                'regex:/^(A|B|AB|O)[+-]?$/'
-            ],
-            'living_arrangement' => [
-                'nullable',
-                'string',
-                'min:3',
-                'max:100',
-                'regex:/^[A-Za-z0-9\s\.,\-\']+$/' // Letters, numbers, spaces, commas, dots, hyphens, apostrophes
-            ],
-
             // Emergency Contact with enhanced validation
             'emergency_contact_name' => [
                 'nullable',
@@ -754,6 +712,16 @@ class SeniorCitizenController extends Controller
                 'string',
                 'max:100',
                 'regex:/^[A-Za-z\s\-]+$/' // Only letters, spaces, and hyphens
+            ],
+            'emergency_contact_address' => [
+                'nullable',
+                'string',
+                'max:500',
+                function ($attribute, $value, $fail) {
+                    if (preg_match('/<script\b[^>]*>.*<\/script>/is', $value)) {
+                        $fail('Emergency contact address cannot contain script tags.');
+                    }
+                }
             ],
 
             // Benefits information with enhanced numeric validation
@@ -781,9 +749,8 @@ class SeniorCitizenController extends Controller
         ], [
             // Custom error messages
             'senior_id_number.regex' => 'Senior ID number can only contain letters, numbers, and hyphens.',
-            'blood_type.regex' => 'Blood type must be a valid format (A+, B-, AB+, O-, etc.).',
-            'living_arrangement.min' => 'Living arrangement must be at least 3 characters.',
-            'living_arrangement.regex' => 'Living arrangement can only contain letters, numbers, spaces, commas, dots, hyphens, and apostrophes.',
+            'health_condition.in' => 'Health condition must be one of: excellent, good, fair, poor, critical.',
+            'mobility_status.in' => 'Mobility status must be one of: independent, assisted, wheelchair, bedridden.',
             'emergency_contact_name.regex' => 'Emergency contact name can only contain letters, spaces, dots, hyphens, and apostrophes.',
             'emergency_contact_number.regex' => 'Please enter a valid phone number format.',
             'emergency_contact_relationship.regex' => 'Relationship can only contain letters, spaces, and hyphens.',

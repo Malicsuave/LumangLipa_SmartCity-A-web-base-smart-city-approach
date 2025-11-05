@@ -72,6 +72,52 @@ class Gad extends Model
     }
 
     /**
+     * Get the health record for this resident (if exists)
+     */
+    public function healthRecord()
+    {
+        return $this->hasOneThrough(
+            HealthRecord::class,
+            Resident::class,
+            'id', // Foreign key on residents table
+            'resident_id', // Foreign key on health_records table
+            'resident_id', // Local key on gads table
+            'id' // Local key on residents table
+        );
+    }
+
+    /**
+     * Check if resident is pregnant (from health record)
+     * Falls back to GAD record if health record doesn't exist
+     */
+    public function getIsPregnantAttribute($value)
+    {
+        // Try to get from health record first
+        $healthRecord = $this->resident?->healthRecord;
+        if ($healthRecord) {
+            return $healthRecord->is_pregnant;
+        }
+        
+        // Fall back to GAD record
+        return $value;
+    }
+
+    /**
+     * Get due date (from health record if available)
+     */
+    public function getDueDateAttribute($value)
+    {
+        // Try to get from health record first
+        $healthRecord = $this->resident?->healthRecord;
+        if ($healthRecord && $healthRecord->expected_delivery_date) {
+            return $healthRecord->expected_delivery_date;
+        }
+        
+        // Fall back to GAD record
+        return $value ? \Carbon\Carbon::parse($value) : null;
+    }
+
+    /**
      * Get available GAD program types
      * 
      * @return array

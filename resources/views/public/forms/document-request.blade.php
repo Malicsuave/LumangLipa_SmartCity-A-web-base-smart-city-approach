@@ -8,8 +8,8 @@
 <!-- Hero Section with Background -->
 <section class="position-relative" style="background: linear-gradient(135deg, #2A7BC4 0%, #1e5f8b 100%); padding-top: 4rem; padding-bottom: 2rem; margin-top: 0;">    <div class="container">
         <div class="text-center">
-            <h1 class="fw-bold mb-1 text-white" style="font-size: 2.5rem; margin-top: 2.5rem; margin-bottom: 0.5rem;">Document Request / Kahilingan ng Dokumento</h1>
-            <p class="text-white opacity-9" style="font-size: 1.1rem;">Request official barangay documents online / Humiling ng opisyal na mga dokumento ng barangay online</p>
+            <h1 class="fw-bold mb-1 text-white" style="font-size: 2.5rem; margin-top: 2.5rem; margin-bottom: 0.5rem;">Document Request</h1>
+            <p class="text-white opacity-9" style="font-size: 1.1rem;">Request official barangay documents online</p>
         </div>
     </div>
 </section>
@@ -70,7 +70,7 @@
                                             class="btn btn-outline-primary" 
                                             id="checkResidentBtn"
                                             style="height: 38px; padding: 0.375rem 0.75rem; display: flex; align-items: center; justify-content: center; border: 1px solid #0d6efd !important; white-space: nowrap;">
-                                        <i class="fas fa-search"></i> I-Verify
+                                        <i class="fas fa-search"></i> Verify
                                     </button>
                                 </div>
                                 <small class="form-text text-muted">Enter your registered Barangay ID to verify your information / Ilagay ang inyong nakarehistro na Barangay ID upang ma-verify ang inyong impormasyon</small>
@@ -125,8 +125,8 @@
                                 </div>
                             </div>
                         </div>                        <!-- OTP Verification Section -->
-                        <div id="otpSection" class="card border-warning mb-4" style="display: none;">
-                            <div class="card-header bg-warning bg-opacity-10">
+                        <div id="otpSection" class="card mb-4" style="display: none; border: 2px solid #2A7BC4;">
+                            <div class="card-header" style="background: #2A7BC4;">
                                 <h6 class="mb-0 text-white" style="font-size: 1rem; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif !important; display: flex; align-items: center; gap: 0.5rem;">
                                     <i class="fas fa-shield-alt me-2" style="font-size: 1.1rem;"></i>
                                     Email Verification Required / Kailangan ang Pagpapatunay ng Email
@@ -135,13 +135,13 @@
                             <div class="card-body">
                                 <div id="otpRequestStep">
                                     <p class="mb-3">
-                                        <i class="fas fa-info-circle text-info me-2"></i>
+                                        <i class="fas fa-info-circle me-2" style="color: #2A7BC4;"></i>
                                         To proceed with your document request, we need to verify your identity. 
                                         An OTP (One-Time Password) will be sent to your registered email address.
                                         <br><em class="text-muted">Upang magpatuloy sa inyong kahilingan ng dokumento, kailangan naming i-verify ang inyong pagkakakilanlan. 
                                         Ang isang OTP (One-Time Password) ay ipapadala sa inyong nakarehistro ng email address.</em>
                                     </p>
-                                    <button type="button" class="btn btn-warning" id="sendOtpBtn">
+                                    <button type="button" class="btn btn-outline-primary" id="sendOtpBtn" style="border-color: #2A7BC4; color: #2A7BC4;">
                                         <i class="fas fa-envelope me-2"></i>
                                         Ipadala ang OTP sa Email
                                     </button>
@@ -160,10 +160,9 @@
                                                    id="otp_code" 
                                                    placeholder="000000" 
                                                    maxlength="6"
-                                                   pattern="[0-9]{6}">
-                                        </div>
+                                                   pattern="[0-9]{6}">                                        </div>
                                         <div class="col-md-6 d-flex gap-2">
-                                            <button type="button" class="btn btn-success flex-fill" id="verifyOtpBtn">
+                                            <button type="button" class="btn btn-outline-primary flex-fill" id="verifyOtpBtn" style="border-color: #2A7BC4; color: #2A7BC4;">
                                                 Verify OTP
                                             </button>
                                             <button type="button" class="btn btn-outline-secondary flex-fill" id="resendOtpBtn">
@@ -409,20 +408,40 @@
 </div>
 
 <style>
-.btn-warning#sendOtpBtn {
-    background: #fff !important;
+/* OTP Send button - outlined blue with solid blue on hover */
+#sendOtpBtn {
+    border-color: #2A7BC4 !important;
     color: #2A7BC4 !important;
-    border: 1.5px solid #2A7BC4 !important;
-    border-radius: 8px !important;
-    font-size: 1rem !important;
-    padding: 0.5rem 1.5rem !important;
-    font-weight: 500 !important;
-    box-shadow: none !important;
-    transition: background 0.2s, color 0.2s;
+    background-color: transparent !important;
+    transition: all 0.3s ease;
 }
-.btn-warning#sendOtpBtn:hover {
-    background: #2A7BC4 !important;
-    color: #fff !important;
+
+#sendOtpBtn:hover {
+    background-color: #2A7BC4 !important;
+    color: white !important;
+    border-color: #2A7BC4 !important;
+}
+
+#sendOtpBtn:focus {
+    box-shadow: 0 0 0 0.2rem rgba(42, 123, 196, 0.25) !important;
+}
+
+/* OTP Verify button - outlined blue with solid blue on hover */
+#verifyOtpBtn {
+    border-color: #2A7BC4 !important;
+    color: #2A7BC4 !important;
+    background-color: transparent !important;
+    transition: all 0.3s ease;
+}
+
+#verifyOtpBtn:hover {
+    background-color: #2A7BC4 !important;
+    color: white !important;
+    border-color: #2A7BC4 !important;
+}
+
+#verifyOtpBtn:focus {
+    box-shadow: 0 0 0 0.2rem rgba(42, 123, 196, 0.25) !important;
 }
 /* Modern OTP Card Design */
 #otpSection.card {
@@ -473,29 +492,17 @@
     border: 1.5px solid #2A7BC4 !important;
     background: #fff !important;
     margin-bottom: 1rem !important;
+    text-align: center !important;
+}
+
+#otp_code::placeholder {
+    text-align: center !important;
 }
 #otpSection .row.align-items-end {
     margin-top: 1rem !important;
     gap: 0.5rem;
 }
-/* Unified OTP buttons: white background, blue outline, blue text */
-#otpSection .btn-success,
-#otpSection .btn-outline-secondary {
-    background: #fff !important;
-    color: #2A7BC4 !important;
-    border: 1.5px solid #2A7BC4 !important;
-    border-radius: 8px !important;
-    font-size: 1rem !important;
-    padding: 0.5rem 1.5rem !important;
-    font-weight: 500 !important;
-    box-shadow: none !important;
-    transition: background 0.2s, color 0.2s;
-}
-#otpSection .btn-success:hover,
-#otpSection .btn-outline-secondary:hover {
-    background: #2A7BC4 !important;
-    color: #fff !important;
-}
+
 #otpTimer {
     font-weight: 600 !important;
     color: #2A7BC4 !important;

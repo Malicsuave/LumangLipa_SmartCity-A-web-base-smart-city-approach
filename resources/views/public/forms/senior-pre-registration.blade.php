@@ -1,4 +1,4 @@
-@extends('layouts.public.master')
+8uk@extends('layouts.public.master')
 
 @section('title', 'Senior Citizen Pre-Registration')
 

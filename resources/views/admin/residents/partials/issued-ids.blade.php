@@ -55,18 +55,16 @@
                                 <td><strong>{{ $resident->barangay_id }}</strong></td>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        <div class="avatar avatar-sm mr-2">
-                                            @if($resident->photo)
-                                                <img src="{{ $resident->photo_url }}" 
+                                        <div class="mr-2">
+                                            @if($resident->photo && file_exists(storage_path('app/public/residents/photos/' . $resident->photo)))
+                                                <img src="{{ asset('storage/residents/photos/' . $resident->photo) }}" 
                                                      alt="{{ $resident->full_name }}" 
-                                                     class="avatar-img rounded-circle"
-                                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-                                                     loading="lazy">
-                                                <div class="avatar-letter rounded-circle bg-secondary" style="display: none;">
-                                                    {{ substr($resident->first_name, 0, 1) }}
-                                                </div>
+                                                     class="rounded-circle"
+                                                     style="width: 40px; height: 40px; object-fit: cover; border: 1px solid #dee2e6;"
+                                                     onerror="this.onerror=null; this.outerHTML='<div class=\'rounded-circle d-inline-flex align-items-center justify-content-center text-white\' style=\'width: 40px; height: 40px; font-size: 14px; font-weight: bold; background-color: {{ $resident->sex === "Female" ? "#e91e63" : "#2196f3" }};\'>{{ substr($resident->first_name, 0, 1) }}</div>';">
                                             @else
-                                                <div class="avatar-letter rounded-circle" style="background-color: {{ $resident->sex === 'Female' ? '#e91e63' : '#2196f3' }};">
+                                                <div class="rounded-circle d-inline-flex align-items-center justify-content-center text-white" 
+                                                     style="width: 40px; height: 40px; font-size: 14px; font-weight: bold; background-color: {{ $resident->sex === 'Female' ? '#e91e63' : '#2196f3' }};">
                                                     {{ substr($resident->first_name, 0, 1) }}
                                                 </div>
                                             @endif
@@ -104,14 +102,14 @@
                                                 <i class="fas fa-id-card mr-2"></i>Manage ID
                                             </a>
                                             <a class="dropdown-item" href="{{ route('admin.residents.id.preview', $resident->id) }}">
-                                                <i class="fas fa-image text-info mr-2"></i>Preview ID
+                                                <i class="fas fa-image mr-2"></i>Preview ID
                                             </a>
                                             <a class="dropdown-item" href="{{ route('admin.residents.id.download', $resident->id) }}">
-                                                <i class="fas fa-download text-success mr-2"></i>Download ID
+                                                <i class="fas fa-download mr-2"></i>Download ID
                                             </a>
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item" href="#" onclick="event.preventDefault(); if(confirm('Are you sure you want to revoke this resident\'s ID? This action cannot be undone.')){ document.getElementById('revoke-issued-{{ $resident->id }}').submit(); }">
-                                                <i class="fas fa-times-circle text-danger mr-2"></i>Revoke ID
+                                                <i class="fas fa-times-circle mr-2"></i>Revoke ID
                                             </a>
                                             <form id="revoke-issued-{{ $resident->id }}" action="{{ route('admin.residents.id.revoke', $resident->id) }}" method="POST" style="display:none;">
                                                 @csrf
@@ -149,45 +147,8 @@
 </div>
 
 <style>
-.avatar {
-    position: relative;
-    width: 40px;
-    height: 40px;
-}
-.avatar-sm {
-    width: 32px;
-    height: 32px;
-}
-.avatar-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border: 1px solid #dee2e6;
-}
-.avatar-letter {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    color: white;
-    font-size: 14px;
-    font-weight: bold;
-}
-
 /* Responsive adjustments for smaller screens */
 @media (max-width: 768px) {
-    .avatar {
-        width: 28px;
-        height: 28px;
-    }
-    .avatar-sm {
-        width: 24px;
-        height: 24px;
-    }
-    .avatar-letter {
-        font-size: 11px;
-    }
     /* Adjust table layout for mobile */
     .table-responsive table td {
         padding: 0.5rem 0.25rem;
@@ -197,24 +158,9 @@
         flex-direction: row;
         align-items: center;
     }
-    .table-responsive table td .avatar {
-        margin-right: 0.5rem;
-        flex-shrink: 0;
-    }
 }
 
 @media (max-width: 576px) {
-    .avatar {
-        width: 24px;
-        height: 24px;
-    }
-    .avatar-sm {
-        width: 20px;
-        height: 20px;
-    }
-    .avatar-letter {
-        font-size: 10px;
-    }
     .table-responsive table td {
         padding: 0.375rem 0.25rem;
         font-size: 0.8rem;
